@@ -52,9 +52,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertArrayHasKey('f_index', $indexes);
         $this->assertIndexEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('f_index'))
+                ->setUnquotedName('f_index')
                 ->setType(IndexType::FULLTEXT)
-                ->setColumnNames(UnqualifiedName::unquoted('text'))
+                ->setUnquotedColumnNames('text')
                 ->create(),
             $indexes['f_index'],
         );
@@ -76,9 +76,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertArrayHasKey('s_index', $indexes);
         $this->assertIndexEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('s_index'))
+                ->setUnquotedName('s_index')
                 ->setType(IndexType::SPATIAL)
-                ->setColumnNames(UnqualifiedName::unquoted('point'))
+                ->setUnquotedColumnNames('point')
                 ->create(),
             $indexes['s_index'],
         );
@@ -96,7 +96,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertArrayHasKey('text_index', $indexes);
         $this->assertIndexEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('text_index'))
+                ->setUnquotedName('text_index')
                 ->setColumns(
                     new IndexedColumn(UnqualifiedName::unquoted('text'), 128),
                 )

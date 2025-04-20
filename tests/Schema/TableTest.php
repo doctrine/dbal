@@ -257,12 +257,12 @@ class TableTest extends TestCase
         ];
         $indexes = [
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('foo_idx'))
-                ->setColumnNames(UnqualifiedName::unquoted('foo'))
+                ->setUnquotedName('foo_idx')
+                ->setUnquotedColumnNames('foo')
                 ->create(),
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('bar_idx'))
-                ->setColumnNames(UnqualifiedName::unquoted('bar'))
+                ->setUnquotedName('bar_idx')
+                ->setUnquotedColumnNames('bar')
                 ->create(),
         ];
 
@@ -287,12 +287,12 @@ class TableTest extends TestCase
     public function testAddTwoIndexesWithSameNameThrowsException(): void
     {
         $index1 = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx'))
-            ->setColumnNames(UnqualifiedName::unquoted('foo'))
+            ->setUnquotedName('foo_idx')
+            ->setUnquotedColumnNames('foo')
             ->create();
 
         $index2 = $index1->edit()
-            ->setColumnNames(UnqualifiedName::unquoted('bar'))
+            ->setUnquotedColumnNames('bar')
             ->create();
 
         $type    = Type::getType(Types::INTEGER);
@@ -700,8 +700,8 @@ class TableTest extends TestCase
 
         self::assertEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('idx_new'))
-                ->setColumnNames(UnqualifiedName::unquoted('foo'))
+                ->setUnquotedName('idx_new')
+                ->setUnquotedColumnNames('foo')
                 ->setIsClustered(true)
                 ->create(),
             $table->getIndex('idx_new'),
@@ -709,11 +709,8 @@ class TableTest extends TestCase
 
         self::assertEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('uniq_new'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('bar'),
-                    UnqualifiedName::unquoted('baz'),
-                )
+                ->setUnquotedName('uniq_new')
+                ->setUnquotedColumnNames('bar', 'baz')
                 ->setType(IndexType::UNIQUE)
                 ->create(),
             $table->getIndex('uniq_new'),
@@ -731,8 +728,8 @@ class TableTest extends TestCase
 
         self::assertEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('IDX_D87F7E0C8C736521'))
-                ->setColumnNames(UnqualifiedName::unquoted('foo'))
+                ->setUnquotedName('IDX_D87F7E0C8C736521')
+                ->setUnquotedColumnNames('foo')
                 ->setIsClustered(true)
                 ->create(),
             $table->getIndex('IDX_D87F7E0C8C736521'),
@@ -740,11 +737,8 @@ class TableTest extends TestCase
 
         self::assertEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('UNIQ_D87F7E0C76FF8CAA78240498'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('bar'),
-                    UnqualifiedName::unquoted('baz'),
-                )
+                ->setUnquotedName('UNIQ_D87F7E0C76FF8CAA78240498')
+                ->setUnquotedColumnNames('bar', 'baz')
                 ->setType(IndexType::UNIQUE)
                 ->create(),
             $table->getIndex('UNIQ_D87F7E0C76FF8CAA78240498'),

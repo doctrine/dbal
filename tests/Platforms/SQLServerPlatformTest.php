@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -559,10 +558,8 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testCreateClusteredIndex(): void
     {
         $index = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx'))
-            ->setColumnNames(
-                UnqualifiedName::unquoted('id'),
-            )
+            ->setUnquotedName('idx')
+            ->setUnquotedColumnNames('id')
             ->setIsClustered(true)
             ->create();
 

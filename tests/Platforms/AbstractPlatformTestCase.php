@@ -162,11 +162,8 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGeneratesIndexCreationSql(): void
     {
         $index = Index::editor()
-            ->setName(UnqualifiedName::unquoted('my_idx'))
-            ->setColumnNames(
-                UnqualifiedName::unquoted('user_name'),
-                UnqualifiedName::unquoted('last_login'),
-            )
+            ->setUnquotedName('my_idx')
+            ->setUnquotedColumnNames('user_name', 'last_login')
             ->create();
 
         self::assertEquals(
@@ -559,10 +556,8 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'idx_foo' => Index::editor()
-                ->setName(UnqualifiedName::unquoted('idx_bar'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedName('idx_bar')
+                ->setUnquotedColumnNames('id')
                 ->create(),
         ]);
 
@@ -593,16 +588,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'create' => Index::editor()
-                ->setName(UnqualifiedName::unquoted('select'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedName('select')
+                ->setUnquotedColumnNames('id')
                 ->create(),
             'foo' => Index::editor()
-                ->setName(UnqualifiedName::unquoted('bar'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedName('bar')
+                ->setUnquotedColumnNames('id')
                 ->create(),
         ]);
 
@@ -635,10 +626,8 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'idx_foo' => Index::editor()
-                ->setName(UnqualifiedName::unquoted('idx_bar'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedName('idx_bar')
+                ->setUnquotedColumnNames('id')
                 ->create(),
         ]);
 
@@ -669,16 +658,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'create' => Index::editor()
-                ->setName(UnqualifiedName::unquoted('select'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedName('select')
+                ->setUnquotedColumnNames('id')
                 ->create(),
             'foo' => Index::editor()
-                ->setName(UnqualifiedName::unquoted('bar'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedName('bar')
+                ->setUnquotedColumnNames('id')
                 ->create(),
         ]);
 
@@ -813,10 +798,8 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff = new TableDiff($primaryTable, renamedIndexes: [
             'idx_foo' => Index::editor()
-                ->setName(UnqualifiedName::unquoted('idx_foo_renamed'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('foo'),
-                )
+                ->setUnquotedName('idx_foo_renamed')
+                ->setUnquotedColumnNames('foo')
                 ->create(),
         ]);
 
@@ -1005,7 +988,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         }
 
         $index = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_username'))
+            ->setUnquotedName('idx_username')
             ->setColumns(
                 new IndexedColumn(UnqualifiedName::unquoted('username'), 32),
             )
@@ -1026,11 +1009,9 @@ abstract class AbstractPlatformTestCase extends TestCase
         }
 
         $index = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_test'))
+            ->setUnquotedName('idx_test')
             ->setType($type)
-            ->setColumnNames(
-                UnqualifiedName::unquoted('test'),
-            )
+            ->setUnquotedColumnNames('test')
             ->create();
 
         $this->expectException(UnsupportedIndexDefinition::class);
@@ -1044,10 +1025,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         }
 
         $index = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_sku'))
-            ->setColumnNames(
-                UnqualifiedName::unquoted('sku'),
-            )
+            ->setUnquotedName('idx_sku')
+            ->setUnquotedColumnNames('sku')
             ->setIsClustered(true)
             ->create();
 
@@ -1062,10 +1041,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         }
 
         $index = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_username'))
-            ->setColumnNames(
-                UnqualifiedName::unquoted('username'),
-            )
+            ->setUnquotedName('idx_username')
+            ->setUnquotedColumnNames('username')
             ->setPredicate('is_active = 1')
             ->create();
 

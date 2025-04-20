@@ -14,7 +14,6 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -186,11 +185,8 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesIndexCreationSqlWithSchema(): void
     {
         $index = Index::editor()
-            ->setName(UnqualifiedName::unquoted('i'))
-            ->setColumnNames(
-                UnqualifiedName::unquoted('a'),
-                UnqualifiedName::unquoted('b'),
-            )
+            ->setUnquotedName('i')
+            ->setUnquotedColumnNames('a', 'b')
             ->create();
 
         self::assertSame(

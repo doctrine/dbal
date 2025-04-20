@@ -400,16 +400,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->assertIndexListEquals([
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('test_index_name'))
-                ->setColumnNames(UnqualifiedName::unquoted('test'))
+                ->setUnquotedName('test_index_name')
+                ->setUnquotedColumnNames('test')
                 ->setType(IndexType::UNIQUE)
                 ->create(),
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('test_composite_idx'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                    UnqualifiedName::unquoted('test'),
-                )
+                ->setUnquotedName('test_composite_idx')
+                ->setUnquotedColumnNames('id', 'test')
                 ->create(),
         ], $this->schemaManager->listTableIndexes('list_table_indexes_test'));
     }
@@ -426,8 +423,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->assertIndexListEquals([
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('test'))
-                ->setColumnNames(UnqualifiedName::unquoted('test'))
+                ->setUnquotedName('test')
+                ->setUnquotedColumnNames('test')
                 ->setType(IndexType::UNIQUE)
                 ->create(),
         ], $this->schemaManager->listTableIndexes('test_create_index'));
@@ -455,12 +452,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->assertIndexListEquals(
             [
                 Index::editor()
-                    ->setName(
-                        UnqualifiedName::unquoted('uniq_id'),
-                    )
-                    ->setColumnNames(
-                        UnqualifiedName::unquoted('id'),
-                    )
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
                     ->setType(IndexType::UNIQUE)
                     ->create(),
             ],
@@ -553,8 +546,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->assertIndexEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('foo_idx'))
-                ->setColumnNames(UnqualifiedName::unquoted('foo'))
+                ->setUnquotedName('foo_idx')
+                ->setUnquotedColumnNames('foo')
                 ->create(),
             $table->getIndex('foo_idx'),
         );
@@ -573,10 +566,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->assertIndexEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('foo_idx'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('foo'),
-                    UnqualifiedName::unquoted('foreign_key_test'),
+                ->setUnquotedName('foo_idx')
+                ->setUnquotedColumnNames(
+                    'foo',
+                    'foreign_key_test',
                 )
                 ->create(),
             $table->getIndex('foo_idx'),
@@ -597,10 +590,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->assertIndexEquals(
             Index::editor()
-                ->setName(UnqualifiedName::unquoted('bar_idx'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('foo'),
-                    UnqualifiedName::unquoted('foreign_key_test'),
+                ->setUnquotedName('bar_idx')
+                ->setUnquotedColumnNames(
+                    'foo',
+                    'foreign_key_test',
                 )
                 ->create(),
             $table->getIndex('bar_idx'),
@@ -1352,10 +1345,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->assertIndexListEquals([
             Index::editor()
-                ->setName(UnqualifiedName::quoted('Idx_Artist_Name'))
-                ->setColumnNames(
-                    UnqualifiedName::quoted('Name'),
-                )
+                ->setQuotedName('Idx_Artist_Name')
+                ->setQuotedColumnNames('Name')
                 ->create(),
         ], $artists->getIndexes());
 

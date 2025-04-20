@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
@@ -838,7 +837,7 @@ class SQLitePlatform extends AbstractPlatform
                     continue 2;
                 }
 
-                $columnNames[] = UnqualifiedName::quoted($nameMap[$name]);
+                $columnNames[] = $nameMap[$name];
                 if ($name === $nameMap[$name]) {
                     continue;
                 }
@@ -851,7 +850,7 @@ class SQLitePlatform extends AbstractPlatform
             }
 
             $indexes[$key] = $index->edit()
-                ->setColumnNames(...$columnNames)
+                ->setUnquotedColumnNames(...$columnNames)
                 ->create();
         }
 

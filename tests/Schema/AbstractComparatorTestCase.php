@@ -375,10 +375,8 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertEquals(
             new TableDiff($tableA, renamedIndexes: [
                 'foo_bar_idx' => Index::editor()
-                    ->setName(UnqualifiedName::unquoted('bar_foo_idx'))
-                    ->setColumnNames(
-                        UnqualifiedName::unquoted('id'),
-                    )
+                    ->setUnquotedName('bar_foo_idx')
+                    ->setUnquotedColumnNames('id')
                     ->create(),
             ]),
             $this->comparator->compareTables($tableA, $tableB),

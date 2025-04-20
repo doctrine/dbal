@@ -1038,7 +1038,7 @@ abstract class AbstractSchemaManager
 
         return array_map(static function ($data) {
             $editor = Index::editor()
-                ->setName(UnqualifiedName::quoted($data['name']))
+                ->setQuotedName($data['name'])
                 ->setType($data['type']);
 
             $columns = [];
