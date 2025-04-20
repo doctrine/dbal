@@ -13,7 +13,6 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -68,10 +67,10 @@ final class ForeignKeyConstraintViolationsTest extends FunctionalTestCase
             );
         } else {
             $constraint = ForeignKeyConstraint::editor()
-                ->setName(UnqualifiedName::unquoted($constraintName))
-                ->setReferencedTableName(OptionallyQualifiedName::unquoted('test_t2'))
-                ->setReferencingColumnNames(UnqualifiedName::unquoted('ref_id'))
-                ->setReferencedColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedName($constraintName)
+                ->setUnquotedReferencedTableName('test_t2')
+                ->setUnquotedReferencingColumnNames('ref_id')
+                ->setUnquotedReferencedColumnNames('id')
                 ->create();
 
             $schemaManager->createForeignKey($constraint, 'test_t1');

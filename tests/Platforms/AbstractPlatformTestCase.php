@@ -23,7 +23,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
-use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -195,9 +194,9 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGeneratesForeignKeyCreationSql(): void
     {
         $fk = ForeignKeyConstraint::editor()
-            ->setReferencingColumnNames(UnqualifiedName::unquoted('fk_name_id'))
-            ->setReferencedTableName(OptionallyQualifiedName::unquoted('other_table'))
-            ->setReferencedColumnNames(UnqualifiedName::unquoted('id'))
+            ->setUnquotedReferencingColumnNames('fk_name_id')
+            ->setUnquotedReferencedTableName('other_table')
+            ->setUnquotedReferencedColumnNames('id')
             ->create();
 
         $sql = $this->platform->getCreateForeignKeySQL($fk, 'test');

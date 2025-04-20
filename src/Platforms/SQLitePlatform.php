@@ -902,7 +902,7 @@ class SQLitePlatform extends AbstractPlatform
                     continue 2;
                 }
 
-                $referencingColumnNames[] = UnqualifiedName::unquoted($nameMap[$normalizedColumnName]);
+                $referencingColumnNames[] = $nameMap[$normalizedColumnName];
 
                 if ($originalColumnName === $nameMap[$normalizedColumnName]) {
                     continue;
@@ -916,7 +916,7 @@ class SQLitePlatform extends AbstractPlatform
             }
 
             $foreignKeys[$key] = $constraint->edit()
-                ->setReferencingColumnNames(...$referencingColumnNames)
+                ->setUnquotedReferencingColumnNames(...$referencingColumnNames)
                 ->create();
         }
 

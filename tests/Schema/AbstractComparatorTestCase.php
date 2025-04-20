@@ -700,15 +700,9 @@ abstract class AbstractComparatorTestCase extends TestCase
                 [],
                 [
                     ForeignKeyConstraint::editor()
-                        ->setReferencingColumnNames(
-                            UnqualifiedName::unquoted('id_table1'),
-                        )
-                        ->setReferencedTableName(
-                            OptionallyQualifiedName::unquoted('table1'),
-                        )
-                        ->setReferencedColumnNames(
-                            UnqualifiedName::unquoted('fk_table2_table1'),
-                        )
+                        ->setUnquotedReferencingColumnNames('id_table1')
+                        ->setUnquotedReferencedTableName('table1')
+                        ->setUnquotedReferencedColumnNames('fk_table2_table1')
                         ->create(),
                 ],
             ),
@@ -724,18 +718,10 @@ abstract class AbstractComparatorTestCase extends TestCase
                 [],
                 [
                     ForeignKeyConstraint::editor()
-                        ->setName(
-                            UnqualifiedName::unquoted('fk_table2_table3'),
-                        )
-                        ->setReferencingColumnNames(
-                            UnqualifiedName::unquoted('id_table3'),
-                        )
-                        ->setReferencedTableName(
-                            OptionallyQualifiedName::unquoted('table3'),
-                        )
-                        ->setReferencedColumnNames(
-                            UnqualifiedName::unquoted('id'),
-                        )
+                        ->setUnquotedName('fk_table2_table3')
+                        ->setUnquotedReferencingColumnNames('id_table3')
+                        ->setUnquotedReferencedTableName('table3')
+                        ->setUnquotedReferencedColumnNames('id')
                         ->create(),
                 ],
             ),

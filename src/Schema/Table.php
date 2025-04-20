@@ -420,16 +420,19 @@ class Table extends AbstractNamedObject
 
         $deferrability = $this->parseDeferrability($options);
 
+        $editor = ForeignKeyConstraint::editor();
+
         if ($name !== null) {
-            $constraintName = $this->parseUnqualifiedName($name);
+            $editor->setName(
+                $this->parseUnqualifiedName($name),
+            );
         } else {
-            $constraintName = UnqualifiedName::unquoted(
+            $editor->setUnquotedName(
                 $this->generateName('fk', $referencingColumnNames),
             );
         }
 
-        $constraint = ForeignKeyConstraint::editor()
-            ->setName($constraintName)
+        $constraint = $editor
             ->setReferencingColumnNames(...$referencingColumnNames)
             ->setReferencedTableName($referencedTableName)
             ->setReferencedColumnNames(...$referencedColumnNames)

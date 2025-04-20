@@ -59,9 +59,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         );
 
         $editor = ForeignKeyConstraint::editor()
-            ->setReferencedColumnNames(
-                UnqualifiedName::unquoted('id'),
-            );
+            ->setUnquotedReferencedColumnNames('id');
 
         $users = new Table('users', [
             new Column('id', Type::getType(Types::INTEGER)),
@@ -69,16 +67,12 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
             new Column('team_id', Type::getType(Types::INTEGER)),
         ], [], [], [
             $editor
-                ->setReferencedTableName($roles->getObjectName())
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('role_id'),
-                )
+                ->setUnquotedReferencedTableName('roles')
+                ->setUnquotedReferencingColumnNames('role_id')
                 ->create(),
             $editor
-                ->setReferencedTableName($teams->getObjectName())
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('team_id'),
-                )
+                ->setUnquotedReferencedTableName('teams')
+                ->setUnquotedReferencingColumnNames('team_id')
                 ->create(),
         ]);
         $users->addPrimaryKeyConstraint(
@@ -369,15 +363,9 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
             new Column('role_id', Type::getType(Types::INTEGER)),
         ], [], [], [
             ForeignKeyConstraint::editor()
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('role_id'),
-                )
-                ->setReferencedTableName(
-                    OptionallyQualifiedName::unquoted('roles'),
-                )
-                ->setReferencedColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedReferencingColumnNames('role_id')
+                ->setUnquotedReferencedTableName('roles')
+                ->setUnquotedReferencedColumnNames('id')
                 ->setDeferrability($deferrability)
                 ->create(),
         ]);

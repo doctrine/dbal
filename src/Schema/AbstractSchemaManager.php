@@ -1092,22 +1092,18 @@ abstract class AbstractSchemaManager
     protected function _getPortableTableForeignKeyDefinition(array $properties): ForeignKeyConstraint
     {
         $editor = ForeignKeyConstraint::editor()
-            ->setReferencedTableName(
-                OptionallyQualifiedName::quoted($properties['foreignTable'], $properties['foreignSchema'] ?? null),
+            ->setQuotedReferencedTableName($properties['foreignTable'], $properties['foreignSchema'] ?? null)
+            ->setQuotedReferencingColumnNames(
+                /** @phpstan-ignore argument.type */
+                ...$properties['local'],
             )
-            ->setReferencingColumnNames(...array_map(
+            ->setQuotedReferencedColumnNames(
                 /** @phpstan-ignore argument.type */
-                static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
-                $properties['local'],
-            ))
-            ->setReferencedColumnNames(...array_map(
-                /** @phpstan-ignore argument.type */
-                static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
-                $properties['foreign'],
-            ));
+                ...$properties['foreign'],
+            );
 
         if ($properties['name'] !== '') {
-            $editor->setName(UnqualifiedName::quoted($properties['name']));
+            $editor->setQuotedName($properties['name']);
         }
 
         if (isset($properties['onUpdate'])) {
