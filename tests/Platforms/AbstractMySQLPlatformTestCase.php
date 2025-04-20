@@ -12,7 +12,6 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -144,9 +143,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $keyTable->addColumn('baz', Types::STRING, ['length' => 32]);
         $keyTable->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('bar'),
-                )
+                ->setUnquotedColumnNames('bar')
                 ->create(),
         );
         $keyTable->addUniqueIndex(['baz']);

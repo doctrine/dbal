@@ -10,7 +10,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
@@ -35,9 +34,7 @@ class DataAccessTest extends FunctionalTestCase
         $table->addColumn('test_datetime', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('test_int'),
-                )
+                ->setUnquotedColumnNames('test_int')
                 ->create(),
         );
 
@@ -652,9 +649,7 @@ class DataAccessTest extends FunctionalTestCase
         $table->addColumn('test_days', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('test_date'),
-                )
+                ->setUnquotedColumnNames('test_date')
                 ->create(),
         );
 

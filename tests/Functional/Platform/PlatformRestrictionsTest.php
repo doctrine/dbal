@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -31,9 +30,7 @@ class PlatformRestrictionsTest extends FunctionalTestCase
         $table->addColumn($columnName, Types::INTEGER, ['autoincrement' => true]);
 
         $primaryKeyConstraint = PrimaryKeyConstraint::editor()
-            ->setColumnNames(
-                UnqualifiedName::unquoted($columnName),
-            )
+            ->setUnquotedColumnNames($columnName)
             ->create();
 
         $table->addPrimaryKeyConstraint($primaryKeyConstraint);

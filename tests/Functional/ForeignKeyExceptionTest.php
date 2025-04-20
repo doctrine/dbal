@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -30,9 +29,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $table->addColumn('id', 'integer', []);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -41,9 +38,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $owningTable->addColumn('constraint_id', 'integer', []);
         $owningTable->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $owningTable->addForeignKeyConstraint($table->getName(), ['constraint_id'], ['id']);

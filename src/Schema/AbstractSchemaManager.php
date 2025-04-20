@@ -980,19 +980,17 @@ abstract class AbstractSchemaManager
                 assert($row['constraint_name'] === $constraintName);
             }
 
-            $columnNames[] = UnqualifiedName::quoted($row['column_name']);
+            $columnNames[] = $row['column_name'];
         }
 
          $editor = PrimaryKeyConstraint::editor();
 
         if ($constraintName !== null) {
-            $editor->setName(
-                UnqualifiedName::quoted($constraintName),
-            );
+            $editor->setQuotedName($constraintName);
         }
 
         return $editor
-            ->setColumnNames(...$columnNames)
+            ->setQuotedColumnNames(...$columnNames)
             ->setIsClustered($isClustered)
             ->create();
     }

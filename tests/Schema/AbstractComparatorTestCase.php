@@ -545,9 +545,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         $table->addColumn('displayName', Types::STRING, ['length' => 32]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -558,9 +556,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         $newtable->addColumn('logged_in_at', Types::DATETIME_MUTABLE);
         $newtable->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 

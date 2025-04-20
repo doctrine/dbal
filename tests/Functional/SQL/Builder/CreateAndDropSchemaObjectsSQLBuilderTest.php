@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional\SQL\Builder;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -52,9 +51,7 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
         $table->addForeignKeyConstraint($otherName->toString(), ['other_id'], ['id']);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 

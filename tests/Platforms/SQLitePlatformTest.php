@@ -235,9 +235,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('"like"', Types::INTEGER, ['notnull' => true, 'autoincrement' => true]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::quoted('like'),
-                )
+                ->setUnquotedColumnNames('like')
                 ->create(),
         );
 
@@ -293,9 +291,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('parent', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $table->addForeignKeyConstraint('article', ['article'], ['id'], ['deferrable' => true]);
@@ -330,9 +326,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('parent', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $table->addForeignKeyConstraint('article', ['article'], ['id'], ['deferrable' => true]);
@@ -663,10 +657,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('id2', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id1'),
-                    UnqualifiedName::unquoted('id2'),
-                )
+                ->setUnquotedColumnNames('id1', 'id2')
                 ->create(),
         );
 

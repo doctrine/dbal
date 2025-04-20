@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -35,9 +34,7 @@ class BinaryDataAccessTest extends FunctionalTestCase
         $table->addColumn('test_binary', 'binary', ['notnull' => false, 'length' => 4]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('test_int'),
-                )
+                ->setUnquotedColumnNames('test_int')
                 ->create(),
         );
 

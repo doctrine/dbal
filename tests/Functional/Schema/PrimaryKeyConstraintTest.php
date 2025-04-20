@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -31,12 +30,8 @@ final class PrimaryKeyConstraintTest extends FunctionalTestCase
         }
 
         $primaryKeyConstraint = PrimaryKeyConstraint::editor()
-            ->setName(
-                UnqualifiedName::unquoted('users_pk'),
-            )
-            ->setColumnNames(
-                UnqualifiedName::unquoted('id'),
-            )
+            ->setUnquotedName('users_pk')
+            ->setUnquotedColumnNames('id')
             ->create();
 
         $table = new Table('users');
@@ -67,9 +62,7 @@ final class PrimaryKeyConstraintTest extends FunctionalTestCase
         }
 
         $primaryKeyConstraint = PrimaryKeyConstraint::editor()
-            ->setColumnNames(
-                UnqualifiedName::unquoted('id'),
-            )
+            ->setUnquotedColumnNames('id')
             ->setIsClustered($isClustered)
             ->create();
 

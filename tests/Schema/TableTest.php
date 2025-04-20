@@ -638,7 +638,7 @@ class TableTest extends TestCase
 
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('foo'))
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 

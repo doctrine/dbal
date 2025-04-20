@@ -12,7 +12,6 @@ use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -56,9 +55,7 @@ class MySQLSchemaTest extends TestCase
         $tableNew = $tableOld->edit()
             ->setPrimaryKeyConstraint(
                 PrimaryKeyConstraint::editor()
-                    ->setColumnNames(
-                        UnqualifiedName::unquoted('id'),
-                    )
+                    ->setUnquotedColumnNames('id')
                     ->create(),
             )
             ->create();

@@ -135,7 +135,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('test', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -243,7 +243,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('create', Types::STRING, ['length' => 255]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('create'))
+                ->setUnquotedColumnNames('create')
                 ->create(),
         );
 
@@ -553,7 +553,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -587,7 +587,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -629,7 +629,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -663,7 +663,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -798,7 +798,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable->addColumn('id', Types::INTEGER);
         $foreignTable->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -966,10 +966,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setName(
-                    UnqualifiedName::unquoted('users_pk'),
-                )
-                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedName('users_pk')
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -992,7 +990,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setIsClustered(false)
-                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
