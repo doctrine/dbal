@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -24,10 +23,10 @@ final class UniqueConstraintTest extends FunctionalTestCase
             new Column('email', Type::getType(Types::STRING), ['length' => 255]),
         ], [], [
             UniqueConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('username'))
+                ->setUnquotedColumnNames('username')
                 ->create(),
             UniqueConstraint::editor()
-                ->setColumnNames(UnqualifiedName::unquoted('email'))
+                ->setUnquotedColumnNames('email')
                 ->create(),
         ], []);
 

@@ -181,12 +181,9 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGeneratesUniqueIndexCreationSql(): void
     {
         $index = Index::editor()
-            ->setName(UnqualifiedName::unquoted('index_name'))
+            ->setUnquotedName('index_name')
             ->setType(IndexType::UNIQUE)
-            ->setColumnNames(
-                UnqualifiedName::unquoted('test'),
-                UnqualifiedName::unquoted('test2'),
-            )
+            ->setUnquotedColumnNames('test', 'test2')
             ->create();
 
         $sql = $this->platform->getCreateIndexSQL($index, 'test');

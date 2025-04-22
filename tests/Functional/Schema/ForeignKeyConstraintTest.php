@@ -135,28 +135,16 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
 
         $foreignKeyConstraints = [
             ForeignKeyConstraint::editor()
-                ->setName(UnqualifiedName::unquoted('fk_roles'))
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('role_id1'),
-                    UnqualifiedName::unquoted('role_id2'),
-                )
-                ->setReferencedTableName($roles->getObjectName())
-                ->setReferencedColumnNames(
-                    UnqualifiedName::unquoted('r_id1'),
-                    UnqualifiedName::unquoted('r_id2'),
-                )
+                ->setUnquotedName('fk_roles')
+                ->setUnquotedReferencingColumnNames('role_id1', 'role_id2')
+                ->setUnquotedReferencedTableName('roles')
+                ->setUnquotedReferencedColumnNames('r_id1', 'r_id2')
                 ->create(),
             ForeignKeyConstraint::editor()
-                ->setName(UnqualifiedName::unquoted('fk_teams'))
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('team_id1'),
-                    UnqualifiedName::unquoted('team_id2'),
-                )
-                ->setReferencedTableName($teams->getObjectName())
-                ->setReferencedColumnNames(
-                    UnqualifiedName::unquoted('t_id1'),
-                    UnqualifiedName::unquoted('t_id2'),
-                )
+                ->setUnquotedName('fk_teams')
+                ->setUnquotedReferencingColumnNames('team_id1', 'team_id2')
+                ->setUnquotedReferencedTableName('teams')
+                ->setUnquotedReferencedColumnNames('t_id1', 't_id2')
                 ->create(),
         ];
 
@@ -258,13 +246,9 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         );
 
         $editor = ForeignKeyConstraint::editor()
-            ->setReferencingColumnNames(
-                UnqualifiedName::unquoted('role_id'),
-            )
+            ->setUnquotedReferencingColumnNames('role_id')
             ->setReferencedTableName($roles->getObjectName())
-            ->setReferencedColumnNames(
-                UnqualifiedName::unquoted('id'),
-            );
+            ->setUnquotedReferencedColumnNames('id');
         $setter($editor, $action);
 
         $users = new Table('users', [

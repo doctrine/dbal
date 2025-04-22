@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_map;
-use function array_merge;
 use function array_values;
 use function count;
 
@@ -40,6 +39,22 @@ final class IndexEditor
         return $this;
     }
 
+    /** @param non-empty-string $name */
+    public function setUnquotedName(string $name): self
+    {
+        $this->name = UnqualifiedName::unquoted($name);
+
+        return $this;
+    }
+
+    /** @param non-empty-string $name */
+    public function setQuotedName(string $name): self
+    {
+        $this->name = UnqualifiedName::quoted($name);
+
+        return $this;
+    }
+
     public function setType(IndexType $type): self
     {
         $this->type = $type;
@@ -49,7 +64,7 @@ final class IndexEditor
 
     public function setColumns(IndexedColumn $firstColumn, IndexedColumn ...$otherColumns): self
     {
-        $this->columns = array_merge([$firstColumn], array_values($otherColumns));
+        $this->columns = [$firstColumn, ...array_values($otherColumns)];
 
         return $this;
     }
@@ -58,7 +73,39 @@ final class IndexEditor
     {
         $this->columns = array_map(
             static fn (UnqualifiedName $name) => new IndexedColumn($name, null),
-            array_merge([$firstColumnName], array_values($otherColumnNames)),
+            [$firstColumnName, ...array_values($otherColumnNames)],
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-string $firstColumnName
+     * @param non-empty-string ...$otherColumnNames
+     */
+    public function setUnquotedColumnNames(
+        string $firstColumnName,
+        string ...$otherColumnNames,
+    ): self {
+        $this->columns = array_map(
+            static fn (string $name): IndexedColumn => new IndexedColumn(UnqualifiedName::unquoted($name), null),
+            [$firstColumnName, ...array_values($otherColumnNames)],
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-string $firstColumnName
+     * @param non-empty-string ...$otherColumnNames
+     */
+    public function setQuotedColumnNames(
+        string $firstColumnName,
+        string ...$otherColumnNames,
+    ): self {
+        $this->columns = array_map(
+            static fn (string $name): IndexedColumn => new IndexedColumn(UnqualifiedName::quoted($name), null),
+            [$firstColumnName, ...array_values($otherColumnNames)],
         );
 
         return $this;

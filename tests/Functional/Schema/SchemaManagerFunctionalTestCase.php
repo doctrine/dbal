@@ -446,12 +446,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $uniqueConstraint = UniqueConstraint::editor()
-            ->setName(
-                UnqualifiedName::unquoted('uniq_id'),
-            )
-            ->setColumnNames(
-                UnqualifiedName::unquoted('id'),
-            )
+            ->setUnquotedName('uniq_id')
+            ->setUnquotedColumnNames('id')
             ->create();
 
         $this->schemaManager->createUniqueConstraint($uniqueConstraint, $table->getName());

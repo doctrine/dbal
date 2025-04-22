@@ -32,9 +32,7 @@ class UniqueConstraintTest extends TestCase
     public function testGetNullObjectName(): void
     {
         $uniqueConstraint = UniqueConstraint::editor()
-            ->setColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
+            ->setUnquotedColumnNames('user_id')
             ->create();
 
         self::assertNull($uniqueConstraint->getObjectName());

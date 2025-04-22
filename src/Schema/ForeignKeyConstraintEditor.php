@@ -11,7 +11,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
-use function array_merge;
+use function array_map;
 use function array_values;
 use function count;
 
@@ -50,11 +50,59 @@ final class ForeignKeyConstraintEditor
         return $this;
     }
 
+    /** @param non-empty-string $name */
+    public function setUnquotedName(string $name): self
+    {
+        $this->name = UnqualifiedName::unquoted($name);
+
+        return $this;
+    }
+
+    /** @param non-empty-string $name */
+    public function setQuotedName(string $name): self
+    {
+        $this->name = UnqualifiedName::quoted($name);
+
+        return $this;
+    }
+
     public function setReferencingColumnNames(
-        UnqualifiedName $firstColumName,
+        UnqualifiedName $firstColumnName,
         UnqualifiedName ...$otherColumnNames,
     ): self {
-        $this->referencingColumnNames = array_merge([$firstColumName], array_values($otherColumnNames));
+        $this->referencingColumnNames = [$firstColumnName, ...array_values($otherColumnNames)];
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-string $firstColumnName
+     * @param non-empty-string ...$otherColumnNames
+     */
+    public function setUnquotedReferencingColumnNames(
+        string $firstColumnName,
+        string ...$otherColumnNames,
+    ): self {
+        $this->referencingColumnNames = array_map(
+            static fn (string $name): UnqualifiedName => UnqualifiedName::unquoted($name),
+            [$firstColumnName, ...array_values($otherColumnNames)],
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-string $firstColumnName
+     * @param non-empty-string ...$otherColumnNames
+     */
+    public function setQuotedReferencingColumnNames(
+        string $firstColumnName,
+        string ...$otherColumnNames,
+    ): self {
+        $this->referencingColumnNames = array_map(
+            static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
+            [$firstColumnName, ...array_values($otherColumnNames)],
+        );
 
         return $this;
     }
@@ -66,11 +114,71 @@ final class ForeignKeyConstraintEditor
         return $this;
     }
 
+    /**
+     * @param non-empty-string  $unqualifiedReferencedTableName
+     * @param ?non-empty-string $referencedTableNameQualifier
+     */
+    public function setUnquotedReferencedTableName(
+        string $unqualifiedReferencedTableName,
+        ?string $referencedTableNameQualifier = null,
+    ): self {
+        $this->referencedTableName =
+            OptionallyQualifiedName::unquoted($unqualifiedReferencedTableName, $referencedTableNameQualifier);
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-string  $unqualifiedReferencedTableName
+     * @param ?non-empty-string $referencedTableNameQualifier
+     */
+    public function setQuotedReferencedTableName(
+        string $unqualifiedReferencedTableName,
+        ?string $referencedTableNameQualifier = null,
+    ): self {
+        $this->referencedTableName =
+            OptionallyQualifiedName::quoted($unqualifiedReferencedTableName, $referencedTableNameQualifier);
+
+        return $this;
+    }
+
     public function setReferencedColumnNames(
-        UnqualifiedName $firstColumName,
+        UnqualifiedName $firstColumnName,
         UnqualifiedName ...$otherColumnNames,
     ): self {
-        $this->referencedColumnNames = array_merge([$firstColumName], array_values($otherColumnNames));
+        $this->referencedColumnNames = [$firstColumnName, ...array_values($otherColumnNames)];
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-string $firstColumnName
+     * @param non-empty-string ...$otherColumnNames
+     */
+    public function setUnquotedReferencedColumnNames(
+        string $firstColumnName,
+        string ...$otherColumnNames,
+    ): self {
+        $this->referencedColumnNames = array_map(
+            static fn (string $name): UnqualifiedName => UnqualifiedName::unquoted($name),
+            [$firstColumnName, ...array_values($otherColumnNames)],
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-string $firstColumnName
+     * @param non-empty-string ...$otherColumnNames
+     */
+    public function setQuotedReferencedColumnNames(
+        string $firstColumnName,
+        string ...$otherColumnNames,
+    ): self {
+        $this->referencedColumnNames = array_map(
+            static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
+            [$firstColumnName, ...array_values($otherColumnNames)],
+        );
 
         return $this;
     }
