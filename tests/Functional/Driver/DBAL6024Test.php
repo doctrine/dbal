@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver;
 
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -27,9 +26,7 @@ class DBAL6024Test extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $this->dropAndCreateTable($table);

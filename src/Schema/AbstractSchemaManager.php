@@ -980,19 +980,17 @@ abstract class AbstractSchemaManager
                 assert($row['constraint_name'] === $constraintName);
             }
 
-            $columnNames[] = UnqualifiedName::quoted($row['column_name']);
+            $columnNames[] = $row['column_name'];
         }
 
          $editor = PrimaryKeyConstraint::editor();
 
         if ($constraintName !== null) {
-            $editor->setName(
-                UnqualifiedName::quoted($constraintName),
-            );
+            $editor->setQuotedName($constraintName);
         }
 
         return $editor
-            ->setColumnNames(...$columnNames)
+            ->setQuotedColumnNames(...$columnNames)
             ->setIsClustered($isClustered)
             ->create();
     }
@@ -1040,7 +1038,7 @@ abstract class AbstractSchemaManager
 
         return array_map(static function ($data) {
             $editor = Index::editor()
-                ->setName(UnqualifiedName::quoted($data['name']))
+                ->setQuotedName($data['name'])
                 ->setType($data['type']);
 
             $columns = [];
@@ -1092,22 +1090,18 @@ abstract class AbstractSchemaManager
     protected function _getPortableTableForeignKeyDefinition(array $properties): ForeignKeyConstraint
     {
         $editor = ForeignKeyConstraint::editor()
-            ->setReferencedTableName(
-                OptionallyQualifiedName::quoted($properties['foreignTable'], $properties['foreignSchema'] ?? null),
+            ->setQuotedReferencedTableName($properties['foreignTable'], $properties['foreignSchema'] ?? null)
+            ->setQuotedReferencingColumnNames(
+                /** @phpstan-ignore argument.type */
+                ...$properties['local'],
             )
-            ->setReferencingColumnNames(...array_map(
+            ->setQuotedReferencedColumnNames(
                 /** @phpstan-ignore argument.type */
-                static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
-                $properties['local'],
-            ))
-            ->setReferencedColumnNames(...array_map(
-                /** @phpstan-ignore argument.type */
-                static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
-                $properties['foreign'],
-            ));
+                ...$properties['foreign'],
+            );
 
         if ($properties['name'] !== '') {
-            $editor->setName(UnqualifiedName::quoted($properties['name']));
+            $editor->setQuotedName($properties['name']);
         }
 
         if (isset($properties['onUpdate'])) {

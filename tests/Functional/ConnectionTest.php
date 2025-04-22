@@ -13,7 +13,6 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -370,9 +369,7 @@ class ConnectionTest extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 

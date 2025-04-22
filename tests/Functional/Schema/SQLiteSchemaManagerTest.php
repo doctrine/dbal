@@ -64,16 +64,16 @@ EOS);
 
         $expected = [
             ForeignKeyConstraint::editor()
-                ->setName(UnqualifiedName::unquoted('FK_1'))
-                ->setReferencingColumnNames(UnqualifiedName::unquoted('page'))
-                ->setReferencedTableName(OptionallyQualifiedName::unquoted('page'))
-                ->setReferencedColumnNames(UnqualifiedName::unquoted('key'))
+                ->setUnquotedName('FK_1')
+                ->setUnquotedReferencingColumnNames('page')
+                ->setUnquotedReferencedTableName('page')
+                ->setUnquotedReferencedColumnNames('key')
                 ->setDeferrability(Deferrability::DEFERRED)
                 ->create(),
             ForeignKeyConstraint::editor()
-                ->setReferencingColumnNames(UnqualifiedName::unquoted('parent'))
-                ->setReferencedTableName(OptionallyQualifiedName::unquoted('user'))
-                ->setReferencedColumnNames(UnqualifiedName::unquoted('id'))
+                ->setUnquotedReferencingColumnNames('parent')
+                ->setUnquotedReferencedTableName('user')
+                ->setUnquotedReferencedColumnNames('id')
                 ->setOnDeleteAction(ReferentialAction::CASCADE)
                 ->create(),
         ];
@@ -165,9 +165,7 @@ SQL;
         $table->addColumn('text', Types::TEXT);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $this->dropAndCreateTable($table);

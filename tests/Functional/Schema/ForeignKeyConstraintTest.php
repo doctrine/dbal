@@ -18,7 +18,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\ForeignKeyConstraintEditor;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -42,9 +41,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $roles->addColumn('id', Types::INTEGER);
         $roles->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -52,16 +49,12 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $teams->addColumn('id', Types::INTEGER);
         $teams->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
         $editor = ForeignKeyConstraint::editor()
-            ->setReferencedColumnNames(
-                UnqualifiedName::unquoted('id'),
-            );
+            ->setUnquotedReferencedColumnNames('id');
 
         $users = new Table('users', [
             new Column('id', Type::getType(Types::INTEGER)),
@@ -69,23 +62,17 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
             new Column('team_id', Type::getType(Types::INTEGER)),
         ], [], [], [
             $editor
-                ->setReferencedTableName($roles->getObjectName())
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('role_id'),
-                )
+                ->setUnquotedReferencedTableName('roles')
+                ->setUnquotedReferencingColumnNames('role_id')
                 ->create(),
             $editor
-                ->setReferencedTableName($teams->getObjectName())
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('team_id'),
-                )
+                ->setUnquotedReferencedTableName('teams')
+                ->setUnquotedReferencingColumnNames('team_id')
                 ->create(),
         ]);
         $users->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -114,10 +101,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $roles->addColumn('r_id2', Types::INTEGER);
         $roles->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('r_id1'),
-                    UnqualifiedName::unquoted('r_id2'),
-                )
+                ->setUnquotedColumnNames('r_id1', 'r_id2')
                 ->create(),
         );
 
@@ -126,10 +110,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $teams->addColumn('t_id2', Types::INTEGER);
         $teams->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('t_id1'),
-                    UnqualifiedName::unquoted('t_id2'),
-                )
+                ->setUnquotedColumnNames('t_id1', 't_id2')
                 ->create(),
         );
 
@@ -158,10 +139,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         ], [], [], $foreignKeyConstraints);
         $users->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('u_id1'),
-                    UnqualifiedName::unquoted('u_id2'),
-                )
+                ->setUnquotedColumnNames('u_id1', 'u_id2')
                 ->create(),
         );
 
@@ -239,9 +217,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $roles->addColumn('id', Types::INTEGER);
         $roles->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -257,9 +233,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         ], [], [], [$editor->create()]);
         $users->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -358,9 +332,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $roles->addColumn('id', Types::INTEGER);
         $roles->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -369,23 +341,15 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
             new Column('role_id', Type::getType(Types::INTEGER)),
         ], [], [], [
             ForeignKeyConstraint::editor()
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('role_id'),
-                )
-                ->setReferencedTableName(
-                    OptionallyQualifiedName::unquoted('roles'),
-                )
-                ->setReferencedColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedReferencingColumnNames('role_id')
+                ->setUnquotedReferencedTableName('roles')
+                ->setUnquotedReferencedColumnNames('id')
                 ->setDeferrability($deferrability)
                 ->create(),
         ]);
         $users->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 

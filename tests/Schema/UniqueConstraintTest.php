@@ -16,16 +16,12 @@ class UniqueConstraintTest extends TestCase
     /** @throws Exception */
     public function testGetNonNullObjectName(): void
     {
-        $name = UnqualifiedName::unquoted('uq_user_id');
-
         $uniqueConstraint = UniqueConstraint::editor()
-            ->setName($name)
-            ->setColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
+            ->setUnquotedName('uq_user_id')
+            ->setUnquotedColumnNames('user_id')
             ->create();
 
-        self::assertEquals($name, $uniqueConstraint->getObjectName());
+        self::assertEquals(UnqualifiedName::unquoted('uq_user_id'), $uniqueConstraint->getObjectName());
     }
 
     /** @throws Exception */
@@ -40,13 +36,13 @@ class UniqueConstraintTest extends TestCase
 
     public function testGetColumnNames(): void
     {
-        $columnName = UnqualifiedName::unquoted('user_id');
-
         $uniqueConstraint = UniqueConstraint::editor()
-            ->setColumnNames($columnName)
+            ->setUnquotedColumnNames('user_id')
             ->create();
 
-        self::assertEquals([$columnName], $uniqueConstraint->getColumnNames());
+        self::assertEquals([
+            UnqualifiedName::unquoted('user_id'),
+        ], $uniqueConstraint->getColumnNames());
     }
 
     public function testEmptyColumnNames(): void
@@ -61,9 +57,7 @@ class UniqueConstraintTest extends TestCase
     public function testIsClustered(bool $isClustered): void
     {
         $uniqueConstraint = UniqueConstraint::editor()
-            ->setColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
+            ->setUnquotedColumnNames('user_id')
             ->setIsClustered($isClustered)
             ->create();
 

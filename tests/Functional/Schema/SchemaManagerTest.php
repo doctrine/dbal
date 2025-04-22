@@ -39,9 +39,7 @@ final class SchemaManagerTest extends FunctionalTestCase
         $tableForeign->addColumn('id', 'integer');
         $tableForeign->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $this->dropAndCreateTable($tableForeign);
@@ -51,9 +49,7 @@ final class SchemaManagerTest extends FunctionalTestCase
         $tableTo->addColumn('user_id', 'integer');
         $tableTo->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $tableTo->addForeignKeyConstraint($foreignTableName, ['user_id'], ['id']);
@@ -128,9 +124,7 @@ final class SchemaManagerTest extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => $autoincrement]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $this->dropAndCreateTable($table);
@@ -161,10 +155,7 @@ final class SchemaManagerTest extends FunctionalTestCase
         $table->addColumn('id2', Types::INTEGER);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id1'),
-                    UnqualifiedName::unquoted('id2'),
-                )
+                ->setUnquotedColumnNames('id1', 'id2')
                 ->create(),
         );
         $this->dropAndCreateTable($table);

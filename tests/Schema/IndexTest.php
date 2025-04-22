@@ -29,8 +29,8 @@ class IndexTest extends TestCase
     public static function fulfilledByProvider(): iterable
     {
         $regularIndex = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_user_id'))
-            ->setColumnNames(UnqualifiedName::unquoted('user_id'))
+            ->setUnquotedName('idx_user_id')
+            ->setUnquotedColumnNames('user_id')
             ->create();
 
         $uniqueIndex = $regularIndex->edit()
@@ -43,7 +43,7 @@ class IndexTest extends TestCase
             ->create();
 
         $upperCaseIndex = $regularIndex->edit()
-            ->setColumnNames(UnqualifiedName::unquoted('USER_ID'))
+            ->setUnquotedColumnNames('USER_ID')
             ->create();
 
         yield 'regular-by-regular' => [$regularIndex, $regularIndex, true];
@@ -77,7 +77,7 @@ class IndexTest extends TestCase
         }
 
         $index1 = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx'))
+            ->setUnquotedName('idx')
             ->setColumns(...$columns1)
             ->create();
 
@@ -108,7 +108,7 @@ class IndexTest extends TestCase
     public function testSpatialIndexWithColumnLength(): void
     {
         $editor = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_point'))
+            ->setUnquotedName('idx_point')
             ->setColumns(
                 new IndexedColumn(UnqualifiedName::unquoted('point'), 32),
             )
@@ -123,8 +123,8 @@ class IndexTest extends TestCase
     public function testClusteredIndexOfIncompatibleType(IndexType $type): void
     {
         $editor = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_test'))
-            ->setColumnNames(UnqualifiedName::unquoted('test'))
+            ->setUnquotedName('idx_test')
+            ->setUnquotedColumnNames('test')
             ->setIsClustered(true)
             ->setType($type);
 
@@ -137,8 +137,8 @@ class IndexTest extends TestCase
     public function testPartialIndexOfIncompatibleType(IndexType $type): void
     {
         $editor = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_test'))
-            ->setColumnNames(UnqualifiedName::unquoted('test'))
+            ->setUnquotedName('idx_test')
+            ->setUnquotedColumnNames('test')
             ->setType($type)
             ->setPredicate('test IS NOT NULL');
 
@@ -149,8 +149,8 @@ class IndexTest extends TestCase
     public function testPartialClusteredIndex(): void
     {
         $editor = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_test'))
-            ->setColumnNames(UnqualifiedName::unquoted('test'))
+            ->setUnquotedName('idx_test')
+            ->setUnquotedColumnNames('test')
             ->setIsClustered(true)
             ->setPredicate('test IS NOT NULL');
 
@@ -161,8 +161,8 @@ class IndexTest extends TestCase
     public function testEmptyPredicate(): void
     {
         $editor = Index::editor()
-            ->setName(UnqualifiedName::unquoted('idx_user_name'))
-            ->setColumnNames(UnqualifiedName::unquoted('user_id'))
+            ->setUnquotedName('idx_user_name')
+            ->setUnquotedColumnNames('user_id')
             ->setPredicate(''); // @phpstan-ignore argument.type
 
         $this->expectException(InvalidIndexDefinition::class);
@@ -172,12 +172,8 @@ class IndexTest extends TestCase
     public function testEqualsToSelf(): void
     {
         $index = Index::editor()
-            ->setName(
-                UnqualifiedName::unquoted('idx_user_id'),
-            )
-            ->setColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
+            ->setUnquotedName('idx_user_id')
+            ->setUnquotedColumnNames('user_id')
             ->create();
 
         self::assertTrue($index->equals($index, UnquotedIdentifierFolding::NONE));
@@ -186,21 +182,13 @@ class IndexTest extends TestCase
     public function testEqualIndexes(): void
     {
         $index1 = Index::editor()
-            ->setName(
-                UnqualifiedName::unquoted('idx_user_id'),
-            )
-            ->setColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
+            ->setUnquotedName('idx_user_id')
+            ->setUnquotedColumnNames('user_id')
             ->create();
 
         $index2 = Index::editor()
-            ->setName(
-                UnqualifiedName::unquoted('idx_user_id'),
-            )
-            ->setColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
+            ->setUnquotedName('idx_user_id')
+            ->setUnquotedColumnNames('user_id')
             ->create();
 
         self::assertTrue($index1->equals($index2, UnquotedIdentifierFolding::NONE));
@@ -218,12 +206,8 @@ class IndexTest extends TestCase
     public static function unequalIndexProvider(): iterable
     {
         $prototype = Index::editor()
-            ->setName(
-                UnqualifiedName::unquoted('idx_user_id'),
-            )
-            ->setColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
+            ->setUnquotedName('idx_user_id')
+            ->setUnquotedColumnNames('user_id')
             ->create();
 
         yield [
@@ -236,19 +220,14 @@ class IndexTest extends TestCase
         yield [
             $prototype,
             $prototype->edit()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('user_id'),
-                    UnqualifiedName::unquoted('is_active'),
-                )
+                ->setUnquotedColumnNames('user_id', 'is_active')
                 ->create(),
         ];
 
         yield [
             $prototype,
             $prototype->edit()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('user_name'),
-                )
+                ->setUnquotedColumnNames('user_name')
                 ->create(),
         ];
 

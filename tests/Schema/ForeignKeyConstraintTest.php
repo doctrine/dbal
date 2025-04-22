@@ -52,12 +52,9 @@ class ForeignKeyConstraintTest extends TestCase
     public function testNonMatchingColumnNameCounts(): void
     {
         $editor = ForeignKeyConstraint::editor()
-            ->setReferencingColumnNames(
-                UnqualifiedName::unquoted('id1'),
-                UnqualifiedName::unquoted('id2'),
-            )
-            ->setReferencedTableName(OptionallyQualifiedName::unquoted('t'))
-            ->setReferencedColumnNames(UnqualifiedName::unquoted('id'));
+            ->setUnquotedReferencingColumnNames('id1', 'id2')
+            ->setUnquotedReferencedTableName('t')
+            ->setUnquotedReferencedColumnNames('id');
 
         $this->expectException(InvalidForeignKeyConstraintDefinition::class);
 
@@ -67,13 +64,9 @@ class ForeignKeyConstraintTest extends TestCase
     public function testEqualsToSelf(): void
     {
         $constraint = ForeignKeyConstraint::editor()
-            ->setReferencingColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
-            ->setReferencedTableName(OptionallyQualifiedName::unquoted('users'))
-            ->setReferencedColumnNames(
-                UnqualifiedName::unquoted('id'),
-            )
+            ->setUnquotedReferencingColumnNames('user_id')
+            ->setUnquotedReferencedTableName('users')
+            ->setUnquotedReferencedColumnNames('id')
             ->create();
 
         self::assertTrue($constraint->equals($constraint, UnquotedIdentifierFolding::NONE));
@@ -82,23 +75,15 @@ class ForeignKeyConstraintTest extends TestCase
     public function testEqualConstraints(): void
     {
         $constraint1 = ForeignKeyConstraint::editor()
-            ->setReferencingColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
-            ->setReferencedTableName(OptionallyQualifiedName::unquoted('users'))
-            ->setReferencedColumnNames(
-                UnqualifiedName::unquoted('id'),
-            )
+            ->setUnquotedReferencingColumnNames('user_id')
+            ->setUnquotedReferencedTableName('users')
+            ->setUnquotedReferencedColumnNames('id')
             ->create();
 
         $constraint2 = ForeignKeyConstraint::editor()
-            ->setReferencingColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
-            ->setReferencedTableName(OptionallyQualifiedName::unquoted('users'))
-            ->setReferencedColumnNames(
-                UnqualifiedName::unquoted('id'),
-            )
+            ->setUnquotedReferencingColumnNames('user_id')
+            ->setUnquotedReferencedTableName('users')
+            ->setUnquotedReferencedColumnNames('id')
             ->create();
 
         self::assertTrue($constraint1->equals($constraint2, UnquotedIdentifierFolding::NONE));
@@ -116,51 +101,37 @@ class ForeignKeyConstraintTest extends TestCase
     public static function unequalConstraintProvider(): iterable
     {
         $prototype = ForeignKeyConstraint::editor()
-            ->setReferencingColumnNames(
-                UnqualifiedName::unquoted('user_id'),
-            )
-            ->setReferencedTableName(OptionallyQualifiedName::unquoted('users'))
-            ->setReferencedColumnNames(
-                UnqualifiedName::unquoted('id'),
-            )
+            ->setUnquotedReferencingColumnNames('user_id')
+            ->setUnquotedReferencedTableName('users')
+            ->setUnquotedReferencedColumnNames('id')
             ->create();
 
         yield [
             $prototype,
             $prototype->edit()
-                ->setReferencedTableName(OptionallyQualifiedName::unquoted('orders'))
+                ->setUnquotedReferencedTableName('orders')
                 ->create(),
         ];
 
         yield [
             $prototype,
             $prototype->edit()
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('user_name'),
-                )
+                ->setUnquotedReferencingColumnNames('user_name')
                 ->create(),
         ];
 
         yield [
             $prototype,
             $prototype->edit()
-                ->setReferencedColumnNames(
-                    UnqualifiedName::unquoted('name'),
-                )
+                ->setUnquotedReferencedColumnNames('name')
                 ->create(),
         ];
 
         yield [
             $prototype,
             $prototype->edit()
-                ->setReferencingColumnNames(
-                    UnqualifiedName::unquoted('user_id'),
-                    UnqualifiedName::unquoted('user_name'),
-                )
-                ->setReferencedColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                    UnqualifiedName::unquoted('name'),
-                )
+                ->setUnquotedReferencingColumnNames('user_id', 'user_name')
+                ->setUnquotedReferencedColumnNames('id', 'name')
                 ->create(),
         ];
 

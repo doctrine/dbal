@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use BcMath\Number;
 use DateTime;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -46,9 +45,7 @@ class TypeConversionTest extends FunctionalTestCase
         $table->addColumn('test_number', Types::NUMBER, ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 

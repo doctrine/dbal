@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -42,9 +41,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER, []);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $this->dropAndCreateTable($table);
@@ -70,9 +67,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER, []);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
@@ -88,9 +83,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addColumn('val', Types::INTEGER, ['notnull' => true]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $this->dropAndCreateTable($table);
@@ -159,9 +152,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER, []);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
+                ->setUnquotedColumnNames('id')
                 ->create(),
         );
         $this->dropAndCreateTable($table);
