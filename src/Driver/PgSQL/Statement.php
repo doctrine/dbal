@@ -81,8 +81,13 @@ final class Statement implements StatementInterface
             throw UnknownParameter::new((string) $param);
         }
 
-        $this->parameters[$this->parameterMap[$param]]     = $value;
-        $this->parameterTypes[$this->parameterMap[$param]] = $type;
+        if ($type === ParameterType::BOOLEAN) {
+            $this->parameters[$this->parameterMap[$param]]     = ($value === false ? 'f' : 't');
+            $this->parameterTypes[$this->parameterMap[$param]] = ParameterType::STRING;
+        } else {
+            $this->parameters[$this->parameterMap[$param]]     = $value;
+            $this->parameterTypes[$this->parameterMap[$param]] = $type;
+        }
 
         return true;
     }
@@ -102,7 +107,7 @@ final class Statement implements StatementInterface
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindParam() is deprecated.'
-                . ' Pass the type corresponding to the parameter being bound.',
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 
@@ -132,7 +137,7 @@ final class Statement implements StatementInterface
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5556',
                 'Passing $params to Statement::execute() is deprecated. Bind parameters using'
-                . ' Statement::bindParam() or Statement::bindValue() instead.',
+                    . ' Statement::bindParam() or Statement::bindValue() instead.',
             );
 
             foreach ($params as $param => $value) {
