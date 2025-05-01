@@ -293,11 +293,13 @@ abstract class AbstractSchemaManager
                     ->setName(
                         OptionallyQualifiedName::quoted($unqualifiedName, $qualifier),
                     )
-                    ->setColumns($this->_getPortableTableColumnList($tableColumns))
+                    ->setColumns(
+                        ...array_values($this->_getPortableTableColumnList($tableColumns)),
+                    )
                     ->setIndexes(
-                        $this->_getPortableTableIndexesList(
+                        ...array_values($this->_getPortableTableIndexesList(
                             $indexColumnsByTable[$schemaNameKey][$unqualifiedName] ?? [],
-                        ),
+                        )),
                     );
 
                 if (isset($primaryKeyColumnsByTable[$schemaNameKey][$unqualifiedName])) {
@@ -310,9 +312,9 @@ abstract class AbstractSchemaManager
 
                 if (isset($foreignKeyColumnsByTable[$schemaNameKey][$unqualifiedName])) {
                     $editor->setForeignKeyConstraints(
-                        $this->_getPortableTableForeignKeysList(
+                        ...array_values($this->_getPortableTableForeignKeysList(
                             $foreignKeyColumnsByTable[$schemaNameKey][$unqualifiedName],
-                        ),
+                        )),
                     );
                 }
 
@@ -598,10 +600,10 @@ abstract class AbstractSchemaManager
 
         return Table::editor()
             ->setName($tableName)
-            ->setColumns($columns)
+            ->setColumns(...array_values($columns))
             ->setPrimaryKeyConstraint($this->getTablePrimaryKeyConstraint($name))
-            ->setIndexes($this->listTableIndexes($name))
-            ->setForeignKeyConstraints($this->listTableForeignKeys($name))
+            ->setIndexes(...array_values($this->listTableIndexes($name)))
+            ->setForeignKeyConstraints(...array_values($this->listTableForeignKeys($name)))
             ->setOptions($this->getTableOptions($tableName))
             ->create();
     }

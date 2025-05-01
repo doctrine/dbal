@@ -66,7 +66,8 @@ class SchemaTest extends TestCase
 
     public function testRenameTable(): void
     {
-        $table  = new Table('foo');
+        $table = new Table('foo');
+        $table->addColumn('id', Types::INTEGER);
         $schema = new Schema([$table]);
 
         self::assertTrue($schema->hasTable('foo'));

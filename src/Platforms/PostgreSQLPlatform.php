@@ -709,9 +709,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'bytea'            => Types::BLOB,
             'char'             => Types::STRING,
             'date'             => Types::DATE_MUTABLE,
-            'datetime'         => Types::DATETIME_MUTABLE,
             'decimal'          => Types::DECIMAL,
-            'double'           => Types::FLOAT,
             'double precision' => Types::FLOAT,
             'float'            => Types::FLOAT,
             'float4'           => Types::SMALLFLOAT,
@@ -740,7 +738,6 @@ class PostgreSQLPlatform extends AbstractPlatform
             'tsvector'         => Types::TEXT,
             'uuid'             => Types::GUID,
             'varchar'          => Types::STRING,
-            'year'             => Types::DATE_MUTABLE,
             '_varchar'         => Types::STRING,
         ];
     }

@@ -48,7 +48,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
         // The check for `CONSTRAINT_SCHEMA = $databaseName` is mandatory here to prevent performance issues
         return <<<SQL
             IF(
-                $tableAlias.COLUMN_TYPE = 'longtext'
+                $tableAlias.DATA_TYPE = 'longtext'
                 AND EXISTS(
                     SELECT * FROM information_schema.CHECK_CONSTRAINTS $subQueryAlias
                     WHERE $subQueryAlias.CONSTRAINT_SCHEMA = $databaseName
@@ -60,7 +60,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
                     )
                 ),
                 'json',
-                $tableAlias.COLUMN_TYPE
+                $tableAlias.DATA_TYPE
             )
         SQL;
     }

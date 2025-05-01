@@ -13,4 +13,9 @@ final class InvalidTableDefinition extends LogicException implements SchemaExcep
     {
         return new self('Table name is not set.');
     }
+
+    public static function columnsNotSet(): self
+    {
+        return new self('Table columns are not set.');
+    }
 }

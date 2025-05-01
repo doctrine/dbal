@@ -891,10 +891,10 @@ class Table extends AbstractNamedObject
     {
         return self::editor()
             ->setName($this->getObjectName())
-            ->setColumns($this->_columns)
-            ->setIndexes($this->_indexes)
-            ->setUniqueConstraints($this->uniqueConstraints)
-            ->setForeignKeyConstraints($this->_fkConstraints)
+            ->setColumns(...array_values($this->_columns))
+            ->setIndexes(...array_values($this->_indexes))
+            ->setUniqueConstraints(...array_values($this->uniqueConstraints))
+            ->setForeignKeyConstraints(...array_values($this->_fkConstraints))
             ->setOptions($this->_options)
             ->setConfiguration(
                 new TableConfiguration($this->maxIdentifierLength),

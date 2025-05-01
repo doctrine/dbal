@@ -25,7 +25,7 @@ class DBAL461Test extends TestCase
         $reflectionMethod = new ReflectionMethod($schemaManager, '_getPortableTableColumnDefinition');
         $column           = $reflectionMethod->invoke($schemaManager, [
             'name' => 'test',
-            'type' => 'numeric(18,0)',
+            'type' => 'numeric',
             'length' => null,
             'default' => null,
             'is_nullable' => true,

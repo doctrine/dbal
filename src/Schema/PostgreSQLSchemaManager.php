@@ -14,17 +14,15 @@ use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
-use function array_key_exists;
 use function array_map;
 use function assert;
+use function count;
 use function implode;
-use function in_array;
-use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
+use function str_starts_with;
 use function strlen;
-use function strtolower;
 
 use const CASE_LOWER;
 
@@ -186,147 +184,65 @@ SQL,
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $length = null;
-
-        if (
-            in_array(strtolower($tableColumn['typname']), ['varchar', 'bpchar'], true)
-            && preg_match('/\((\d*)\)/', $tableColumn['complete_type'], $matches) === 1
-        ) {
-            $length = (int) $matches[1];
-        }
-
-        $autoincrement = $tableColumn['attidentity'] === 'd';
-
-        $matches = [];
-
-        assert(array_key_exists('default', $tableColumn));
-        assert(array_key_exists('complete_type', $tableColumn));
-
-        if ($tableColumn['default'] !== null) {
-            if (preg_match("/^['(](.*)[')]::/", $tableColumn['default'], $matches) === 1) {
-                $tableColumn['default'] = $matches[1];
-            } elseif (preg_match('/^NULL::/', $tableColumn['default']) === 1) {
-                $tableColumn['default'] = null;
-            }
-        }
-
-        if ($length === -1 && isset($tableColumn['atttypmod'])) {
-            $length = $tableColumn['atttypmod'] - 4;
-        }
-
-        if ((int) $length <= 0) {
-            $length = null;
-        }
-
-        $fixed = false;
-
-        if (! isset($tableColumn['name'])) {
-            $tableColumn['name'] = '';
-        }
-
+        $length    = null;
         $precision = null;
         $scale     = 0;
-        $jsonb     = null;
+        $fixed     = false;
+        $jsonb     = false;
 
-        $dbType = strtolower($tableColumn['typname']);
+        $dbType = $tableColumn['typname'];
         if (
             $tableColumn['domain_type'] !== null
-            && $tableColumn['domain_type'] !== ''
-            && ! $this->platform->hasDoctrineTypeMappingFor($tableColumn['typname'])
+                && ! $this->platform->hasDoctrineTypeMappingFor($dbType)
         ) {
-            $dbType                       = strtolower($tableColumn['domain_type']);
-            $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
+            $dbType       = $tableColumn['domain_type'];
+            $completeType = $tableColumn['domain_complete_type'];
+        } else {
+            $completeType = $tableColumn['complete_type'];
         }
 
         $type = $this->platform->getDoctrineTypeMapping($dbType);
 
         switch ($dbType) {
-            case 'smallint':
-            case 'int2':
-            case 'int':
-            case 'int4':
-            case 'integer':
-            case 'bigint':
-            case 'int8':
-                $length = null;
-                break;
-
-            case 'bool':
-            case 'boolean':
-                if ($tableColumn['default'] === 'true') {
-                    $tableColumn['default'] = true;
-                }
-
-                if ($tableColumn['default'] === 'false') {
-                    $tableColumn['default'] = false;
-                }
-
-                $length = null;
-                break;
-
-            case 'json':
-            case 'text':
-            case '_varchar':
-            case 'varchar':
-                $tableColumn['default'] = $this->parseDefaultExpression($tableColumn['default']);
-                break;
-
-            case 'char':
             case 'bpchar':
-                $fixed = true;
+            case 'varchar':
+                $parameters = $this->parseColumnTypeParameters($completeType);
+                if (count($parameters) > 0) {
+                    $length = $parameters[0];
+                }
+
                 break;
 
-            case 'float':
-            case 'float4':
-            case 'float8':
             case 'double':
-            case 'double precision':
-            case 'real':
             case 'decimal':
             case 'money':
             case 'numeric':
-                if (
-                    preg_match(
-                        '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
-                        $tableColumn['complete_type'],
-                        $match,
-                    ) === 1
-                ) {
-                    $precision = (int) $match[1];
-                    $scale     = (int) $match[2];
-                    $length    = null;
+                $parameters = $this->parseColumnTypeParameters($completeType);
+                if (count($parameters) > 0) {
+                    $precision = $parameters[0];
+                }
+
+                if (count($parameters) > 1) {
+                    $scale = $parameters[1];
                 }
 
                 break;
-
-            case 'year':
-                $length = null;
-                break;
-
-            // PostgreSQL 9.4+ only
-            case 'jsonb':
-                $jsonb = true;
-                break;
         }
 
-        if (
-            is_string($tableColumn['default']) && preg_match(
-                "('([^']+)'::)",
-                $tableColumn['default'],
-                $match,
-            ) === 1
-        ) {
-            $tableColumn['default'] = $match[1];
+        if ($dbType === 'bpchar') {
+            $fixed = true;
+        } elseif ($dbType === 'jsonb') {
+            $jsonb = true;
         }
 
         $options = [
             'length'        => $length,
             'notnull'       => (bool) $tableColumn['isnotnull'],
-            'default'       => $tableColumn['default'],
+            'default'       => $this->parseDefaultExpression($tableColumn['default']),
             'precision'     => $precision,
             'scale'         => $scale,
             'fixed'         => $fixed,
-            'autoincrement' => $autoincrement,
+            'autoincrement' => $tableColumn['attidentity'] === 'd',
         ];
 
         if ($tableColumn['comment'] !== null) {
@@ -347,15 +263,47 @@ SQL,
     }
 
     /**
-     * Parses a default value expression as given by PostgreSQL
+     * Parses the parameters between parenthesis in the data type.
+     *
+     * @return list<int>
      */
-    private function parseDefaultExpression(?string $default): ?string
+    private function parseColumnTypeParameters(string $type): array
     {
-        if ($default === null) {
-            return $default;
+        if (preg_match('/\((\d+)(?:,(\d+))?\)/', $type, $matches) !== 1) {
+            return [];
         }
 
-        return str_replace("''", "'", $default);
+        $parameters = [(int) $matches[1]];
+
+        if (isset($matches[2])) {
+            $parameters[] = (int) $matches[2];
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * Parses a default value expression as given by PostgreSQL
+     */
+    private function parseDefaultExpression(?string $expression): mixed
+    {
+        if ($expression === null || str_starts_with($expression, 'NULL::')) {
+            return null;
+        }
+
+        if ($expression === 'true') {
+            return true;
+        }
+
+        if ($expression === 'false') {
+            return false;
+        }
+
+        if (preg_match("/^'(.*)'::/s", $expression, $matches) === 1) {
+            return str_replace("''", "'", $matches[1]);
+        }
+
+        return $expression;
     }
 
     protected function selectTableNames(string $databaseName): Result
@@ -385,68 +333,64 @@ SQL,
 
         $sql = sprintf(
             <<<'SQL'
-            SELECT
-            n.nspname AS %s,
-            c.relname AS %s,
-            a.attnum,
-            quote_ident(a.attname) AS attname,
-            t.typname,
-            format_type(a.atttypid, a.atttypmod) AS complete_type,
-            (
-                SELECT CASE
-                    WHEN collprovider = 'c' THEN tc.collcollate
-                    WHEN collprovider = 'd' THEN null
-                    ELSE tc.collname
-                END
-                FROM pg_catalog.pg_collation tc WHERE tc.oid = a.attcollation
-            ) AS collation,
-            (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
-            (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM
-              pg_catalog.pg_type t2 WHERE t2.typtype = 'd' AND t2.oid = a.atttypid) AS domain_complete_type,
-            a.attnotnull AS isnotnull,
-            a.attidentity,
-            (SELECT 't'
-             FROM pg_index
-             WHERE c.oid = pg_index.indrelid
-                AND pg_index.indkey[0] = a.attnum
-                AND pg_index.indisprimary = 't'
-            ) AS pri,
-            (SELECT
-                CASE
-                    WHEN a.attgenerated = 's' THEN NULL
-                    ELSE pg_get_expr(adbin, adrelid)
-                END
-             FROM pg_attrdef
-             WHERE c.oid = pg_attrdef.adrelid
-                AND pg_attrdef.adnum=a.attnum) AS default,
-            (SELECT pg_description.description
-                FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
-            ) AS comment
+            SELECT n.nspname                            AS %s,
+                   c.relname                            AS %s,
+                   quote_ident(a.attname)               AS attname,
+                   t.typname,
+                   format_type(a.atttypid, a.atttypmod) AS complete_type,
+                   bt.typname                           AS domain_type,
+                   format_type(bt.oid, t.typtypmod)     AS domain_complete_type,
+                   a.attnotnull                         AS isnotnull,
+                   a.attidentity,
+                   (SELECT
+                        CASE
+                            WHEN a.attgenerated = 's' THEN NULL
+                            ELSE pg_get_expr(adbin, adrelid)
+                        END
+                     FROM pg_attrdef
+                     WHERE c.oid = pg_attrdef.adrelid
+                         AND pg_attrdef.adnum=a.attnum) AS "default",
+                   dsc.description                      AS comment,
+                   CASE
+                       WHEN coll.collprovider = 'c'
+                           THEN coll.collcollate
+                       WHEN coll.collprovider = 'd'
+                           THEN NULL
+                       ELSE coll.collname
+                       END                              AS collation
             FROM pg_attribute a
-                INNER JOIN pg_class c
-                    ON c.oid = a.attrelid
-                INNER JOIN pg_type t
-                    ON t.oid = a.atttypid
-                INNER JOIN pg_namespace n
-                    ON n.oid = c.relnamespace
-                LEFT JOIN pg_depend d
-                    ON d.objid = c.oid
-                        AND d.deptype = 'e'
-                        AND d.classid = (SELECT oid FROM pg_class WHERE relname = 'pg_class')
-            WHERE a.attnum > 0
-                AND d.refobjid IS NULL
-                -- 'r' for regular tables - 'p' for partitioned tables
-                AND c.relkind IN('r', 'p')
-                -- exclude partitions (tables that inherit from partitioned tables)
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM pg_inherits
-                    INNER JOIN pg_class parent on pg_inherits.inhparent = parent.oid
-                        AND parent.relkind = 'p'
-                    WHERE inhrelid = c.oid
-                )
-                AND %s
-            ORDER BY a.attnum
+                     JOIN pg_class c
+                          ON c.oid = a.attrelid
+                     JOIN pg_namespace n
+                          ON n.oid = c.relnamespace
+                     JOIN pg_type t
+                          ON t.oid = a.atttypid
+                     LEFT JOIN pg_type bt
+                               ON t.typtype = 'd'
+                                   AND bt.oid = t.typbasetype
+                     LEFT JOIN pg_collation coll
+                               ON coll.oid = a.attcollation
+                     LEFT JOIN pg_depend dep
+                               ON dep.objid = c.oid
+                                   AND dep.deptype = 'e'
+                                   AND dep.classid = (SELECT oid FROM pg_class WHERE relname = 'pg_class')
+                     LEFT JOIN pg_description dsc
+                               ON dsc.objoid = c.oid AND dsc.objsubid = a.attnum
+                     LEFT JOIN pg_inherits i
+                               ON i.inhrelid = c.oid
+                     LEFT JOIN pg_class p
+                               ON i.inhparent = p.oid
+                                   AND p.relkind = 'p'
+            WHERE %s
+              -- 'r' for regular tables - 'p' for partitioned tables
+              AND c.relkind IN ('r', 'p')
+              AND a.attnum > 0
+              AND dep.refobjid IS NULL
+              -- exclude partitions (tables that inherit from partitioned tables)
+              AND p.oid IS NULL
+            ORDER BY n.nspname,
+                c.relname,
+                a.attnum
             SQL,
             $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
             $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),

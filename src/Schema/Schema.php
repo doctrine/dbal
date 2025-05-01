@@ -338,15 +338,12 @@ class Schema
      */
     public function createTable(string $name): Table
     {
-        $parsedName = $this->parseOptionallyQualifiedName($name);
-
-        $table = Table::editor()
-            ->setName($parsedName)
-            ->setOptions($this->_schemaConfig->getDefaultTableOptions())
-            ->setConfiguration($this->_schemaConfig->toTableConfiguration())
-            ->create();
-
+        $table = new Table($name, [], [], [], [], [], $this->_schemaConfig->toTableConfiguration());
         $this->_addTable($table);
+
+        foreach ($this->_schemaConfig->getDefaultTableOptions() as $option => $value) {
+            $table->addOption($option, $value);
+        }
 
         return $table;
     }

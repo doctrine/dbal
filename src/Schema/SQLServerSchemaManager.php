@@ -20,7 +20,6 @@ use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
-use function strtok;
 
 /**
  * SQL Server Schema Manager.
@@ -58,8 +57,7 @@ SQL,
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
-        $dbType = strtok($tableColumn['type'], '(), ');
-        assert(is_string($dbType));
+        $dbType = $tableColumn['type'];
 
         $length = (int) $tableColumn['length'];
 
@@ -67,10 +65,6 @@ SQL,
 
         $scale = 0;
         $fixed = false;
-
-        if (! isset($tableColumn['name'])) {
-            $tableColumn['name'] = '';
-        }
 
         if ($tableColumn['scale'] !== null) {
             $scale = (int) $tableColumn['scale'];
