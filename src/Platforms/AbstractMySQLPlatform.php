@@ -17,6 +17,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function array_merge;
@@ -128,6 +129,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function getJsonTypeDeclarationSQL(array $column): string
     {
+        if (! empty($column['jsonb'])) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6939',
+                'The "jsonb" column platform option is deprecated. Use the "JSONB" type instead.',
+            );
+        }
+
         return 'JSON';
     }
 
@@ -167,6 +176,12 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         if (isset($column['version']) && $column['version'] === true) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6940',
+                'The "version" column platform option is deprecated.',
+            );
+
             return 'TIMESTAMP';
         }
 

@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_merge;
@@ -773,10 +774,24 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function getJsonTypeDeclarationSQL(array $column): string
     {
         if (! empty($column['jsonb'])) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6939',
+                'The "jsonb" column platform option is deprecated. Use the "JSONB" type instead.',
+            );
+
             return 'JSONB';
         }
 
         return 'JSON';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getJsonbTypeDeclarationSQL(array $column): string
+    {
+        return 'JSONB';
     }
 
     public function createSchemaManager(Connection $connection): PostgreSQLSchemaManager

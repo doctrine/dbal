@@ -28,6 +28,7 @@ final class Types
     public const GUID                 = 'guid';
     public const INTEGER              = 'integer';
     public const JSON                 = 'json';
+    public const JSONB                = 'jsonb';
     public const SIMPLE_ARRAY         = 'simple_array';
     public const SMALLFLOAT           = 'smallfloat';
     public const SMALLINT             = 'smallint';

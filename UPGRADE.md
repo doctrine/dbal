@@ -331,6 +331,14 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## The `jsonb` column platform option has been deprecated
+
+The `jsonb` column platform option has been deprecated. To define a `JSONB` column, use the `JSONB` type instead.
+
+## The `version` column platform option has been deprecated
+
+The `version` column platform option has been deprecated without a replacement.
+
 ## The `Doctrine\DBAL\Query\Limit` class has been marked as internal
 
 ## Deprecated extension of some classes

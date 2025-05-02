@@ -15,11 +15,14 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ColumnTest extends TestCase
 {
+    use VerifyDeprecations;
+
     public function testGet(): void
     {
         $column = $this->createColumn();
@@ -176,5 +179,21 @@ class ColumnTest extends TestCase
         $column = new Column('id', Type::getType(Types::INTEGER));
 
         self::assertEquals(Identifier::unquoted('id'), $column->getObjectName()->getIdentifier());
+    }
+
+    public function testSetPlatformOptionJsonb(): void
+    {
+        $column = new Column('jsonb', Type::getType(Types::JSON));
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6939');
+        $column->setPlatformOption('jsonb', true);
+    }
+
+    public function testSetPlatformOptionsJsonb(): void
+    {
+        $column = new Column('jsonb', Type::getType(Types::JSON));
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6939');
+        $column->setPlatformOptions(['jsonb' => true]);
     }
 }
