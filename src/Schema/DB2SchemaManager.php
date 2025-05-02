@@ -8,7 +8,6 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
@@ -39,17 +38,8 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $length = $precision = $default = null;
-        $scale  = 0;
-        $fixed  = false;
-
-        if ($tableColumn['default'] !== null && $tableColumn['default'] !== 'NULL') {
-            $default = $tableColumn['default'];
-
-            if (preg_match('/^\'(.*)\'$/s', $default, $matches) === 1) {
-                $default = str_replace("''", "'", $matches[1]);
-            }
-        }
+        $editor = Column::editor()
+            ->setQuotedName($tableColumn['colname']);
 
         $type = $this->platform->getDoctrineTypeMapping($tableColumn['typename']);
 
@@ -59,7 +49,7 @@ class DB2SchemaManager extends AbstractSchemaManager
                     $type = Types::BINARY;
                 }
 
-                $length = $tableColumn['length'];
+                $editor->setLength($tableColumn['length']);
                 break;
 
             case 'character':
@@ -67,40 +57,48 @@ class DB2SchemaManager extends AbstractSchemaManager
                     $type = Types::BINARY;
                 }
 
-                $length = $tableColumn['length'];
-                $fixed  = true;
+                $editor
+                    ->setLength($tableColumn['length'])
+                    ->setFixed(true);
                 break;
 
             case 'clob':
-                $length = $tableColumn['length'];
+                $editor->setLength($tableColumn['length']);
                 break;
 
             case 'decimal':
             case 'double':
             case 'real':
-                $scale     = $tableColumn['scale'];
-                $precision = $tableColumn['length'];
+                $editor
+                    ->setPrecision($tableColumn['length'])
+                    ->setScale($tableColumn['scale']);
                 break;
         }
 
-        $options = [
-            'length'          => $length,
-            'fixed'           => $fixed,
-            'default'         => $default,
-            'autoincrement'   => $tableColumn['generated'] === 'D',
-            'notnull'         => $tableColumn['nulls'] === 'N',
-        ];
+        $editor
+            ->setTypeName($type)
+            ->setNotNull($tableColumn['nulls'] === 'N')
+            ->setDefaultValue($this->parseDefaultExpression($tableColumn['default']))
+            ->setAutoincrement($tableColumn['generated'] === 'D');
 
         if ($tableColumn['remarks'] !== null) {
-            $options['comment'] = $tableColumn['remarks'];
+            $editor->setComment($tableColumn['remarks']);
         }
 
-        if ($scale !== null && $precision !== null) {
-            $options['scale']     = $scale;
-            $options['precision'] = $precision;
+        return $editor->create();
+    }
+
+    private function parseDefaultExpression(?string $expression): ?string
+    {
+        if ($expression === null || $expression === 'NULL') {
+            return null;
         }
 
-        return new Column($tableColumn['colname'], Type::getType($type), $options);
+        if (preg_match('/^\'(.*)\'$/s', $expression, $matches) === 1) {
+            return str_replace("''", "'", $matches[1]);
+        }
+
+        return $expression;
     }
 
     /**

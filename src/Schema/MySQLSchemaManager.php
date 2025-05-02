@@ -16,7 +16,6 @@ use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function array_map;
@@ -111,48 +110,51 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $dbType    = $tableColumn['data_type'];
-        $length    = null;
-        $scale     = 0;
-        $precision = null;
-        $fixed     = false;
-        $values    = [];
+        $dbType = $tableColumn['data_type'];
 
-        $type = $this->platform->getDoctrineTypeMapping($dbType);
+        $editor = Column::editor()
+            ->setQuotedName($tableColumn['column_name'])
+            ->setTypeName(
+                $this->platform->getDoctrineTypeMapping($dbType),
+            );
+
+        if (str_contains($tableColumn['column_type'], 'unsigned')) {
+            $editor->setUnsigned(true);
+        }
 
         switch ($dbType) {
             case 'char':
             case 'varchar':
-                $length = $tableColumn['character_maximum_length'];
+                $editor->setLength($tableColumn['character_maximum_length']);
                 break;
 
             case 'binary':
             case 'varbinary':
-                $length = $tableColumn['character_octet_length'];
+                $editor->setLength($tableColumn['character_octet_length']);
                 break;
 
             case 'tinytext':
-                $length = AbstractMySQLPlatform::LENGTH_LIMIT_TINYTEXT;
+                $editor->setLength(AbstractMySQLPlatform::LENGTH_LIMIT_TINYTEXT);
                 break;
 
             case 'text':
-                $length = AbstractMySQLPlatform::LENGTH_LIMIT_TEXT;
+                $editor->setLength(AbstractMySQLPlatform::LENGTH_LIMIT_TEXT);
                 break;
 
             case 'mediumtext':
-                $length = AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT;
+                $editor->setLength(AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT);
                 break;
 
             case 'tinyblob':
-                $length = AbstractMySQLPlatform::LENGTH_LIMIT_TINYBLOB;
+                $editor->setLength(AbstractMySQLPlatform::LENGTH_LIMIT_TINYBLOB);
                 break;
 
             case 'blob':
-                $length = AbstractMySQLPlatform::LENGTH_LIMIT_BLOB;
+                $editor->setLength(AbstractMySQLPlatform::LENGTH_LIMIT_BLOB);
                 break;
 
             case 'mediumblob':
-                $length = AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB;
+                $editor->setLength(AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB);
                 break;
 
             case 'float':
@@ -160,10 +162,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
             case 'real':
             case 'numeric':
             case 'decimal':
-                $precision = $tableColumn['numeric_precision'];
+                $editor->setPrecision($tableColumn['numeric_precision']);
 
                 if (isset($tableColumn['numeric_scale'])) {
-                    $scale = $tableColumn['numeric_scale'];
+                    $editor->setScale($tableColumn['numeric_scale']);
                 }
 
                 break;
@@ -172,41 +174,32 @@ class MySQLSchemaManager extends AbstractSchemaManager
         switch ($dbType) {
             case 'char':
             case 'binary':
-                $fixed = true;
+                $editor->setFixed(true);
                 break;
 
             case 'enum':
-                $values = $this->parseEnumExpression($tableColumn['column_type']);
+                $editor->setValues($this->parseEnumExpression($tableColumn['column_type']));
                 break;
         }
 
         if ($this->platform instanceof MariaDBPlatform) {
-            $columnDefault = $this->getMariaDBColumnDefault($this->platform, $tableColumn['column_default']);
+            $default = $this->getMariaDBColumnDefault($this->platform, $tableColumn['column_default']);
         } else {
-            $columnDefault = $tableColumn['column_default'];
+            $default = $tableColumn['column_default'];
         }
 
-        $options = [
-            'length'        => $length,
-            'unsigned'      => str_contains($tableColumn['column_type'], 'unsigned'),
-            'fixed'         => $fixed,
-            'default'       => $columnDefault,
-            'notnull'       => $tableColumn['is_nullable'] !== 'YES',
-            'scale'         => $scale,
-            'precision'     => $precision,
-            'autoincrement' => str_contains($tableColumn['extra'], 'auto_increment'),
-            'values'        => $values,
-        ];
+        $editor
+            ->setDefaultValue($default)
+            ->setNotNull($tableColumn['is_nullable'] !== 'YES')
+            ->setComment($tableColumn['column_comment'])
+            ->setCharset($tableColumn['character_set_name'])
+            ->setCollation($tableColumn['collation_name']);
 
-        if ($tableColumn['column_comment'] !== null) {
-            $options['comment'] = $tableColumn['column_comment'];
+        if (str_contains($tableColumn['extra'], 'auto_increment')) {
+            $editor->setAutoincrement(true);
         }
 
-        $column = new Column($tableColumn['column_name'], Type::getType($type), $options);
-        $column->setPlatformOption('charset', $tableColumn['character_set_name']);
-        $column->setPlatformOption('collation', $tableColumn['collation_name']);
-
-        return $column;
+        return $editor->create();
     }
 
     /** @return list<string> */
