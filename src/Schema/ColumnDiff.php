@@ -127,9 +127,20 @@ final readonly class ColumnDiff
 
     public function hasPlatformOptionsChanged(): bool
     {
-        return $this->hasPropertyChanged(static function (Column $column): array {
-            return $column->getPlatformOptions();
-        });
+        foreach (
+            [
+                static fn (Column $column): ?string => $column->getCharset(),
+                static fn (Column $column): ?string => $column->getCollation(),
+                static fn (Column $column): mixed => $column->getMinimumValue(),
+                static fn (Column $column): mixed => $column->getMaximumValue(),
+            ] as $property
+        ) {
+            if ($this->hasPropertyChanged($property)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function hasPropertyChanged(callable $property): bool

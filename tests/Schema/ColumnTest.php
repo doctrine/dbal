@@ -35,10 +35,8 @@ class ColumnTest extends TestCase
         self::assertTrue($column->getFixed());
         self::assertEquals('baz', $column->getDefault());
 
-        self::assertEquals(['charset' => 'utf8'], $column->getPlatformOptions());
-        self::assertTrue($column->hasPlatformOption('charset'));
-        self::assertEquals('utf8', $column->getPlatformOption('charset'));
-        self::assertFalse($column->hasPlatformOption('collation'));
+        self::assertEquals('utf8', $column->getCharset());
+        self::assertNull($column->getCollation());
     }
 
     public function testToArray(): void

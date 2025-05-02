@@ -494,16 +494,16 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function getAlterTableDropDefaultConstraintClause(Column $column): string
     {
-        if (! $column->hasPlatformOption(self::OPTION_DEFAULT_CONSTRAINT_NAME)) {
+        $constraintName = $column->getDefaultConstraintName();
+
+        if ($constraintName === null) {
             throw new InvalidArgumentException(
                 'Column ' . $column->getName() . ' was not properly introspected as it has a default value'
                     . ' but does not have the default constraint name.',
             );
         }
 
-        return 'DROP CONSTRAINT ' . $this->quoteSingleIdentifier(
-            $column->getPlatformOption(self::OPTION_DEFAULT_CONSTRAINT_NAME),
-        );
+        return 'DROP CONSTRAINT ' . $this->quoteSingleIdentifier($constraintName);
     }
 
     /**

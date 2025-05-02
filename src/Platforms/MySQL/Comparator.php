@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\MySQL;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
-use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
-use function array_diff_assoc;
+use function count;
 
 /**
  * Compares schemas in the context of MySQL platform.
@@ -19,8 +19,6 @@ use function array_diff_assoc;
  * In MySQL, unless specified explicitly, the column's character set and collation are inherited from its containing
  * table. So during comparison, an omitted value and the value that matches the default value of table in the
  * desired schema must be considered equal.
- *
- * @phpstan-import-type PlatformOptions from Column
  */
 class Comparator extends BaseComparator
 {
@@ -57,43 +55,55 @@ class Comparator extends BaseComparator
             $collation = $this->defaultTableOptions->getCollation();
         }
 
-        $tableOptions = [
-            'charset'   => $charset,
-            'collation' => $collation,
-        ];
-
-        $table = clone $table;
+        $editor = null;
 
         foreach ($table->getColumns() as $column) {
-            $originalOptions   = $column->getPlatformOptions();
-            $normalizedOptions = $this->normalizeOptions($originalOptions);
+            $originalCharset   = $column->getCharset();
+            $originalCollation = $column->getCollation();
 
-            $overrideOptions = array_diff_assoc($normalizedOptions, $tableOptions);
+            $normalizedCharset   = $originalCharset;
+            $normalizedCollation = $originalCollation;
 
-            if ($overrideOptions === $originalOptions) {
+            if ($originalCharset !== null && $originalCollation === null) {
+                $normalizedCollation = $this->charsetMetadataProvider->getDefaultCharsetCollation($originalCharset);
+            } elseif ($originalCollation !== null && $originalCharset === null) {
+                $normalizedCharset = $this->collationMetadataProvider->getCollationCharset($originalCollation);
+            }
+
+            $modifications = [];
+
+            if ($normalizedCharset === $charset) {
+                $modifications[] = static function (ColumnEditor $editor): void {
+                    $editor->setCharset(null);
+                };
+            } elseif ($normalizedCharset !== $originalCharset) {
+                $modifications[] = static function (ColumnEditor $editor) use ($normalizedCharset): void {
+                    $editor->setCharset($normalizedCharset);
+                };
+            }
+
+            if ($normalizedCollation === $collation) {
+                $modifications[] = static function (ColumnEditor $editor): void {
+                    $editor->setCollation(null);
+                };
+            } elseif ($normalizedCollation !== $originalCollation) {
+                $modifications[] = static function (ColumnEditor $editor) use ($normalizedCollation): void {
+                    $editor->setCollation($normalizedCollation);
+                };
+            }
+
+            if (count($modifications) === 0) {
                 continue;
             }
 
-            /** @phpstan-ignore argument.type */
-            $column->setPlatformOptions($overrideOptions);
+            $editor ??= $table->edit();
+            $name     = $column->getObjectName();
+
+            foreach ($modifications as $modification) {
+                $editor->modifyColumn($name, $modification);
+            }
         }
 
-        return $table;
-    }
-
-    /**
-     * @param PlatformOptions $options
-     *
-     * @return PlatformOptions
-     */
-    private function normalizeOptions(array $options): array
-    {
-        if (isset($options['charset']) && ! isset($options['collation'])) {
-            $options['collation'] = $this->charsetMetadataProvider->getDefaultCharsetCollation($options['charset']);
-        } elseif (isset($options['collation']) && ! isset($options['charset'])) {
-            $options['charset'] = $this->collationMetadataProvider->getCollationCharset($options['collation']);
-        }
-
-        return $options;
+        return $editor === null ? $table : $editor->create();
     }
 }

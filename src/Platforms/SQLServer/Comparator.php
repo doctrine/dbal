@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\SQLServer;
 
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
@@ -36,19 +37,21 @@ class Comparator extends BaseComparator
 
     private function normalizeColumns(Table $table): Table
     {
-        $table = clone $table;
+        $editor = null;
 
         foreach ($table->getColumns() as $column) {
-            $options = $column->getPlatformOptions();
+            $collation = $column->getCollation();
 
-            if (! isset($options['collation']) || $options['collation'] !== $this->databaseCollation) {
+            if ($collation !== $this->databaseCollation) {
                 continue;
             }
 
-            unset($options['collation']);
-            $column->setPlatformOptions($options);
+            ($editor ??= $table->edit())
+                ->modifyColumn($column->getObjectName(), static function (ColumnEditor $editor): void {
+                    $editor->setCollation(null);
+                });
         }
 
-        return $table;
+        return $editor === null ? $table : $editor->create();
     }
 }
