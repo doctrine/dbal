@@ -9,7 +9,6 @@ use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function method_exists;
@@ -33,7 +32,6 @@ use function method_exists;
  *     charset?: ?string,
  *     collation?: ?string,
  *     default_constraint_name?: string,
- *     jsonb?: bool,
  *     version?: bool,
  * }
  */
@@ -160,14 +158,6 @@ class Column extends AbstractNamedObject
     /** @param PlatformOptions $platformOptions */
     public function setPlatformOptions(array $platformOptions): self
     {
-        if (isset($platformOptions['jsonb']) && $platformOptions['jsonb']) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6939',
-                'The "jsonb" column platform option is deprecated. Use the "JSONB" type instead.',
-            );
-        }
-
         $this->_platformOptions = $platformOptions;
 
         return $this;
@@ -176,14 +166,6 @@ class Column extends AbstractNamedObject
     /** @param key-of<PlatformOptions> $name */
     public function setPlatformOption(string $name, mixed $value): self
     {
-        if ($name === 'jsonb' && (bool) $value === true) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6939',
-                'The "jsonb" column platform option is deprecated. Use the "JSONB" type instead.',
-            );
-        }
-
         $this->_platformOptions[$name] = $value;
 
         return $this;

@@ -47,7 +47,6 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -256,14 +255,6 @@ abstract class AbstractPlatform
      */
     public function getJsonTypeDeclarationSQL(array $column): string
     {
-        if (! empty($column['jsonb'])) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6939',
-                'The "jsonb" column platform option is deprecated. Use the "JSONB" type instead.',
-            );
-        }
-
         return $this->getClobTypeDeclarationSQL($column);
     }
 

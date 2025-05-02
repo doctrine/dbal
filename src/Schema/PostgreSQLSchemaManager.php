@@ -10,7 +10,6 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
@@ -188,7 +187,6 @@ SQL,
         $precision = null;
         $scale     = 0;
         $fixed     = false;
-        $jsonb     = false;
 
         $dbType = $tableColumn['typname'];
         if (
@@ -231,8 +229,6 @@ SQL,
 
         if ($dbType === 'bpchar') {
             $fixed = true;
-        } elseif ($dbType === 'jsonb') {
-            $jsonb = true;
         }
 
         $options = [
@@ -253,10 +249,6 @@ SQL,
 
         if (! empty($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
-        }
-
-        if ($column->getType() instanceof JsonType) {
-            $column->setPlatformOption('jsonb', $jsonb);
         }
 
         return $column;

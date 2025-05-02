@@ -14,7 +14,7 @@ use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\IntegerType;
-use Doctrine\DBAL\Types\JsonType;
+use Doctrine\DBAL\Types\JsonbType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -323,13 +323,12 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testJsonbColumn(): void
     {
         $table = new Table('test_jsonb');
-        $table->addColumn('foo', Types::JSON)->setPlatformOption('jsonb', true);
+        $table->addColumn('foo', Types::JSONB);
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
-        self::assertInstanceOf(JsonType::class, $columns['foo']->getType());
-        self::assertTrue($columns['foo']->getPlatformOption('jsonb'));
+        self::assertInstanceOf(JsonbType::class, $columns['foo']->getType());
     }
 
     public function testListNegativeColumnDefaultValue(): void

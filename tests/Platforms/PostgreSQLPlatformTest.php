@@ -644,8 +644,11 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
-        self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL(['jsonb' => false]));
-        self::assertSame('JSONB', $this->platform->getJsonTypeDeclarationSQL(['jsonb' => true]));
+    }
+
+    public function testReturnsJsonbTypeDeclarationSQL(): void
+    {
+        self::assertSame('JSONB', $this->platform->getJsonbTypeDeclarationSQL([]));
     }
 
     public function testReturnsSmallIntTypeDeclarationSQL(): void
@@ -670,8 +673,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
+    }
+
+    public function testInitializesJsonbTypeMapping(): void
+    {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('jsonb'));
-        self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
+        self::assertEquals(Types::JSONB, $this->platform->getDoctrineTypeMapping('jsonb'));
     }
 
     public function testGetListSequencesSQL(): void
@@ -697,10 +704,10 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $tableDiff = new TableDiff($table, changedColumns: [
             'payload' => new ColumnDiff(
                 $table->getColumn('payload'),
-                (new Column(
+                new Column(
                     'payload',
-                    Type::getType(Types::JSON),
-                ))->setPlatformOption('jsonb', true),
+                    Type::getType(Types::JSONB),
+                ),
             ),
         ]);
 
@@ -713,7 +720,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testAlterTableChangeJsonbToJson(): void
     {
         $table = new Table('mytable');
-        $table->addColumn('payload', Types::JSON)->setPlatformOption('jsonb', true);
+        $table->addColumn('payload', Types::JSONB);
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'payload' => new ColumnDiff(
