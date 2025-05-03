@@ -18,9 +18,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function count;
@@ -174,16 +172,6 @@ class DB2Platform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
-        if (isset($column['version']) && $column['version'] === true) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6940',
-                'The "version" column platform option is deprecated.',
-            );
-
-            return 'TIMESTAMP(0) WITH DEFAULT';
-        }
-
         return 'TIMESTAMP(0)';
     }
 
@@ -496,18 +484,6 @@ class DB2Platform extends AbstractPlatform
     {
         if (isset($column['autoincrement']) && $column['autoincrement'] === true) {
             return '';
-        }
-
-        if (isset($column['version']) && $column['version'] === true) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6940',
-                'The "version" column platform option is deprecated.',
-            );
-
-            if ($column['type'] instanceof DateTimeType) {
-                $column['default'] = '1';
-            }
         }
 
         return parent::getDefaultValueDeclarationSQL($column);

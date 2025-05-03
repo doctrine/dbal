@@ -8,7 +8,16 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
-## BC BREAK: Classes marked as read-only:
+## BC BREAK: Removed support for the `version` column platform option
+
+The `version` column platform option is no longer supported.
+
+## BC BREAK: Removed support for the `jsonb` column platform option
+
+The `jsonb` column platform option is no longer supported. `JSONB` columns on PostgreSQL are now introspected
+as columns of type `JSONB`, not as columns of type `JSON` with `jsonb` option set.
+
+## BC BREAK: Classes marked as read-only
 
 The following classes have been marked as read-only:
 
@@ -51,7 +60,7 @@ The following classes have been marked as read-only:
 - `Doctrine\DBAL\Tools\Console\ConnectionProvider\SingleConnectionProvider`
 - `Doctrine\DBAL\Tools\DsnParser`
 
-## BC BREAK: Classes marked as final:
+## BC BREAK: Classes marked as final
 
 The following classes have been marked as final:
 

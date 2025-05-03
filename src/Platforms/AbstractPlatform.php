@@ -47,7 +47,6 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -256,14 +255,6 @@ abstract class AbstractPlatform
      */
     public function getJsonTypeDeclarationSQL(array $column): string
     {
-        if (! empty($column['jsonb'])) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6939',
-                'The "jsonb" column platform option is deprecated. Use the "JSONB" type instead.',
-            );
-        }
-
         return $this->getClobTypeDeclarationSQL($column);
     }
 
@@ -879,7 +870,7 @@ abstract class AbstractPlatform
         $columns = [];
 
         foreach ($table->getColumns() as $column) {
-            $columns[] = $this->columnToArray($column);
+            $columns[] = $column->toArray();
         }
 
         $sql = $this->_getCreateTableSQL($tableName, $columns, $parameters);
@@ -2140,17 +2131,6 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @return ColumnProperties An associative array with the name of the properties of the column being declared as
-     *                          array keys.
-     */
-    private function columnToArray(Column $column): array
-    {
-        return array_merge($column->toArray(), [
-            'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
-        ]);
-    }
-
     /** @internal */
     public function createSQLParser(): Parser
     {
@@ -2167,8 +2147,8 @@ abstract class AbstractPlatform
      */
     public function columnsEqual(Column $column1, Column $column2): bool
     {
-        $column1Array = $this->columnToArray($column1);
-        $column2Array = $this->columnToArray($column2);
+        $column1Array = $column1->toArray();
+        $column2Array = $column2->toArray();
 
         $name = UnqualifiedName::unquoted('dummy');
 

@@ -230,12 +230,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('SMALLINT', $this->platform->getBooleanTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('CLOB(1M)', $this->platform->getClobTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('DATE', $this->platform->getDateTypeDeclarationSQL($fullColumnDef));
-
-        self::assertEquals(
-            'TIMESTAMP(0) WITH DEFAULT',
-            $this->platform->getDateTimeTypeDeclarationSQL(['version' => true]),
-        );
-
         self::assertEquals('TIMESTAMP(0)', $this->platform->getDateTimeTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL($fullColumnDef));
     }
