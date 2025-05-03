@@ -32,7 +32,6 @@ use function method_exists;
  *     charset?: ?string,
  *     collation?: ?string,
  *     default_constraint_name?: string,
- *     version?: bool,
  * }
  */
 class Column extends AbstractNamedObject

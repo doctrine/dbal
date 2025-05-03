@@ -870,7 +870,7 @@ abstract class AbstractPlatform
         $columns = [];
 
         foreach ($table->getColumns() as $column) {
-            $columns[] = $this->columnToArray($column);
+            $columns[] = $column->toArray();
         }
 
         $sql = $this->_getCreateTableSQL($tableName, $columns, $parameters);
@@ -2131,17 +2131,6 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @return ColumnProperties An associative array with the name of the properties of the column being declared as
-     *                          array keys.
-     */
-    private function columnToArray(Column $column): array
-    {
-        return array_merge($column->toArray(), [
-            'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
-        ]);
-    }
-
     /** @internal */
     public function createSQLParser(): Parser
     {
@@ -2158,8 +2147,8 @@ abstract class AbstractPlatform
      */
     public function columnsEqual(Column $column1, Column $column2): bool
     {
-        $column1Array = $this->columnToArray($column1);
-        $column2Array = $this->columnToArray($column2);
+        $column1Array = $column1->toArray();
+        $column2Array = $column2->toArray();
 
         $name = UnqualifiedName::unquoted('dummy');
 

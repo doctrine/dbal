@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed support for the `version` column platform option
+
+The `version` column platform option is no longer supported.
+
 ## BC BREAK: Removed support for the `jsonb` column platform option
 
 The `jsonb` column platform option is no longer supported. `JSONB` columns on PostgreSQL are now introspected
