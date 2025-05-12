@@ -1029,11 +1029,11 @@ class Table extends AbstractNamedObject
 
             if ($length !== null) {
                 if (! is_int($length)) {
-                    throw InvalidIndexDefinition::fromInvalidColumnLengthType($length);
+                    throw InvalidIndexDefinition::fromInvalidColumnLengthType($parsedName, $length);
                 }
 
                 if ($length < 1) {
-                    throw InvalidIndexDefinition::fromNonPositiveColumnLength($length);
+                    throw InvalidIndexDefinition::fromNonPositiveColumnLength($parsedName, $length);
                 }
             }
 

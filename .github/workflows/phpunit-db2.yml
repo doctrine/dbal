@@ -1,0 +1,67 @@
+name: PHPUnit with Db2
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        required: true
+        type: string
+
+jobs:
+  phpunit-db2:
+    runs-on: ubuntu-24.04
+
+    services:
+      db2:
+        image: icr.io/db2_community/db2:11.5.8.0
+        ports:
+          - '50000:50000'
+        env:
+          DB2INSTANCE: db2inst1
+          DB2INST1_PASSWORD: Doctrine2018
+          LICENSE: accept
+          DBNAME: doctrine
+        options: >-
+          --health-cmd "su - ${DB2INSTANCE} -c \"db2 -t CONNECT TO ${DBNAME};\""
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 5
+          --privileged
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install IBM DB2 CLI driver
+        working-directory: /tmp
+        run: |
+          wget https://github.com/ibmdb/db2drivers/raw/refs/heads/main/clidriver/v11.5.9/linuxx64_odbc_cli.tar.gz
+          tar xf linuxx64_odbc_cli.tar.gz
+          rm linuxx64_odbc_cli.tar.gz
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: ibm_db2
+          coverage: pcov
+          ini-values: zend.assertions=1
+        env:
+          IBM_DB2_CONFIGURE_OPTS: '--with-IBM_DB2=/tmp/clidriver'
+
+      - name: Install dependencies with Composer
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '--ignore-platform-req=php+'
+
+      - name: Create temporary tablespace
+        run: docker exec "${{ job.services.db2.id }}" su - db2inst1 -c "db2 -t CONNECT TO doctrine; db2 -t CREATE USER TEMPORARY TABLESPACE doctrine_tbsp PAGESIZE 4 K"
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml
+
+      - name: Upload coverage file
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.job }}-php-${{ inputs.php-version }}.coverage
+          path: coverage.xml

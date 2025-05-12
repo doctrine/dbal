@@ -30,7 +30,12 @@ env:
 jobs:
   phpunit-smoke-check:
     name: "PHPUnit with SQLite"
-    runs-on: "${{ matrix.os }}"
+    uses: ./.github/workflows/phpunit-sqlite.yml
+    with:
+      os: ${{ matrix.os }}
+      php-version: ${{ matrix.php-version }}
+      extension: ${{ matrix.extension }}
+      dependency-versions: ${{ matrix.dependency-versions }}
 
     strategy:
       matrix:
@@ -39,8 +44,7 @@ jobs:
         php-version:
           - "8.3"
           - "8.4"
-          - "8.5"
-        dependencies:
+        dependency-versions:
           - "highest"
         extension:
           - "sqlite3"
@@ -48,55 +52,21 @@ jobs:
         include:
           - os: "ubuntu-22.04"
             php-version: "8.2"
-            dependencies: "lowest"
+            dependency-versions: "lowest"
             extension: "pdo_sqlite"
           - os: "ubuntu-24.04"
             php-version: "8.4"
-            dependencies: "highest"
+            dependency-versions: "highest"
             extension: "sqlite3"
 
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 2
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php-version }}"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--ignore-platform-req=php+"
-          dependency-versions: "${{ matrix.dependencies }}"
-
-      - name: "Print SQLite version"
-        run: >
-          php -r 'printf("Testing with libsqlite version %s\n", (new PDO("sqlite::memory:"))->query("select sqlite_version()")->fetch()[0]);'
-        if: "${{ matrix.extension == 'pdo_sqlite' }}"
-
-      - name: "Print SQLite version"
-        run: >
-          php -r 'printf("Testing with libsqlite version %s\n", SQLite3::version()["versionString"]);'
-        if: "${{ matrix.extension == 'sqlite3' }}"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: "phpunit-${{ matrix.extension }}-${{ matrix.dependencies }}-${{ matrix.php-version }}.coverage"
-          path: "coverage.xml"
-
-  phpunit-oci8:
-    name: "PHPUnit on OCI8"
-    runs-on: "ubuntu-24.04"
+  phpunit-oracle:
+    name: "PHPUnit with Oracle"
     needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-oracle.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      oracle-version: ${{ matrix.oracle-version }}
+      extension: ${{ matrix.extension }}
 
     strategy:
       matrix:
@@ -106,117 +76,26 @@ jobs:
           - "18"
           - "21"
           - "23"
+        extension:
+          - oci8
+          - pdo_oci
         include:
-          - php-version: "8.2"
-            oracle-version: "23"
-          - php-version: "8.5"
-            oracle-version: "23"
-
-    services:
-      oracle:
-        image: gvenzl/oracle-${{ matrix.oracle-version < 23 && 'xe' || 'free'  }}:${{ matrix.oracle-version }}
-        env:
-          ORACLE_PASSWORD: oracle
-        ports:
-          - "1521:1521"
-        options: >-
-          --health-cmd healthcheck.sh
-          --health-interval 20s
-          --health-timeout 10s
-          --health-retries 10
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 2
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php-version }}"
-          extensions: "oci8"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--ignore-platform-req=php+"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/oci8${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: "${{ github.job }}-${{ matrix.php-version }}-${{ matrix.oracle-version }}.coverage"
-          path: "coverage.xml"
-
-  phpunit-pdo-oci:
-    name: "PHPUnit on PDO_OCI"
-    runs-on: "ubuntu-24.04"
-    needs: "phpunit-smoke-check"
-
-    strategy:
-      matrix:
-        php-version:
-          - "8.4"
-        oracle-version:
-          - "18"
-          - "21"
-          - "23"
-        include:
-          - php-version: "8.2"
-            oracle-version: "23"
-          - php-version: "8.5"
-            oracle-version: "23"
-
-    services:
-      oracle:
-        image: gvenzl/oracle-${{ matrix.oracle-version < 23 && 'xe' || 'free'  }}:${{ matrix.oracle-version }}
-        env:
-          ORACLE_PASSWORD: oracle
-        ports:
-          - "1521:1521"
-        options: >-
-          --health-cmd healthcheck.sh
-          --health-interval 20s
-          --health-timeout 10s
-          --health-retries 10
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 2
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php-version }}"
-          extensions: "pdo_oci"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--ignore-platform-req=php+"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: "${{ github.job }}-${{ matrix.php-version }}-${{ matrix.oracle-version }}.coverage"
-          path: "coverage.xml"
+          - php-version: '8.2'
+            oracle-version: '23'
+            extension: oci8
+          - php-version: '8.2'
+            oracle-version: '23'
+            extension: pdo_oci
 
   phpunit-postgres:
     name: "PHPUnit with PostgreSQL"
-    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-postgres.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      postgres-version: ${{ matrix.postgres-version }}
+      extension: ${{ matrix.extension }}
+      postgres-locale-provider: ${{ matrix.postgres-locale-provider }}
 
     strategy:
       matrix:
@@ -239,62 +118,19 @@ jobs:
           - php-version: "8.2"
             postgres-version: "17"
             extension: "pdo_pgsql"
-          - php-version: "8.5"
-            postgres-version: "17"
-            extension: "pgsql"
-          - php-version: "8.5"
-            postgres-version: "17"
-            extension: "pdo_pgsql"
           - php-version: "8.4"
             postgres-version: "15"
             extension: "pdo_pgsql"
             postgres-locale-provider: "icu"
 
-    services:
-      postgres:
-        image: "postgres:${{ matrix.postgres-version }}"
-        env:
-          POSTGRES_INITDB_ARGS: ${{ matrix.postgres-locale-provider == 'icu' && '--locale-provider=icu --icu-locale=en-US' || '' }}
-          POSTGRES_PASSWORD: "postgres"
-
-        options: >-
-          --health-cmd "pg_isready"
-
-        ports:
-          - "5432:5432"
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 2
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php-version }}"
-          extensions: "pgsql pdo_pgsql"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--ignore-platform-req=php+"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.extension }}-${{ matrix.php-version }}-${{ matrix.postgres-locale-provider }}.coverage"
-          path: "coverage.xml"
-
   phpunit-mariadb:
     name: "PHPUnit with MariaDB"
-    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-mariadb.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      mariadb-version: ${{ matrix.mariadb-version }}
+      extension: ${{ matrix.extension }}
 
     strategy:
       matrix:
@@ -317,58 +153,16 @@ jobs:
           - php-version: "8.2"
             mariadb-version: "11.4"
             extension: "pdo_mysql"
-          - php-version: "8.5"
-            mariadb-version: "11.4"
-            extension: "mysqli"
-          - php-version: "8.5"
-            mariadb-version: "11.4"
-            extension: "pdo_mysql"
-
-    services:
-      mariadb:
-        image: "mariadb:${{ matrix.mariadb-version }}"
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: "doctrine_tests"
-
-        options: >-
-          --health-cmd "healthcheck.sh --connect --innodb_initialized || mysqladmin ping --protocol tcp --silent"
-
-        ports:
-          - "3306:3306"
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 2
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php-version }}"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
-          extensions: "${{ matrix.extension }}"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--ignore-platform-req=php+"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: "${{ github.job }}-${{ matrix.mariadb-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
-          path: "coverage.xml"
 
   phpunit-mysql:
     name: "PHPUnit with MySQL"
-    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-mysql.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      mysql-version: ${{ matrix.mysql-version }}
+      extension: ${{ matrix.extension }}
+      config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
       matrix:
@@ -381,8 +175,6 @@ jobs:
         extension:
           - "mysqli"
           - "pdo_mysql"
-        config-file-suffix:
-          - ""
         include:
           - config-file-suffix: "-tls"
             php-version: "8.2"
@@ -391,62 +183,15 @@ jobs:
           - php-version: "8.2"
             mysql-version: "9.1"
             extension: "mysqli"
-          - php-version: "8.5"
-            mysql-version: "9.1"
-            extension: "mysqli"
-          - php-version: "8.5"
-            mysql-version: "9.1"
-            extension: "pdo_mysql"
-
-    services:
-      mysql:
-        image: "mysql:${{ matrix.mysql-version }}"
-
-        options: >-
-          --health-cmd "mysqladmin ping --silent"
-          -e MYSQL_ALLOW_EMPTY_PASSWORD=yes
-          -e MYSQL_DATABASE=doctrine_tests
-          ${{ matrix.custom-entrypoint }}
-
-        ports:
-          - "3306:3306"
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 2
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php-version }}"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
-          extensions: "${{ matrix.extension }}"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--ignore-platform-req=php+"
-
-      - name: "Copy TLS-related files"
-        run: 'docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/ca.pem" . && docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/client-cert.pem" . && docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/client-key.pem" .'
-        if: "${{ endsWith(matrix.config-file-suffix, 'tls') }}"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: "${{ github.job }}-${{ matrix.mysql-version }}-${{ matrix.extension }}-${{ matrix.config-file-suffix }}-${{ matrix.php-version }}.coverage"
-          path: "coverage.xml"
 
   phpunit-mssql:
     name: "PHPUnit with SQL Server"
-    runs-on: "ubuntu-22.04"
     needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-sqlserver.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      extension: ${{ matrix.extension }}
+      collation: ${{ matrix.collation }}
 
     strategy:
       matrix:
@@ -454,7 +199,6 @@ jobs:
           - "8.2"
           - "8.3"
           - "8.4"
-          - "8.5"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -468,53 +212,12 @@ jobs:
             php-version: "8.2"
             extension: "pdo_sqlsrv"
 
-    services:
-      mssql:
-        image: "mcr.microsoft.com/mssql/server:2019-latest"
-        env:
-          ACCEPT_EULA: "Y"
-          SA_PASSWORD: "Doctrine2018"
-          MSSQL_COLLATION: "${{ matrix.collation }}"
-
-        options: >-
-          --health-cmd "echo quit | /opt/mssql-tools18/bin/sqlcmd -C -S 127.0.0.1 -l 1 -U sa -P Doctrine2018"
-
-        ports:
-          - "1433:1433"
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 2
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php-version }}"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
-          tools: "pecl"
-          extensions: "${{ matrix.extension }}-5.10.0beta1"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--ignore-platform-req=php+"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: "${{ github.job }}-${{ matrix.extension }}-${{ matrix.php-version }}-${{ matrix.collation }}.coverage"
-          path: "coverage.xml"
-
   phpunit-ibm-db2:
     name: "PHPUnit with IBM DB2"
-    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-db2.yml
+    with:
+      php-version: ${{ matrix.php-version }}
 
     strategy:
       matrix:
@@ -522,64 +225,6 @@ jobs:
           - "8.2"
           - "8.3"
           - "8.4"
-          - "8.5"
-
-    services:
-      ibm_db2:
-        image: "icr.io/db2_community/db2:11.5.8.0"
-        env:
-          DB2INSTANCE: "db2inst1"
-          DB2INST1_PASSWORD: "Doctrine2018"
-          LICENSE: "accept"
-          DBNAME: "doctrine"
-
-        options: "--privileged"
-
-        ports:
-          - "50000:50000"
-
-    steps:
-      - name: "Perform healthcheck"
-        run: "docker logs -f ${{ job.services.ibm_db2.id }} | sed '/(*) Setup has completed./ q'"
-
-      - name: "Create temporary tablespace"
-        run: "docker exec ${{ job.services.ibm_db2.id }} su - db2inst1 -c 'db2 -t CONNECT TO doctrine; db2 -t CREATE USER TEMPORARY TABLESPACE doctrine_tbsp PAGESIZE 4 K;'"
-
-      - name: "Checkout"
-        uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 2
-
-      - name: "Install IBM DB2 CLI driver"
-        working-directory: /tmp
-        run: |
-          wget https://github.com/ibmdb/db2drivers/raw/refs/heads/main/clidriver/v11.5.9/linuxx64_odbc_cli.tar.gz
-          tar xf linuxx64_odbc_cli.tar.gz
-          rm linuxx64_odbc_cli.tar.gz
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          php-version: "${{ matrix.php-version }}"
-          extensions: "ibm_db2"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1, ibm_db2.instance_name=db2inst1"
-        env:
-          IBM_DB2_CONFIGURE_OPTS: "--with-IBM_DB2=/tmp/clidriver"
-
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--ignore-platform-req=php+"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
-          path: "coverage.xml"
 
   development-deps:
     name: "PHPUnit with PDO_SQLite and development dependencies"
@@ -615,8 +260,7 @@ jobs:
     runs-on: "ubuntu-24.04"
     needs:
       - "phpunit-smoke-check"
-      - "phpunit-oci8"
-      - "phpunit-pdo-oci"
+      - "phpunit-oracle"
       - "phpunit-postgres"
       - "phpunit-mariadb"
       - "phpunit-mysql"

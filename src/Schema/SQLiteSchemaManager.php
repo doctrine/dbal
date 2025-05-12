@@ -37,7 +37,6 @@ use function str_starts_with;
 use function strcasecmp;
 use function strtolower;
 use function substr;
-use function trim;
 
 use const CASE_LOWER;
 
@@ -69,21 +68,21 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
-        $matchResult = preg_match('/^([^()]*)\\s*(\\(((\\d+)(,\\s*(\\d+))?)\\))?/', $tableColumn['type'], $matches);
+        $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/', $tableColumn['type'], $matches);
         assert($matchResult === 1);
 
-        $dbType = trim(strtolower($matches[1]));
+        $dbType = strtolower($matches[1]);
 
         $length = $precision = null;
         $fixed  = $unsigned = false;
         $scale  = 0;
 
-        if (isset($matches[4])) {
-            if (isset($matches[6])) {
-                $precision = (int) $matches[4];
-                $scale     = (int) $matches[6];
+        if (isset($matches[2])) {
+            if (isset($matches[3])) {
+                $precision = (int) $matches[2];
+                $scale     = (int) $matches[3];
             } else {
-                $length = (int) $matches[4];
+                $length = (int) $matches[2];
             }
         }
 

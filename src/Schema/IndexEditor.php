@@ -133,7 +133,7 @@ final class IndexEditor
         }
 
         if (count($this->columns) < 1) {
-            throw InvalidIndexDefinition::columnsNotSet();
+            throw InvalidIndexDefinition::columnsNotSet($this->name);
         }
 
         return new Index($this->name, $this->type, $this->columns, $this->isClustered, $this->predicate);

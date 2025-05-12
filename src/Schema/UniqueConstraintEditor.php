@@ -98,7 +98,7 @@ final class UniqueConstraintEditor
     public function create(): UniqueConstraint
     {
         if (count($this->columnNames) < 1) {
-            throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet();
+            throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($this->name);
         }
 
         return new UniqueConstraint($this->name, $this->columnNames, $this->isClustered);

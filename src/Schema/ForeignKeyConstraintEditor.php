@@ -214,15 +214,15 @@ final class ForeignKeyConstraintEditor
     public function create(): ForeignKeyConstraint
     {
         if (count($this->referencingColumnNames) < 1) {
-            throw InvalidForeignKeyConstraintDefinition::referencingColumnNamesNotSet();
+            throw InvalidForeignKeyConstraintDefinition::referencingColumnNamesNotSet($this->name);
         }
 
         if ($this->referencedTableName === null) {
-            throw InvalidForeignKeyConstraintDefinition::referencedTableNameNotSet();
+            throw InvalidForeignKeyConstraintDefinition::referencedTableNameNotSet($this->name);
         }
 
         if (count($this->referencedColumnNames) < 1) {
-            throw InvalidForeignKeyConstraintDefinition::referencedColumnNamesNotSet();
+            throw InvalidForeignKeyConstraintDefinition::referencedColumnNamesNotSet($this->name);
         }
 
         return new ForeignKeyConstraint(

@@ -34,7 +34,7 @@ final class UniqueConstraint extends AbstractOptionallyNamedObject
         private readonly bool $isClustered,
     ) {
         if (count($columnNames) < 1) {
-            throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet();
+            throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($name);
         }
 
         parent::__construct($name?->toString() ?? '');

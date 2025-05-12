@@ -34,7 +34,7 @@ final class Index extends AbstractNamedObject
         private readonly ?string $predicate,
     ) {
         if (count($columns) < 1) {
-            throw InvalidIndexDefinition::columnsNotSet();
+            throw InvalidIndexDefinition::columnsNotSet($name);
         }
 
         if ($type === IndexType::SPATIAL) {

@@ -18,7 +18,7 @@ final readonly class IndexedColumn
     public function __construct(private UnqualifiedName $columnName, private ?int $length)
     {
         if ($length !== null && $length <= 0) {
-            throw InvalidIndexDefinition::fromNonPositiveColumnLength($length);
+            throw InvalidIndexDefinition::fromNonPositiveColumnLength($columnName, $length);
         }
     }
 

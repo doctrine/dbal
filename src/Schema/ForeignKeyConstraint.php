@@ -56,11 +56,11 @@ final class ForeignKeyConstraint extends AbstractOptionallyNamedObject
         $referencedColumnCount  = count($referencedColumnNames);
 
         if ($referencingColumnCount < 1) {
-            throw InvalidForeignKeyConstraintDefinition::referencingColumnNamesNotSet();
+            throw InvalidForeignKeyConstraintDefinition::referencingColumnNamesNotSet($name);
         }
 
         if ($referencedColumnCount < 1) {
-            throw InvalidForeignKeyConstraintDefinition::referencedColumnNamesNotSet();
+            throw InvalidForeignKeyConstraintDefinition::referencedColumnNamesNotSet($name);
         }
 
         if ($referencingColumnCount !== $referencedColumnCount) {

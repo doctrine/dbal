@@ -123,7 +123,7 @@ final class TableEditor
         }
 
         if (count($this->columns) === 0) {
-            throw InvalidTableDefinition::columnsNotSet();
+            throw InvalidTableDefinition::columnsNotSet($this->name);
         }
 
         return new Table(

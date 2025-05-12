@@ -9,7 +9,7 @@ env:
   fail-fast: true
 
 jobs:
-  phpunit-mariadb:
+  phpunit-mariadb-devel:
     name: "PHPUnit with MariaDB"
     runs-on: "ubuntu-24.04"
 
@@ -70,3 +70,117 @@ jobs:
           type: "stream"
           topic: "CI - Doctrine/DBAL"
           content: "There was an error running Doctrine on MariaDB:${{ matrix.mariadb-version }} - URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+
+  phpunit-sqlite:
+    name: PHPUnit with SQLite
+    uses: ./.github/workflows/phpunit-sqlite.yml
+    with:
+      os: ${{ matrix.os }}
+      php-version: ${{ matrix.php-version }}
+      extension: ${{ matrix.extension }}
+      dependency-versions: ${{ matrix.dependency-versions }}
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04
+        php-version:
+          - '8.5'
+        extension:
+          - pdo_sqlite
+          - sqlite3
+        dependency-versions:
+          - highest
+
+  phpunit-mariadb:
+    name: PHPUnit with MariaDB
+    uses: ./.github/workflows/phpunit-mariadb.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      mariadb-version: ${{ matrix.mariadb-version }}
+      extension: ${{ matrix.extension }}
+
+    strategy:
+      matrix:
+        php-version:
+          - '8.5'
+        mariadb-version:
+          - '11.4'
+        extension:
+          - mysqli
+          - pdo_mysql
+
+  phpunit-mysql:
+    name: PHPUnit with MySQL
+    uses: ./.github/workflows/phpunit-mysql.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      mysql-version: ${{ matrix.mysql-version }}
+      extension: ${{ matrix.extension }}
+
+    strategy:
+      matrix:
+        php-version:
+          - '8.5'
+        mysql-version:
+          - '9.1'
+        extension:
+          - mysqli
+          - pdo_mysql
+
+  phpunit-sqlserver:
+    name: PHPUnit with SQL Server
+    uses: ./.github/workflows/phpunit-sqlserver.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      extension: ${{ matrix.extension }}
+      collation: ${{ matrix.collation }}
+
+    strategy:
+      matrix:
+        php-version:
+          - '8.5'
+        extension:
+          - sqlsrv
+          - pdo_sqlsrv
+        collation:
+          - Latin1_General_100_CI_AS_SC_UTF8
+
+  phpunit-oracle:
+    name: PHPUnit with Oracle
+    uses: ./.github/workflows/phpunit-oracle.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      oracle-version: ${{ matrix.oracle-version }}
+      extension: ${{ matrix.extension }}
+
+    strategy:
+      matrix:
+        php-version:
+          - '8.5'
+        oracle-version:
+          - '23'
+        extension:
+          - oci8
+          - pdo_oci
+
+  phpunit-postgres:
+    name: PHPUnit with PostgreSQL
+    uses: ./.github/workflows/phpunit-postgres.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      postgres-version: ${{ matrix.postgres-version }}
+      extension: ${{ matrix.extension }}
+      postgres-locale-provider: ${{ matrix.postgres-locale-provider }}
+
+    strategy:
+      matrix:
+        php-version:
+          - '8.5'
+        postgres-version:
+          - '17'
+        extension:
+          - pgsql
+          - pdo_pgsql
+        postgres-locale-provider:
+          - libc

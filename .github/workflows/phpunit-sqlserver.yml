@@ -1,0 +1,57 @@
+name: PHPUnit with SQL Server
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        required: true
+        type: string
+      extension:
+        required: true
+        type: string
+      collation:
+        required: true
+        type: string
+
+jobs:
+  phpunit-sqlserver:
+    runs-on: ubuntu-22.04
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+          - '1433:1433'
+        env:
+          ACCEPT_EULA: 'Y'
+          SA_PASSWORD: Doctrine2018
+          MSSQL_COLLATION: ${{ inputs.collation }}
+        options: >-
+          --health-cmd "echo quit | /opt/mssql-tools18/bin/sqlcmd -C -S 127.0.0.1 -l 1 -U sa -P Doctrine2018"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: ${{ inputs.extension }}-5.10.0beta1
+          coverage: pcov
+          ini-values: zend.assertions=1
+          tools: pecl
+
+      - name: Install dependencies with Composer
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '--ignore-platform-req=php+'
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}.xml --coverage-clover=coverage.xml
+
+      - name: Upload coverage file
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.job }}-php-${{ inputs.php-version }}-${{ inputs.extension }}-${{ inputs.collation }}.coverage
+          path: coverage.xml

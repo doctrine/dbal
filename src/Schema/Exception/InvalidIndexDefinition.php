@@ -21,22 +21,27 @@ final class InvalidIndexDefinition extends LogicException implements SchemaExcep
         return new self('Index name is not set.');
     }
 
-    public static function columnsNotSet(): self
+    public static function columnsNotSet(UnqualifiedName $indexName): self
     {
-        return new self('Index column names are not set.');
+        return new self(sprintf('Columns are not set for index %s.', $indexName->toString()));
     }
 
-    public static function fromInvalidColumnLengthType(mixed $length): self
+    public static function fromInvalidColumnLengthType(UnqualifiedName $columnName, mixed $length): self
     {
         return new self(sprintf(
-            'Indexed column length must be a positive integer, %s given.',
+            'Indexed column length must be a positive integer, %s given for column %s.',
             is_object($length) ? $length::class : gettype($length),
+            $columnName->toString(),
         ));
     }
 
-    public static function fromNonPositiveColumnLength(int $length): self
+    public static function fromNonPositiveColumnLength(UnqualifiedName $columnName, int $length): self
     {
-        return new self(sprintf('Indexed column length must be a positive integer, %d given.', $length));
+        return new self(sprintf(
+            'Indexed column length must be a positive integer, %d given for column %s.',
+            $length,
+            $columnName->toString(),
+        ));
     }
 
     /** @param non-empty-list<string> $flags */

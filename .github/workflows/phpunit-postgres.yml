@@ -1,0 +1,58 @@
+name: PHPUnit with PostgreSQL
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        required: true
+        type: string
+      postgres-version:
+        required: true
+        type: string
+      extension:
+        required: true
+        type: string
+      postgres-locale-provider:
+        required: true
+        type: string
+
+jobs:
+  phpunit-postgres:
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgres:${{ inputs.postgres-version }}
+        ports:
+          - '5432:5432'
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_INITDB_ARGS: ${{ inputs.postgres-locale-provider == 'icu' && '--locale-provider=icu --icu-locale=en-US' || '' }}
+        options: >-
+          --health-cmd pg_isready
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: ${{ inputs.extension }}
+          coverage: pcov
+          ini-values: zend.assertions=1
+
+      - name: Install dependencies with Composer
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '--ignore-platform-req=php+'
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}.xml --coverage-clover=coverage.xml
+
+      - name: Upload coverage file
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.job }}-${{ inputs.postgres-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}.coverage
+          path: coverage.xml

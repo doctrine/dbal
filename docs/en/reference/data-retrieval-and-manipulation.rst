@@ -15,8 +15,8 @@ Doctrine DBAL API integrates native extensions. If you already have an open conn
 through the ``Doctrine\DBAL\DriverManager::getConnection()`` method you
 can start using this API for data retrieval easily.
 
-Start writing an SQL query and pass it to the ``query()`` method of your
-connection:
+Start writing an SQL query and pass it to the ``executeQuery()`` method
+of your connection:
 
 .. code-block:: php
 
@@ -26,7 +26,7 @@ connection:
     $conn = DriverManager::getConnection($params, $config);
 
     $sql = "SELECT * FROM articles";
-    $stmt = $conn->query($sql); // Simple, but has several drawbacks
+    $stmt = $conn->executeQuery($sql); // Simple, but has several drawbacks
 
 The query method executes the SQL and returns a database statement object.
 A database statement object can be iterated to retrieve all the rows that matched
@@ -104,11 +104,11 @@ position of the variable to bind into the ``bindValue()`` method:
     $stmt->bindValue(1, $id);
     $stmt->bindValue(2, $status);
     $resultSet = $stmt->executeQuery();
-    
+
 .. note::
 
     The numerical parameters in ``bindValue()`` start with the needle
-    ``1``. 
+    ``1``.
 
 Named parameters have the advantage that their labels can be re-used and only need to be bound once:
 
