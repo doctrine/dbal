@@ -21,9 +21,17 @@ class RenameColumnTest extends FunctionalTestCase
     #[DataProvider('columnNameProvider')]
     public function testColumnPositionRetainedAfterImplicitRenaming(string $columnName, string $newColumnName): void
     {
-        $table = new Table('test_rename');
-        $table->addColumn($columnName, Types::STRING, ['length' => 16]);
-        $table->addColumn('c2', Types::INTEGER);
+        $table = new Table('test_rename', [
+            Column::editor()
+                ->setUnquotedName($columnName)
+                ->setTypeName(Types::STRING)
+                ->setLength(16)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('c2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 

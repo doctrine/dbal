@@ -85,26 +85,26 @@ class ColumnTest extends TestCase
 
     public function createColumn(): Column
     {
-        $options = [
-            'length' => 200,
-            'precision' => 5,
-            'scale' => 2,
-            'unsigned' => true,
-            'notnull' => false,
-            'fixed' => true,
-            'default' => 'baz',
-            'platformOptions' => ['charset' => 'utf8'],
-        ];
-
-        $string = Type::getType(Types::STRING);
-
-        return new Column('foo', $string, $options);
+        return Column::editor()
+            ->setUnquotedName('foo')
+            ->setTypeName(Types::STRING)
+            ->setLength(200)
+            ->setPrecision(5)
+            ->setScale(2)
+            ->setUnsigned(true)
+            ->setNotNull(false)
+            ->setFixed(true)
+            ->setDefaultValue('baz')
+            ->setCharset('utf8')
+            ->create();
     }
 
     public function testQuotedColumnName(): void
     {
-        $string = Type::getType(Types::STRING);
-        $column = new Column('`bar`', $string, []);
+        $column = Column::editor()
+            ->setQuotedName('bar')
+            ->setTypeName(Types::STRING)
+            ->create();
 
         $mysqlPlatform  = new MySQLPlatform();
         $sqlitePlatform = new SQLitePlatform();
@@ -113,7 +113,10 @@ class ColumnTest extends TestCase
         self::assertEquals('`bar`', $column->getObjectName()->toSQL($mysqlPlatform));
         self::assertEquals('"bar"', $column->getObjectName()->toSQL($sqlitePlatform));
 
-        $column = new Column('[bar]', $string);
+        $column = Column::editor()
+            ->setQuotedName('bar')
+            ->setTypeName(Types::STRING)
+            ->create();
 
         $sqlServerPlatform = new SQLServerPlatform();
 
@@ -143,7 +146,10 @@ class ColumnTest extends TestCase
 
     public function testColumnComment(): void
     {
-        $column = new Column('bar', Type::getType(Types::STRING));
+        $column = Column::editor()
+            ->setUnquotedName('bar')
+            ->setType(Type::getType(Types::STRING))
+            ->create();
         self::assertSame('', $column->getComment());
 
         $column->setComment('foo');
@@ -167,13 +173,19 @@ class ColumnTest extends TestCase
     {
         $this->expectException(InvalidName::class);
 
-        new Column('t.id', Type::getType(Types::INTEGER));
+        Column::editor()
+            ->setUnquotedName('t.id')
+            ->setType(Type::getType(Types::INTEGER))
+            ->create();
     }
 
     /** @throws Exception */
     public function testGetObjectName(): void
     {
-        $column = new Column('id', Type::getType(Types::INTEGER));
+        $column = Column::editor()
+            ->setUnquotedName('id')
+            ->setType(Type::getType(Types::INTEGER))
+            ->create();
 
         self::assertEquals(Identifier::unquoted('id'), $column->getObjectName()->getIdentifier());
     }

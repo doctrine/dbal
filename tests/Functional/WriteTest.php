@@ -11,6 +11,7 @@ use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -22,12 +23,22 @@ class WriteTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('write_table');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('test_int', Types::INTEGER);
-        $table->addColumn('test_string', Types::STRING, [
-            'length' => 32,
-            'notnull' => false,
+        $table = new Table('write_table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_int')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_string')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->setNotNull(false)
+                ->create(),
         ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
@@ -280,8 +291,13 @@ class WriteTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('test_empty_identity');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table = new Table('test_empty_identity', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

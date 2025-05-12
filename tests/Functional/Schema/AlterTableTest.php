@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -16,9 +17,16 @@ class AlterTableTest extends FunctionalTestCase
 {
     public function testAddPrimaryKeyOnExistingColumn(): void
     {
-        $table = new Table('alter_pk');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('val', Types::INTEGER);
+        $table = new Table('alter_pk', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('val')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $this->testMigration($table, static function (Table $table): void {
             $table->addPrimaryKeyConstraint(
@@ -37,8 +45,12 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk');
-        $table->addColumn('val', Types::INTEGER);
+        $table = new Table('alter_pk', [
+            Column::editor()
+                ->setUnquotedName('val')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $this->testMigration($table, static function (Table $table): void {
             $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
@@ -66,9 +78,17 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk');
-        $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('id2', Types::INTEGER);
+        $table = new Table('alter_pk', [
+            Column::editor()
+                ->setUnquotedName('id1')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('id2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id1')
@@ -101,9 +121,17 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk');
-        $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('id2', Types::INTEGER);
+        $table = new Table('alter_pk', [
+            Column::editor()
+                ->setUnquotedName('id1')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('id2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id1', 'id2')
@@ -125,9 +153,17 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk');
-        $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('id2', Types::INTEGER);
+        $table = new Table('alter_pk', [
+            Column::editor()
+                ->setUnquotedName('id1')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('id2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id1', 'id2')
@@ -154,9 +190,17 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk');
-        $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('id2', Types::INTEGER);
+        $table = new Table('alter_pk', [
+            Column::editor()
+                ->setUnquotedName('id1')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('id2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id1')
@@ -179,8 +223,12 @@ class AlterTableTest extends FunctionalTestCase
             self::markTestIncomplete('This test fails on IBM Db2 for an unrelated reason.');
         }
 
-        $table = new Table('alter_pk');
-        $table->addColumn('id1', Types::INTEGER);
+        $table = new Table('alter_pk', [
+            Column::editor()
+                ->setUnquotedName('id1')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id1')
@@ -200,9 +248,16 @@ class AlterTableTest extends FunctionalTestCase
 
     public function testReplaceForeignKeyConstraint(): void
     {
-        $articles = new Table('articles');
-        $articles->addColumn('id', Types::INTEGER);
-        $articles->addColumn('sku', Types::INTEGER);
+        $articles = new Table('articles', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('sku')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $articles->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -210,10 +265,20 @@ class AlterTableTest extends FunctionalTestCase
         );
         $articles->addUniqueConstraint(['sku']);
 
-        $orders = new Table('orders');
-        $orders->addColumn('id', Types::INTEGER);
-        $orders->addColumn('article_id', Types::INTEGER);
-        $orders->addColumn('article_sku', Types::INTEGER);
+        $orders = new Table('orders', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('article_id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('article_sku')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $orders->addForeignKeyConstraint(
             'articles',
             ['article_id'],

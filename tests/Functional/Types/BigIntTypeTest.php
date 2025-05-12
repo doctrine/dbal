@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -21,9 +22,17 @@ class BigIntTypeTest extends FunctionalTestCase
     #[DataProvider('provideBigIntLiterals')]
     public function testSelectBigInt(string $sqlLiteral, int|string|null $expectedValue): void
     {
-        $table = new Table('bigint_type_test');
-        $table->addColumn('id', Types::SMALLINT, ['notnull' => true]);
-        $table->addColumn('my_integer', Types::BIGINT, ['notnull' => false]);
+        $table = new Table('bigint_type_test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::SMALLINT)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('my_integer')
+                ->setTypeName(Types::BIGINT)
+                ->setNotNull(false)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -64,9 +73,18 @@ class BigIntTypeTest extends FunctionalTestCase
             self::markTestSkipped('This test only works on MySQL/MariaDB.');
         }
 
-        $table = new Table('bigint_type_test');
-        $table->addColumn('id', Types::SMALLINT, ['notnull' => true]);
-        $table->addColumn('my_integer', Types::BIGINT, ['notnull' => false, 'unsigned' => true]);
+        $table = new Table('bigint_type_test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::SMALLINT)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('my_integer')
+                ->setTypeName(Types::BIGINT)
+                ->setNotNull(false)
+                ->setUnsigned(true)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

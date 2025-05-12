@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -37,9 +38,16 @@ class ColumnRenameTest extends FunctionalTestCase
     {
         $this->dropTableIfExists('rename_column_referenced');
 
-        $referencedTable = new Table('rename_column_referenced');
-        $referencedTable->addColumn('c1', Types::INTEGER);
-        $referencedTable->addColumn('c2', Types::INTEGER);
+        $referencedTable = new Table('rename_column_referenced', [
+            Column::editor()
+                ->setUnquotedName('c1')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('c2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         // PostgreSQL requires a unique constraint on the referenced table columns
         $referencedTable->addUniqueConstraint(['c1', 'c2']);
@@ -60,9 +68,16 @@ class ColumnRenameTest extends FunctionalTestCase
     {
         $this->dropTableIfExists('rename_column');
 
-        $table = new Table('rename_column');
-        $table->addColumn('c1', Types::INTEGER);
-        $table->addColumn('c2', Types::INTEGER);
+        $table = new Table('rename_column', [
+            Column::editor()
+                ->setUnquotedName('c1')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('c2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $modifier($table);
         $table->renameColumn('c1', 'c1a');
 

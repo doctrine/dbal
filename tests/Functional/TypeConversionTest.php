@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use BcMath\Number;
 use DateTime;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -24,25 +25,87 @@ class TypeConversionTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        $table = new Table('type_conversion');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('test_string', Types::STRING, [
-            'length' => 16,
-            'notnull' => false,
+        $table = new Table('type_conversion', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_string')
+                ->setTypeName(Types::STRING)
+                ->setLength(16)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_boolean')
+                ->setTypeName(Types::BOOLEAN)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_bigint')
+                ->setTypeName(Types::BIGINT)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_smallint')
+                ->setTypeName(Types::SMALLINT)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_datetime')
+                ->setTypeName(Types::DATETIME_MUTABLE)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_datetimetz')
+                ->setTypeName(Types::DATETIMETZ_MUTABLE)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_date')
+                ->setTypeName(Types::DATE_MUTABLE)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_time')
+                ->setTypeName(Types::TIME_MUTABLE)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_text')
+                ->setTypeName(Types::TEXT)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_json')
+                ->setTypeName(Types::JSON)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_float')
+                ->setTypeName(Types::FLOAT)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_smallfloat')
+                ->setTypeName(Types::SMALLFLOAT)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_decimal')
+                ->setTypeName(Types::DECIMAL)
+                ->setNotNull(false)
+                ->setPrecision(10)
+                ->setScale(2)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_number')
+                ->setTypeName(Types::NUMBER)
+                ->setNotNull(false)
+                ->setPrecision(10)
+                ->setScale(2)
+                ->create(),
         ]);
-        $table->addColumn('test_boolean', Types::BOOLEAN, ['notnull' => false]);
-        $table->addColumn('test_bigint', Types::BIGINT, ['notnull' => false]);
-        $table->addColumn('test_smallint', Types::BIGINT, ['notnull' => false]);
-        $table->addColumn('test_datetime', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addColumn('test_datetimetz', Types::DATETIMETZ_MUTABLE, ['notnull' => false]);
-        $table->addColumn('test_date', Types::DATE_MUTABLE, ['notnull' => false]);
-        $table->addColumn('test_time', Types::TIME_MUTABLE, ['notnull' => false]);
-        $table->addColumn('test_text', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('test_json', Types::JSON, ['notnull' => false]);
-        $table->addColumn('test_float', Types::FLOAT, ['notnull' => false]);
-        $table->addColumn('test_smallfloat', Types::SMALLFLOAT, ['notnull' => false]);
-        $table->addColumn('test_decimal', Types::DECIMAL, ['notnull' => false, 'scale' => 2, 'precision' => 10]);
-        $table->addColumn('test_number', Types::NUMBER, ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

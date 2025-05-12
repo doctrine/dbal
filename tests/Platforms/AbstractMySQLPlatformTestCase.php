@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -30,8 +31,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGenerateMixedCaseTableCreate(): void
     {
-        $table = new Table('Foo');
-        $table->addColumn('Bar', Types::INTEGER);
+        $table = new Table('Foo', [
+            Column::editor()
+                ->setUnquotedName('Bar')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
@@ -138,19 +143,26 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testUniquePrimaryKey(): void
     {
-        $keyTable = new Table('foo');
-        $keyTable->addColumn('bar', Types::INTEGER);
-        $keyTable->addColumn('baz', Types::STRING, ['length' => 32]);
+        $oldTable = new Table('foo', [
+            Column::editor()
+                ->setUnquotedName('bar')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('baz')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->create(),
+        ]);
+
+        $keyTable = $oldTable->edit()
+            ->create();
         $keyTable->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('bar')
                 ->create(),
         );
         $keyTable->addUniqueIndex(['baz']);
-
-        $oldTable = new Table('foo');
-        $oldTable->addColumn('bar', Types::INTEGER);
-        $oldTable->addColumn('baz', Types::STRING, ['length' => 32]);
 
         $diff = $this->createComparator()
             ->compareTables($oldTable, $keyTable);
@@ -223,9 +235,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testCreateTableWithFulltextIndex(): void
     {
-        $table = new Table('fulltext_table');
+        $table = new Table('fulltext_table', [
+            Column::editor()
+                ->setUnquotedName('text')
+                ->setTypeName(Types::TEXT)
+                ->create(),
+        ]);
         $table->addOption('engine', 'MyISAM');
-        $table->addColumn('text', Types::TEXT);
         $table->addIndex(['text'], 'fulltext_text', ['fulltext']);
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -241,9 +257,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testCreateTableWithSpatialIndex(): void
     {
-        $table = new Table('spatial_table');
+        $table = new Table('spatial_table', [
+            Column::editor()
+                ->setUnquotedName('point')
+                // This should be a point type
+                ->setTypeName(Types::TEXT)
+                ->create(),
+        ]);
         $table->addOption('engine', 'MyISAM');
-        $table->addColumn('point', Types::TEXT); // This should be a point type
         $table->addIndex(['point'], 'spatial_text', ['spatial']);
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -355,11 +376,30 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
-        $table = new Table('text_blob_default_value');
-        $table->addColumn('def_text', Types::TEXT, ['default' => 'def']);
-        $table->addColumn('def_text_null', Types::TEXT, ['notnull' => false, 'default' => 'def']);
-        $table->addColumn('def_blob', Types::BLOB, ['default' => 'def']);
-        $table->addColumn('def_blob_null', Types::BLOB, ['notnull' => false, 'default' => 'def']);
+        $table = new Table('text_blob_default_value', [
+            Column::editor()
+                ->setUnquotedName('def_text')
+                ->setTypeName(Types::TEXT)
+                ->setDefaultValue('def')
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('def_text_null')
+                ->setTypeName(Types::TEXT)
+                ->setNotNull(false)
+                ->setDefaultValue('def')
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('def_blob')
+                ->setTypeName(Types::BLOB)
+                ->setDefaultValue('def')
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('def_blob_null')
+                ->setTypeName(Types::BLOB)
+                ->setNotNull(false)
+                ->setDefaultValue('def')
+                ->create(),
+        ]);
 
         self::assertSame(
             [

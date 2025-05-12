@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_merge;
@@ -25,8 +27,12 @@ class ColumnCommentTest extends FunctionalTestCase
 
         self::$initialized = true;
 
-        $table = new Table('column_comments');
-        $table->addColumn('id', 'integer');
+        $table = new Table('column_comments', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         foreach (self::columnProvider() as [$name, $type, $options]) {
             $table->addColumn($name, $type, $options);
@@ -80,8 +86,13 @@ class ColumnCommentTest extends FunctionalTestCase
     #[DataProvider('alterColumnCommentProvider')]
     public function testAlterColumnComment(string $comment1, string $comment2): void
     {
-        $table1 = new Table('column_comments');
-        $table1->addColumn('id', 'integer', ['comment' => $comment1]);
+        $table1 = new Table('column_comments', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setComment($comment1)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table1);
 

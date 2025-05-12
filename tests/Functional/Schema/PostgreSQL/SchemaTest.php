@@ -10,7 +10,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\Types;
 
 final class SchemaTest extends FunctionalTestCase
 {
@@ -24,8 +24,14 @@ final class SchemaTest extends FunctionalTestCase
 
         $this->dropTableIfExists('my_table');
 
-        $options  = ['default' => 'nextval(\'my_table_id_seq\'::regclass)'];
-        $table    = new Table('my_table', [new Column('id', new IntegerType(), $options)]);
+        $table = new Table('my_table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setDefaultValue("nextval('my_table_id_seq'::regclass)")
+                ->create(),
+        ]);
+
         $sequence = new Sequence('my_table_id_seq');
 
         $schema = new Schema([$table], [$sequence]);

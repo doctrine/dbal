@@ -18,7 +18,6 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 /** @extends AbstractPlatformTestCase<SQLitePlatform> */
@@ -227,8 +226,13 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testGenerateTableSqlShouldNotAutoQuotePrimaryKey(): void
     {
-        $table = new Table('test');
-        $table->addColumn('"like"', Types::INTEGER, ['notnull' => true, 'autoincrement' => true]);
+        $table = new Table('test', [
+            Column::editor()
+                ->setQuotedName('like')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('like')
@@ -247,11 +251,16 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table = new Table('user');
 
         $diff = new TableDiff($table, addedColumns: [
-            new Column('foo', Type::getType(Types::STRING)),
-            new Column('count', Type::getType(Types::INTEGER), [
-                'notnull' => false,
-                'default' => 1,
-            ]),
+            Column::editor()
+                ->setUnquotedName('foo')
+                ->setTypeName(Types::STRING)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('count')
+                ->setTypeName(Types::INTEGER)
+                ->setNotNull(false)
+                ->setDefaultValue(1)
+                ->create(),
         ]);
 
         $expected = [
@@ -264,13 +273,23 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testRenameNonExistingColumn(): void
     {
-        $table = new Table('test');
-        $table->addColumn('id', Types::INTEGER);
+        $table = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'value' => new ColumnDiff(
-                new Column('data', Type::getType(Types::STRING)),
-                new Column('value', Type::getType(Types::STRING)),
+                Column::editor()
+                    ->setUnquotedName('data')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('value')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
             ),
         ]);
 
@@ -280,11 +299,24 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateTableWithDeferredForeignKeys(): void
     {
-        $table = new Table('user');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('article', Types::INTEGER);
-        $table->addColumn('post', Types::INTEGER);
-        $table->addColumn('parent', Types::INTEGER);
+        $table = new Table('user', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('article')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('post')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('parent')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -315,11 +347,24 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testAlterTable(): void
     {
-        $table = new Table('user');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('article', Types::INTEGER);
-        $table->addColumn('post', Types::INTEGER);
-        $table->addColumn('parent', Types::INTEGER);
+        $table = new Table('user', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('article')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('post')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('parent')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -335,15 +380,24 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             changedColumns: [
                 'id' => new ColumnDiff(
                     $table->getColumn('id'),
-                    new Column('key', Type::getType(Types::INTEGER)),
+                    Column::editor()
+                        ->setUnquotedName('key')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
                 ),
                 'post' => new ColumnDiff(
                     $table->getColumn('post'),
-                    new Column('comment', Type::getType(Types::INTEGER)),
+                    Column::editor()
+                        ->setUnquotedName('comment')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
                 ),
             ],
             droppedColumns: [
-                new Column('parent', Type::getType(Types::INTEGER), []),
+                Column::editor()
+                    ->setUnquotedName('parent')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
             ],
             droppedIndexes: [
                 $table->getIndex('index1'),
@@ -502,13 +556,23 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesAlterTableRenameColumnSQLWithSchema(): void
     {
-        $table = new Table('main.t');
-        $table->addColumn('a', Types::INTEGER);
+        $table = new Table('main.t', [
+            Column::editor()
+                ->setUnquotedName('a')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'a' => new ColumnDiff(
-                new Column('a', Type::getType(Types::INTEGER)),
-                new Column('b', Type::getType(Types::INTEGER)),
+                Column::editor()
+                    ->setUnquotedName('a')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('b')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
             ),
         ]);
 
@@ -639,8 +703,13 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateTableWithNonPrimaryKeyAutoIncrementColumn(): void
     {
-        $table = new Table('test_autoincrement');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table = new Table('test_autoincrement', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
 
         $this->expectException(UnsupportedTableDefinition::class);
         $this->platform->getCreateTableSQL($table);
@@ -648,9 +717,17 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateTableWithCompositePrimaryKeyAutoIncrementColumn(): void
     {
-        $table = new Table('test_autoincrement');
-        $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('id2', Types::INTEGER);
+        $table = new Table('test_autoincrement', [
+            Column::editor()
+                ->setUnquotedName('id1')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('id2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id1', 'id2')

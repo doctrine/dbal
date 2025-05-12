@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -35,8 +36,12 @@ final class SchemaManagerTest extends FunctionalTestCase
 
         $this->dropAndCreateSchema(UnqualifiedName::unquoted('other_schema'));
 
-        $tableForeign = new Table($foreignTableName);
-        $tableForeign->addColumn('id', 'integer');
+        $tableForeign = new Table($foreignTableName, [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $tableForeign->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -44,9 +49,16 @@ final class SchemaManagerTest extends FunctionalTestCase
         );
         $this->dropAndCreateTable($tableForeign);
 
-        $tableTo = new Table('other_schema.other_table');
-        $tableTo->addColumn('id', 'integer');
-        $tableTo->addColumn('user_id', 'integer');
+        $tableTo = new Table('other_schema.other_table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('user_id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $tableTo->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -82,9 +94,17 @@ final class SchemaManagerTest extends FunctionalTestCase
         $this->dropAndCreateSchema(UnqualifiedName::unquoted('other_schema'));
         $this->dropAndCreateSchema(UnqualifiedName::quoted('case'));
 
-        $tableFrom = new Table($tableName);
-        $tableFrom->addColumn('id', Types::INTEGER);
-        $tableFrom->addColumn('name', Types::STRING, ['length' => 32]);
+        $tableFrom = new Table($tableName, [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('name')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->create(),
+        ]);
         $tableFrom->addUniqueIndex(['name'], 'some_table_name_unique_index');
         $this->dropAndCreateTable($tableFrom);
 
@@ -120,8 +140,13 @@ final class SchemaManagerTest extends FunctionalTestCase
             self::markTestSkipped('This test is only supported on platforms that have autoincrement');
         }
 
-        $table = new Table('test_autoincrement');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => $autoincrement]);
+        $table = new Table('test_autoincrement', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement($autoincrement)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -150,9 +175,17 @@ final class SchemaManagerTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('test_autoincrement');
-        $table->addColumn('id1', Types::INTEGER, ['autoincrement' => $autoincrement]);
-        $table->addColumn('id2', Types::INTEGER);
+        $table = new Table('test_autoincrement', [
+            Column::editor()
+                ->setUnquotedName('id1')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement($autoincrement)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('id2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id1', 'id2')

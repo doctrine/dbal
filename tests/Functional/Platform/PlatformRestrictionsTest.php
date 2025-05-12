@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -26,8 +27,13 @@ class PlatformRestrictionsTest extends FunctionalTestCase
         $platform   = $this->connection->getDatabasePlatform();
         $tableName  = str_repeat('x', $platform->getMaxIdentifierLength());
         $columnName = str_repeat('y', $platform->getMaxIdentifierLength());
-        $table      = new Table($tableName);
-        $table->addColumn($columnName, Types::INTEGER, ['autoincrement' => true]);
+        $table      = new Table($tableName, [
+            Column::editor()
+                ->setUnquotedName($columnName)
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
 
         $primaryKeyConstraint = PrimaryKeyConstraint::editor()
             ->setUnquotedColumnNames($columnName)

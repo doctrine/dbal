@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -68,8 +69,12 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
 
     public function testCollationOptionIsTakenIntoAccount(): void
     {
-        $table = new Table('quotations');
-        $table->addColumn('id', Types::INTEGER);
+        $table = new Table('quotations', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addOption('collation', 'my_collation');
         self::assertStringContainsString(
             'my_collation',

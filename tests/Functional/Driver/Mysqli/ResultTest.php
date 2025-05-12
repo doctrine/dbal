@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Mysqli\Result;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 use mysqli;
 use mysqli_driver;
 use mysqli_sql_exception;
@@ -38,8 +40,12 @@ final class ResultTest extends FunctionalTestCase
 
         $this->nativeConnection = $nativeConnection;
 
-        $table = new Table(self::TABLE_NAME);
-        $table->addColumn('my_col_1', 'integer', ['notnull' => true]);
+        $table = new Table(self::TABLE_NAME, [
+            Column::editor()
+                ->setUnquotedName('my_col_1')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
     }

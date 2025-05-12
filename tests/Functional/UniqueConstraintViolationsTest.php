@@ -13,9 +13,11 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Assert;
 use Throwable;
 
@@ -41,8 +43,12 @@ final class UniqueConstraintViolationsTest extends FunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $table = new Table('unique_constraint_violations');
-        $table->addColumn('unique_field', 'integer', ['notnull' => true]);
+        $table = new Table('unique_constraint_violations', [
+            Column::editor()
+                ->setUnquotedName('unique_field')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $schemaManager->createTable($table);
 
         if ($platform instanceof OraclePlatform || $platform instanceof PostgreSQLPlatform) {

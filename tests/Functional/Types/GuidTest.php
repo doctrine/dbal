@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -12,8 +13,12 @@ class GuidTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('guid_table');
-        $table->addColumn('guid', Types::GUID);
+        $table = new Table('guid_table', [
+            Column::editor()
+                ->setUnquotedName('guid')
+                ->setTypeName(Types::GUID)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
     }

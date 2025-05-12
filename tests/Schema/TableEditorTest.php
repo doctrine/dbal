@@ -8,7 +8,6 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
@@ -44,8 +43,12 @@ class TableEditorTest extends TestCase
     {
         $name = OptionallyQualifiedName::unquoted('contacts');
 
-        $table = new Table('accounts');
-        $table->addColumn('id', Types::INTEGER);
+        $table = new Table('accounts', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $table = $table->edit()
             ->setName($name)
@@ -73,6 +76,9 @@ class TableEditorTest extends TestCase
 
     private function createColumn(): Column
     {
-        return new Column('id', Type::getType(Types::INTEGER));
+        return Column::editor()
+            ->setUnquotedName('id')
+            ->setTypeName(Types::INTEGER)
+            ->create();
     }
 }

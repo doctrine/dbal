@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -116,9 +115,17 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesCreateTableSQLWithCommonIndexes(): void
     {
-        $table = new Table('test');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('name', Types::STRING, ['length' => 50]);
+        $table = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('name')
+                ->setTypeName(Types::STRING)
+                ->setLength(50)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -139,10 +146,20 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesCreateTableSQLWithForeignKeyConstraints(): void
     {
-        $table = new Table('test');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('fk_1', Types::INTEGER);
-        $table->addColumn('fk_2', Types::INTEGER);
+        $table = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('fk_1')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('fk_2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -173,10 +190,22 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesCreateTableSQLWithCheckConstraints(): void
     {
-        $table = new Table('test');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('check_max', Types::INTEGER, ['platformOptions' => ['max' => 10]]);
-        $table->addColumn('check_min', Types::INTEGER, ['platformOptions' => ['min' => 10]]);
+        $table = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('check_max')
+                ->setTypeName(Types::INTEGER)
+                ->setMaximumValue(10)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('check_min')
+                ->setTypeName(Types::INTEGER)
+                ->setMinimumValue(10)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -461,64 +490,152 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertSame($expectedSQL, $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    /** @return mixed[][] */
+    /** @return iterable<array{Column, Column, ?string, 3?: bool}> */
     public static function getGeneratesAlterColumnSQL(): iterable
     {
         return [
             [
-                new Column('bar', Type::getType(Types::DECIMAL), ['columnDefinition' => 'MONEY NULL']),
-                new Column('bar', Type::getType(Types::DECIMAL), ['columnDefinition' => 'MONEY NOT NULL']),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::DECIMAL)
+                    ->setColumnDefinition('MONEY NULL')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::DECIMAL)
+                    ->setColumnDefinition('MONEY NOT NULL')
+                    ->create(),
                 'MONEY NOT NULL',
             ],
             [
-                new Column('bar', Type::getType(Types::STRING)),
-                new Column('bar', Type::getType(Types::INTEGER)),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
                 'SET DATA TYPE INTEGER',
             ],
             [
-                new Column('bar', Type::getType(Types::STRING), ['length' => 50]),
-                new Column('bar', Type::getType(Types::STRING), ['length' => 100]),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(50)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(100)
+                    ->create(),
                 'SET DATA TYPE VARCHAR(100)',
             ],
             [
-                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 8, 'scale' => 2]),
-                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 10, 'scale' => 2]),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::DECIMAL)
+                    ->setPrecision(8)
+                    ->setScale(2)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::DECIMAL)
+                    ->setPrecision(10)
+                    ->setScale(2)
+                    ->create(),
                 'SET DATA TYPE NUMERIC(10, 2)',
             ],
             [
-                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 5, 'scale' => 3]),
-                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 5, 'scale' => 4]),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::DECIMAL)
+                    ->setPrecision(5)
+                    ->setScale(3)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::DECIMAL)
+                    ->setPrecision(5)
+                    ->setScale(4)
+                    ->create(),
                 'SET DATA TYPE NUMERIC(5, 4)',
             ],
             [
-                new Column('bar', Type::getType(Types::STRING), ['length' => 10, 'fixed' => true]),
-                new Column('bar', Type::getType(Types::STRING), ['length' => 20, 'fixed' => true]),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(10)
+                    ->setFixed(true)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(20)
+                    ->setFixed(true)
+                    ->create(),
                 'SET DATA TYPE CHAR(20)',
             ],
             [
-                new Column('bar', Type::getType(Types::STRING), ['notnull' => false]),
-                new Column('bar', Type::getType(Types::STRING), ['notnull' => true]),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setNotNull(false)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
                 'SET NOT NULL',
             ],
             [
-                new Column('bar', Type::getType(Types::STRING), ['notnull' => true]),
-                new Column('bar', Type::getType(Types::STRING), ['notnull' => false]),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setNotNull(false)
+                    ->create(),
                 'DROP NOT NULL',
             ],
             [
-                new Column('bar', Type::getType(Types::STRING)),
-                new Column('bar', Type::getType(Types::STRING), ['default' => 'foo']),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setDefaultValue('foo')
+                    ->create(),
                 "SET DEFAULT 'foo'",
             ],
             [
-                new Column('bar', Type::getType(Types::INTEGER)),
-                new Column('bar', Type::getType(Types::INTEGER), ['autoincrement' => true, 'default' => 666]),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->setDefaultValue(666)
+                    ->create(),
                 null,
                 false,
             ],
             [
-                new Column('bar', Type::getType(Types::STRING), ['default' => 'foo']),
-                new Column('bar', Type::getType(Types::STRING)),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setDefaultValue('foo')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
                 'DROP DEFAULT',
             ],
         ];

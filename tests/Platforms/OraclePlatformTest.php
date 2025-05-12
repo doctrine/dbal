@@ -13,7 +13,6 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -157,10 +156,13 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $columnName = strtoupper('id' . uniqid());
         $tableName  = strtoupper('table' . uniqid());
-        $table      = new Table($tableName);
-
-        $column = $table->addColumn($columnName, Types::INTEGER);
-        $column->setAutoincrement(true);
+        $table      = new Table($tableName, [
+            Column::editor()
+                ->setUnquotedName($columnName)
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
 
         self::assertSame([
             sprintf('CREATE TABLE "%s" ("%s" NUMBER(10) NOT NULL)', $tableName, $columnName),
@@ -315,19 +317,33 @@ SQL
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType(): void
     {
-        $table1 = new Table('mytable');
-        $table1->addColumn('column_varbinary', Types::BINARY, ['length' => 32]);
-        $table1->addColumn('column_binary', Types::BINARY, [
-            'fixed' => true,
-            'length' => 32,
+        $table1 = new Table('mytable', [
+            Column::editor()
+                ->setUnquotedName('column_varbinary')
+                ->setTypeName(Types::BINARY)
+                ->setLength(32)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('column_binary')
+                ->setTypeName(Types::BINARY)
+                ->setFixed(true)
+                ->setLength(32)
+                ->create(),
         ]);
 
-        $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', Types::BINARY, [
-            'fixed' => true,
-            'length' => 32,
+        $table2 = new Table('mytable', [
+            Column::editor()
+                ->setUnquotedName('column_varbinary')
+                ->setTypeName(Types::BINARY)
+                ->setFixed(true)
+                ->setLength(32)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('column_binary')
+                ->setTypeName(Types::BINARY)
+                ->setLength(32)
+                ->create(),
         ]);
-        $table2->addColumn('column_binary', Types::BINARY, ['length' => 32]);
 
         self::assertTrue(
             $this->createComparator()
@@ -445,24 +461,40 @@ SQL
 
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
-        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType(Types::INTEGER))]);
-        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType(Types::INTEGER), ['comment' => 'baz'])]);
+        $table1 = new Table('"Foo"', [
+            Column::editor()
+                ->setQuotedName('Bar')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
+
+        $table2 = new Table('"Foo"', [
+            Column::editor()
+                ->setQuotedName('Bar')
+                ->setTypeName(Types::INTEGER)
+                ->setComment('Baz')
+                ->create(),
+        ]);
 
         $tableDiff = $this->createComparator()
             ->compareTables($table1, $table2);
 
         self::assertSame(
-            ['COMMENT ON COLUMN "foo"."bar" IS \'baz\''],
+            ['COMMENT ON COLUMN "Foo"."Bar" IS \'Baz\''],
             $this->platform->getAlterTableSQL($tableDiff),
         );
     }
 
     public function testQuotedTableNames(): void
     {
-        $table = new Table('"test"');
-        $table->addColumn('"id"', Types::INTEGER, ['autoincrement' => true]);
+        $table = new Table('"test"', [
+            Column::editor()
+                ->setQuotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
 
-        // assert tabel
         self::assertTrue($table->isQuoted());
         self::assertEquals('test', $table->getName());
         self::assertEquals('"test"', $table->getObjectName()->toSQL($this->platform));

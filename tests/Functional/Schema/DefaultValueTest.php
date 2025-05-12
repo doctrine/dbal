@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -15,16 +16,24 @@ class DefaultValueTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('default_value');
-        $table->addColumn('id', Types::INTEGER);
+        $columns = [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ];
 
         foreach (self::columnProvider() as [$name, $default]) {
-            $table->addColumn($name, Types::STRING, [
-                'length' => 32,
-                'default' => $default,
-                'notnull' => false,
-            ]);
+            $columns[] = Column::editor()
+                ->setUnquotedName($name)
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->setDefaultValue($default)
+                ->setNotNull(false)
+                ->create();
         }
+
+        $table = new Table('default_value', $columns);
 
         $this->dropAndCreateTable($table);
 

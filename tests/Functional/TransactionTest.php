@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -100,8 +101,12 @@ class TransactionTest extends FunctionalTestCase
             self::markTestIncomplete('Broken when savepoints are not supported.');
         }
 
-        $table = new Table('storage');
-        $table->addColumn('test_int', Types::INTEGER);
+        $table = new Table('storage', [
+            Column::editor()
+                ->setUnquotedName('test_int')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('test_int')

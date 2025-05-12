@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -26,8 +27,14 @@ final class DecimalTest extends FunctionalTestCase
     #[DataProvider('dataValuesProvider')]
     public function testInsertAndRetrieveDecimal(string $expected): void
     {
-        $table = new Table('decimal_table');
-        $table->addColumn('val', Types::DECIMAL, ['precision' => 4, 'scale' => 2]);
+        $table = new Table('decimal_table', [
+            Column::editor()
+                ->setUnquotedName('val')
+                ->setTypeName(Types::DECIMAL)
+                ->setPrecision(4)
+                ->setScale(2)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 

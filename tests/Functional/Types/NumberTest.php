@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use BcMath\Number;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -22,8 +23,14 @@ final class NumberTest extends FunctionalTestCase
     {
         $expected = new Number($numberAsString);
 
-        $table = new Table('number_table');
-        $table->addColumn('val', Types::NUMBER, ['precision' => 4, 'scale' => 2]);
+        $table = new Table('number_table', [
+            Column::editor()
+                ->setUnquotedName('val')
+                ->setTypeName(Types::NUMBER)
+                ->setPrecision(4)
+                ->setScale(2)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 
@@ -44,8 +51,14 @@ final class NumberTest extends FunctionalTestCase
 
     public function testCompareNumberTable(): void
     {
-        $table = new Table('number_table');
-        $table->addColumn('val', Types::NUMBER, ['precision' => 4, 'scale' => 2]);
+        $table = new Table('number_table', [
+            Column::editor()
+                ->setUnquotedName('val')
+                ->setTypeName(Types::NUMBER)
+                ->setPrecision(4)
+                ->setScale(2)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 

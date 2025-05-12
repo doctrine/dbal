@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -12,8 +13,13 @@ class AlterColumnLengthChangeTest extends FunctionalTestCase
 {
     public function testColumnLengthIsChanged(): void
     {
-        $table = new Table('test_alter_length');
-        $table->addColumn('c1', Types::STRING)->setLength(50);
+        $table = new Table('test_alter_length', [
+            Column::editor()
+                ->setUnquotedName('c1')
+                ->setTypeName(Types::STRING)
+                ->setLength(50)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 

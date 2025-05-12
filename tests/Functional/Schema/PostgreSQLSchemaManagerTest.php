@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
@@ -58,15 +59,23 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testAlterTableAutoIncrementAdd(): void
     {
-        $tableFrom = new Table('autoinc_table_add');
-        $tableFrom->addColumn('id', Types::INTEGER);
+        $tableFrom = new Table('autoinc_table_add', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $this->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->introspectTable('autoinc_table_add');
         self::assertFalse($tableFrom->getColumn('id')->getAutoincrement());
 
-        $tableTo = new Table('autoinc_table_add');
-        $column  = $tableTo->addColumn('id', Types::INTEGER);
-        $column->setAutoincrement(true);
+        $tableTo = new Table('autoinc_table_add', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
 
         $platform = $this->connection->getDatabasePlatform();
         $diff     = $this->schemaManager->createComparator()
@@ -79,15 +88,23 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testAlterTableAutoIncrementDrop(): void
     {
-        $tableFrom = new Table('autoinc_table_drop');
-        $column    = $tableFrom->addColumn('id', Types::INTEGER);
-        $column->setAutoincrement(true);
+        $tableFrom = new Table('autoinc_table_drop', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
         $this->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->introspectTable('autoinc_table_drop');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
-        $tableTo = new Table('autoinc_table_drop');
-        $tableTo->addColumn('id', Types::INTEGER);
+        $tableTo = new Table('autoinc_table_drop', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $platform = $this->connection->getDatabasePlatform();
         $diff     = $this->schemaManager->createComparator()
@@ -101,14 +118,28 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListSameTableNameColumnsWithDifferentSchema(): void
     {
         $this->connection->executeStatement('CREATE SCHEMA another');
-        $table = new Table('table');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('name', Types::TEXT);
+        $table = new Table('table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('name')
+                ->setTypeName(Types::TEXT)
+                ->create(),
+        ]);
         $this->schemaManager->createTable($table);
 
-        $anotherSchemaTable = new Table('another.table');
-        $anotherSchemaTable->addColumn('id', Types::TEXT);
-        $anotherSchemaTable->addColumn('email', Types::TEXT);
+        $anotherSchemaTable = new Table('another.table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::TEXT)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('email')
+                ->setTypeName(Types::TEXT)
+                ->create(),
+        ]);
         $this->schemaManager->createTable($anotherSchemaTable);
 
         $table = $this->schemaManager->introspectTable('table');
@@ -144,9 +175,17 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testDefaultValueCharacterVarying(): void
     {
-        $testTable = new Table('dbal511_default');
-        $testTable->addColumn('id', Types::INTEGER);
-        $testTable->addColumn('def', Types::STRING, ['default' => 'foo']);
+        $testTable = new Table('dbal511_default', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('def')
+                ->setTypeName(Types::STRING)
+                ->setDefaultValue('foo')
+                ->create(),
+        ]);
         $testTable->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -161,10 +200,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testJsonDefaultValue(): void
     {
-        $testTable = new Table('test_json');
-        $testTable
-            ->addColumn('foo', Types::JSON)
-            ->setDefault('{"key": "value with a single quote \' in string value"}');
+        $testTable = new Table('test_json', [
+            Column::editor()
+                ->setUnquotedName('foo')
+                ->setTypeName(Types::JSON)
+                ->setDefaultValue('{"key": "value with a single quote \' in string value"}')
+                ->create(),
+        ]);
         $this->dropAndCreateTable($testTable);
 
         $columns = $this->schemaManager->listTableColumns('test_json');
@@ -175,9 +217,17 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testBooleanDefault(): void
     {
-        $table = new Table('ddc2843_bools');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('checked', Types::BOOLEAN, ['default' => false]);
+        $table = new Table('ddc2843_bools', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('checked')
+                ->setTypeName(Types::BOOLEAN)
+                ->setDefaultValue(false)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 
@@ -192,13 +242,18 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testGeneratedColumn(): void
     {
-        $table = new Table('ddc6198_generated_always_as');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn(
-            'idIsOdd',
-            Types::BOOLEAN,
-            ['columnDefinition' => 'boolean GENERATED ALWAYS AS (id % 2 = 1) STORED', 'notNull' => false],
-        );
+        $table = new Table('ddc6198_generated_always_as', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('idIsOdd')
+                ->setTypeName(Types::BOOLEAN)
+                ->setColumnDefinition('boolean GENERATED ALWAYS AS (id % 2 = 1) STORED')
+                ->setNotNull(false)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 
@@ -301,10 +356,20 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testPartialIndexes(): void
     {
-        $offlineTable = new Table('person');
-        $offlineTable->addColumn('id', Types::INTEGER);
-        $offlineTable->addColumn('name', Types::STRING);
-        $offlineTable->addColumn('email', Types::STRING);
+        $offlineTable = new Table('person', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('name')
+                ->setTypeName(Types::STRING)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('email')
+                ->setTypeName(Types::STRING)
+                ->create(),
+        ]);
         $offlineTable->addUniqueIndex(['id', 'name'], 'simple_partial_index', ['where' => '(id IS NULL)']);
 
         $this->dropAndCreateTable($offlineTable);
@@ -333,19 +398,45 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListNegativeColumnDefaultValue(): void
     {
-        $table = new Table('test_default_negative');
-        $table->addColumn('col_smallint', Types::SMALLINT, ['default' => -1]);
-        $table->addColumn('col_integer', Types::INTEGER, ['default' => -1]);
-        $table->addColumn('col_bigint', Types::BIGINT, ['default' => -1]);
-        $table->addColumn('col_float', Types::FLOAT, ['default' => -1.1]);
-        $table->addColumn('col_smallfloat', Types::SMALLFLOAT, ['default' => -1.1]);
-        $table->addColumn('col_decimal', Types::DECIMAL, [
-            'precision' => 2,
-            'scale' => 1,
-            'default' => -1.1,
+        $table = new Table('test_default_negative', [
+            Column::editor()
+                ->setUnquotedName('col_smallint')
+                ->setTypeName(Types::SMALLINT)
+                ->setDefaultValue(-1)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('col_integer')
+                ->setTypeName(Types::INTEGER)
+                ->setDefaultValue(-1)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('col_bigint')
+                ->setTypeName(Types::BIGINT)
+                ->setDefaultValue(-1)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('col_float')
+                ->setTypeName(Types::FLOAT)
+                ->setDefaultValue(-1.1)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('col_smallfloat')
+                ->setTypeName(Types::SMALLFLOAT)
+                ->setDefaultValue(-1.1)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('col_decimal')
+                ->setTypeName(Types::DECIMAL)
+                ->setPrecision(2)
+                ->setScale(1)
+                ->setDefaultValue(-1.1)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('col_string')
+                ->setTypeName(Types::STRING)
+                ->setDefaultValue('(-1)')
+                ->create(),
         ]);
-        $table->addColumn('col_string', Types::STRING, ['default' => '(-1)']);
-
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_default_negative');
@@ -369,12 +460,18 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     #[DataProvider('serialTypes')]
-    public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValue(string $type): void
+    public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValue(string $typeName): void
     {
-        $tableName = 'test_serial_type_' . $type;
+        $tableName = 'test_serial_type_' . $typeName;
 
-        $table = new Table($tableName);
-        $table->addColumn('id', $type, ['autoincrement' => true, 'notnull' => false]);
+        $table = new Table($tableName, [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName($typeName)
+                ->setAutoincrement(true)
+                ->setNotNull(false)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 
@@ -388,8 +485,15 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $tableName = 'test_serial_type_with_default_' . $type;
 
-        $table = new Table($tableName);
-        $table->addColumn('id', $type, ['autoincrement' => true, 'notnull' => false, 'default' => 1]);
+        $table = new Table($tableName, [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName($type)
+                ->setAutoincrement(true)
+                ->setNotNull(false)
+                ->setDefaultValue(1)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 
@@ -401,17 +505,25 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     #[DataProvider('autoIncrementTypeMigrations')]
     public function testAlterTableAutoIncrementIntToBigInt(string $from, string $to, string $expected): void
     {
-        $table  = new Table('autoinc_type_modification');
-        $column = $table->addColumn('id', $from);
-        $column->setAutoincrement(true);
+        $table = new Table('autoinc_type_modification', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName($from)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
         $this->dropAndCreateTable($table);
 
         $oldTable = $this->schemaManager->introspectTable('autoinc_type_modification');
         self::assertTrue($oldTable->getColumn('id')->getAutoincrement());
 
-        $newTable = new Table('autoinc_type_modification');
-        $column   = $newTable->addColumn('id', $to);
-        $column->setAutoincrement(true);
+        $newTable = new Table('autoinc_type_modification', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName($to)
+                ->setAutoincrement(true)
+                ->create(),
+        ]);
 
         $diff = $this->schemaManager->createComparator()
             ->compareTables($oldTable, $newTable);

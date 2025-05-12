@@ -8,7 +8,6 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 final class UniqueConstraintTest extends FunctionalTestCase
@@ -18,9 +17,16 @@ final class UniqueConstraintTest extends FunctionalTestCase
         $this->dropTableIfExists('users');
 
         $users = new Table('users', [
-            new Column('id', Type::getType(Types::INTEGER)),
-            new Column('username', Type::getType(Types::STRING), ['length' => 32]),
-            new Column('email', Type::getType(Types::STRING), ['length' => 255]),
+            Column::editor()
+                ->setUnquotedName('username')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('email')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->create(),
         ], [], [
             UniqueConstraint::editor()
                 ->setUnquotedColumnNames('username')

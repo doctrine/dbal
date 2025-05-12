@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -14,9 +15,16 @@ class AlterColumnTest extends FunctionalTestCase
 {
     public function testColumnPositionRetainedAfterAltering(): void
     {
-        $table = new Table('test_alter');
-        $table->addColumn('c1', Types::INTEGER);
-        $table->addColumn('c2', Types::INTEGER);
+        $table = new Table('test_alter', [
+            Column::editor()
+                ->setUnquotedName('c1')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('c2')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 

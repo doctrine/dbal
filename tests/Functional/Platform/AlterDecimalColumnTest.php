@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -14,15 +15,22 @@ use function sprintf;
 class AlterDecimalColumnTest extends FunctionalTestCase
 {
     #[DataProvider('scaleAndPrecisionProvider')]
-    public function testAlterPrecisionAndScale(int $newPrecision, int $newScale, string $type): void
+    public function testAlterPrecisionAndScale(int $newPrecision, int $newScale, string $typeName): void
     {
-        $table  = new Table('decimal_table');
-        $column = $table->addColumn('val', $type, ['precision' => 16, 'scale' => 6]);
+        $table = new Table('decimal_table', [
+            Column::editor()
+                ->setUnquotedName('val')
+                ->setTypeName($typeName)
+                ->setPrecision(16)
+                ->setScale(6)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 
-        $column->setPrecision($newPrecision);
-        $column->setScale($newScale);
+        $table->getColumn('val')
+            ->setPrecision($newPrecision)
+            ->setScale($newScale);
 
         $schemaManager = $this->connection->createSchemaManager();
 

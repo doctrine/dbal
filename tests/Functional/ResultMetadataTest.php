@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\TestWith;
 
 use function strtolower;
@@ -16,8 +18,12 @@ class ResultMetadataTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('result_metadata_table');
-        $table->addColumn('test_int', 'integer');
+        $table = new Table('result_metadata_table', [
+            Column::editor()
+                ->setUnquotedName('test_int')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('test_int')

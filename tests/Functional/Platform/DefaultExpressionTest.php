@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -52,14 +53,22 @@ class DefaultExpressionTest extends FunctionalTestCase
         });
     }
 
-    private function assertDefaultExpression(string $type, callable $expression): void
+    private function assertDefaultExpression(string $typeName, callable $expression): void
     {
         $platform   = $this->connection->getDatabasePlatform();
         $defaultSql = $expression($platform, $this);
 
-        $table = new Table('default_expr_test');
-        $table->addColumn('actual_value', $type);
-        $table->addColumn('default_value', $type, ['default' => $defaultSql]);
+        $table = new Table('default_expr_test', [
+            Column::editor()
+                ->setUnquotedName('actual_value')
+                ->setTypeName($typeName)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('default_value')
+                ->setTypeName($typeName)
+                ->setDefaultValue($defaultSql)
+                ->create(),
+        ]);
         $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement(

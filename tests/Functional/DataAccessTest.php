@@ -10,6 +10,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
@@ -28,10 +29,22 @@ class DataAccessTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('fetch_table');
-        $table->addColumn('test_int', Types::INTEGER);
-        $table->addColumn('test_string', Types::STRING, ['length' => 32]);
-        $table->addColumn('test_datetime', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table = new Table('fetch_table', [
+            Column::editor()
+                ->setUnquotedName('test_int')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_string')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_datetime')
+                ->setTypeName(Types::DATETIME_MUTABLE)
+                ->setNotNull(false)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('test_int')
@@ -644,9 +657,16 @@ class DataAccessTest extends FunctionalTestCase
             self::markTestSkipped('test is for sqlite only');
         }
 
-        $table = new Table('fetch_table_date_math');
-        $table->addColumn('test_date', Types::DATE_MUTABLE);
-        $table->addColumn('test_days', Types::INTEGER);
+        $table = new Table('fetch_table_date_math', [
+            Column::editor()
+                ->setUnquotedName('test_date')
+                ->setTypeName(Types::DATE_MUTABLE)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test_days')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('test_date')

@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\Types\MoneyType;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function array_map;
 use function implode;
@@ -37,18 +40,25 @@ class CustomIntrospectionTest extends FunctionalTestCase
         $tableName     = 'test_custom_column_introspection';
         $schemaManager = $this->connection->createSchemaManager();
         $schema        = new Schema([], [], $schemaManager->createSchemaConfig());
-        $table         = $schema->createTable($tableName);
-
-        $table->addColumn('id', 'integer');
-        $table->addColumn('quantity', 'decimal', [
-            'notnull' => false,
-            'scale' => 2,
-            'precision' => 10,
-        ]);
-        $table->addColumn('amount', 'money', [
-            'notnull' => false,
-            'scale' => 2,
-            'precision' => 10,
+        $table         = new Table($tableName, [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('quantity')
+                ->setTypeName(Types::DECIMAL)
+                ->setPrecision(10)
+                ->setScale(2)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('amount')
+                ->setTypeName('money')
+                ->setPrecision(10)
+                ->setScale(2)
+                ->setNotNull(false)
+                ->create(),
         ]);
 
         $this->dropAndCreateTable($table);

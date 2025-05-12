@@ -76,10 +76,15 @@ final class ComparatorTest extends FunctionalTestCase
     }
 
     /** @throws Exception */
-    private function createLobTable(string $type, int $length): Table
+    private function createLobTable(string $typeName, int $length): Table
     {
-        $table = new Table('comparator_test');
-        $table->addColumn('lob', $type)->setLength($length);
+        $table = new Table('comparator_test', [
+            Column::editor()
+                ->setUnquotedName('lob')
+                ->setTypeName($typeName)
+                ->setLength($length)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
 
@@ -94,8 +99,9 @@ final class ComparatorTest extends FunctionalTestCase
 
     public function testExplicitDefaultCollation(): void
     {
-        [$table, $column] = $this->createCollationTable();
-        $column->setPlatformOption('collation', 'utf8mb4_general_ci');
+        $table = $this->createCollationTable();
+        $table->getColumn('id')
+            ->setPlatformOption('collation', 'utf8mb4_general_ci');
 
         self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
             $this->schemaManager,
@@ -112,33 +118,43 @@ final class ComparatorTest extends FunctionalTestCase
 
     public function testChangeColumnCharsetAndCollation(): void
     {
-        [$table, $column] = $this->createCollationTable();
-        $column->setPlatformOption('charset', 'latin1');
-        $column->setPlatformOption('collation', 'latin1_bin');
+        $table = $this->createCollationTable();
+        $table->getColumn('id')
+            ->setPlatformOption('charset', 'latin1')
+            ->setPlatformOption('collation', 'latin1_bin');
 
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
     public function testChangeColumnCollation(): void
     {
-        [$table, $column] = $this->createCollationTable();
-        $column->setPlatformOption('collation', 'utf8mb4_bin');
+        $table = $this->createCollationTable();
+        $table->getColumn('id')
+            ->setPlatformOption('collation', 'utf8mb4_bin');
 
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
     /**
      * @param array<string,string> $tableOptions
-     * @param array<string,string> $columnOptions
+     * @param ?non-empty-string    $columnCharset
+     * @param ?non-empty-string    $columnCollation
      */
     #[DataProvider('tableAndColumnOptionsProvider')]
-    public function testTableAndColumnOptions(array $tableOptions, array $columnOptions): void
-    {
-        $table = new Table('comparator_test', [], [], [], [], $tableOptions);
-        $table->addColumn('name', Types::STRING, [
-            'length' => 32,
-            'platformOptions' => $columnOptions,
-        ]);
+    public function testTableAndColumnOptions(
+        array $tableOptions,
+        ?string $columnCharset,
+        ?string $columnCollation,
+    ): void {
+        $table = new Table('comparator_test', [
+            Column::editor()
+                ->setUnquotedName('name')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->setCharset($columnCharset)
+                ->setCollation($columnCollation)
+                ->create(),
+        ], [], [], [], $tableOptions);
 
         $this->dropAndCreateTable($table);
 
@@ -157,9 +173,13 @@ final class ComparatorTest extends FunctionalTestCase
 
     public function testSimpleArrayTypeNonChangeNotDetected(): void
     {
-        $table = new Table('comparator_test');
-
-        $table->addColumn('simple_array_col', Types::SIMPLE_ARRAY, ['length' => 255]);
+        $table = new Table('comparator_test', [
+            Column::editor()
+                ->setUnquotedName('simple_array_col')
+                ->setTypeName(Types::SIMPLE_ARRAY)
+                ->setLength(255)
+                ->create(),
+        ]);
         $this->dropAndCreateTable($table);
 
         self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
@@ -175,22 +195,25 @@ final class ComparatorTest extends FunctionalTestCase
         )->isEmpty());
     }
 
-    /** @return iterable<string,array{array<string,string>,array<string,string>}> */
+    /** @return iterable<string,array{array<string,string>,?non-empty-string,?non-empty-string}> */
     public static function tableAndColumnOptionsProvider(): iterable
     {
         yield "Column collation explicitly set to its table's default" => [
             [],
-            ['collation' => 'utf8mb4_unicode_ci'],
+            null,
+            'utf8mb4_general_ci',
         ];
 
         yield "Column charset implicitly set to a value matching its table's charset" => [
             ['charset' => 'utf8mb4'],
-            ['collation' => 'utf8mb4_unicode_ci'],
+            null,
+            'utf8mb4_general_ci',
         ];
 
         yield "Column collation reset to the collation's default matching its table's charset" => [
             ['collation' => 'utf8mb4_unicode_ci'],
-            ['charset' => 'utf8mb4'],
+            'utf8mb4',
+            null,
         ];
     }
 
@@ -200,9 +223,12 @@ final class ComparatorTest extends FunctionalTestCase
             self::markTestSkipped();
         }
 
-        $table = new Table('mariadb_json_upgrade');
-
-        $table->addColumn('json_col', Types::JSON);
+        $table = new Table('mariadb_json_upgrade', [
+            Column::editor()
+                ->setUnquotedName('json_col')
+                ->setTypeName(Types::JSON)
+                ->create(),
+        ]);
         $this->dropAndCreateTable($table);
 
         // Revert column to old LONGTEXT declaration
@@ -212,19 +238,19 @@ final class ComparatorTest extends FunctionalTestCase
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
-    /**
-     * @return array{Table,Column}
-     *
-     * @throws Exception
-     */
-    private function createCollationTable(): array
+    private function createCollationTable(): Table
     {
-        $table = new Table('comparator_test');
+        $table = new Table('comparator_test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->create(),
+        ]);
         $table->addOption('charset', 'utf8mb4');
         $table->addOption('collation', 'utf8mb4_general_ci');
-        $column = $table->addColumn('id', Types::STRING, ['length' => 32]);
         $this->dropAndCreateTable($table);
 
-        return [$table, $column];
+        return $table;
     }
 }

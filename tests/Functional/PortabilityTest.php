@@ -8,6 +8,7 @@ use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Middleware;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -172,15 +173,23 @@ class PortabilityTest extends FunctionalTestCase
 
     private function createTable(): void
     {
-        $table = new Table('portability_table');
-        $table->addColumn('Test_Int', Types::INTEGER);
-        $table->addColumn('Test_String', Types::STRING, [
-            'fixed' => true,
-            'length' => 8,
-        ]);
-        $table->addColumn('Test_Null', Types::STRING, [
-            'length' => 1,
-            'notnull' => false,
+        $table = new Table('portability_table', [
+            Column::editor()
+                ->setUnquotedName('Test_Int')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('Test_String')
+                ->setTypeName(Types::STRING)
+                ->setFixed(true)
+                ->setLength(8)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('Test_Null')
+                ->setTypeName(Types::STRING)
+                ->setLength(1)
+                ->setNotNull(false)
+                ->create(),
         ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

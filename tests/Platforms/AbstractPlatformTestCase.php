@@ -130,9 +130,19 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesTableCreationSql(): void
     {
-        $table = new Table('test');
-        $table->addColumn('id', Types::INTEGER, ['notnull' => true, 'autoincrement' => true]);
-        $table->addColumn('test', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->setAutoincrement(true)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('test')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->setNotNull(false)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -147,9 +157,20 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGenerateTableWithMultiColumnUniqueIndex(): void
     {
-        $table = new Table('test');
-        $table->addColumn('foo', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $table->addColumn('bar', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('foo')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('bar')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->setNotNull(false)
+                ->create(),
+        ]);
         $table->addUniqueIndex(['foo', 'bar']);
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -236,8 +257,13 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotedColumnInPrimaryKeyPropagation(): void
     {
-        $table = new Table('`quoted`');
-        $table->addColumn('create', Types::STRING, ['length' => 255]);
+        $table = new Table('`quoted`', [
+            Column::editor()
+                ->setUnquotedName('create')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('create')
@@ -262,8 +288,13 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotedColumnInIndexPropagation(): void
     {
-        $table = new Table('`quoted`');
-        $table->addColumn('create', Types::STRING, ['length' => 255]);
+        $table = new Table('`quoted`', [
+            Column::editor()
+                ->setUnquotedName('create')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->create(),
+        ]);
         $table->addIndex(['create']);
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -272,8 +303,13 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotedNameInIndexSQL(): void
     {
-        $table = new Table('test');
-        $table->addColumn('column1', Types::STRING, ['length' => 255]);
+        $table = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('column1')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->create(),
+        ]);
         $table->addIndex(['column1'], '`key`');
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -282,65 +318,42 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotedColumnInForeignKeyPropagation(): void
     {
-        $table = new Table('`quoted`');
-        $table->addColumn('create', Types::STRING, ['length' => 255]);
-        $table->addColumn('foo', Types::STRING, ['length' => 255]);
-        $table->addColumn('`bar`', Types::STRING, ['length' => 255]);
-
-        // Foreign table with reserved keyword as name (needs quotation).
-        $foreignTable = new Table('foreign');
-
-        // Foreign column with reserved keyword as name (needs quotation).
-        $foreignTable->addColumn('create', Types::STRING);
-
-        // Foreign column with non-reserved keyword as name (does not need quotation).
-        $foreignTable->addColumn('bar', Types::STRING);
-
-        // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
-        $foreignTable->addColumn('`foo-bar`', Types::STRING);
+        $table = new Table('`quoted`', [
+            Column::editor()
+                ->setUnquotedName('create')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('foo')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->create(),
+            Column::editor()
+                ->setQuotedName('bar')
+                ->setTypeName(Types::STRING)
+                ->setLength(255)
+                ->create(),
+        ]);
 
         $table->addForeignKeyConstraint(
-            $foreignTable->getObjectName()->toSQL($this->platform),
+            'foreign',
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
             'FK_WITH_RESERVED_KEYWORD',
         );
 
-        // Foreign table with non-reserved keyword as name
-        $foreignTable = new Table('foo');
-
-        // Foreign column with reserved keyword as name
-        $foreignTable->addColumn('create', Types::STRING);
-
-        // Foreign column with non-reserved keyword as name
-        $foreignTable->addColumn('bar', Types::STRING);
-
-        // Foreign table with special character in name
-        $foreignTable->addColumn('`foo-bar`', Types::STRING);
-
         $table->addForeignKeyConstraint(
-            $foreignTable->getObjectName()->toSQL($this->platform),
+            'foo',
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
             'FK_WITH_NON_RESERVED_KEYWORD',
         );
 
-        // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
-        $foreignTable = new Table('`foo-bar`');
-
-        // Foreign column with reserved keyword as name (needs quotation).
-        $foreignTable->addColumn('create', Types::STRING);
-
-        // Foreign column with non-reserved keyword as name (does not need quotation).
-        $foreignTable->addColumn('bar', Types::STRING);
-
-        // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
-        $foreignTable->addColumn('`foo-bar`', Types::STRING);
-
         $table->addForeignKeyConstraint(
-            $foreignTable->getObjectName()->toSQL($this->platform),
+            '`foo-bar`',
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
@@ -372,17 +385,21 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testAlterTableChangeQuotedColumn(): void
     {
-        $table = new Table('mytable');
-        $table->addColumn('select', Types::INTEGER);
+        $table = new Table('mytable', [
+            Column::editor()
+                ->setUnquotedName('select')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'select' => new ColumnDiff(
                 $table->getColumn('select'),
-                new Column(
-                    'select',
-                    Type::getType(Types::STRING),
-                    ['length' => 255],
-                ),
+                Column::editor()
+                    ->setUnquotedName('select')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(255)
+                    ->create(),
             ),
         ]);
 
@@ -554,8 +571,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testAlterTableRenameIndex(): void
     {
-        $table = new Table('mytable');
-        $table->addColumn('id', Types::INTEGER);
+        $table = new Table('mytable', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -586,8 +607,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotesAlterTableRenameIndex(): void
     {
-        $table = new Table('table');
-        $table->addColumn('id', Types::INTEGER);
+        $table = new Table('table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -624,8 +649,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testAlterTableRenameIndexInSchema(): void
     {
-        $table = new Table('myschema.mytable');
-        $table->addColumn('id', Types::INTEGER);
+        $table = new Table('myschema.mytable', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -656,8 +685,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotesAlterTableRenameIndexInSchema(): void
     {
-        $table = new Table('`schema`.table');
-        $table->addColumn('id', Types::INTEGER);
+        $table = new Table('`schema`.table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -761,17 +794,23 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testAlterStringToFixedString(): void
     {
-        $table = new Table('mytable');
-        $table->addColumn('name', Types::STRING, ['length' => 2]);
+        $table = new Table('mytable', [
+            Column::editor()
+                ->setUnquotedName('name')
+                ->setTypeName(Types::STRING)
+                ->setLength(2)
+                ->create(),
+        ]);
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'name' => new ColumnDiff(
                 $table->getColumn('name'),
-                new Column(
-                    'name',
-                    Type::getType(Types::STRING),
-                    ['fixed' => true, 'length' => 2],
-                ),
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::STRING)
+                    ->setFixed(true)
+                    ->setLength(2)
+                    ->create(),
             ),
         ]);
 
@@ -787,18 +826,32 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): void
     {
-        $foreignTable = new Table('foreign_table');
-        $foreignTable->addColumn('id', Types::INTEGER);
+        $foreignTable = new Table('foreign_table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $foreignTable->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
                 ->create(),
         );
 
-        $primaryTable = new Table('mytable');
-        $primaryTable->addColumn('foo', Types::INTEGER);
-        $primaryTable->addColumn('bar', Types::INTEGER);
-        $primaryTable->addColumn('baz', Types::INTEGER);
+        $primaryTable = new Table('mytable', [
+            Column::editor()
+                ->setUnquotedName('foo')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('bar')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('baz')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $primaryTable->addIndex(['foo'], 'idx_foo');
         $primaryTable->addIndex(['bar'], 'idx_bar');
         $primaryTable->addForeignKeyConstraint($foreignTable->getName(), ['foo'], ['id'], [], 'fk_foo');

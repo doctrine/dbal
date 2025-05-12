@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -28,8 +29,12 @@ class MySQLSchemaTest extends TestCase
 
     public function testGenerateForeignKeySQL(): void
     {
-        $tableOld = new Table('test');
-        $tableOld->addColumn('foo_id', Types::INTEGER);
+        $tableOld = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('foo_id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $tableOld->addForeignKeyConstraint('test_foreign', ['foo_id'], ['foo_id']);
 
         $sqls = [];
@@ -48,9 +53,17 @@ class MySQLSchemaTest extends TestCase
 
     public function testClobNoAlterTable(): void
     {
-        $tableOld = new Table('test');
-        $tableOld->addColumn('id', Types::INTEGER);
-        $tableOld->addColumn('description', Types::STRING, ['length' => 65536]);
+        $tableOld = new Table('test', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('description')
+                ->setTypeName(Types::STRING)
+                ->setLength(65536)
+                ->create(),
+        ]);
 
         $tableNew = $tableOld->edit()
             ->setPrimaryKeyConstraint(

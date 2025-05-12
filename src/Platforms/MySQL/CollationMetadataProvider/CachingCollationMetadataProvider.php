@@ -11,7 +11,7 @@ use function array_key_exists;
 /** @internal */
 final class CachingCollationMetadataProvider implements CollationMetadataProvider
 {
-    /** @var array<string,?string> */
+    /** @var array<non-empty-string,?non-empty-string> */
     private array $cache = [];
 
     public function __construct(private readonly CollationMetadataProvider $collationMetadataProvider)

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 
@@ -18,45 +19,72 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testColumnCollation(): void
     {
-        $table  = new Table($tableName = 'test_collation');
-        $column = $table->addColumn('test', Types::STRING, ['length' => 32]);
+        $table = new Table('test_collation', [
+            Column::editor()
+                ->setUnquotedName('test')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->create(),
+        ]);
 
         $this->dropAndCreateTable($table);
-        $columns = $this->schemaManager->listTableColumns($tableName);
+        $columns = $this->schemaManager->listTableColumns('test_collation');
 
         // SQL Server should report a default collation on the column
-        self::assertTrue($columns['test']->hasPlatformOption('collation'));
+        self::assertNotNull($columns['test']->getCollation());
 
-        $column->setPlatformOption('collation', $collation = 'Icelandic_CS_AS');
+        $table->getColumn('test')
+            ->setPlatformOption('collation', 'Icelandic_CS_AS');
 
         $this->dropAndCreateTable($table);
-        $columns = $this->schemaManager->listTableColumns($tableName);
+        $columns = $this->schemaManager->listTableColumns('test_collation');
 
-        self::assertEquals($collation, $columns['test']->getPlatformOption('collation'));
+        self::assertEquals('Icelandic_CS_AS', $columns['test']->getCollation());
     }
 
     public function testDefaultConstraints(): void
     {
-        $oldTable = new Table('sqlsrv_default_constraints');
-        $oldTable->addColumn('no_default', Types::STRING, ['length' => 32]);
-        $oldTable->addColumn('df_integer', Types::INTEGER, ['default' => 666]);
-        $oldTable->addColumn('df_string_1', Types::STRING, [
-            'length' => 32,
-            'default' => 'foobar',
+        $oldTable = new Table('sqlsrv_default_constraints', [
+            Column::editor()
+                ->setUnquotedName('no_default')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('df_integer')
+                ->setTypeName(Types::INTEGER)
+                ->setDefaultValue(666)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('df_string_1')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->setDefaultValue('foobar')
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('df_string_2')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->setDefaultValue('Doctrine rocks!!!')
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('df_string_3')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->setDefaultValue('another default value')
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('df_string_4')
+                ->setTypeName(Types::STRING)
+                ->setLength(32)
+                ->setDefaultValue('column to rename')
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('df_boolean')
+                ->setTypeName(Types::BOOLEAN)
+                ->setDefaultValue(true)
+                ->create(),
         ]);
-        $oldTable->addColumn('df_string_2', Types::STRING, [
-            'length' => 32,
-            'default' => 'Doctrine rocks!!!',
-        ]);
-        $oldTable->addColumn('df_string_3', Types::STRING, [
-            'length' => 32,
-            'default' => 'another default value',
-        ]);
-        $oldTable->addColumn('df_string_4', Types::STRING, [
-            'length' => 32,
-            'default' => 'column to rename',
-        ]);
-        $oldTable->addColumn('df_boolean', Types::BOOLEAN, ['default' => true]);
 
         $newTable = clone $oldTable;
 

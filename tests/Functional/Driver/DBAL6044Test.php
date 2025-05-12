@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 
 class DBAL6044Test extends FunctionalTestCase
 {
@@ -23,13 +25,21 @@ class DBAL6044Test extends FunctionalTestCase
 
     public function testUnloggedTables(): void
     {
-        $unloggedTable = new Table('my_unlogged');
+        $unloggedTable = new Table('my_unlogged', [
+            Column::editor()
+                ->setUnquotedName('foo')
+                ->setTypeName(Types::STRING)
+                ->create(),
+        ]);
         $unloggedTable->addOption('unlogged', true);
-        $unloggedTable->addColumn('foo', 'string');
         $this->dropAndCreateTable($unloggedTable);
 
-        $loggedTable = new Table('my_logged');
-        $loggedTable->addColumn('foo', 'string');
+        $loggedTable = new Table('my_logged', [
+            Column::editor()
+                ->setUnquotedName('foo')
+                ->setTypeName(Types::STRING)
+                ->create(),
+        ]);
         $this->dropAndCreateTable($loggedTable);
 
         $schemaManager = $this->connection->createSchemaManager();

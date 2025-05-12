@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -26,10 +27,22 @@ class BlobTest extends FunctionalTestCase
             self::markTestSkipped("DBAL doesn't support storing LOBs represented as streams using PDO_OCI");
         }
 
-        $table = new Table('blob_table');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('clobcolumn', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('blobcolumn', Types::BLOB, ['notnull' => false]);
+        $table = new Table('blob_table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('clobcolumn')
+                ->setTypeName(Types::TEXT)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('blobcolumn')
+                ->setTypeName(Types::BLOB)
+                ->setNotNull(false)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -179,10 +192,22 @@ class BlobTest extends FunctionalTestCase
 
     public function testBlobBindingDoesNotOverwritePrevious(): void
     {
-        $table = new Table('blob_table');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('blobcolumn1', 'blob', ['notnull' => false]);
-        $table->addColumn('blobcolumn2', 'blob', ['notnull' => false]);
+        $table = new Table('blob_table', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('blobcolumn1')
+                ->setTypeName(Types::BLOB)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('blobcolumn2')
+                ->setTypeName(Types::BLOB)
+                ->setNotNull(false)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')

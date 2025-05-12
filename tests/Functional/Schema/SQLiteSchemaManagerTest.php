@@ -111,10 +111,10 @@ EOS);
 
         $columns = $this->schemaManager->listTableColumns('test_collation');
 
-        self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
-        self::assertEquals('BINARY', $columns['text']->getPlatformOption('collation'));
-        self::assertEquals('BINARY', $columns['foo']->getPlatformOption('collation'));
-        self::assertEquals('NOCASE', $columns['bar']->getPlatformOption('collation'));
+        self::assertNull($columns['id']->getCollation());
+        self::assertEquals('BINARY', $columns['text']->getCollation());
+        self::assertEquals('BINARY', $columns['foo']->getCollation());
+        self::assertEquals('NOCASE', $columns['bar']->getCollation());
     }
 
     /**
@@ -158,11 +158,18 @@ SQL;
         self::assertSame(100, $columns['bar']->getLength());
     }
 
-    public function testPrimaryKeyNoAutoIncrement(): void
+    public function testPrimaryKeyAutoIncrement(): void
     {
-        $table = new Table('test_pk_auto_increment');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('text', Types::TEXT);
+        $table = new Table('test_pk_auto_increment', [
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('text')
+                ->setTypeName(Types::TEXT)
+                ->create(),
+        ]);
         $table->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()
                 ->setUnquotedColumnNames('id')
@@ -186,10 +193,24 @@ SQL;
 
     public function testOnlyOwnCommentIsParsed(): void
     {
-        $table = new Table('own_column_comment');
-        $table->addColumn('col1', Types::STRING, ['length' => 16]);
-        $table->addColumn('col2', Types::STRING, ['length' => 16, 'comment' => 'Column #2']);
-        $table->addColumn('col3', Types::STRING, ['length' => 16]);
+        $table = new Table('own_column_comment', [
+            Column::editor()
+                ->setUnquotedName('col1')
+                ->setTypeName(Types::STRING)
+                ->setLength(16)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('col2')
+                ->setTypeName(Types::STRING)
+                ->setLength(16)
+                ->setComment('Column #2')
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('col3')
+                ->setTypeName(Types::STRING)
+                ->setLength(16)
+                ->create(),
+        ]);
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($table);
@@ -238,16 +259,26 @@ SQL;
     {
         $this->dropTableIfExists('t');
 
-        $table = new Table('main.t');
-        $table->addColumn('a', Types::INTEGER);
+        $table = new Table('main.t', [
+            Column::editor()
+                ->setUnquotedName('a')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ]);
         $this->schemaManager->createTable($table);
 
         self::assertSame(['a'], array_keys($this->schemaManager->listTableColumns('t')));
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'a' => new ColumnDiff(
-                new Column('a', Type::getType(Types::INTEGER)),
-                new Column('b', Type::getType(Types::INTEGER)),
+                Column::editor()
+                    ->setUnquotedName('a')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('b')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
             ),
         ]);
         $this->schemaManager->alterTable($tableDiff);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -16,9 +17,16 @@ class DateExpressionTest extends FunctionalTestCase
     #[DataProvider('differenceProvider')]
     public function testDifference(string $date1, string $date2, int $expected): void
     {
-        $table = new Table('date_expr_test');
-        $table->addColumn('date1', Types::DATETIME_MUTABLE);
-        $table->addColumn('date2', Types::DATETIME_MUTABLE);
+        $table = new Table('date_expr_test', [
+            Column::editor()
+                ->setUnquotedName('date1')
+                ->setTypeName(Types::DATETIME_MUTABLE)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('date2')
+                ->setTypeName(Types::DATETIME_MUTABLE)
+                ->create(),
+        ]);
         $this->dropAndCreateTable($table);
         $this->connection->insert('date_expr_test', [
             'date1' => $date1,

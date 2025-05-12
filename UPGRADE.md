@@ -340,6 +340,19 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated `Column` methods
+
+The following `Column` methods have been deprecated:
+
+- `Column::getPlatformOptions()`, `Column::hasPlatformOption()`, `Column::getPlatformOption()` – use
+  `Column::getCharset()`, `Column::getCollation()`, `Column::getMinimumValue()` and `Column::getMaximumValue()`
+   instead.
+
+Additionally,
+1. Extending the `Column` class has been deprecated. Use the `Column` class directly.
+2. The `Column` constructor has been marked as internal. Use `Column::editor()` to instantiate an
+   editor and `ColumnEditor::create()` to create a column.
+
 ## The `jsonb` column platform option has been deprecated
 
 The `jsonb` column platform option has been deprecated. To define a `JSONB` column, use the `JSONB` type instead.

@@ -11,6 +11,10 @@ use PHPUnit\Framework\TestCase;
 
 class CachingCollationMetadataProviderTest extends TestCase
 {
+    /**
+     * @param non-empty-string  $collation
+     * @param ?non-empty-string $charset
+     */
     #[DataProvider('charsetAndCollationProvider')]
     public function testCharsetCaching(string $collation, ?string $charset): void
     {
@@ -25,7 +29,7 @@ class CachingCollationMetadataProviderTest extends TestCase
         self::assertSame($charset, $cachingProvider->getCollationCharset($collation));
     }
 
-    /** @return iterable<string,array{string,?string}> */
+    /** @return iterable<string,array{non-empty-string,?non-empty-string}> */
     public static function charsetAndCollationProvider(): iterable
     {
         yield 'found' => ['utf8mb4_unicode_ci', 'utf8mb4'];
