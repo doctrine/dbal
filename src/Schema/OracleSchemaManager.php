@@ -13,12 +13,9 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
-use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
-use function array_key_exists;
 use function array_map;
-use function assert;
 use function implode;
 use function is_string;
 use function preg_match;
@@ -84,27 +81,11 @@ class OracleSchemaManager extends AbstractSchemaManager
             }
         }
 
-        $length = $precision = null;
-        $scale  = 0;
-        $fixed  = false;
+        $editor = Column::editor()
+            ->setQuotedName($tableColumn['column_name']);
 
-        assert(array_key_exists('data_default', $tableColumn));
-
-        // Default values returned from database sometimes have trailing spaces.
-        if (is_string($tableColumn['data_default'])) {
-            $tableColumn['data_default'] = trim($tableColumn['data_default']);
-        }
-
-        if ($tableColumn['data_default'] === '' || $tableColumn['data_default'] === 'NULL') {
-            $tableColumn['data_default'] = null;
-        }
-
-        if ($tableColumn['data_default'] !== null) {
-            // Default values returned from database are represented as literal expressions
-            if (preg_match('/^\'(.*)\'$/s', $tableColumn['data_default'], $matches) === 1) {
-                $tableColumn['data_default'] = str_replace("''", "'", $matches[1]);
-            }
-        }
+        $precision = null;
+        $scale     = 0;
 
         if ($tableColumn['data_precision'] !== null) {
             $precision = (int) $tableColumn['data_precision'];
@@ -140,35 +121,54 @@ class OracleSchemaManager extends AbstractSchemaManager
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
-                $length = (int) $tableColumn['char_length'];
+                $editor->setLength((int) $tableColumn['char_length']);
                 break;
 
             case 'raw':
-                $length = (int) $tableColumn['data_length'];
-                $fixed  = true;
+                $editor
+                    ->setLength((int) $tableColumn['data_length'])
+                    ->setFixed(true);
                 break;
 
             case 'char':
             case 'nchar':
-                $length = (int) $tableColumn['char_length'];
-                $fixed  = true;
+                $editor
+                    ->setLength((int) $tableColumn['char_length'])
+                    ->setFixed(true);
                 break;
         }
 
-        $options = [
-            'notnull'    => $tableColumn['nullable'] === 'N',
-            'fixed'      => $fixed,
-            'default'    => $tableColumn['data_default'],
-            'length'     => $length,
-            'precision'  => $precision,
-            'scale'      => $scale,
-        ];
+        $editor
+            ->setTypeName($type)
+            ->setPrecision($precision)
+            ->setScale($scale)
+            ->setNotNull($tableColumn['nullable'] === 'N')
+            ->setDefaultValue($this->parseDefaultExpression($tableColumn['data_default']));
 
         if ($tableColumn['comments'] !== null) {
-            $options['comment'] = $tableColumn['comments'];
+            $editor->setComment($tableColumn['comments']);
         }
 
-        return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
+        return $editor->create();
+    }
+
+    private function parseDefaultExpression(?string $expression): ?string
+    {
+        // Default values returned from the database sometimes have trailing spaces.
+        if (is_string($expression)) {
+            $expression = trim($expression);
+        }
+
+        if ($expression === null || $expression === 'NULL') {
+            return null;
+        }
+
+        // Default values returned from the database are represented as literal expressions
+        if (preg_match('/^\'(.*)\'$/s', $expression, $matches) === 1) {
+            return str_replace("''", "'", $matches[1]);
+        }
+
+        return $expression;
     }
 
     /**

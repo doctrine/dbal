@@ -10,7 +10,6 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function array_map;
@@ -183,10 +182,8 @@ SQL,
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $length    = null;
-        $precision = null;
-        $scale     = 0;
-        $fixed     = false;
+        $editor = Column::editor()
+            ->setQuotedName($tableColumn['attname']);
 
         $dbType = $tableColumn['typname'];
         if (
@@ -199,14 +196,16 @@ SQL,
             $completeType = $tableColumn['complete_type'];
         }
 
-        $type = $this->platform->getDoctrineTypeMapping($dbType);
+        $editor->setTypeName(
+            $this->platform->getDoctrineTypeMapping($dbType),
+        );
 
         switch ($dbType) {
             case 'bpchar':
             case 'varchar':
                 $parameters = $this->parseColumnTypeParameters($completeType);
                 if (count($parameters) > 0) {
-                    $length = $parameters[0];
+                    $editor->setLength($parameters[0]);
                 }
 
                 break;
@@ -217,41 +216,34 @@ SQL,
             case 'numeric':
                 $parameters = $this->parseColumnTypeParameters($completeType);
                 if (count($parameters) > 0) {
-                    $precision = $parameters[0];
+                    $editor->setPrecision($parameters[0]);
                 }
 
                 if (count($parameters) > 1) {
-                    $scale = $parameters[1];
+                    $editor->setScale($parameters[1]);
                 }
 
                 break;
         }
 
         if ($dbType === 'bpchar') {
-            $fixed = true;
+            $editor->setFixed(true);
         }
 
-        $options = [
-            'length'        => $length,
-            'notnull'       => (bool) $tableColumn['isnotnull'],
-            'default'       => $this->parseDefaultExpression($tableColumn['default']),
-            'precision'     => $precision,
-            'scale'         => $scale,
-            'fixed'         => $fixed,
-            'autoincrement' => $tableColumn['attidentity'] === 'd',
-        ];
+        $editor
+            ->setNotNull((bool) $tableColumn['isnotnull'])
+            ->setDefaultValue($this->parseDefaultExpression($tableColumn['default']))
+            ->setAutoincrement($tableColumn['attidentity'] === 'd');
 
         if ($tableColumn['comment'] !== null) {
-            $options['comment'] = $tableColumn['comment'];
+            $editor->setComment($tableColumn['comment']);
         }
-
-        $column = new Column($tableColumn['attname'], Type::getType($type), $options);
 
         if (! empty($tableColumn['collation'])) {
-            $column->setPlatformOption('collation', $tableColumn['collation']);
+            $editor->setCollation($tableColumn['collation']);
         }
 
-        return $column;
+        return $editor->create();
     }
 
     /**
@@ -327,7 +319,7 @@ SQL,
             <<<'SQL'
             SELECT n.nspname                            AS %s,
                    c.relname                            AS %s,
-                   quote_ident(a.attname)               AS attname,
+                   a.attname,
                    t.typname,
                    format_type(a.atttypid, a.atttypmod) AS complete_type,
                    bt.typname                           AS domain_type,

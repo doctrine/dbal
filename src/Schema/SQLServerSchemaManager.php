@@ -10,7 +10,6 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Types\Type;
 
 use function assert;
 use function func_get_arg;
@@ -61,24 +60,11 @@ SQL,
 
         $length = (int) $tableColumn['length'];
 
-        $precision = null;
-
-        $scale = 0;
-        $fixed = false;
-
-        if ($tableColumn['scale'] !== null) {
-            $scale = (int) $tableColumn['scale'];
-        }
-
-        if ($tableColumn['precision'] !== null) {
-            $precision = (int) $tableColumn['precision'];
-        }
-
         switch ($dbType) {
             case 'nchar':
             case 'ntext':
                 // Unicode data requires 2 bytes per character
-                $length /= 2;
+                $length = (int) ($length / 2);
                 break;
 
             case 'nvarchar':
@@ -87,7 +73,7 @@ SQL,
                 }
 
                 // Unicode data requires 2 bytes per character
-                $length /= 2;
+                $length = (int) ($length / 2);
                 break;
 
             case 'varchar':
@@ -106,43 +92,45 @@ SQL,
                 break;
         }
 
-        if ($dbType === 'char' || $dbType === 'nchar' || $dbType === 'binary') {
-            $fixed = true;
-        }
-
         $type = $this->platform->getDoctrineTypeMapping($dbType);
 
-        $options = [
-            'fixed'         => $fixed,
-            'notnull'       => ! $tableColumn['is_nullable'],
-            'scale'         => $scale,
-            'precision'     => $precision,
-            'autoincrement' => (bool) $tableColumn['is_identity'],
-        ];
+        $editor = Column::editor()
+            ->setQuotedName($tableColumn['name'])
+            ->setTypeName(
+                $this->platform->getDoctrineTypeMapping($dbType),
+            )
+            ->setNotNull(! $tableColumn['is_nullable'])
+            ->setAutoincrement((bool) $tableColumn['is_identity']);
+
+        if ($tableColumn['scale'] !== null) {
+            $editor->setScale((int) $tableColumn['scale']);
+        }
+
+        if ($tableColumn['precision'] !== null) {
+            $editor->setPrecision((int) $tableColumn['precision']);
+        }
+
+        if ($dbType === 'char' || $dbType === 'nchar' || $dbType === 'binary') {
+            $editor->setFixed(true);
+        }
 
         if ($tableColumn['comment'] !== null) {
-            $options['comment'] = $tableColumn['comment'];
+            $editor->setComment($tableColumn['comment']);
         }
 
         if ($length !== 0 && ($type === 'text' || $type === 'string' || $type === 'binary')) {
-            $options['length'] = $length;
+            $editor->setLength($length);
         }
-
-        $column = new Column($tableColumn['name'], Type::getType($type), $options);
 
         if ($tableColumn['default'] !== null) {
-            $default = $this->parseDefaultExpression($tableColumn['default']);
-
-            $column->setDefault($default);
-            $column->setPlatformOption(
-                SQLServerPlatform::OPTION_DEFAULT_CONSTRAINT_NAME,
-                $tableColumn['df_name'],
-            );
+            $editor
+                ->setDefaultValue($this->parseDefaultExpression($tableColumn['default']))
+                ->setDefaultConstraintName($tableColumn['df_name']);
         }
 
-        $column->setPlatformOption('collation', $tableColumn['collation_name']);
+        $editor->setCollation($tableColumn['collation_name']);
 
-        return $column;
+        return $editor->create();
     }
 
     private function parseDefaultExpression(string $value): ?string

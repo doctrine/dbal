@@ -11,7 +11,6 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\UnsupportedSchema;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
@@ -71,27 +70,34 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/', $tableColumn['type'], $matches);
         assert($matchResult === 1);
 
+        $editor = Column::editor()
+            ->setQuotedName($tableColumn['name']);
+
         $dbType = strtolower($matches[1]);
 
-        $length = $precision = null;
-        $fixed  = $unsigned = false;
-        $scale  = 0;
+        if (str_contains($dbType, ' unsigned')) {
+            $dbType = str_replace(' unsigned', '', $dbType);
+            $editor->setUnsigned(true);
+        }
+
+        $typeName = $this->platform->getDoctrineTypeMapping($dbType);
+
+        $editor->setTypeName($typeName);
+
+        if ($dbType === 'char') {
+            $editor->setFixed(true);
+        }
 
         if (isset($matches[2])) {
             if (isset($matches[3])) {
-                $precision = (int) $matches[2];
-                $scale     = (int) $matches[3];
+                $editor
+                    ->setPrecision((int) $matches[2])
+                    ->setScale((int) $matches[3]);
             } else {
-                $length = (int) $matches[2];
+                $editor->setLength((int) $matches[2]);
             }
         }
 
-        if (str_contains($dbType, ' unsigned')) {
-            $dbType   = str_replace(' unsigned', '', $dbType);
-            $unsigned = true;
-        }
-
-        $type    = $this->platform->getDoctrineTypeMapping($dbType);
         $default = $tableColumn['dflt_value'];
         if ($default === 'NULL') {
             $default = null;
@@ -104,31 +110,16 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             }
         }
 
-        $notnull = (bool) $tableColumn['notnull'];
+        $editor->setDefaultValue($default)
+            ->setAutoincrement($tableColumn['autoincrement'])
+            ->setComment($tableColumn['comment'])
+            ->setNotNull((bool) $tableColumn['notnull']);
 
-        if ($dbType === 'char') {
-            $fixed = true;
+        if ($typeName === Types::STRING || $typeName === Types::TEXT) {
+            $editor->setCollation($tableColumn['collation'] ?? 'BINARY');
         }
 
-        $options = [
-            'autoincrement' => $tableColumn['autoincrement'],
-            'comment'   => $tableColumn['comment'],
-            'length'    => $length,
-            'unsigned'  => $unsigned,
-            'fixed'     => $fixed,
-            'notnull'   => $notnull,
-            'default'   => $default,
-            'precision' => $precision,
-            'scale'     => $scale,
-        ];
-
-        $column = new Column($tableColumn['name'], Type::getType($type), $options);
-
-        if ($type === Types::STRING || $type === Types::TEXT) {
-            $column->setPlatformOption('collation', $tableColumn['collation'] ?? 'BINARY');
-        }
-
-        return $column;
+        return $editor->create();
     }
 
     /**
