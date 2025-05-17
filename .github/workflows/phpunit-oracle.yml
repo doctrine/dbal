@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@verbose
         with:
           php-version: ${{ inputs.php-version }}
           extensions: ${{ inputs.extension }}
