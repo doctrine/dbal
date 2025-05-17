@@ -1,6 +1,9 @@
 name: "Continuous Integration (Nightly)"
 
 on:
+  pull_request:
+    paths:
+      - .github/workflows/nightly.yml
   schedule:
     - cron: "12 3 * * *"
 
