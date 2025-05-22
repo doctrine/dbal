@@ -55,8 +55,8 @@ foreign key, sequence and index changes.
     $comparator = $schemaManager->createComparator();
     $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
 
-    $createdSchemas = $schemaDiff->getCreatedSchemas($myPlatform);
-    $droppedSchemas = $schemaDiff->getDroppedSchemas($myPlatform);
+    $createdSchemas = $schemaDiff->getCreatedSchemas();
+    $droppedSchemas = $schemaDiff->getDroppedSchemas();
 
 The Save Diff mode is a specific mode that prevents the deletion of
 tables and sequences that might occur when making a diff of your
