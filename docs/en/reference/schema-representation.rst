@@ -42,31 +42,6 @@ example shows:
     $queries = $schema->toSql($myPlatform); // get queries to create this schema.
     $dropSchema = $schema->toDropSql($myPlatform); // get queries to safely delete this schema.
 
-Now if you want to compare this schema with another schema, you can
-use the ``Comparator`` class to get instances of ``SchemaDiff``,
-``TableDiff`` and ``ColumnDiff``, as well as information about other
-foreign key, sequence and index changes.
-
-.. code-block:: php
-
-    <?php
-    /*...*/
-    $schemaManager = $connection->createSchemaManager();
-    $comparator = $schemaManager->createComparator();
-    $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
-
-    $createdSchemas = $schemaDiff->getCreatedSchemas();
-    $droppedSchemas = $schemaDiff->getDroppedSchemas();
-
-The Save Diff mode is a specific mode that prevents the deletion of
-tables and sequences that might occur when making a diff of your
-schema. This is often necessary when your target schema is not
-complete but only describes a subset of your application.
-
-All methods that generate SQL queries for you make much effort to
-get the order of generation correct, so that no problems will ever
-occur with missing links of foreign keys.
-
 Schema Assets
 -------------
 
