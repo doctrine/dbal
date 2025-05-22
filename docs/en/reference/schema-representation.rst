@@ -34,7 +34,10 @@ example shows:
     $myForeign = $schema->createTable("my_foreign");
     $myForeign->addColumn("id", "integer");
     $myForeign->addColumn("user_id", "integer");
-    $myForeign->addForeignKeyConstraint($myTable, ["user_id"], ["id"], ["onUpdate" => "CASCADE"]);
+    $myForeign->addForeignKeyConstraint($myTable->getName(), ["user_id"], ["id"], ["onUpdate" => "CASCADE"]);
+
+    $connection = \Doctrine\DBAL\DriverManager::getConnection([/*...*/]);
+    $myPlatform = $connection->getDatabasePlatform();
 
     $queries = $schema->toSql($myPlatform); // get queries to create this schema.
     $dropSchema = $schema->toDropSql($myPlatform); // get queries to safely delete this schema.
@@ -47,12 +50,13 @@ foreign key, sequence and index changes.
 .. code-block:: php
 
     <?php
+    /*...*/
     $schemaManager = $connection->createSchemaManager();
     $comparator = $schemaManager->createComparator();
-    $schemaDiff = $comparator->compare($fromSchema, $toSchema);
+    $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
 
-    $queries = $schemaDiff->toSql($myPlatform); // queries to get from one to another schema.
-    $saveQueries = $schemaDiff->toSaveSql($myPlatform);
+    $createdSchemas = $schemaDiff->getCreatedSchemas($myPlatform);
+    $droppedSchemas = $schemaDiff->getDroppedSchemas($myPlatform);
 
 The Save Diff mode is a specific mode that prevents the deletion of
 tables and sequences that might occur when making a diff of your
