@@ -42,6 +42,22 @@ example shows:
     $queries = $schema->toSql($myPlatform); // get queries to create this schema.
     $dropSchema = $schema->toDropSql($myPlatform); // get queries to safely delete this schema.
 
+Now if you want to compare this schema with another schema, you can
+use the ``Comparator`` class to get instances of ``SchemaDiff``,
+``TableDiff`` and ``ColumnDiff``, as well as information about other
+foreign key, sequence and index changes.
+
+.. code-block:: php
+    <?php
+    /*...*/
+    $schemaManager = $connection->createSchemaManager();
+    $comparator = $schemaManager->createComparator();
+    $schemaDiff = $comparator->compare($fromSchema, $toSchema);
+
+All methods that generate SQL queries for you make much effort to
+get the order of generation correct, so that no problems will ever
+occur with missing links of foreign keys.
+
 Schema Assets
 -------------
 
