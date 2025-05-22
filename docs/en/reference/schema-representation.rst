@@ -52,7 +52,7 @@ foreign key, sequence and index changes.
     /*...*/
     $schemaManager = $connection->createSchemaManager();
     $comparator = $schemaManager->createComparator();
-    $schemaDiff = $comparator->compare($fromSchema, $toSchema);
+    $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
 
 All methods that generate SQL queries for you make much effort to
 get the order of generation correct, so that no problems will ever
