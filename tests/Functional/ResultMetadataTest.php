@@ -18,17 +18,20 @@ class ResultMetadataTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('result_metadata_table', [
-            Column::editor()
-                ->setUnquotedName('test_int')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('test_int')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('result_metadata_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('test_int')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('test_int')
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 

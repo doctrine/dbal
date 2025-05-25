@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\Types\MoneyType;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -37,33 +36,35 @@ class CustomIntrospectionTest extends FunctionalTestCase
 
     public function testCustomColumnIntrospection(): void
     {
-        $tableName     = 'test_custom_column_introspection';
-        $schemaManager = $this->connection->createSchemaManager();
-        $schema        = new Schema([], [], $schemaManager->createSchemaConfig());
-        $table         = new Table($tableName, [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('quantity')
-                ->setTypeName(Types::DECIMAL)
-                ->setPrecision(10)
-                ->setScale(2)
-                ->setNotNull(false)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('amount')
-                ->setTypeName('money')
-                ->setPrecision(10)
-                ->setScale(2)
-                ->setNotNull(false)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('test_custom_column_introspection')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('quantity')
+                    ->setTypeName(Types::DECIMAL)
+                    ->setPrecision(10)
+                    ->setScale(2)
+                    ->setNotNull(false)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('amount')
+                    ->setTypeName('money')
+                    ->setPrecision(10)
+                    ->setScale(2)
+                    ->setNotNull(false)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $schemaManager->introspectTable($tableName);
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $onlineTable = $schemaManager->introspectTable('test_custom_column_introspection');
         $diff        = $schemaManager->createComparator()->compareTables($onlineTable, $table);
         $changedCols = array_map(
             static fn (ColumnDiff $columnDiff): string => $columnDiff->getOldColumn()->getName(),

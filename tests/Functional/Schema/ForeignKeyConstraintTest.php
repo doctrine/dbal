@@ -17,7 +17,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\ForeignKeyConstraintEditor;
-use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -36,61 +35,70 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $this->dropTableIfExists('roles');
         $this->dropTableIfExists('teams');
 
-        $roles = new Table('roles', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $roles->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $roles = Table::editor()
+            ->setUnquotedName('roles')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
-        $teams = new Table('teams', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $teams->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $teams = Table::editor()
+            ->setUnquotedName('teams')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
-        $editor = ForeignKeyConstraint::editor()
-            ->setUnquotedReferencedColumnNames('id');
-
-        $users = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('role_id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('team_id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ], [], [], [
-            $editor
-                ->setUnquotedReferencedTableName('roles')
-                ->setUnquotedReferencingColumnNames('role_id')
-                ->create(),
-            $editor
-                ->setUnquotedReferencedTableName('teams')
-                ->setUnquotedReferencingColumnNames('team_id')
-                ->create(),
-        ]);
-        $users->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $users = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('role_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('team_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('role_id')
+                    ->setUnquotedReferencedTableName('roles')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('team_id')
+                    ->setUnquotedReferencedTableName('teams')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($roles);
@@ -109,40 +117,43 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $this->dropTableIfExists('roles');
         $this->dropTableIfExists('teams');
 
-        $rolesName = OptionallyQualifiedName::unquoted('roles');
-        $teamsName = OptionallyQualifiedName::unquoted('teams');
+        $roles = Table::editor()
+            ->setUnquotedName('roles')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('r_id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('r_id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('r_id1', 'r_id2')
+                    ->create(),
+            )
+            ->create();
 
-        $roles = new Table($rolesName->toString(), [
-            Column::editor()
-                ->setUnquotedName('r_id1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('r_id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $roles->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('r_id1', 'r_id2')
-                ->create(),
-        );
-
-        $teams = new Table($teamsName->toString(), [
-            Column::editor()
-                ->setUnquotedName('t_id1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('t_id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $teams->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('t_id1', 't_id2')
-                ->create(),
-        );
+        $teams = Table::editor()
+            ->setUnquotedName('teams')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('t_id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('t_id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('t_id1', 't_id2')
+                    ->create(),
+            )
+            ->create();
 
         $foreignKeyConstraints = [
             ForeignKeyConstraint::editor()
@@ -159,37 +170,41 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
                 ->create(),
         ];
 
-        $users = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('u_id1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('u_id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('role_id1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('role_id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('team_id1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('team_id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ], [], [], $foreignKeyConstraints);
-        $users->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('u_id1', 'u_id2')
-                ->create(),
-        );
+        $users = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('u_id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('u_id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('role_id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('role_id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('team_id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('team_id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(...$foreignKeyConstraints)
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('u_id1', 'u_id2')
+                    ->create(),
+            )
+            ->create();
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($roles);
@@ -261,40 +276,49 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $this->dropTableIfExists('users');
         $this->dropTableIfExists('roles');
 
-        $roles = new Table('roles', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $roles->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $roles = Table::editor()
+            ->setUnquotedName('roles')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         $editor = ForeignKeyConstraint::editor()
             ->setUnquotedReferencingColumnNames('role_id')
-            ->setReferencedTableName($roles->getObjectName())
+            ->setUnquotedReferencedTableName('roles')
             ->setUnquotedReferencedColumnNames('id');
         $setter($editor, $action);
 
-        $users = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('role_id')
-                ->setTypeName(Types::INTEGER)
-                ->setNotNull(false)
-                ->create(),
-        ], [], [], [$editor->create()]);
-        $users->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $users = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('role_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setNotNull(false)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                $editor->create(),
+            )
+            ->create();
 
         $sm = $this->connection->createSchemaManager();
 
@@ -387,40 +411,47 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $this->dropTableIfExists('users');
         $this->dropTableIfExists('roles');
 
-        $roles = new Table('roles', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $roles->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $roles = Table::editor()
+            ->setUnquotedName('roles')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
-        $users = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('role_id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ], [], [], [
-            ForeignKeyConstraint::editor()
-                ->setUnquotedReferencingColumnNames('role_id')
-                ->setUnquotedReferencedTableName('roles')
-                ->setUnquotedReferencedColumnNames('id')
-                ->setDeferrability($deferrability)
-                ->create(),
-        ]);
-        $users->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $users = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('role_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('role_id')
+                    ->setUnquotedReferencedTableName('roles')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->setDeferrability($deferrability)
+                    ->create(),
+            )
+            ->create();
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($roles);

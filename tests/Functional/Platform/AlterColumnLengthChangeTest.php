@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -13,13 +14,16 @@ class AlterColumnLengthChangeTest extends FunctionalTestCase
 {
     public function testColumnLengthIsChanged(): void
     {
-        $table = new Table('test_alter_length', [
-            Column::editor()
-                ->setUnquotedName('c1')
-                ->setTypeName(Types::STRING)
-                ->setLength(50)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('test_alter_length')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('c1')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(50)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
@@ -29,7 +33,11 @@ class AlterColumnLengthChangeTest extends FunctionalTestCase
         self::assertCount(1, $columns);
         self::assertSame(50, $columns[0]->getLength());
 
-        $table->getColumn('c1')->setLength(100);
+        $table = $table->edit()
+            ->modifyColumnByUnquotedName('c1', static function (ColumnEditor $editor): void {
+                $editor->setLength(100);
+            })
+            ->create();
 
         $diff = $sm->createComparator()
             ->compareTables($sm->introspectTable('test_alter_length'), $table);

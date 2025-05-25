@@ -38,13 +38,16 @@ class ComparatorTest extends FunctionalTestCase
             self::markTestSkipped('Oracle MySQL does not support default values on TEXT/BLOB columns until 8.0.13.');
         }
 
-        $table = new Table('default_value', [
-            Column::editor()
-                ->setUnquotedName('test')
-                ->setTypeName($typeName)
-                ->setDefaultValue($value)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('default_value')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('test')
+                    ->setTypeName($typeName)
+                    ->setDefaultValue($value)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
@@ -62,10 +65,29 @@ class ComparatorTest extends FunctionalTestCase
         $platform   = $this->connection->getDatabasePlatform();
         $comparator = new Comparator($platform, new ComparatorConfig());
 
-        $table = new Table('rename_table');
-        $table->addColumn('test', Types::STRING, ['default' => 'baz', 'length' => 20]);
-        $table->addColumn('test2', Types::STRING, ['default' => 'baz', 'length' => 20]);
-        $table->addColumn('test3', Types::STRING, ['default' => 'foo', 'length' => 10]);
+        $table = Table::editor()
+            ->setUnquotedName('rename_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('test')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(20)
+                    ->setDefaultValue('baz')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('test2')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(20)
+                    ->setDefaultValue('baz')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('test3')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(10)
+                    ->setDefaultValue('foo')
+                    ->create(),
+            )
+            ->create();
 
         $onlineTable = clone $table;
         $table->renameColumn('test', 'baz')

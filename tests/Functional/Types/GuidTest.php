@@ -13,12 +13,15 @@ class GuidTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('guid_table', [
-            Column::editor()
-                ->setUnquotedName('guid')
-                ->setTypeName(Types::GUID)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('guid_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('guid')
+                    ->setTypeName(Types::GUID)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
     }

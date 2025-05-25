@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Functional\Schema\MySQL;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -96,7 +98,10 @@ final class JsonCollationTest extends FunctionalTestCase
         }
     }
 
-    /** @param array{name: string, type?: string, charset?: string, collation?: string}[] $columns */
+    /**
+     * @param non-empty-string                                                                         $name
+     * @param array{name: non-empty-string, non-empty-string?: string, collation?: non-empty-string}[] $columns
+     */
     private static function setUpTable(
         string $name,
         array $columns,
@@ -105,36 +110,41 @@ final class JsonCollationTest extends FunctionalTestCase
     ): Table {
         $tableOptions = array_filter(['charset' => $charset, 'collation' => $collation]);
 
-        $table = new Table($name, [], [], [], [], $tableOptions);
+        $editor = Table::editor()
+            ->setUnquotedName($name)
+            ->setOptions($tableOptions);
 
         foreach ($columns as $column) {
-            if (! isset($column['charset']) || ! isset($column['collation'])) {
-                $table->addColumn($column['name'], $column['type'] ?? Types::JSON);
-            } else {
-                $table->addColumn($column['name'], $column['type'] ?? Types::JSON)
-                      ->setPlatformOption('charset', $column['charset'])
-                      ->setPlatformOption('collation', $column['collation']);
-            }
+            $editor->addColumn(
+                Column::editor()
+                    ->setUnquotedName($column['name'])
+                    ->setTypeName(Types::JSON)
+                    ->setCharset($column['charset'] ?? null)
+                    ->setCollation($column['collation'] ?? null)
+                    ->create(),
+            );
         }
 
-        return $table;
+        return $editor->create();
     }
 
     #[DataProvider('tableProvider')]
-    public function testJsonColumnComparison(Table $table): void
+    public function testJsonColumnComparison(Table $originalTable): void
     {
-        $this->dropAndCreateTable($table);
+        $this->dropAndCreateTable($originalTable);
 
         $onlineTable = $this->schemaManager->introspectTable('mariadb_json_column_comparator_test');
-        $diff        = $this->comparator->compareTables($table, $onlineTable);
+        $diff        = $this->comparator->compareTables($originalTable, $onlineTable);
 
         self::assertTrue($diff->isEmpty(), 'Tables should be identical.');
 
-        $originalTable = clone $table;
-
-        $table->getColumn('json_1')
-              ->setPlatformOption('charset', 'utf8')
-              ->setPlatformOption('collation', 'utf8_general_ci');
+        $table = $originalTable->edit()
+            ->modifyColumnByUnquotedName('json_1', static function (ColumnEditor $editor): void {
+                $editor
+                    ->setCharset('utf8')
+                    ->setCollation('utf8_general_ci');
+            })
+            ->create();
 
         $diff = $this->comparator->compareTables($table, $onlineTable);
         self::assertTrue($diff->isEmpty(), 'Tables should be unchanged after attempted collation change.');

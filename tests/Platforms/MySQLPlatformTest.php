@@ -69,13 +69,17 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
 
     public function testCollationOptionIsTakenIntoAccount(): void
     {
-        $table = new Table('quotations', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addOption('collation', 'my_collation');
+        $table = Table::editor()
+            ->setUnquotedName('quotations')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setOptions(['collation' => 'my_collation'])
+            ->create();
+
         self::assertStringContainsString(
             'my_collation',
             $this->platform->getCreateTableSQL($table)[0],

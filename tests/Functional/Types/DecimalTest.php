@@ -27,14 +27,17 @@ final class DecimalTest extends FunctionalTestCase
     #[DataProvider('dataValuesProvider')]
     public function testInsertAndRetrieveDecimal(string $expected): void
     {
-        $table = new Table('decimal_table', [
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::DECIMAL)
-                ->setPrecision(4)
-                ->setScale(2)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('decimal_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::DECIMAL)
+                    ->setPrecision(4)
+                    ->setScale(2)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 

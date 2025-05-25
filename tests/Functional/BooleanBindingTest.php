@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class BooleanBindingTest extends FunctionalTestCase
@@ -18,8 +20,16 @@ class BooleanBindingTest extends FunctionalTestCase
             self::markTestSkipped('Boolean inserts do not work for PDO_OCI and OCI8 as of now');
         }
 
-        $table = new Table('boolean_test_table');
-        $table->addColumn('val', 'boolean');
+        $table = Table::editor()
+            ->setUnquotedName('boolean_test_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::BOOLEAN)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
     }
 

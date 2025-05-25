@@ -27,19 +27,23 @@ class PlatformRestrictionsTest extends FunctionalTestCase
         $platform   = $this->connection->getDatabasePlatform();
         $tableName  = str_repeat('x', $platform->getMaxIdentifierLength());
         $columnName = str_repeat('y', $platform->getMaxIdentifierLength());
-        $table      = new Table($tableName, [
-            Column::editor()
-                ->setUnquotedName($columnName)
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-        ]);
 
         $primaryKeyConstraint = PrimaryKeyConstraint::editor()
             ->setUnquotedColumnNames($columnName)
             ->create();
 
-        $table->addPrimaryKeyConstraint($primaryKeyConstraint);
+        $table = Table::editor()
+            ->setUnquotedName($tableName)
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName($columnName)
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint($primaryKeyConstraint)
+            ->create();
+
         $this->dropAndCreateTable($table);
         $createdTable = $this->connection->createSchemaManager()->introspectTable($tableName);
 

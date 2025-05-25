@@ -24,25 +24,30 @@ class DBAL6024Test extends FunctionalTestCase
 
     public function testDropPrimaryKey(): void
     {
-        $table = new Table('mytable', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('mytable')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $schemaManager = $this->connection->createSchemaManager();
 
         $table = $schemaManager->introspectTable('mytable');
 
-        $newTable = clone $table;
-        $newTable->dropPrimaryKey();
+        $newTable = $table->edit()
+            ->dropPrimaryKeyConstraint()
+            ->create();
 
         $diff = $schemaManager->createComparator()->compareTables($table, $newTable);
 

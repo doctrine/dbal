@@ -9,7 +9,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -38,17 +37,21 @@ class ExceptionTest extends FunctionalTestCase
 {
     public function testPrimaryConstraintViolationException(): void
     {
-        $table = new Table('duplicatekey_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('duplicatekey_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $this->connection->insert('duplicatekey_table', ['id' => 1]);
@@ -68,17 +71,16 @@ class ExceptionTest extends FunctionalTestCase
     public function testTableExistsException(): void
     {
         $schemaManager = $this->connection->createSchemaManager();
-        $table         = new Table('alreadyexist_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+
+        $table = Table::editor()
+            ->setUnquotedName('alreadyexist_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(Exception\TableExistsException::class);
         $schemaManager->createTable($table);
@@ -87,21 +89,20 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testNotNullConstraintViolationException(): void
     {
-        $table = new Table('notnull_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('notnull_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $this->expectException(Exception\NotNullConstraintViolationException::class);
@@ -110,12 +111,16 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testInvalidFieldNameException(): void
     {
-        $table = new Table('bad_columnname_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('bad_columnname_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $this->expectException(Exception\InvalidFieldNameException::class);
@@ -140,20 +145,28 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testNonUniqueFieldNameException(): void
     {
-        $table1 = new Table('ambiguous_list_table_1', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table1 = Table::editor()
+            ->setUnquotedName('ambiguous_list_table_1')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table1);
 
-        $table2 = new Table('ambiguous_list_table_2', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table2 = Table::editor()
+            ->setUnquotedName('ambiguous_list_table_2')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table2);
 
         $sql = 'SELECT id FROM ambiguous_list_table_1, ambiguous_list_table_2';
@@ -163,12 +176,16 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testUniqueConstraintViolationException(): void
     {
-        $table = new Table('unique_column_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('unique_column_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $table->addUniqueIndex(['id']);
 
         $this->dropAndCreateTable($table);
@@ -180,17 +197,16 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testSyntaxErrorException(): void
     {
-        $table = new Table('syntax_error_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('syntax_error_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $sql = 'SELECT id FRO syntax_error_table';
@@ -226,9 +242,17 @@ class ExceptionTest extends FunctionalTestCase
         ];
         $conn   = DriverManager::getConnection($params);
 
-        $schema = new Schema();
-        $table  = $schema->createTable('no_connection');
-        $table->addColumn('id', Types::INTEGER);
+        $table = Table::editor()
+            ->setUnquotedName('no_connection')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $schemaManager = $conn->createSchemaManager();
 
         $this->expectException(Exception\ReadOnlyException::class);
         $this->expectExceptionMessage(
@@ -237,9 +261,7 @@ class ExceptionTest extends FunctionalTestCase
         );
 
         try {
-            foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-                $conn->executeStatement($sql);
-            }
+            $schemaManager->createTable($table);
         } finally {
             $this->cleanupReadOnlyFile($filename);
         }

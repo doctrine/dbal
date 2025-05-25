@@ -30,17 +30,21 @@ class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('stmt_test', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('name')
-                ->setTypeName(Types::TEXT)
-                ->setNotNull(false)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('stmt_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::TEXT)
+                    ->setNotNull(false)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
     }
 
@@ -79,17 +83,21 @@ class StatementTest extends FunctionalTestCase
             self::markTestIncomplete("PDO_OCI doesn't support fetching blobs via PDOStatement::fetchAll()");
         }
 
-        $table = new Table('stmt_longer_results', [
-            Column::editor()
-                ->setUnquotedName('param')
-                ->setTypeName(Types::STRING)
-                ->setLength(24)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::TEXT)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('stmt_longer_results')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('param')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(24)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $row1 = [
@@ -129,13 +137,17 @@ class StatementTest extends FunctionalTestCase
         // but is still not enough to store a LONGBLOB of the max possible size
         ini_set('memory_limit', '4G');
 
-        $table = new Table('stmt_long_blob', [
-            Column::editor()
-                ->setUnquotedName('contents')
-                ->setTypeName(Types::BLOB)
-                ->setLength(0xFFFFFFFF)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('stmt_long_blob')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('contents')
+                    ->setTypeName(Types::BLOB)
+                    ->setLength(0xFFFFFFFF)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $contents = base64_decode(<<<'EOF'

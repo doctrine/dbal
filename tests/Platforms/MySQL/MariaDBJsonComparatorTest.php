@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\Comparator;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -45,37 +46,92 @@ class MariaDBJsonComparatorTest extends TestCase
         );
 
         // TableA has collation set at table level and various column collations
-        $this->tables['A'] = new Table(
-            'foo',
-            [],
-            [],
-            [],
-            [],
-            ['charset' => 'latin1', 'collation' => 'latin1_swedish_ci'],
-        );
-
-        $this->tables['A']->addColumn('json_1', Types::JSON)->setPlatformOption('collation', 'latin1_swedish_ci');
-        $this->tables['A']->addColumn('json_2', Types::JSON)->setPlatformOption('collation', 'utf8_general_ci');
-        $this->tables['A']->addColumn('json_3', Types::JSON);
+        $this->tables['A'] = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('json_1')
+                    ->setTypeName(Types::JSON)
+                    ->setCollation('latin1_swedish_ci')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('json_2')
+                    ->setTypeName(Types::JSON)
+                    ->setCollation('utf8_general_ci')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('json_3')
+                    ->setTypeName(Types::JSON)
+                    ->create(),
+            )
+            ->setOptions([
+                'charset' => 'latin1',
+                'collation' => 'latin1_swedish_ci',
+            ])
+            ->create();
 
         // TableB has no table-level collation and various column collations
-        $this->tables['B'] = new Table('foo');
-        $this->tables['B']->addColumn('json_1', Types::JSON)->setPlatformOption('collation', 'latin1_swedish_ci');
-        $this->tables['B']->addColumn('json_2', Types::JSON)->setPlatformOption('collation', 'utf8_general_ci');
-        $this->tables['B']->addColumn('json_3', Types::JSON);
+        $this->tables['B'] = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('json_1')
+                    ->setTypeName(Types::JSON)
+                    ->setCollation('latin1_swedish_ci')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('json_2')
+                    ->setTypeName(Types::JSON)
+                    ->setCollation('utf8_general_ci')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('json_3')
+                    ->setTypeName(Types::JSON)
+                    ->create(),
+            )
+            ->create();
 
         // Table C has no table-level collation and column collations as MariaDb would return for columns declared
         // as JSON
-        $this->tables['C'] = new Table('foo');
-        $this->tables['C']->addColumn('json_1', Types::JSON)->setPlatformOption('collation', 'utf8mb4_bin');
-        $this->tables['C']->addColumn('json_2', Types::JSON)->setPlatformOption('collation', 'utf8mb4_bin');
-        $this->tables['C']->addColumn('json_3', Types::JSON)->setPlatformOption('collation', 'utf8mb4_bin');
+        $this->tables['C'] = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('json_1')
+                    ->setTypeName(Types::JSON)
+                    ->setCollation('utf8mb4_bin')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('json_2')
+                    ->setTypeName(Types::JSON)
+                    ->setCollation('utf8mb4_bin')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('json_3')
+                    ->setTypeName(Types::JSON)
+                    ->setCollation('utf8mb4_bin')
+                    ->create(),
+            )
+            ->create();
 
         // Table D has no table or column collations set
-        $this->tables['D'] = new Table('foo');
-        $this->tables['D']->addColumn('json_1', Types::JSON);
-        $this->tables['D']->addColumn('json_2', Types::JSON);
-        $this->tables['D']->addColumn('json_3', Types::JSON);
+        $this->tables['D'] = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('json_1')
+                    ->setTypeName(Types::JSON)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('json_2')
+                    ->setTypeName(Types::JSON)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('json_3')
+                    ->setTypeName(Types::JSON)
+                    ->create(),
+            )
+            ->create();
     }
 
     /** @return array{string, string}[] */

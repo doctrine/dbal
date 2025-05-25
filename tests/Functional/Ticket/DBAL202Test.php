@@ -22,17 +22,20 @@ class DBAL202Test extends FunctionalTestCase
         if ($this->connection->createSchemaManager()->tableExists('DBAL202')) {
             $this->connection->executeStatement('DELETE FROM DBAL202');
         } else {
-            $table = new Table('DBAL202', [
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            ]);
-            $table->addPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            );
+            $table = Table::editor()
+                ->setUnquotedName('DBAL202')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id')
+                        ->create(),
+                )
+                ->create();
 
             $this->connection->createSchemaManager()->createTable($table);
         }

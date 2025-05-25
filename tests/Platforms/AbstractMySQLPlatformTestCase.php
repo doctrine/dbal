@@ -11,8 +11,11 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -31,12 +34,15 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGenerateMixedCaseTableCreate(): void
     {
-        $table = new Table('Foo', [
-            Column::editor()
-                ->setUnquotedName('Bar')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('Foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('Bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
@@ -143,25 +149,29 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testUniquePrimaryKey(): void
     {
-        $oldTable = new Table('foo', [
-            Column::editor()
-                ->setUnquotedName('bar')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('baz')
-                ->setTypeName(Types::STRING)
-                ->setLength(32)
-                ->create(),
-        ]);
+        $oldTable = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('baz')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(32)
+                    ->create(),
+            )
+            ->create();
 
         $keyTable = $oldTable->edit()
+            ->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            )
             ->create();
-        $keyTable->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('bar')
-                ->create(),
-        );
+
         $keyTable->addUniqueIndex(['baz']);
 
         $diff = $this->createComparator()
@@ -235,14 +245,23 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testCreateTableWithFulltextIndex(): void
     {
-        $table = new Table('fulltext_table', [
-            Column::editor()
-                ->setUnquotedName('text')
-                ->setTypeName(Types::TEXT)
-                ->create(),
-        ]);
-        $table->addOption('engine', 'MyISAM');
-        $table->addIndex(['text'], 'fulltext_text', ['fulltext']);
+        $table = Table::editor()
+            ->setUnquotedName('fulltext_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('text')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('fulltext_text')
+                    ->setType(IndexType::FULLTEXT)
+                    ->setUnquotedColumnNames('text')
+                    ->create(),
+            )
+            ->setOptions(['engine' => 'MyISAM'])
+            ->create();
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
@@ -257,15 +276,24 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testCreateTableWithSpatialIndex(): void
     {
-        $table = new Table('spatial_table', [
-            Column::editor()
-                ->setUnquotedName('point')
-                // This should be a point type
-                ->setTypeName(Types::TEXT)
-                ->create(),
-        ]);
-        $table->addOption('engine', 'MyISAM');
-        $table->addIndex(['point'], 'spatial_text', ['spatial']);
+        $table = Table::editor()
+            ->setUnquotedName('spatial_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('point')
+                    // This should be a point type
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('spatial_text')
+                    ->setType(IndexType::SPATIAL)
+                    ->setUnquotedColumnNames('point')
+                    ->create(),
+            )
+            ->setOptions(['engine' => 'MyISAM'])
+            ->create();
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
@@ -376,30 +404,33 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
-        $table = new Table('text_blob_default_value', [
-            Column::editor()
-                ->setUnquotedName('def_text')
-                ->setTypeName(Types::TEXT)
-                ->setDefaultValue('def')
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('def_text_null')
-                ->setTypeName(Types::TEXT)
-                ->setNotNull(false)
-                ->setDefaultValue('def')
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('def_blob')
-                ->setTypeName(Types::BLOB)
-                ->setDefaultValue('def')
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('def_blob_null')
-                ->setTypeName(Types::BLOB)
-                ->setNotNull(false)
-                ->setDefaultValue('def')
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('text_blob_default_value')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('def_text')
+                    ->setTypeName(Types::TEXT)
+                    ->setDefaultValue('def')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('def_text_null')
+                    ->setTypeName(Types::TEXT)
+                    ->setNotNull(false)
+                    ->setDefaultValue('def')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('def_blob')
+                    ->setTypeName(Types::BLOB)
+                    ->setDefaultValue('def')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('def_blob_null')
+                    ->setTypeName(Types::BLOB)
+                    ->setNotNull(false)
+                    ->setDefaultValue('def')
+                    ->create(),
+            )
+            ->create();
 
         self::assertSame(
             [
@@ -412,11 +443,20 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             $this->platform->getCreateTableSQL($table),
         );
 
-        $diffTable = clone $table;
-        $diffTable->modifyColumn('def_text', ['default' => null]);
-        $diffTable->modifyColumn('def_text_null', ['default' => null]);
-        $diffTable->modifyColumn('def_blob', ['default' => null]);
-        $diffTable->modifyColumn('def_blob_null', ['default' => null]);
+        $diffTable = $table->edit()
+            ->modifyColumnByUnquotedName('def_text', static function (ColumnEditor $editor): void {
+                $editor->setDefaultValue(null);
+            })
+            ->modifyColumnByUnquotedName('def_text_null', static function (ColumnEditor $editor): void {
+                $editor->setDefaultValue(null);
+            })
+            ->modifyColumnByUnquotedName('def_blob', static function (ColumnEditor $editor): void {
+                $editor->setDefaultValue(null);
+            })
+            ->modifyColumnByUnquotedName('def_blob_null', static function (ColumnEditor $editor): void {
+                $editor->setDefaultValue(null);
+            })
+            ->create();
 
         $comparator = $this->createComparator();
 
@@ -517,10 +557,22 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
-        $table = new Table('foo');
-        $table->addColumn('no_collation', Types::STRING, ['length' => 255]);
-        $table->addColumn('column_collation', Types::STRING, ['length' => 255])
-            ->setPlatformOption('collation', 'ascii_general_ci');
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('no_collation')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(255)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('column_collation')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(255)
+                    ->setCollation('ascii_general_ci')
+                    ->create(),
+            )
+            ->create();
 
         self::assertSame(
             [

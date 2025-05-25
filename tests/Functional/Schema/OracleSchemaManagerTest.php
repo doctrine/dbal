@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -36,46 +37,53 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testAlterTableColumnNotNull(): void
     {
-        $tableName = 'list_table_column_notnull';
-        $table     = new Table($tableName, [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('foo')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('bar')
-                ->setTypeName(Types::STRING)
-                ->setLength(32)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('list_table_column_notnull')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('foo')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(32)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns($tableName);
+        $columns = $this->schemaManager->listTableColumns('list_table_column_notnull');
 
         self::assertTrue($columns['id']->getNotnull());
         self::assertTrue($columns['foo']->getNotnull());
         self::assertTrue($columns['bar']->getNotnull());
 
-        $diffTable = clone $table;
-        $diffTable->modifyColumn('foo', ['notnull' => false]);
-        $diffTable->modifyColumn('bar', ['length' => 1024]);
+        $diffTable = $table->edit()
+            ->modifyColumnByUnquotedName('foo', static function (ColumnEditor $editor): void {
+                $editor->setNotNull(false);
+            })
+            ->modifyColumnByUnquotedName('bar', static function (ColumnEditor $editor): void {
+                $editor->setLength(1024);
+            })
+            ->create();
 
         $diff = $this->schemaManager->createComparator()
             ->compareTables($table, $diffTable);
 
         $this->schemaManager->alterTable($diff);
 
-        $columns = $this->schemaManager->listTableColumns($tableName);
+        $columns = $this->schemaManager->listTableColumns('list_table_column_notnull');
 
         self::assertTrue($columns['id']->getNotnull());
         self::assertFalse($columns['foo']->getNotnull());
@@ -87,13 +95,16 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = $this->createListTableColumns();
         $this->dropAndCreateTable($table);
 
-        $otherTable = new Table($table->getName(), [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::STRING)
-                ->setLength(32)
-                ->create(),
-        ]);
+        $otherTable = Table::editor()
+            ->setName($table->getObjectName())
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(32)
+                    ->create(),
+            )
+            ->create();
 
         $connection    = TestUtil::getPrivilegedConnection();
         $schemaManager = $connection->createSchemaManager();
@@ -112,20 +123,23 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListTableDateTypeColumns(): void
     {
-        $table = new Table('tbl_date', [
-            Column::editor()
-                ->setUnquotedName('col_date')
-                ->setTypeName(Types::DATE_MUTABLE)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('col_datetime')
-                ->setTypeName(Types::DATETIME_MUTABLE)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('col_datetimetz')
-                ->setTypeName(Types::DATETIMETZ_MUTABLE)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('tbl_date')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('col_date')
+                    ->setTypeName(Types::DATE_MUTABLE)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('col_datetime')
+                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('col_datetimetz')
+                    ->setTypeName(Types::DATETIMETZ_MUTABLE)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
@@ -145,17 +159,20 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testQuotedTableNameRemainsQuotedInSchema(): void
     {
-        $table = new Table('"tester"', [
-            Column::editor()
-                ->setQuotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setQuotedName('name')
-                ->setTypeName(Types::STRING)
-                ->setLength(32)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setQuotedName('tester')
+            ->setColumns(
+                Column::editor()
+                    ->setQuotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setQuotedName('name')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(32)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 

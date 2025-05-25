@@ -24,13 +24,16 @@ final class SchemaTest extends FunctionalTestCase
 
         $this->dropTableIfExists('my_table');
 
-        $table = new Table('my_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->setDefaultValue("nextval('my_table_id_seq'::regclass)")
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('my_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setDefaultValue("nextval('my_table_id_seq'::regclass)")
+                    ->create(),
+            )
+            ->create();
 
         $sequence = new Sequence('my_table_id_seq');
 

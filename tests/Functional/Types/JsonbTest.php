@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -13,8 +14,15 @@ class JsonbTest extends FunctionalTestCase
 {
     public function testJsonbColumnIntrospection(): void
     {
-        $table = new Table('test_jsonb');
-        $table->addColumn('v', Types::JSONB);
+        $table = Table::editor()
+            ->setUnquotedName('test_jsonb')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('v')
+                    ->setTypeName(Types::JSONB)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 

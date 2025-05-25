@@ -15,28 +15,39 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class RenameColumnTest extends FunctionalTestCase
 {
     /**
-     * @param non-empty-string $columnName
+     * @param non-empty-string $oldColumnName
      * @param non-empty-string $newColumnName
      */
     #[DataProvider('columnNameProvider')]
-    public function testColumnPositionRetainedAfterImplicitRenaming(string $columnName, string $newColumnName): void
+    public function testColumnPositionRetainedAfterImplicitRenaming(string $oldColumnName, string $newColumnName): void
     {
-        $table = new Table('test_rename', [
-            Column::editor()
-                ->setUnquotedName($columnName)
-                ->setTypeName(Types::STRING)
-                ->setLength(16)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('c2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('test_rename')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName($oldColumnName)
+                    ->setTypeName(Types::STRING)
+                    ->setLength(16)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('c2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
-        $table->dropColumn($columnName)
-            ->addColumn($newColumnName, Types::STRING, ['length' => 16]);
+        $table = $table->edit()
+            ->dropColumnByUnquotedName($oldColumnName)
+            ->addColumn(
+                Column::editor()
+                    ->setUnquotedName($newColumnName)
+                    ->setTypeName(Types::STRING)
+                    ->setLength(16)
+                    ->create(),
+            )
+            ->create();
 
         $sm   =  $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
@@ -71,20 +82,33 @@ class RenameColumnTest extends FunctionalTestCase
     }
 
     /**
-     * @param non-empty-string $columnName
+     * @param non-empty-string $oldColumnName
      * @param non-empty-string $newColumnName
      */
     #[DataProvider('columnNameProvider')]
-    public function testColumnPositionRetainedAfterExplicitRenaming(string $columnName, string $newColumnName): void
+    public function testColumnPositionRetainedAfterExplicitRenaming(string $oldColumnName, string $newColumnName): void
     {
-        $table = new Table('test_rename');
-        $table->addColumn($columnName, Types::INTEGER, ['length' => 16]);
-        $table->addColumn('c2', Types::INTEGER);
+        $table = Table::editor()
+            ->setUnquotedName('test_rename')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName($oldColumnName)
+                    ->setTypeName(Types::INTEGER)
+                    ->setLength(16)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('c2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
         // Force a different type to make sure it's not being caught implicitly
-        $table->renameColumn($columnName, $newColumnName)->setType(Type::getType(Types::BIGINT))->setLength(32);
+        $table->renameColumn($oldColumnName, $newColumnName)
+            ->setType(Type::getType(Types::BIGINT))
+            ->setLength(32);
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()

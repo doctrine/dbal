@@ -52,9 +52,10 @@ class TableEditorTest extends TestCase
     {
         $name = OptionallyQualifiedName::unquoted('contacts');
 
-        $table = new Table('accounts', [
-            $this->createColumn('id', Types::INTEGER),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('accounts')
+            ->setColumns($this->createColumn('id', Types::INTEGER))
+            ->create();
 
         $table = $table->edit()
             ->setName($name)

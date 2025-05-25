@@ -43,12 +43,16 @@ final class UniqueConstraintViolationsTest extends FunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $table = new Table('unique_constraint_violations', [
-            Column::editor()
-                ->setUnquotedName('unique_field')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('unique_constraint_violations')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('unique_field')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $schemaManager->createTable($table);
 
         if ($platform instanceof OraclePlatform || $platform instanceof PostgreSQLPlatform) {

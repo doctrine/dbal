@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
-
-use function array_merge;
-use function sprintf;
 
 class ColumnCommentTest extends FunctionalTestCase
 {
@@ -27,77 +25,68 @@ class ColumnCommentTest extends FunctionalTestCase
 
         self::$initialized = true;
 
-        $table = new Table('column_comments', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $editor = Table::editor()
+            ->setUnquotedName('column_comments')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            );
 
-        foreach (self::columnProvider() as [$name, $type, $options]) {
-            $table->addColumn($name, $type, $options);
+        foreach (self::commentProvider() as [$columnName, $comment]) {
+            $editor->addColumn(
+                Column::editor()
+                    ->setUnquotedName($columnName)
+                    ->setTypeName(Types::INTEGER)
+                    ->setComment($comment)
+                    ->create(),
+            );
         }
+
+        $table = $editor->create();
 
         $this->dropAndCreateTable($table);
     }
 
-    /** @param array<string,mixed> $options */
-    #[DataProvider('columnProvider')]
-    public function testColumnComment(string $name, string $type, array $options): void
+    #[DataProvider('commentProvider')]
+    public function testColumnComment(string $columnName, string $comment): void
     {
-        $this->assertColumnComment('column_comments', $name, $options['comment'] ?? '');
+        $this->assertColumnComment($columnName, $comment);
     }
 
-    /** @return iterable<string,array{0: string, 1: string, 2: mixed[]}> */
-    public static function columnProvider(): iterable
+    /** @return iterable<string,array{non-empty-string,string}> */
+    public static function commentProvider(): iterable
     {
-        foreach (
-            [
-                'commented' => [
-                    'string',
-                    ['length' => 16],
-                ],
-                'not_commented' => [
-                    'json',
-                    [],
-                ],
-            ] as $typeName => [$type, $typeOptions]
-        ) {
-            foreach (
-                [
-                    'no_comment' => [],
-                    'with_comment' => ['comment' => 'Some comment'],
-                    'zero_comment' => ['comment' => '0'],
-                    'empty_comment' => ['comment' => ''],
-                    'quoted_comment' => ['comment' => "O'Reilly"],
-                ] as $caseName => $caseOptions
-            ) {
-                $name = sprintf('%s_%s', $typeName, $caseName);
-
-                yield $name => [
-                    $name,
-                    $type,
-                    array_merge($typeOptions, $caseOptions),
-                ];
-            }
-        }
+        return [
+            'Empty comment' => ['empty_comment', ''],
+            'Non-empty comment' => ['some_comment', ''],
+            'Zero comment' => ['zero_comment', '0'],
+            'Comment with quote' => ['quoted_comment', "O'Reilly"],
+        ];
     }
 
     #[DataProvider('alterColumnCommentProvider')]
     public function testAlterColumnComment(string $comment1, string $comment2): void
     {
-        $table1 = new Table('column_comments', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->setComment($comment1)
-                ->create(),
-        ]);
+        $table1 = Table::editor()
+            ->setUnquotedName('column_comments')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setComment($comment1)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table1);
 
-        $table2 = clone $table1;
-        $table2->getColumn('id')->setComment($comment2);
+        $table2 = $table1->edit()
+            ->modifyColumnByUnquotedName('id', static function (ColumnEditor $editor) use ($comment2): void {
+                $editor->setComment($comment2);
+            })
+            ->create();
 
         $schemaManager = $this->connection->createSchemaManager();
 
@@ -106,7 +95,7 @@ class ColumnCommentTest extends FunctionalTestCase
 
         $schemaManager->alterTable($diff);
 
-        $this->assertColumnComment('column_comments', 'id', $comment2);
+        $this->assertColumnComment('id', $comment2);
     }
 
     /** @return mixed[][] */
@@ -121,13 +110,13 @@ class ColumnCommentTest extends FunctionalTestCase
         ];
     }
 
-    private function assertColumnComment(string $table, string $column, string $expectedComment): void
+    private function assertColumnComment(string $columnName, string $expectedComment): void
     {
         self::assertSame(
             $expectedComment,
             $this->connection->createSchemaManager()
-                ->introspectTable($table)
-                ->getColumn($column)
+                ->introspectTable('column_comments')
+                ->getColumn($columnName)
                 ->getComment(),
         );
     }

@@ -6,31 +6,38 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 class AlterColumnTest extends FunctionalTestCase
 {
     public function testColumnPositionRetainedAfterAltering(): void
     {
-        $table = new Table('test_alter', [
-            Column::editor()
-                ->setUnquotedName('c1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('c2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('test_alter')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('c1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('c2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
-        $table->getColumn('c1')
-            ->setType(Type::getType(Types::STRING))
-            ->setLength(16);
+        $table = $table->edit()
+            ->modifyColumnByUnquotedName('c1', static function (ColumnEditor $editor): void {
+                $editor
+                    ->setTypeName(Types::STRING)
+                    ->setLength(16);
+            })
+            ->create();
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
@@ -52,12 +59,20 @@ class AlterColumnTest extends FunctionalTestCase
             self::markTestSkipped('This test covers PostgreSQL-specific schema comparison scenarios.');
         }
 
-        $table = new Table('test_alter');
-
-        $columnUft8EnUs = $table->addColumn('c1', Types::STRING);
-        $columnUft8EnUs->setPlatformOption('collation', 'en_US.utf8');
-
-        $table->addColumn('c2', Types::STRING);
+        $table = Table::editor()
+            ->setUnquotedName('test_alter')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('c1')
+                    ->setTypeName(Types::STRING)
+                    ->setCollation('en_US.utf8')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('c2')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
@@ -82,10 +97,16 @@ class AlterColumnTest extends FunctionalTestCase
             self::markTestSkipped('This test requires ICU collations to be available.');
         }
 
-        $table = new Table('test_alter');
-
-        $columnIcu = $table->addColumn('c1', Types::STRING);
-        $columnIcu->setPlatformOption('collation', 'en-US-x-icu');
+        $table = Table::editor()
+            ->setUnquotedName('test_alter')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('c1')
+                    ->setTypeName(Types::STRING)
+                    ->setCollation('en-US-x-icu')
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 

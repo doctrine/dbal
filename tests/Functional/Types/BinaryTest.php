@@ -24,24 +24,27 @@ class BinaryTest extends FunctionalTestCase
             self::markTestSkipped("PDO_OCI doesn't support binding binary values");
         }
 
-        $table = new Table('binary_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::BINARY)
-                ->setLength(16)
-                ->setFixed(true)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::BINARY)
-                ->setLength(64)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('binary_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::BINARY)
+                    ->setLength(16)
+                    ->setFixed(true)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::BINARY)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
     }

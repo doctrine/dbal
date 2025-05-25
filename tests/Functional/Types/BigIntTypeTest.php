@@ -22,22 +22,26 @@ class BigIntTypeTest extends FunctionalTestCase
     #[DataProvider('provideBigIntLiterals')]
     public function testSelectBigInt(string $sqlLiteral, int|string|null $expectedValue): void
     {
-        $table = new Table('bigint_type_test', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::SMALLINT)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('my_integer')
-                ->setTypeName(Types::BIGINT)
-                ->setNotNull(false)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('bigint_type_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::SMALLINT)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('my_integer')
+                    ->setTypeName(Types::BIGINT)
+                    ->setNotNull(false)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement(<<<SQL
@@ -73,23 +77,27 @@ class BigIntTypeTest extends FunctionalTestCase
             self::markTestSkipped('This test only works on MySQL/MariaDB.');
         }
 
-        $table = new Table('bigint_type_test', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::SMALLINT)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('my_integer')
-                ->setTypeName(Types::BIGINT)
-                ->setNotNull(false)
-                ->setUnsigned(true)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('bigint_type_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::SMALLINT)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('my_integer')
+                    ->setTypeName(Types::BIGINT)
+                    ->setNotNull(false)
+                    ->setUnsigned(true)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         // Insert (2 ** 64) - 1

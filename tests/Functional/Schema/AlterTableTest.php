@@ -8,8 +8,11 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableEditor;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 
@@ -17,19 +20,22 @@ class AlterTableTest extends FunctionalTestCase
 {
     public function testAddPrimaryKeyOnExistingColumn(): void
     {
-        $table = new Table('alter_pk', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('alter_pk')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
-        $this->testMigration($table, static function (Table $table): void {
-            $table->addPrimaryKeyConstraint(
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor->addPrimaryKeyConstraint(
                 PrimaryKeyConstraint::editor()
                     ->setUnquotedColumnNames('id')
                     ->create(),
@@ -45,20 +51,30 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk', [
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-
-        $this->testMigration($table, static function (Table $table): void {
-            $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-            $table->addPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id')
+        $table = Table::editor()
+            ->setUnquotedName('alter_pk')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::INTEGER)
                     ->create(),
-            );
+            )
+            ->create();
+
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor
+                ->addColumn(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->setAutoincrement(true)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id')
+                        ->create(),
+                );
         });
     }
 
@@ -78,30 +94,34 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk', [
-            Column::editor()
-                ->setUnquotedName('id1')
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id1')
-                ->create(),
-        );
-
-        $this->testMigration($table, static function (Table $table): void {
-            $table->dropPrimaryKey();
-            $table->addPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id2')
+        $table = Table::editor()
+            ->setUnquotedName('alter_pk')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
                     ->create(),
-            );
+                Column::editor()
+                    ->setUnquotedName('id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id1')
+                    ->create(),
+            )
+            ->create();
+
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor
+                ->dropPrimaryKeyConstraint()
+                ->addPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id2')
+                        ->create(),
+                );
         });
     }
 
@@ -121,25 +141,28 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk', [
-            Column::editor()
-                ->setUnquotedName('id1')
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id1', 'id2')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('alter_pk')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id1', 'id2')
+                    ->create(),
+            )
+            ->create();
 
-        $this->testMigration($table, static function (Table $table): void {
-            $table->dropPrimaryKey();
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor->dropPrimaryKeyConstraint();
         });
     }
 
@@ -153,30 +176,34 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk', [
-            Column::editor()
-                ->setUnquotedName('id1')
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id1', 'id2')
-                ->create(),
-        );
-
-        $this->testMigration($table, static function (Table $table): void {
-            $table->dropPrimaryKey();
-            $table->addPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id1')
+        $table = Table::editor()
+            ->setUnquotedName('alter_pk')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
                     ->create(),
-            );
+                Column::editor()
+                    ->setUnquotedName('id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id1', 'id2')
+                    ->create(),
+            )
+            ->create();
+
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor
+                ->dropPrimaryKeyConstraint()
+                ->addPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id1')
+                        ->create(),
+                );
         });
     }
 
@@ -190,30 +217,34 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $table = new Table('alter_pk', [
-            Column::editor()
-                ->setUnquotedName('id1')
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id1')
-                ->create(),
-        );
-
-        $this->testMigration($table, static function (Table $table): void {
-            $table->dropPrimaryKey();
-            $table->addPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id1', 'id2')
+        $table = Table::editor()
+            ->setUnquotedName('alter_pk')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
                     ->create(),
-            );
+                Column::editor()
+                    ->setUnquotedName('id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id1')
+                    ->create(),
+            )
+            ->create();
+
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor
+                ->dropPrimaryKeyConstraint()
+                ->addPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id1', 'id2')
+                        ->create(),
+                );
         });
     }
 
@@ -223,69 +254,89 @@ class AlterTableTest extends FunctionalTestCase
             self::markTestIncomplete('This test fails on IBM Db2 for an unrelated reason.');
         }
 
-        $table = new Table('alter_pk', [
-            Column::editor()
-                ->setUnquotedName('id1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id1')
-                ->create(),
-        );
-
-        $this->testMigration($table, static function (Table $table): void {
-            $table->addColumn('id2', Types::INTEGER);
-            $table->dropPrimaryKey();
-            $table->addPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id1', 'id2')
+        $table = Table::editor()
+            ->setUnquotedName('alter_pk')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id1')
+                    ->setTypeName(Types::INTEGER)
                     ->create(),
-            );
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id1')
+                    ->create(),
+            )
+            ->create();
+
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor
+                ->addColumn(
+                    Column::editor()
+                        ->setUnquotedName('id2')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->dropPrimaryKeyConstraint()
+                ->addPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id1', 'id2')
+                        ->create(),
+                );
         });
     }
 
     public function testReplaceForeignKeyConstraint(): void
     {
-        $articles = new Table('articles', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('sku')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $articles->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
-        $articles->addUniqueConstraint(['sku']);
+        $articles = Table::editor()
+            ->setUnquotedName('articles')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('sku')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('sku')
+                    ->create(),
+            )
+            ->create();
 
-        $orders = new Table('orders', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('article_id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('article_sku')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $orders->addForeignKeyConstraint(
-            'articles',
-            ['article_id'],
-            ['id'],
-            [],
-            'articles_fk',
-        );
+        $orders = Table::editor()
+            ->setUnquotedName('orders')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('article_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('article_sku')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedName('articles_fk')
+                    ->setUnquotedReferencingColumnNames('article_id')
+                    ->setUnquotedReferencedTableName('articles')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         $this->dropTableIfExists('orders');
         $this->dropTableIfExists('articles');
@@ -293,18 +344,21 @@ class AlterTableTest extends FunctionalTestCase
         $this->connection->createSchemaManager()
             ->createTable($articles);
 
-        $this->testMigration($orders, static function (Table $table): void {
-            $table->dropForeignKey('articles_fk');
-            $table->addForeignKeyConstraint(
-                'articles',
-                ['article_sku'],
-                ['sku'],
-                [],
-                'articles_fk',
-            );
+        $this->testMigration($orders, static function (TableEditor $editor): void {
+            $editor
+                ->dropForeignKeyConstraintByUnquotedName('articles_fk')
+                ->addForeignKeyConstraint(
+                    ForeignKeyConstraint::editor()
+                        ->setUnquotedName('articles_fk')
+                        ->setUnquotedReferencingColumnNames('article_sku')
+                        ->setUnquotedReferencedTableName('articles')
+                        ->setUnquotedReferencedColumnNames('sku')
+                        ->create(),
+                );
         });
     }
 
+    /** @param callable(TableEditor): void $migration */
     private function testMigration(Table $oldTable, callable $migration): void
     {
         $this->dropAndCreateTable($oldTable);
@@ -312,9 +366,12 @@ class AlterTableTest extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
 
         $oldTable = $schemaManager->introspectTable($oldTable->getName());
-        $newTable = clone $oldTable;
 
-        $migration($newTable);
+        $editor = $oldTable->edit();
+
+        $migration($editor);
+
+        $newTable = $editor->create();
 
         $diff = $schemaManager->createComparator()
             ->compareTables($oldTable, $newTable);

@@ -58,17 +58,21 @@ class DefaultExpressionTest extends FunctionalTestCase
         $platform   = $this->connection->getDatabasePlatform();
         $defaultSql = $expression($platform, $this);
 
-        $table = new Table('default_expr_test', [
-            Column::editor()
-                ->setUnquotedName('actual_value')
-                ->setTypeName($typeName)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('default_value')
-                ->setTypeName($typeName)
-                ->setDefaultValue($defaultSql)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('default_expr_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('actual_value')
+                    ->setTypeName($typeName)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('default_value')
+                    ->setTypeName($typeName)
+                    ->setDefaultValue($defaultSql)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement(

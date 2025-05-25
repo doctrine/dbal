@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Exception\UnsupportedSchema;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -102,11 +103,30 @@ EOS);
 
     public function testColumnCollation(): void
     {
-        $table = new Table('test_collation');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('text', Types::TEXT);
-        $table->addColumn('foo', Types::TEXT)->setPlatformOption('collation', 'BINARY');
-        $table->addColumn('bar', Types::TEXT)->setPlatformOption('collation', 'NOCASE');
+        $table = Table::editor()
+            ->setUnquotedName('test_collation')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('text')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('foo')
+                    ->setTypeName(Types::TEXT)
+                    ->setCollation('BINARY')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::TEXT)
+                    ->setCollation('NOCASE')
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_collation');
@@ -160,21 +180,25 @@ SQL;
 
     public function testPrimaryKeyAutoIncrement(): void
     {
-        $table = new Table('test_pk_auto_increment', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('text')
-                ->setTypeName(Types::TEXT)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('test_pk_auto_increment')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('text')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
@@ -193,24 +217,27 @@ SQL;
 
     public function testOnlyOwnCommentIsParsed(): void
     {
-        $table = new Table('own_column_comment', [
-            Column::editor()
-                ->setUnquotedName('col1')
-                ->setTypeName(Types::STRING)
-                ->setLength(16)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('col2')
-                ->setTypeName(Types::STRING)
-                ->setLength(16)
-                ->setComment('Column #2')
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('col3')
-                ->setTypeName(Types::STRING)
-                ->setLength(16)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('own_column_comment')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('col1')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(16)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('col2')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(16)
+                    ->setComment('Column #2')
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('col3')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(16)
+                    ->create(),
+            )
+            ->create();
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($table);
@@ -239,8 +266,14 @@ SQL;
         $schemaManager = $this->connection->createSchemaManager();
 
         $table1 = $schemaManager->introspectTable('nodes');
-        $table2 = clone $table1;
-        $table2->addIndex(['name'], 'idx_node_name');
+        $table2 = $table1->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_node_name')
+                    ->setUnquotedColumnNames('name')
+                    ->create(),
+            )
+            ->create();
 
         $comparator = $schemaManager->createComparator();
         $diff       = $comparator->compareTables($table1, $table2);
@@ -259,12 +292,16 @@ SQL;
     {
         $this->dropTableIfExists('t');
 
-        $table = new Table('main.t', [
-            Column::editor()
-                ->setUnquotedName('a')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('t', 'main')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('a')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $this->schemaManager->createTable($table);
 
         self::assertSame(['a'], array_keys($this->schemaManager->listTableColumns('t')));

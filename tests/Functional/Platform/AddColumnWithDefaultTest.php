@@ -15,21 +15,31 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
     {
         $schemaManager = $this->connection->createSchemaManager();
 
-        $table = new Table('add_default_test', [
-            Column::editor()
-                ->setUnquotedName('original_field')
-                ->setTypeName(Types::STRING)
-                ->setLength(8)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('add_default_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('original_field')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(8)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement("INSERT INTO add_default_test (original_field) VALUES ('one')");
 
-        $table->addColumn('new_field', Types::STRING, [
-            'length' => 8,
-            'default' => 'DEFAULT',
-        ]);
+        $table = $table->edit()
+            ->addColumn(
+                Column::editor()
+                    ->setUnquotedName('new_field')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(8)
+                    ->setDefaultValue('DEFAULT')
+                    ->create(),
+            )
+            ->create();
 
         $diff = $schemaManager->createComparator()->compareTables(
             $schemaManager->introspectTable('add_default_test'),

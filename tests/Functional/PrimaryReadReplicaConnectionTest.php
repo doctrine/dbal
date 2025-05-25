@@ -28,17 +28,20 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         }
 
         try {
-            $table = new Table('primary_replica_table', [
-                Column::editor()
-                    ->setUnquotedName('test_int')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            ]);
-            $table->addPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('test_int')
-                    ->create(),
-            );
+            $table = Table::editor()
+                ->setUnquotedName('primary_replica_table')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('test_int')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('test_int')
+                        ->create(),
+                )
+                ->create();
 
             $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);

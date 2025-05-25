@@ -168,27 +168,30 @@ class NamedParametersTest extends FunctionalTestCase
         }
 
         try {
-            $table = new Table('ddc1372_foobar', [
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('foo')
-                    ->setTypeName(Types::STRING)
-                    ->setLength(1)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('bar')
-                    ->setTypeName(Types::STRING)
-                    ->setLength(1)
-                    ->create(),
-            ]);
-            $table->addPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            );
+            $table = Table::editor()
+                ->setUnquotedName('ddc1372_foobar')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('foo')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(1)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('bar')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(1)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id')
+                        ->create(),
+                )
+                ->create();
 
             $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);

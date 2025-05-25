@@ -25,21 +25,29 @@ class DBAL6044Test extends FunctionalTestCase
 
     public function testUnloggedTables(): void
     {
-        $unloggedTable = new Table('my_unlogged', [
-            Column::editor()
-                ->setUnquotedName('foo')
-                ->setTypeName(Types::STRING)
-                ->create(),
-        ]);
-        $unloggedTable->addOption('unlogged', true);
+        $unloggedTable = Table::editor()
+            ->setUnquotedName('my_unlogged')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('foo')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+            )
+            ->setOptions(['unlogged' => true])
+            ->create();
+
         $this->dropAndCreateTable($unloggedTable);
 
-        $loggedTable = new Table('my_logged', [
-            Column::editor()
-                ->setUnquotedName('foo')
-                ->setTypeName(Types::STRING)
-                ->create(),
-        ]);
+        $loggedTable = Table::editor()
+            ->setUnquotedName('my_logged')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('foo')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($loggedTable);
 
         $schemaManager = $this->connection->createSchemaManager();

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema\PostgreSQL;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
@@ -37,10 +38,10 @@ final class ComparatorTest extends FunctionalTestCase
      */
     public function testCompareBinaryAndBlob(): void
     {
-        $this->testColumnModification(static function (Table $table, string $name): Column {
-            return $table->addColumn($name, Types::BINARY);
-        }, static function (Column $column): void {
-            $column->setType(Type::getType(Types::BLOB));
+        $this->testColumnModification(static function (ColumnEditor $editor): void {
+            $editor->setTypeName(Types::BINARY);
+        }, static function (ColumnEditor $editor): void {
+            $editor->setTypeName(Types::BLOB);
         });
     }
 
@@ -51,10 +52,10 @@ final class ComparatorTest extends FunctionalTestCase
      */
     public function testCompareBinaryAndVarbinary(): void
     {
-        $this->testColumnModification(static function (Table $table, string $name): Column {
-            return $table->addColumn($name, Types::BINARY);
-        }, static function (Column $column): void {
-            $column->setFixed(true);
+        $this->testColumnModification(static function (ColumnEditor $editor): void {
+            $editor->setTypeName(Types::BINARY);
+        }, static function (ColumnEditor $editor): void {
+            $editor->setFixed(true);
         });
     }
 
@@ -65,21 +66,26 @@ final class ComparatorTest extends FunctionalTestCase
      */
     public function testCompareBinariesOfDifferentLength(): void
     {
-        $this->testColumnModification(static function (Table $table, string $name): Column {
-            return $table->addColumn($name, Types::BINARY, ['length' => 16]);
-        }, static function (Column $column): void {
-            $column->setLength(32);
+        $this->testColumnModification(static function (ColumnEditor $editor): void {
+            $editor
+                ->setTypeName(Types::BINARY)
+                ->setLength(16);
+        }, static function (ColumnEditor $editor): void {
+            $editor->setLength(32);
         });
     }
 
     public function testPlatformOptionsChangedColumnComparison(): void
     {
-        $table = new Table('update_json_to_jsonb_table', [
-            Column::editor()
-                ->setUnquotedName('test')
-                ->setTypeName(Types::JSON)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('update_json_to_jsonb_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('test')
+                    ->setTypeName(Types::JSON)
+                    ->create(),
+            )
+            ->create();
 
         $onlineTable = clone $table;
         $table->getColumn('test')
@@ -95,13 +101,27 @@ final class ComparatorTest extends FunctionalTestCase
         self::assertEquals(1, $changedColumn->countChangedProperties());
     }
 
-    private function testColumnModification(callable $addColumn, callable $modifyColumn): void
+    /**
+     * @param callable(ColumnEditor): void $initializeColumn
+     * @param callable(ColumnEditor): void $modifyColumn
+     */
+    private function testColumnModification(callable $initializeColumn, callable $modifyColumn): void
     {
-        $table  = new Table('comparator_test');
-        $column = $addColumn($table, 'id');
+        $editor = Column::editor()
+            ->setUnquotedName('id');
+
+        $initializeColumn($editor);
+
+        $table = Table::editor()
+            ->setUnquotedName('comparator_test')
+            ->setColumns($editor->create())
+            ->create();
+
         $this->dropAndCreateTable($table);
 
-        $modifyColumn($column);
+        $table = $table->edit()
+            ->modifyColumnByUnquotedName('id', $modifyColumn)
+            ->create();
 
         self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
             $this->schemaManager,

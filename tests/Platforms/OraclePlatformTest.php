@@ -156,13 +156,16 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $columnName = strtoupper('id' . uniqid());
         $tableName  = strtoupper('table' . uniqid());
-        $table      = new Table($tableName, [
-            Column::editor()
-                ->setUnquotedName($columnName)
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-        ]);
+        $table      = Table::editor()
+            ->setUnquotedName($tableName)
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName($columnName)
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+            )
+            ->create();
 
         self::assertSame([
             sprintf('CREATE TABLE "%s" ("%s" NUMBER(10) NOT NULL)', $tableName, $columnName),
@@ -317,33 +320,39 @@ SQL
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType(): void
     {
-        $table1 = new Table('mytable', [
-            Column::editor()
-                ->setUnquotedName('column_varbinary')
-                ->setTypeName(Types::BINARY)
-                ->setLength(32)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('column_binary')
-                ->setTypeName(Types::BINARY)
-                ->setFixed(true)
-                ->setLength(32)
-                ->create(),
-        ]);
+        $table1 = Table::editor()
+            ->setUnquotedName('mytable')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('column_varbinary')
+                    ->setTypeName(Types::BINARY)
+                    ->setLength(32)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('column_binary')
+                    ->setTypeName(Types::BINARY)
+                    ->setFixed(true)
+                    ->setLength(32)
+                    ->create(),
+            )
+            ->create();
 
-        $table2 = new Table('mytable', [
-            Column::editor()
-                ->setUnquotedName('column_varbinary')
-                ->setTypeName(Types::BINARY)
-                ->setFixed(true)
-                ->setLength(32)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('column_binary')
-                ->setTypeName(Types::BINARY)
-                ->setLength(32)
-                ->create(),
-        ]);
+        $table2 = Table::editor()
+            ->setUnquotedName('mytable')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('column_varbinary')
+                    ->setTypeName(Types::BINARY)
+                    ->setFixed(true)
+                    ->setLength(32)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('column_binary')
+                    ->setTypeName(Types::BINARY)
+                    ->setLength(32)
+                    ->create(),
+            )
+            ->create();
 
         self::assertTrue(
             $this->createComparator()
@@ -461,20 +470,26 @@ SQL
 
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
-        $table1 = new Table('"Foo"', [
-            Column::editor()
-                ->setQuotedName('Bar')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table1 = Table::editor()
+            ->setQuotedName('Foo')
+            ->setColumns(
+                Column::editor()
+                    ->setQuotedName('Bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
-        $table2 = new Table('"Foo"', [
-            Column::editor()
-                ->setQuotedName('Bar')
-                ->setTypeName(Types::INTEGER)
-                ->setComment('Baz')
-                ->create(),
-        ]);
+        $table2 = Table::editor()
+            ->setQuotedName('Foo')
+            ->setColumns(
+                Column::editor()
+                    ->setQuotedName('Bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->setComment('Baz')
+                    ->create(),
+            )
+            ->create();
 
         $tableDiff = $this->createComparator()
             ->compareTables($table1, $table2);
@@ -487,13 +502,16 @@ SQL
 
     public function testQuotedTableNames(): void
     {
-        $table = new Table('"test"', [
-            Column::editor()
-                ->setQuotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setQuotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setQuotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+            )
+            ->create();
 
         self::assertTrue($table->isQuoted());
         self::assertEquals('test', $table->getName());

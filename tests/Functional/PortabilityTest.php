@@ -173,29 +173,32 @@ class PortabilityTest extends FunctionalTestCase
 
     private function createTable(): void
     {
-        $table = new Table('portability_table', [
-            Column::editor()
-                ->setUnquotedName('Test_Int')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('Test_String')
-                ->setTypeName(Types::STRING)
-                ->setFixed(true)
-                ->setLength(8)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('Test_Null')
-                ->setTypeName(Types::STRING)
-                ->setLength(1)
-                ->setNotNull(false)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('Test_Int')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('portability_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('Test_Int')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('Test_String')
+                    ->setTypeName(Types::STRING)
+                    ->setFixed(true)
+                    ->setLength(8)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('Test_Null')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(1)
+                    ->setNotNull(false)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('Test_Int')
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 

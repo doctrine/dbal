@@ -8,7 +8,11 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableEditor;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 
@@ -28,8 +32,13 @@ class ColumnRenameTest extends FunctionalTestCase
     /** @throws Exception */
     public function testRenameColumnInIndex(): void
     {
-        $this->testRenameColumn(static function (Table $table): void {
-            $table->addIndex(['c1', 'c2'], 'idx_c1_c2');
+        $this->testRenameColumn(static function (TableEditor $editor): void {
+            $editor->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_c1_c2')
+                    ->setUnquotedColumnNames('c1', 'c2')
+                    ->create(),
+            );
         });
     }
 
@@ -38,29 +47,42 @@ class ColumnRenameTest extends FunctionalTestCase
     {
         $this->dropTableIfExists('rename_column_referenced');
 
-        $referencedTable = new Table('rename_column_referenced', [
-            Column::editor()
-                ->setUnquotedName('c1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('c2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-
-        // PostgreSQL requires a unique constraint on the referenced table columns
-        $referencedTable->addUniqueConstraint(['c1', 'c2']);
+        $referencedTable = Table::editor()
+            ->setUnquotedName('rename_column_referenced')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('c1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('c2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            // PostgreSQL requires a unique constraint on the referenced table columns
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('c1', 'c2')
+                    ->create(),
+            )
+            ->create();
 
         $this->connection->createSchemaManager()->createTable($referencedTable);
 
-        $this->testRenameColumn(static function (Table $table): void {
-            $table->addForeignKeyConstraint('rename_column_referenced', ['c1', 'c2'], ['c1', 'c2'], [], 'fk_c1_c2');
+        $this->testRenameColumn(static function (TableEditor $editor): void {
+            $editor->addForeignKeyConstraint(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedName('fk_c1_c2')
+                    ->setUnquotedReferencingColumnNames('c1', 'c2')
+                    ->setUnquotedReferencedTableName('rename_column_referenced')
+                    ->setUnquotedReferencedColumnNames('c1', 'c2')
+                    ->create(),
+            );
         });
     }
 
     /**
-     * @param callable(Table): void $modifier
+     * @param callable(TableEditor): void $modifier
      *
      * @throws Exception
      */
@@ -68,17 +90,23 @@ class ColumnRenameTest extends FunctionalTestCase
     {
         $this->dropTableIfExists('rename_column');
 
-        $table = new Table('rename_column', [
-            Column::editor()
-                ->setUnquotedName('c1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('c2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $modifier($table);
+        $editor = Table::editor()
+            ->setUnquotedName('rename_column')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('c1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('c2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            );
+
+        $modifier($editor);
+
+        $table = $editor->create();
+
         $table->renameColumn('c1', 'c1a');
 
         $this->connection->createSchemaManager()->createTable($table);

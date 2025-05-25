@@ -16,25 +16,29 @@ final class UniqueConstraintTest extends FunctionalTestCase
     {
         $this->dropTableIfExists('users');
 
-        $users = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('username')
-                ->setTypeName(Types::STRING)
-                ->setLength(32)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('email')
-                ->setTypeName(Types::STRING)
-                ->setLength(255)
-                ->create(),
-        ], [], [
-            UniqueConstraint::editor()
-                ->setUnquotedColumnNames('username')
-                ->create(),
-            UniqueConstraint::editor()
-                ->setUnquotedColumnNames('email')
-                ->create(),
-        ], []);
+        $users = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('username')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(32)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(255)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('username')
+                    ->create(),
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($users);

@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -17,28 +18,49 @@ abstract class AbstractColumnTestCase extends FunctionalTestCase
 {
     public function testVariableLengthStringNoLength(): void
     {
-        $this->assertColumn(Types::STRING, [], 'Test', ParameterType::STRING);
+        $this->assertColumn(
+            Column::editor()
+                ->setTypeName(Types::STRING),
+            'Test',
+            ParameterType::STRING,
+        );
     }
 
     #[DataProvider('string8Provider')]
     public function testVariableLengthStringWithLength(string $value): void
     {
-        $this->assertColumn(Types::STRING, ['length' => 8], $value, ParameterType::STRING);
+        $this->assertColumn(
+            Column::editor()
+                ->setTypeName(Types::STRING)
+                ->setLength(8),
+            $value,
+            ParameterType::STRING,
+        );
     }
 
     #[DataProvider('string1Provider')]
     public function testFixedLengthStringNoLength(string $value): void
     {
-        $this->assertColumn(Types::STRING, ['fixed' => true], $value, ParameterType::STRING);
+        $this->assertColumn(
+            Column::editor()
+                ->setTypeName(Types::STRING)
+                ->setFixed(true),
+            $value,
+            ParameterType::STRING,
+        );
     }
 
     #[DataProvider('string8Provider')]
     public function testFixedLengthStringWithLength(string $value): void
     {
-        $this->assertColumn(Types::STRING, [
-            'fixed' => true,
-            'length' => 8,
-        ], $value, ParameterType::STRING);
+        $this->assertColumn(
+            Column::editor()
+                ->setTypeName(Types::STRING)
+                ->setFixed(true)
+                ->setLength(8),
+            $value,
+            ParameterType::STRING,
+        );
     }
 
     /** @return iterable<string, array<int, mixed>> */
@@ -61,25 +83,46 @@ abstract class AbstractColumnTestCase extends FunctionalTestCase
 
     public function testVariableLengthBinaryNoLength(): void
     {
-        $this->assertColumn(Types::BINARY, [], "\x00\x01\x02\x03", ParameterType::BINARY);
+        $this->assertColumn(
+            Column::editor()
+                ->setTypeName(Types::BINARY),
+            "\x00\x01\x02\x03",
+            ParameterType::BINARY,
+        );
     }
 
     public function testVariableLengthBinaryWithLength(): void
     {
-        $this->assertColumn(Types::BINARY, ['length' => 8], "\xCE\xC6\x6B\xDD\x9F\xD8\x07\xB4", ParameterType::BINARY);
+        $this->assertColumn(
+            Column::editor()
+                ->setTypeName(Types::BINARY)
+                ->setLength(8),
+            "\xCE\xC6\x6B\xDD\x9F\xD8\x07\xB4",
+            ParameterType::BINARY,
+        );
     }
 
     public function testFixedLengthBinaryNoLength(): void
     {
-        $this->assertColumn(Types::BINARY, ['fixed' => true], "\xFF", ParameterType::BINARY);
+        $this->assertColumn(
+            Column::editor()
+                ->setTypeName(Types::BINARY)
+                ->setFixed(true),
+            "\xFF",
+            ParameterType::BINARY,
+        );
     }
 
     public function testFixedLengthBinaryWithLength(): void
     {
-        $this->assertColumn(Types::BINARY, [
-            'fixed' => true,
-            'length' => 8,
-        ], "\xA0\x0A\x7B\x0E\xA4\x60\x78\xD8", ParameterType::BINARY);
+        $this->assertColumn(
+            Column::editor()
+                ->setTypeName(Types::BINARY)
+                ->setFixed(true)
+                ->setLength(8),
+            "\xA0\x0A\x7B\x0E\xA4\x60\x78\xD8",
+            ParameterType::BINARY,
+        );
     }
 
     protected function requirePlatform(string $class): void
@@ -91,17 +134,22 @@ abstract class AbstractColumnTestCase extends FunctionalTestCase
         self::markTestSkipped(sprintf('The test requires %s', $class));
     }
 
-    /** @param array<string, mixed> $column */
-    protected function assertColumn(string $type, array $column, string $value, ParameterType $bindType): void
+    protected function assertColumn(ColumnEditor $editor, string $value, ParameterType $bindType): void
     {
-        $table = new Table('column_test');
-        $table->addColumn('val', $type, $column);
+        $column = $editor
+            ->setUnquotedName('val')
+            ->create();
+
+        $table = Table::editor()
+            ->setUnquotedName('column_test')
+            ->setColumns($column)
+            ->create();
 
         $this->dropAndCreateTable($table);
 
         self::assertSame(1, $this->connection->insert('column_test', ['val' => $value], [$bindType]));
 
-        self::assertSame($value, Type::getType($type)->convertToPHPValue(
+        self::assertSame($value, $column->getType()->convertToPHPValue(
             $this->connection->fetchOne('SELECT val FROM column_test'),
             $this->connection->getDatabasePlatform(),
         ));

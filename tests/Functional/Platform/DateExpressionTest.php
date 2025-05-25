@@ -17,16 +17,20 @@ class DateExpressionTest extends FunctionalTestCase
     #[DataProvider('differenceProvider')]
     public function testDifference(string $date1, string $date2, int $expected): void
     {
-        $table = new Table('date_expr_test', [
-            Column::editor()
-                ->setUnquotedName('date1')
-                ->setTypeName(Types::DATETIME_MUTABLE)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('date2')
-                ->setTypeName(Types::DATETIME_MUTABLE)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('date_expr_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('date1')
+                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('date2')
+                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
         $this->connection->insert('date_expr_test', [
             'date1' => $date1,

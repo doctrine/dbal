@@ -23,14 +23,17 @@ final class NumberTest extends FunctionalTestCase
     {
         $expected = new Number($numberAsString);
 
-        $table = new Table('number_table', [
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::NUMBER)
-                ->setPrecision(4)
-                ->setScale(2)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('number_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::NUMBER)
+                    ->setPrecision(4)
+                    ->setScale(2)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
@@ -51,14 +54,17 @@ final class NumberTest extends FunctionalTestCase
 
     public function testCompareNumberTable(): void
     {
-        $table = new Table('number_table', [
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::NUMBER)
-                ->setPrecision(4)
-                ->setScale(2)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('number_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::NUMBER)
+                    ->setPrecision(4)
+                    ->setScale(2)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 

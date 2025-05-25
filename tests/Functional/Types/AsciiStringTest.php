@@ -15,24 +15,27 @@ class AsciiStringTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $table = new Table('ascii_table', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::ASCII_STRING)
-                ->setLength(3)
-                ->setFixed(true)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('val')
-                ->setTypeName(Types::ASCII_STRING)
-                ->setLength(4)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('ascii_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::ASCII_STRING)
+                    ->setLength(3)
+                    ->setFixed(true)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::ASCII_STRING)
+                    ->setLength(4)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
     }

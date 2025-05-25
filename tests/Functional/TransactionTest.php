@@ -101,17 +101,20 @@ class TransactionTest extends FunctionalTestCase
             self::markTestIncomplete('Broken when savepoints are not supported.');
         }
 
-        $table = new Table('storage', [
-            Column::editor()
-                ->setUnquotedName('test_int')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('test_int')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('storage')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('test_int')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('test_int')
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 

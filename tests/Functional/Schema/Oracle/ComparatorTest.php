@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema\Oracle;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
@@ -40,18 +41,25 @@ final class ComparatorTest extends FunctionalTestCase
      */
     public function testChangeBinaryColumnFixed(): void
     {
-        $table = new Table('comparator_test', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::BINARY)
-                ->setLength(32)
-                ->setFixed(true)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('comparator_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::BINARY)
+                    ->setLength(32)
+                    ->setFixed(true)
+                    ->create(),
+            )
+            ->create();
+
         $this->dropAndCreateTable($table);
 
-        $table->getColumn('id')
-            ->setFixed(false);
+        $table = $table->edit()
+            ->modifyColumnByUnquotedName('id', static function (ColumnEditor $editor): void {
+                $editor->setFixed(false);
+            })
+            ->create();
 
         self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
             $this->schemaManager,

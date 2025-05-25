@@ -40,12 +40,15 @@ final class ResultTest extends FunctionalTestCase
 
         $this->nativeConnection = $nativeConnection;
 
-        $table = new Table(self::TABLE_NAME, [
-            Column::editor()
-                ->setUnquotedName('my_col_1')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName(self::TABLE_NAME)
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('my_col_1')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
     }

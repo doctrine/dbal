@@ -13,6 +13,8 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -226,18 +228,21 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testGenerateTableSqlShouldNotAutoQuotePrimaryKey(): void
     {
-        $table = new Table('test', [
-            Column::editor()
-                ->setQuotedName('like')
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('like')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setQuotedName('like')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setQuotedColumnNames('like')
+                    ->create(),
+            )
+            ->create();
 
         $createTableSQL = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
@@ -248,7 +253,15 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testAlterTableAddColumns(): void
     {
-        $table = new Table('user');
+        $table = Table::editor()
+            ->setUnquotedName('user')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $diff = new TableDiff($table, addedColumns: [
             Column::editor()
@@ -273,12 +286,15 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testRenameNonExistingColumn(): void
     {
-        $table = new Table('test', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'value' => new ColumnDiff(
@@ -299,42 +315,62 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateTableWithDeferredForeignKeys(): void
     {
-        $table = new Table('user', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('article')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('post')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('parent')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
-        $table->addForeignKeyConstraint('article', ['article'], ['id'], ['deferrable' => true]);
-        $table->addForeignKeyConstraint('post', ['post'], ['id'], ['deferred' => true]);
-        $table->addForeignKeyConstraint('user', ['parent'], ['id'], ['deferrable' => true, 'deferred' => true]);
+        $table = Table::editor()
+            ->setUnquotedName('user')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('article')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('post')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('parent')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('article')
+                    ->setUnquotedReferencedTableName('article')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->setDeferrability(Deferrability::DEFERRABLE)
+                    ->create(),
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('post')
+                    ->setUnquotedReferencedTableName('post')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->setDeferrability(Deferrability::DEFERRED)
+                    ->create(),
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('parent')
+                    ->setUnquotedReferencedTableName('user')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->setDeferrability(Deferrability::DEFERRED)
+                    ->create(),
+            )
+            ->create();
 
         $sql = [
             'CREATE TABLE "user" ('
                 . '"id" INTEGER NOT NULL, "article" INTEGER NOT NULL, "post" INTEGER NOT NULL'
                 . ', "parent" INTEGER NOT NULL, PRIMARY KEY ("id")'
-                . ', CONSTRAINT "FK_8D93D64923A0E66" FOREIGN KEY ("article")'
+                . ', FOREIGN KEY ("article")'
                 . ' REFERENCES "article" ("id") DEFERRABLE'
-                . ', CONSTRAINT "FK_8D93D6495A8A6C8D" FOREIGN KEY ("post")'
+                . ', FOREIGN KEY ("post")'
                 . ' REFERENCES "post" ("id") DEFERRABLE INITIALLY DEFERRED'
-                . ', CONSTRAINT "FK_8D93D6493D8E604F" FOREIGN KEY ("parent")'
+                . ', FOREIGN KEY ("parent")'
                 . ' REFERENCES "user" ("id") DEFERRABLE INITIALLY DEFERRED'
                 . ')',
             'CREATE INDEX "IDX_8D93D64923A0E66" ON "user" ("article")',
@@ -347,33 +383,58 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testAlterTable(): void
     {
-        $table = new Table('user', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('article')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('post')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('parent')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
-        $table->addForeignKeyConstraint('article', ['article'], ['id'], ['deferrable' => true]);
-        $table->addForeignKeyConstraint('post', ['post'], ['id'], ['deferred' => true]);
-        $table->addForeignKeyConstraint('user', ['parent'], ['id'], ['deferrable' => true, 'deferred' => true]);
-        $table->addIndex(['article', 'post'], 'index1');
+        $table = Table::editor()
+            ->setUnquotedName('user')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('article')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('post')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('parent')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('index1')
+                    ->setUnquotedColumnNames('article', 'post')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('article')
+                    ->setUnquotedReferencedTableName('article')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->setDeferrability(Deferrability::DEFERRABLE)
+                    ->create(),
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('post')
+                    ->setUnquotedReferencedTableName('post')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->setDeferrability(Deferrability::DEFERRED)
+                    ->create(),
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('parent')
+                    ->setUnquotedReferencedTableName('user')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->setDeferrability(Deferrability::DEFERRED)
+                    ->create(),
+            )
+            ->create();
 
         $diff = new TableDiff(
             $table,
@@ -410,9 +471,9 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE "user" ('
                 . '"key" INTEGER NOT NULL, "article" INTEGER NOT NULL, "comment" INTEGER NOT NULL'
                 . ', PRIMARY KEY ("key")'
-                . ', CONSTRAINT "FK_8D93D64923A0E66" FOREIGN KEY ("article")'
+                . ', FOREIGN KEY ("article")'
                 . ' REFERENCES "article" ("id") DEFERRABLE'
-                . ', CONSTRAINT "FK_8D93D6495A8A6C8D" FOREIGN KEY ("comment")'
+                . ', FOREIGN KEY ("comment")'
                 . ' REFERENCES "post" ("id") DEFERRABLE INITIALLY DEFERRED'
                 . ')',
             'INSERT INTO "user" ("key", "article", "comment") SELECT "id", "article", "post" FROM "__temp__user"',
@@ -556,12 +617,15 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesAlterTableRenameColumnSQLWithSchema(): void
     {
-        $table = new Table('main.t', [
-            Column::editor()
-                ->setUnquotedName('a')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('t', 'main')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('a')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'a' => new ColumnDiff(
@@ -684,13 +748,22 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
-        $table = new Table('foo');
-        $table->addColumn('no_collation', Types::STRING, ['length' => 255]);
-        $table->addColumn(
-            'column_collation',
-            Types::STRING,
-            ['length' => 255],
-        )->setPlatformOption('collation', 'NOCASE');
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('no_collation')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(255)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('column_collation')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(255)
+                    ->setCollation('NOCASE')
+                    ->create(),
+            )
+            ->create();
 
         self::assertSame(
             [
@@ -703,13 +776,16 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateTableWithNonPrimaryKeyAutoIncrementColumn(): void
     {
-        $table = new Table('test_autoincrement', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('test_autoincrement')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(UnsupportedTableDefinition::class);
         $this->platform->getCreateTableSQL($table);
@@ -717,22 +793,25 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateTableWithCompositePrimaryKeyAutoIncrementColumn(): void
     {
-        $table = new Table('test_autoincrement', [
-            Column::editor()
-                ->setUnquotedName('id1')
-                ->setTypeName(Types::INTEGER)
-                ->setAutoincrement(true)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('id2')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id1', 'id2')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('test_autoincrement')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id1')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('id2')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id1', 'id2')
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(UnsupportedTableDefinition::class);
         $this->platform->getCreateTableSQL($table);

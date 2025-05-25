@@ -23,12 +23,16 @@ class OtherSchemaTest extends FunctionalTestCase
 
         $this->connection->executeStatement("ATTACH DATABASE '/tmp/test_other_schema.sqlite' AS other");
 
-        $table = new Table('other.test_other_schema', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('test_other_schema', 'other')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
         $table->addIndex(['id']);
 
         $this->dropAndCreateTable($table);

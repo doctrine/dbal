@@ -16,24 +16,28 @@ class DefaultValueTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $columns = [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ];
+        $editor = Table::editor()
+            ->setUnquotedName('default_value')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            );
 
         foreach (self::columnProvider() as [$name, $default]) {
-            $columns[] = Column::editor()
-                ->setUnquotedName($name)
-                ->setTypeName(Types::STRING)
-                ->setLength(32)
-                ->setDefaultValue($default)
-                ->setNotNull(false)
-                ->create();
+            $editor->addColumn(
+                Column::editor()
+                    ->setUnquotedName($name)
+                    ->setTypeName(Types::STRING)
+                    ->setLength(32)
+                    ->setDefaultValue($default)
+                    ->setNotNull(false)
+                    ->create(),
+            );
         }
 
-        $table = new Table('default_value', $columns);
+        $table = $editor->create();
 
         $this->dropAndCreateTable($table);
 
