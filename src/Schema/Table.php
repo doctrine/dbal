@@ -30,6 +30,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
 
+use function array_diff_key;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -889,13 +890,23 @@ class Table extends AbstractNamedObject
      */
     public function edit(): TableEditor
     {
-        return self::editor()
+        $editor = self::editor()
             ->setName($this->getObjectName())
             ->setColumns(...array_values($this->_columns))
-            ->setIndexes(...array_values($this->_indexes))
+            ->setIndexes(...array_values(array_diff_key($this->_indexes, $this->implicitIndexNames)))
+            ->setPrimaryKeyConstraint($this->primaryKeyConstraint)
             ->setUniqueConstraints(...array_values($this->uniqueConstraints))
-            ->setForeignKeyConstraints(...array_values($this->_fkConstraints))
-            ->setOptions($this->_options)
+            ->setForeignKeyConstraints(...array_values($this->_fkConstraints));
+
+        $options = $this->_options;
+
+        if (isset($options['comment'])) {
+            $editor->setComment($options['comment']);
+            unset($options['comment']);
+        }
+
+        return $editor
+            ->setOptions($options)
             ->setConfiguration(
                 new TableConfiguration($this->maxIdentifierLength),
             );

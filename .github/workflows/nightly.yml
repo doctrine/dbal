@@ -5,9 +5,6 @@ on:
     - cron: "12 3 * * *"
   workflow_dispatch:
 
-env:
-  fail-fast: true
-
 jobs:
   phpunit-mariadb-devel:
     name: "PHPUnit with MariaDB"
@@ -50,6 +47,8 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
           extensions: "${{ matrix.extension }}"
+        env:
+          fail-fast: true
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v3"

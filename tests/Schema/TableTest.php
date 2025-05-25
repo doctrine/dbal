@@ -715,7 +715,15 @@ class TableTest extends TestCase
 
         self::assertCount(1, $localTable->getIndexes());
 
-        $localTable->addUniqueIndex(['id'], 'explicit_idx');
+        $localTable = $localTable->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('explicit_idx')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         self::assertCount(1, $localTable->getIndexes());
         self::assertTrue($localTable->hasIndex('explicit_idx'));

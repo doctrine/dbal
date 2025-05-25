@@ -243,6 +243,8 @@ jobs:
         uses: "shivammathur/setup-php@v2"
         with:
           php-version: "${{ matrix.php-version }}"
+        env:
+          fail-fast: true
 
       - name: "Lower minimum stability"
         run: "composer config minimum-stability dev"

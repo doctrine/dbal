@@ -47,6 +47,7 @@ jobs:
           coverage: pcov
           ini-values: zend.assertions=1
         env:
+          fail-fast: true
           IBM_DB2_CONFIGURE_OPTS: '--with-IBM_DB2=/tmp/clidriver'
 
       - name: Install dependencies with Composer

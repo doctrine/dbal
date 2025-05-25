@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class BooleanBindingTest extends FunctionalTestCase
 {
@@ -27,7 +28,7 @@ class BooleanBindingTest extends FunctionalTestCase
         $this->dropTableIfExists('boolean_test_table');
     }
 
-    /** @dataProvider booleanProvider */
+    #[DataProvider('booleanProvider')]
     public function testBooleanInsert(bool $input): void
     {
         $queryBuilder = $this->connection->createQueryBuilder();

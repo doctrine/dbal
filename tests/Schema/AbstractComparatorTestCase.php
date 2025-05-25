@@ -472,21 +472,37 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     public function testCompareIndexBasedOnPropertiesNotName(): void
     {
-        $tableA = new Table('foo', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $tableA->addIndex(['id'], 'foo_bar_idx');
+        $tableA = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('foo_bar_idx')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
-        $tableB = new Table('foo', [
-            Column::editor()
-                ->setUnquotedName('ID')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $tableB->addIndex(['id'], 'bar_foo_idx');
+        $tableB = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('ID')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('bar_foo_idx')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         self::assertEquals(
             new TableDiff($tableA, renamedIndexes: [

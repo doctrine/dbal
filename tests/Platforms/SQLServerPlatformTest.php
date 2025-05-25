@@ -570,18 +570,21 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function testCreateNonClusteredPrimaryKeyInTable(): void
     {
-        $table = new Table('tbl', [
-            Column::editor()
-                ->setUnquotedName('id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->setIsClustered(false)
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('tbl')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->setIsClustered(false)
+                    ->create(),
+            )
+            ->create();
 
         self::assertEquals(
             ['CREATE TABLE [tbl] ([id] INT NOT NULL, PRIMARY KEY NONCLUSTERED ([id]))'],
