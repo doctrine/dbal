@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `Column` methods
+
+The following `Column` methods have been removed:
+
+- `Column::getPlatformOption()`
+- `Column::getPlatformOptions()`
+- `Column::hasPlatformOption()`
+
 ## BC BREAK: Removed support for the `version` column platform option
 
 The `version` column platform option is no longer supported.

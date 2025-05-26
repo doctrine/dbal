@@ -270,40 +270,6 @@ class Column extends AbstractNamedObject
         return $this->_platformOptions[SQLServerPlatform::OPTION_DEFAULT_CONSTRAINT_NAME] ?? null;
     }
 
-    /**
-     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()} or {@see getMaximumValue()}
-     *             instead.
-     *
-     * @return PlatformOptions
-     */
-    public function getPlatformOptions(): array
-    {
-        return $this->_platformOptions;
-    }
-
-    /**
-     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()} or {@see getMaximumValue()}
-     *             instead.
-     *
-     * @param key-of<PlatformOptions> $name
-     */
-    public function hasPlatformOption(string $name): bool
-    {
-        return isset($this->_platformOptions[$name]);
-    }
-
-    /**
-     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()} or {@see getMaximumValue()}
-     *             instead.
-     *
-     * @param key-of<PlatformOptions> $name
-     */
-    public function getPlatformOption(string $name): mixed
-    {
-        /** @phpstan-ignore offsetAccess.notFound */
-        return $this->_platformOptions[$name];
-    }
-
     public function getColumnDefinition(): ?string
     {
         return $this->_columnDefinition;
