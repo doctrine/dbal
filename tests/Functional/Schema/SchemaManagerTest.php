@@ -251,8 +251,15 @@ final class SchemaManagerTest extends FunctionalTestCase
     /** @throws Exception */
     public function testIntrospectTableWithDotInName(): void
     {
-        $table = new Table('"example.com"');
-        $table->addColumn('id', Types::INTEGER);
+        $table = Table::editor()
+            ->setQuotedName('example.com')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $this->dropAndCreateTable($table);
 
