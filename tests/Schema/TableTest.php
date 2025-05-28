@@ -304,10 +304,12 @@ class TableTest extends TestCase
         self::assertTrue($table->hasColumn('foo'));
         self::assertTrue($table->hasColumn('bar'));
 
-        $table->dropColumn('foo')->dropColumn('bar');
+        $table = $table->edit()
+            ->dropColumnByUnquotedName('foo')
+            ->create();
 
         self::assertFalse($table->hasColumn('foo'));
-        self::assertFalse($table->hasColumn('bar'));
+        self::assertTrue($table->hasColumn('bar'));
     }
 
     public function testGetUnknownColumnThrowsException(): void
@@ -719,9 +721,14 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('id')
+                    ->setUnquotedReferencedTableName('bar')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
             ->create();
-
-        $table->addForeignKeyConstraint('bar', ['id'], ['id'], ['foo' => 'bar']);
 
         $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
@@ -786,6 +793,16 @@ class TableTest extends TestCase
                     ->setTypeName(Types::STRING)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('composite_idx')
+                    ->setUnquotedColumnNames('baz', 'bar')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('full_idx')
+                    ->setUnquotedColumnNames('bar', 'baz', 'bloo')
+                    ->create(),
+            )
             ->setForeignKeyConstraints(
                 ForeignKeyConstraint::editor()
                     ->setUnquotedReferencingColumnNames('bar', 'baz')
@@ -794,10 +811,6 @@ class TableTest extends TestCase
                     ->create(),
             )
             ->create();
-
-        $table->addIndex(['baz', 'bar'], 'composite_idx');
-        $table->addIndex(['bar', 'baz', 'bloo'], 'full_idx');
-        $table->addForeignKeyConstraint('bar', ['bar', 'baz'], ['foo', 'baz']);
 
         self::assertCount(3, $table->getIndexes());
         self::assertTrue($table->hasIndex('composite_idx'));
@@ -855,10 +868,17 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('bar_idx')
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('duplicate_idx')
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            )
             ->create();
-
-        $table->addIndex(['bar'], 'bar_idx');
-        $table->addIndex(['bar'], 'duplicate_idx');
 
         self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex('bar_idx'));
@@ -887,10 +907,17 @@ class TableTest extends TestCase
                     ->setTypeName(Types::STRING)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('bar_idx')
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('fulfilling_idx')
+                    ->setUnquotedColumnNames('bar', 'baz')
+                    ->create(),
+            )
             ->create();
-
-        $table->addIndex(['bar'], 'bar_idx');
-        $table->addIndex(['bar', 'baz'], 'fulfilling_idx');
 
         self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex('bar_idx'));
@@ -923,11 +950,25 @@ class TableTest extends TestCase
                     ->setUnquotedReferencedColumnNames('id')
                     ->create(),
             )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('id')
+                    ->setUnquotedReferencedTableName('foreign')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
             ->create();
 
         self::assertCount(1, $localTable->getIndexes());
 
-        $localTable->addIndex(['id'], 'explicit_idx');
+        $localTable = $localTable->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('explicit_idx')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         self::assertCount(1, $localTable->getIndexes());
         self::assertTrue($localTable->hasIndex('explicit_idx'));
@@ -978,16 +1019,28 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('id')
+                    ->setUnquotedReferencedTableName('foreign')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
             ->create();
-
-        $localTable->addForeignKeyConstraint('foreign', ['id'], ['id']);
 
         self::assertCount(1, $localTable->getIndexes());
         self::assertTrue($localTable->hasIndex('IDX_8BD688E8BF396750'));
 
         $implicitIndex = $localTable->getIndex('IDX_8BD688E8BF396750');
 
-        $localTable->addIndex(['id'], 'IDX_8BD688E8BF396750');
+        $localTable = $localTable->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('IDX_8BD688E8BF396750')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         self::assertCount(1, $localTable->getIndexes());
         self::assertTrue($localTable->hasIndex('IDX_8BD688E8BF396750'));
@@ -1028,15 +1081,19 @@ class TableTest extends TestCase
 
         self::assertNull($table->getPrimaryKeyConstraint());
 
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('foo')
-                ->create(),
-        );
+        $table = $table->edit()
+            ->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('foo')
+                    ->create(),
+            )
+            ->create();
 
         self::assertNotNull($table->getPrimaryKeyConstraint());
 
-        $table->dropPrimaryKey();
+        $table = $table->edit()
+            ->dropPrimaryKeyConstraint()
+            ->create();
 
         self::assertNull($table->getPrimaryKeyConstraint());
     }
@@ -1055,9 +1112,14 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setQuotedReferencingColumnNames('foo', 'bar')
+                    ->setQuotedReferencedTableName('boing')
+                    ->setUnquotedReferencedColumnNames('id1', 'id2')
+                    ->create(),
+            )
             ->create();
-
-        $table->addForeignKeyConstraint('"boing"', ['"foo"', '"bar"'], ['id1', 'id2']);
 
         self::assertCount(1, $table->getForeignKeys());
     }
@@ -1088,13 +1150,20 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
             ->create();
-
-        $table->addIndex(['id'], 'idx');
 
         self::assertTrue($table->hasIndex('idx'));
 
-        $table->dropIndex('idx');
+        $table = $table->edit()
+            ->dropIndexByUnquotedName('idx')
+            ->create();
+
         self::assertFalse($table->hasIndex('idx'));
     }
 
@@ -1120,10 +1189,19 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx')
+                    ->setUnquotedColumnNames('foo')
+                    ->setIsClustered(true)
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('uniq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('bar', 'baz')
+                    ->create(),
+            )
             ->create();
-
-        $table->addIndex(['foo'], 'idx', ['clustered']);
-        $table->addUniqueIndex(['bar', 'baz'], 'uniq');
 
         // Rename to custom name.
         self::assertSame($table, $table->renameIndex('idx', 'idx_new'));
@@ -1215,9 +1293,14 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_bar')
+                    ->setUnquotedColumnNames('id')
+                    ->setPredicate('1 = 1')
+                    ->create(),
+            )
             ->create();
-
-        $table->addIndex(['id'], 'idx_bar', [], ['where' => '1 = 1']);
 
         $table->renameIndex('idx_bar', 'idx_baz');
 
@@ -1234,9 +1317,15 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_bar')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->setPredicate('1 = 1')
+                    ->create(),
+            )
             ->create();
-
-        $table->addUniqueIndex(['id'], 'idx_bar', ['where' => '1 = 1']);
 
         $table->renameIndex('idx_bar', 'idx_baz');
 
@@ -1253,9 +1342,13 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
             ->create();
-
-        $table->addIndex(['id'], 'idx');
 
         $this->expectException(SchemaException::class);
 
@@ -1276,10 +1369,17 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('idx_foo')
+                    ->setUnquotedColumnNames('foo')
+                    ->create(),
+            )
             ->create();
-
-        $table->addIndex(['id'], 'idx_id');
-        $table->addIndex(['foo'], 'idx_foo');
 
         $this->expectException(SchemaException::class);
 
@@ -1467,9 +1567,14 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('id')
+                    ->setUnquotedReferencedTableName('t2')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
             ->create();
-
-        $table->addForeignKeyConstraint('t2', ['id'], ['id']);
 
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6559');
         $table->dropColumn('id');
@@ -1541,12 +1646,15 @@ class TableTest extends TestCase
 
     public function testAddIndexWithNonIntegerColumnLength(): void
     {
-        $table = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('name')
-                ->setTypeName(Types::STRING)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(InvalidIndexDefinition::class);
         $table->addIndex(['name'], null, [], ['lengths' => ['8']]);
@@ -1554,12 +1662,15 @@ class TableTest extends TestCase
 
     public function testAddIndexWithNonPositiveColumnLength(): void
     {
-        $table = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('name')
-                ->setTypeName(Types::STRING)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(InvalidIndexDefinition::class);
         $table->addIndex(['name'], null, [], ['lengths' => [-1]]);
@@ -1567,16 +1678,20 @@ class TableTest extends TestCase
 
     public function testAddIndexWithColumnLength(): void
     {
-        $table = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('first_name')
-                ->setTypeName(Types::STRING)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('last_name')
-                ->setTypeName(Types::STRING)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('first_name')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('last_name')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+            )
+            ->create();
+
         $table->addIndex(['first_name', 'last_name'], 'idx_user_name', [], ['lengths' => [16]]);
 
         $indexedColumns = $table->getIndex('idx_user_name')->getIndexedColumns();
@@ -1614,12 +1729,15 @@ class TableTest extends TestCase
 
     public function testAddIndexWithInvalidFlag(): void
     {
-        $table = new Table('users', [
-            Column::editor()
-                ->setUnquotedName('user_id')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ]);
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('user_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(InvalidIndexDefinition::class);
         $table->addIndex(['user_id'], null, ['banana']);
@@ -1646,8 +1764,15 @@ class TableTest extends TestCase
     #[TestWith([['fulltext', 'spatial']])]
     public function testAddIndexWithConflictingFlags(array $flags): void
     {
-        $table = new Table('users');
-        $table->addColumn('user_id', Types::INTEGER);
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('user_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(InvalidIndexDefinition::class);
         $table->addIndex(['user_id'], null, $flags);

@@ -43,14 +43,6 @@ class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->listDatabases();
     }
 
-    public function createListTableColumns(): Table
-    {
-        $table = parent::createListTableColumns();
-        $table->getColumn('id')->setAutoincrement(true);
-
-        return $table;
-    }
-
     /** @throws Exception */
     public function testListForeignKeysFromExistingDatabase(): void
     {

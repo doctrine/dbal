@@ -422,7 +422,10 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $schema = new Schema([new Table('t'), new Table('public.s')], [], $schemaConfig);
+        $schema = new Schema([
+            $this->createTable('t'),
+            $this->createTable('s', 'public'),
+        ], [], $schemaConfig);
 
         self::assertTrue($schema->hasTable('t'));
         self::assertTrue($schema->hasTable('public.s'));
@@ -433,7 +436,10 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $schema = new Schema([new Table('public.t'), new Table('s')], [], $schemaConfig);
+        $schema = new Schema([
+            $this->createTable('t', 'public'),
+            $this->createTable('s'),
+        ], [], $schemaConfig);
 
         self::assertTrue($schema->hasTable('public.t'));
         self::assertTrue($schema->hasTable('s'));

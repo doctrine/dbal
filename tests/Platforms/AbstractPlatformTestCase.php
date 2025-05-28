@@ -1075,14 +1075,21 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::markTestSkipped('This current database platform supports named primary key constraints.');
         }
 
-        $table = new Table('users');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedName('users_pk')
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedName('users_pk')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(UnsupportedPrimaryKeyConstraintDefinition::class);
         $this->platform->getCreateTableSQL($table);
@@ -1098,14 +1105,21 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::markTestSkipped('This current database platform supports non-clustered primary key constraints.');
         }
 
-        $table = new Table('users');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setIsClustered(false)
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setIsClustered(false)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
 
         $this->expectException(UnsupportedPrimaryKeyConstraintDefinition::class);
         $this->platform->getCreateTableSQL($table);

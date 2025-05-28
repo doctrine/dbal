@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 final class ComparatorTest extends FunctionalTestCase
@@ -87,9 +86,11 @@ final class ComparatorTest extends FunctionalTestCase
             )
             ->create();
 
-        $onlineTable = clone $table;
-        $table->getColumn('test')
-            ->setType(Type::getType(Types::JSONB));
+        $onlineTable = $table->edit()
+            ->modifyColumnByUnquotedName('test', static function (ColumnEditor $editor): void {
+                $editor->setTypeName(Types::JSONB);
+            })
+            ->create();
 
         $compareResult = $this->comparator->compareTables($onlineTable, $table);
         self::assertCount(1, $compareResult->getChangedColumns());

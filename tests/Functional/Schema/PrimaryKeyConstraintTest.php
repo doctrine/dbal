@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -34,9 +35,16 @@ final class PrimaryKeyConstraintTest extends FunctionalTestCase
             ->setUnquotedColumnNames('id')
             ->create();
 
-        $table = new Table('users');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addPrimaryKeyConstraint($primaryKeyConstraint);
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint($primaryKeyConstraint)
+            ->create();
 
         $this->dropAndCreateTable($table);
 
@@ -66,9 +74,16 @@ final class PrimaryKeyConstraintTest extends FunctionalTestCase
             ->setIsClustered($isClustered)
             ->create();
 
-        $table = new Table('users');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addPrimaryKeyConstraint($primaryKeyConstraint);
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint($primaryKeyConstraint)
+            ->create();
 
         $this->dropAndCreateTable($table);
 
