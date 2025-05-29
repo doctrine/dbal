@@ -1107,6 +1107,12 @@ class Connection implements ServerVersionProvider
 
         $connection = $this->connect();
 
+        /**
+         * TODO: On MySQL-like platforms, executing DDL statements results in the release of all savepoints and
+         *       auto-commit of the current transaction, which the DBAL is currently not aware of and has no mechanism
+         *       to update the transaction nesting level adequately.
+         *       @see https://github.com/doctrine/migrations/issues/1458
+         */
         if ($this->transactionNestingLevel === 1) {
             $this->transactionNestingLevel = 0;
 
