@@ -1110,7 +1110,9 @@ class Connection implements ServerVersionProvider
         /**
          * TODO: On MySQL-like platforms, executing DDL statements results in the release of all savepoints and
          *       auto-commit of the current transaction, which the DBAL is currently not aware of and has no mechanism
-         *       to update the transaction nesting level adequately.
+         *       to update the transaction nesting level adequately, which will cause the program to reach the else
+         *       block of code below and in turn will cause a PDOException:
+         *       `SQLSTATE[42000]: Syntax error or access violation: 1305 SAVEPOINT DOCTRINE_X does not exist`
          *       @see https://github.com/doctrine/migrations/issues/1458
          */
         if ($this->transactionNestingLevel === 1) {
