@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\SQLite;
 
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
@@ -35,19 +36,21 @@ class Comparator extends BaseComparator
 
     private function normalizeColumns(Table $table): Table
     {
-        $table = clone $table;
+        $editor = null;
 
         foreach ($table->getColumns() as $column) {
-            $options = $column->getPlatformOptions();
+            $collation = $column->getCollation();
 
-            if (! isset($options['collation']) || strcasecmp($options['collation'], 'binary') !== 0) {
+            if ($collation === null || strcasecmp($collation, 'binary') !== 0) {
                 continue;
             }
 
-            unset($options['collation']);
-            $column->setPlatformOptions($options);
+            ($editor ??= $table->edit())
+                ->modifyColumn($column->getObjectName(), static function (ColumnEditor $editor): void {
+                    $editor->setCollation(null);
+                });
         }
 
-        return $table;
+        return $editor === null ? $table : $editor->create();
     }
 }
