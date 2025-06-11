@@ -390,7 +390,7 @@ CREATE\sTABLE' . $this->buildIdentifierPattern($table) . '
     private function parseColumnCommentFromSQL(string $column, string $sql): string
     {
         $pattern = '{[\s(,]' . $this->buildIdentifierPattern($column)
-            . '(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
+            . '\s(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s+--[^\n]*\n?)+)}i';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
             return '';

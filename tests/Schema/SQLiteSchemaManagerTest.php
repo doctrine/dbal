@@ -201,6 +201,14 @@ class SQLiteSchemaManagerTest extends TestCase
                     PRIMARY KEY(id)
                 )',
             ],
+            'Column name equals table name and both have a comment' => [
+                'column comment',
+                'user',
+                'CREATE TABLE "user" --table comment
+                    (
+                        "user" INT --column comment
+                )'
+            ]
         ];
     }
 
