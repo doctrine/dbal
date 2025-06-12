@@ -37,7 +37,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ inputs.php-version }}
-          extensions: ${{ inputs.extension }}-5.10.0beta1
+          extensions: ${{ inputs.extension }}
           coverage: pcov
           ini-values: zend.assertions=1
           tools: pecl
