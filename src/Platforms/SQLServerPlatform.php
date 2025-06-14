@@ -1116,9 +1116,14 @@ class SQLServerPlatform extends AbstractPlatform
             === $this->getDefaultValueDeclarationSQL($column2->toArray());
     }
 
+    /**
+     * The <code>[</code> character is used in SQL Server's extended pattern syntax to define character ranges or sets.
+     *
+     * @link https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql#pattern
+     */
     protected function getLikeWildcardCharacters(): string
     {
-        return parent::getLikeWildcardCharacters() . '[]^';
+        return parent::getLikeWildcardCharacters() . '[';
     }
 
     /** @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql */

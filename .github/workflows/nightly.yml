@@ -11,6 +11,7 @@ jobs:
     runs-on: "ubuntu-24.04"
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - "8.3"
@@ -80,6 +81,7 @@ jobs:
       dependency-versions: ${{ matrix.dependency-versions }}
 
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-24.04
@@ -100,6 +102,7 @@ jobs:
       extension: ${{ matrix.extension }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - '8.5'
@@ -118,6 +121,7 @@ jobs:
       extension: ${{ matrix.extension }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - '8.5'
@@ -136,6 +140,7 @@ jobs:
       collation: ${{ matrix.collation }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - '8.5'
@@ -154,6 +159,7 @@ jobs:
       extension: ${{ matrix.extension }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - '8.5'
@@ -173,6 +179,7 @@ jobs:
       postgres-locale-provider: ${{ matrix.postgres-locale-provider }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - '8.5'

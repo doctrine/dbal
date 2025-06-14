@@ -22,6 +22,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_keys;
 use function array_values;
@@ -460,5 +461,479 @@ SQL;
     public function getExpectedDefaultSchemaName(): ?string
     {
         return null;
+    }
+
+    #[DataProvider('getDataColumnCollation')]
+    public function testParseColumnCollation(string $ddl, string $columnName, ?string $expectedCollation): void
+    {
+        $this->dropTableIfExists('test_collation');
+        $this->connection->executeStatement($ddl);
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $table         = $schemaManager->introspectTable('test_collation');
+
+        self::assertSame($expectedCollation, $table->getColumn($columnName)->getCollation());
+    }
+
+    /** @return iterable<array{string, string, string}> */
+    public static function getDataColumnCollation(): iterable
+    {
+        yield [
+            <<<'DDL'
+            CREATE TABLE "test_collation" ("a" text DEFAULT 'aa' COLLATE "RTRIM" NOT NULL)
+            DDL,
+            'a',
+            'RTRIM',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE "test_collation" (
+                "b" text UNIQUE NOT NULL COLLATE NOCASE,
+                "a" text DEFAULT 'aa' COLLATE "RTRIM" NOT NULL
+            )
+            DDL,
+            'a',
+            'RTRIM',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE "test_collation" (
+                "a" TEXT DEFAULT (LOWER(LTRIM(' a') || RTRIM('a '))) CHECK ("a") NOT NULL COLLATE NOCASE UNIQUE,
+                "b" TEXT COLLATE RTRIM
+            )
+            DDL,
+            'a',
+            'NOCASE',
+        ];
+
+        yield [
+            'CREATE TABLE "test_collation" ("a" text CHECK ("a") NOT NULL, "b" text COLLATE RTRIM)',
+            'a',
+            'BINARY',
+        ];
+
+        yield [
+            'CREATE TABLE "test_collation" ("a""b" text COLLATE RTRIM)',
+            'a"b',
+            'RTRIM',
+        ];
+
+        yield [
+            'CREATE TABLE "test_collation" (bb TEXT COLLATE RTRIM, b VARCHAR(42) NOT NULL COLLATE BINARY)',
+            'b',
+            'BINARY',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE "test_collation" (
+                bbb TEXT COLLATE NOCASE,
+                bb TEXT COLLATE RTRIM,
+                b VARCHAR(42) NOT NULL COLLATE BINARY
+            )
+            DDL,
+            'b',
+            'BINARY',
+        ];
+
+        yield [
+            'CREATE TABLE "test_collation" (b VARCHAR(42) NOT NULL COLLATE BINARY, bb TEXT COLLATE RTRIM)',
+            'b',
+            'BINARY',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE test_collation (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar#" VARCHAR(255) COLLATE "NOCASE" NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            )
+            DDL,
+            'bar#',
+            'NOCASE',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE test_collation (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar#" VARCHAR(255) NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            )
+            DDL,
+            'bar#',
+            'BINARY',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE test_collation (id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar#" INTEGER NOT NULL,
+                baz VARCHAR(255) COLLATE "RTRIM" NOT NULL,
+                PRIMARY KEY (id)
+            )
+            DDL,
+            'baz',
+            'RTRIM',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE test_collation (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar#" INTEGER NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            )
+            DDL,
+            'baz',
+            'BINARY',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE test_collation (id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar/" VARCHAR(255) COLLATE "RTRIM" NOT NULL,
+                baz VARCHAR(255) COLLATE "RTRIM" NOT NULL,
+                PRIMARY KEY (id)
+            )
+            DDL,
+            'bar/',
+            'RTRIM',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE test_collation (id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar/" VARCHAR(255) NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            )
+            DDL,
+            'bar/',
+            'BINARY',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE test_collation (id INTEGER NOT NULL,
+                foo VARCHAR(255) COLLATE "RTRIM" NOT NULL,
+                "bar/" INTEGER NOT NULL,
+                baz VARCHAR(255) COLLATE "RTRIM" NOT NULL,
+                PRIMARY KEY (id)
+            )
+            DDL,
+            'baz',
+            'RTRIM',
+        ];
+
+        yield [
+            <<<'DDL'
+            CREATE TABLE test_collation (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar/" INTEGER NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            )
+            DDL,
+            'baz',
+            'BINARY',
+        ];
+    }
+
+    #[DataProvider('columnCommentProvider')]
+    public function testParseColumnCommentFromSQL(string $ddl, string $columnName, string $expectedComment): void
+    {
+        $this->dropTableIfExists('test_comment');
+        $this->connection->executeStatement($ddl);
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $table         = $schemaManager->introspectTable('test_comment');
+
+        self::assertSame($expectedComment, $table->getColumn($columnName)->getComment());
+    }
+
+    /** @return iterable<string, array{string, string, string}> */
+    public static function columnCommentProvider(): iterable
+    {
+        yield 'Single column with no comment' => [
+            <<<'SQL'
+            CREATE TABLE "test_comment" ("id" TEXT DEFAULT 'a' COLLATE RTRIM)
+            SQL,
+            'id',
+            '',
+        ];
+
+        yield 'Single column with type comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" ("a" CLOB DEFAULT NULL COLLATE BINARY --Column a comment
+            )
+            DDL,
+            'a',
+            'Column a comment',
+        ];
+
+        yield 'Multiple similar columns with type comment 1' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                a TEXT COLLATE RTRIM,
+                "b" TEXT DEFAULT 'a' COLLATE RTRIM,
+                "bb" CLOB DEFAULT NULL COLLATE BINARY --Column bb comment
+            )
+            DDL,
+            'b',
+            '',
+        ];
+
+        yield 'Multiple similar columns with type comment 2' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                a TEXT COLLATE RTRIM, "bb" TEXT DEFAULT 'a' COLLATE RTRIM,
+                "b" CLOB DEFAULT NULL COLLATE BINARY --Column b comment
+            ) 
+            DDL,
+            'b',
+            'Column b comment',
+        ];
+
+        yield 'Multiple similar columns on different lines, with type comment 1' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                a TEXT COLLATE RTRIM,
+                "b" CLOB DEFAULT NULL COLLATE BINARY, --Column b comment
+                "bb" TEXT DEFAULT 'a' COLLATE RTRIM
+            )
+            DDL,
+            'bb',
+            '',
+        ];
+
+        yield 'Multiple similar columns on different lines, with type comment 2' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                a TEXT COLLATE RTRIM,
+                "bb" CLOB DEFAULT NULL COLLATE BINARY, --Column bb comment
+                "b" TEXT DEFAULT 'a' COLLATE RTRIM
+            )
+            DDL,
+            'bb',
+            'Column bb comment',
+        ];
+
+        yield 'Column with numeric but no comment 1' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                "a" NUMERIC(10, 0) NOT NULL,
+                "b" CLOB NOT NULL, --Column b comment
+                "c" CHAR(36) NOT NULL --Column c comment
+            )
+            DDL,
+            'a',
+            '',
+        ];
+
+        yield 'Column with numeric but no comment 2' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                "a" NUMERIC(10, 0) NOT NULL,
+                "b" CLOB NOT NULL, --Column b comment
+                "c" CHAR(36) NOT NULL --Column c comment
+            )
+            DDL,
+            'b',
+            'Column b comment',
+        ];
+
+        yield 'Column with numeric but no comment 3' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                "a" NUMERIC(10, 0) NOT NULL,
+                "b" CLOB NOT NULL, --Column b comment
+                "c" CHAR(36) NOT NULL --Column c comment
+            )
+            DDL,
+            'c',
+            'Column c comment',
+        ];
+
+        yield 'Column "bar", select "bar" with no comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar" VARCHAR(255) NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'bar',
+            '',
+        ];
+
+        yield 'Column "bar", select "bar" with type comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar" VARCHAR(255) NOT NULL, --Column bar comment
+                baz VARCHAR(255) NOT NULL, --Column baz comment
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'bar',
+            'Column bar comment',
+        ];
+
+        yield 'Column "bar", select "baz" with no comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar" INTEGER NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'baz',
+            '',
+        ];
+
+        yield 'Column "bar", select "baz" with type comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar" INTEGER NOT NULL, --Column bar comment
+                baz VARCHAR(255) NOT NULL, --Column baz comment
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'baz',
+            'Column baz comment',
+        ];
+
+        yield 'Column "bar#", select "bar#" with no comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar#" VARCHAR(255) NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'bar#',
+            '',
+        ];
+
+        yield 'Column "bar#", select "bar#" with type comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar#" VARCHAR(255) NOT NULL, --Column bar comment
+                baz VARCHAR(255) NOT NULL, --Column baz comment
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'bar#',
+            'Column bar comment',
+        ];
+
+        yield 'Column "bar#", select "baz" with no comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar#" INTEGER NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'baz',
+            '',
+        ];
+
+        yield 'Column "bar#", select "baz" with type comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar#" INTEGER NOT NULL, --Column bar comment
+                baz VARCHAR(255) NOT NULL, --Column baz comment
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'baz',
+            'Column baz comment',
+        ];
+
+        yield 'Column "bar/", select "bar/" with no comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar/" VARCHAR(255) NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY(id)
+                )
+            DDL,
+            'bar/',
+            '',
+        ];
+
+        yield 'Column "bar/", select "bar/" with type comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar/" VARCHAR(255) NOT NULL, --Column bar comment
+                baz VARCHAR(255) NOT NULL, --Column baz comment
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'bar/',
+            'Column bar comment',
+        ];
+
+        yield 'Column "bar/", select "baz" with no comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar/" INTEGER NOT NULL,
+                baz VARCHAR(255) NOT NULL,
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'baz',
+            '',
+        ];
+
+        yield 'Column "bar/", select "baz" with type comment' => [
+            <<<'DDL'
+            CREATE TABLE "test_comment" (
+                id INTEGER NOT NULL,
+                foo VARCHAR(255) NOT NULL,
+                "bar/" INTEGER NOT NULL, --Column bar comment
+                baz VARCHAR(255) NOT NULL, --Column baz comment
+                PRIMARY KEY(id)
+            )
+            DDL,
+            'baz',
+            'Column baz comment',
+        ];
     }
 }

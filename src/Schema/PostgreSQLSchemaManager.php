@@ -303,7 +303,9 @@ SQL,
                   AND table_name != 'geometry_columns'
                   AND table_name != 'spatial_ref_sys'
                   AND table_type = 'BASE TABLE'
-                SQL,
+                ORDER BY
+                  quote_ident(table_name)
+            SQL,
             $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
             $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
         );
@@ -506,6 +508,7 @@ SQL,
                                     ON n.oid = c.relnamespace
                             WHERE %s
                           ) AND r.contype = 'f'
+                  ORDER BY 1, 2
         SQL,
             $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
             $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
