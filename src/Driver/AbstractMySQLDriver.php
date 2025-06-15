@@ -46,15 +46,15 @@ abstract class AbstractMySQLDriver implements Driver
                 return new MariaDB1060Platform();
             }
 
-            if (version_compare($mariaDbVersion, '10.5.2', '>=')) {
-                return new MariaDB1052Platform();
-            }
-
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/6343',
-                'Support for MariaDB < 10.5.2 is deprecated and will be removed in DBAL 5',
+                'Support for MariaDB < 10.6.0 is deprecated and will be removed in DBAL 5',
             );
+
+            if (version_compare($mariaDbVersion, '10.5.2', '>=')) {
+                return new MariaDB1052Platform();
+            }
 
             return new MariaDBPlatform();
         }

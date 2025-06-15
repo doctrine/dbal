@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.3
 
+## Deprecated support for MariaDB 10.5
+
+* Upgrade to MariaDB 10.6 or later.
+
 ## Deprecated `Column` methods
 
 The following `Column` methods have been deprecated:
