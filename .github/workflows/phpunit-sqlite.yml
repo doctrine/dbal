@@ -24,10 +24,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Remove optional dependencies
-        run: composer remove --no-update --dev doctrine/cache
-        if: ${{ matrix.dependency-versions == 'minimal' }}
-
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
