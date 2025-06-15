@@ -161,7 +161,7 @@ jobs:
         mysql-version:
           - "5.7"
           - "8.0" # We have code specific to ^8.0
-          - "9.1"
+          - "9.3"
         extension:
           - "mysqli"
           - "pdo_mysql"
