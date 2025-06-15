@@ -6,6 +6,7 @@ on:
       - "*.x"
     paths:
       - .github/workflows/continuous-integration.yml
+      - .github/workflows/phpunit-*.yml
       - ci/**
       - composer.*
       - phpunit.xml.dist
@@ -16,6 +17,7 @@ on:
       - "*.x"
     paths:
       - .github/workflows/continuous-integration.yml
+      - .github/workflows/phpunit-*.yml
       - ci/**
       - composer.*
       - phpunit.xml.dist
