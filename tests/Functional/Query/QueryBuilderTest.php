@@ -9,7 +9,6 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\DB2Platform;
-use Doctrine\DBAL\Platforms\MariaDB1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -549,7 +548,7 @@ final class QueryBuilderTest extends FunctionalTestCase
         }
 
         if ($platform instanceof MariaDBPlatform) {
-            return $platform instanceof MariaDB1060Platform;
+            return true;
         }
 
         return ! $platform instanceof SQLitePlatform;

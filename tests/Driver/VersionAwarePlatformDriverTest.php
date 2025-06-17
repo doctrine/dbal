@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDB1010Platform;
-use Doctrine\DBAL\Platforms\MariaDB1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
@@ -37,9 +36,8 @@ class VersionAwarePlatformDriverTest extends TestCase
             ['5.5.40-MariaDB-1~wheezy', MariaDBPlatform::class],
             ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
             ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
-            ['10.5.2-MariaDB-1~lenny-log', MariaDBPlatform::class],
-            ['10.6.0-MariaDB-1~lenny-log', MariaDB1060Platform::class],
-            ['10.9.3-MariaDB-1~lenny-log', MariaDB1060Platform::class],
+            ['10.6.0-MariaDB-1~lenny-log', MariaDBPlatform::class],
+            ['10.9.3-MariaDB-1~lenny-log', MariaDBPlatform::class],
             ['11.0.2-MariaDB-1:11.0.2+maria~ubu2204', MariaDB1010Platform::class],
         ];
     }

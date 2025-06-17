@@ -6,8 +6,6 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
-use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\Types\JsonType;
 
 use function sprintf;
@@ -93,10 +91,5 @@ class MariaDBPlatform extends AbstractMySQLPlatform
         }
 
         return parent::getColumnDeclarationSQL($column);
-    }
-
-    public function createSelectSQLBuilder(): SelectSQLBuilder
-    {
-        return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', null);
     }
 }

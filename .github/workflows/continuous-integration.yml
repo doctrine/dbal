@@ -138,8 +138,7 @@ jobs:
           - "8.4"
         mariadb-version:
           # keep in sync with https://mariadb.org/about/#maintenance-policy
-          - "10.5"  # Oldest version supported by DBAL, LTS (Jun 2025) We have code specific to 10.5.2-10.6.0
-          - "10.6"  # LTS (Jul 2026) We have code specific to 10.6.0-10.10.0
+          - "10.6"  # Oldest version supported by DBAL, LTS (Jul 2026) We have code specific to 10.6.0-10.10.0
           - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
           - "11.4"  # LTS (May 2029)
           - "11.8"  # LTS (Jun 2028)
