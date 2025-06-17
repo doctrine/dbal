@@ -31,6 +31,7 @@ final readonly class Connection implements ConnectionInterface
 
     public function __destruct()
     {
+        // @phpstan-ignore isset.initializedProperty
         if (! isset($this->connection)) {
             return;
         }

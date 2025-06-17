@@ -39,6 +39,7 @@ final class Statement implements StatementInterface
 
     public function __destruct()
     {
+        // @phpstan-ignore isset.initializedProperty
         if (! isset($this->connection)) {
             return;
         }

@@ -43,17 +43,21 @@ final class TableEditor
     /** @internal Use {@link Table::editor()} or {@link Table::edit()} to create an instance */
     public function __construct()
     {
-        // @phpstan-ignore assign.propertyType (PHPStan doesn't infer the element type)
-        $this->columns = new UnqualifiedNamedObjectSet();
+        /** @var UnqualifiedNamedObjectSet<Column> $columns */
+        $columns       = new UnqualifiedNamedObjectSet();
+        $this->columns = $columns;
 
-        // @phpstan-ignore assign.propertyType
-        $this->indexes = new UnqualifiedNamedObjectSet();
+        /** @var UnqualifiedNamedObjectSet<Index> $indexes */
+        $indexes       = new UnqualifiedNamedObjectSet();
+        $this->indexes = $indexes;
 
-        // @phpstan-ignore assign.propertyType
-        $this->uniqueConstraints = new OptionallyUnqualifiedNamedObjectSet();
+        /** @var OptionallyUnqualifiedNamedObjectSet<UniqueConstraint> $uniqueConstraints */
+        $uniqueConstraints       = new OptionallyUnqualifiedNamedObjectSet();
+        $this->uniqueConstraints = $uniqueConstraints;
 
-        // @phpstan-ignore assign.propertyType
-        $this->foreignKeyConstraints = new OptionallyUnqualifiedNamedObjectSet();
+        /** @var OptionallyUnqualifiedNamedObjectSet<ForeignKeyConstraint> $foreignKeyConstraints */
+        $foreignKeyConstraints       = new OptionallyUnqualifiedNamedObjectSet();
+        $this->foreignKeyConstraints = $foreignKeyConstraints;
     }
 
     public function setName(OptionallyQualifiedName $name): self
