@@ -11,7 +11,7 @@ use function implode;
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB 10.10 database platform.
  */
-class MariaDB1010Platform extends MariaDB1060Platform
+class MariaDB1010Platform extends MariaDBPlatform
 {
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {

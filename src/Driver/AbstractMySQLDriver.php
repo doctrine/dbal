@@ -10,11 +10,9 @@ use Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\MariaDB1010Platform;
-use Doctrine\DBAL\Platforms\MariaDB1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
-use Doctrine\Deprecations\Deprecation;
 
 use function preg_match;
 use function stripos;
@@ -38,16 +36,6 @@ abstract class AbstractMySQLDriver implements Driver
             if (version_compare($mariaDbVersion, '10.10.0', '>=')) {
                 return new MariaDB1010Platform();
             }
-
-            if (version_compare($mariaDbVersion, '10.6.0', '>=')) {
-                return new MariaDB1060Platform();
-            }
-
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6343',
-                'Support for MariaDB < 10.6.0 is deprecated and will be removed in DBAL 5',
-            );
 
             return new MariaDBPlatform();
         }
