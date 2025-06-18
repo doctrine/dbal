@@ -11,6 +11,7 @@ use RuntimeException;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
+use function method_exists;
 use function str_replace;
 
 class RunSqlCommandTest extends TestCase
@@ -26,7 +27,12 @@ class RunSqlCommandTest extends TestCase
         $this->connectionMock = $this->createMock(Connection::class);
         $this->command        = new RunSqlCommand(new SingleConnectionProvider($this->connectionMock));
 
-        (new Application())->add($this->command);
+        if (method_exists(Application::class, 'addCommand')) {
+            // @phpstan-ignore method.notFound (This method will be added in Symfony 7.4)
+            (new Application())->addCommand($this->command);
+        } else {
+            (new Application())->add($this->command);
+        }
 
         $this->commandTester = new CommandTester($this->command);
     }

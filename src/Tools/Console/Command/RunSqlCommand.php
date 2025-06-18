@@ -37,8 +37,7 @@ class RunSqlCommand extends Command
         $this->connectionProvider = $connectionProvider;
     }
 
-    /** @return void */
-    protected function configure()
+    private function doConfigure(): void
     {
         $this
         ->setName('dbal:run-sql')

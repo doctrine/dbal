@@ -97,8 +97,7 @@ class ReservedWordsCommand extends Command
         $this->keywordLists[$name] = new $class();
     }
 
-    /** @return void */
-    protected function configure()
+    private function doConfigure(): void
     {
         $this
         ->setName('dbal:reserved-words')
