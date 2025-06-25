@@ -78,7 +78,10 @@ final class ExceptionConverter implements ExceptionConverterInterface
                 return new ConnectionException($exception, $query);
         }
 
-        if (str_contains($exception->getMessage(), 'terminating connection')) {
+        if (
+            str_contains($exception->getMessage(), 'terminating connection')
+            || str_contains($exception->getMessage(), 'server closed the connection')
+        ) {
             return new ConnectionLost($exception, $query);
         }
 
