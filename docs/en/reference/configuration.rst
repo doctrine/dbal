@@ -242,6 +242,7 @@ mysqli
 -  ``dbname`` (string): Name of the database/schema to connect to.
 -  ``unix_socket`` (string): Name of the socket used to connect to
    the database.
+-  ``persistent`` (boolean): Whether to establish a persistent connection.
 -  ``charset`` (string): The charset used when connecting to the
    database.
 -  ``ssl_key`` (string): The path name to the key file to use for SSL encryption.
