@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseRequired;
+use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
@@ -23,6 +24,7 @@ use function array_values;
 use function count;
 use function func_get_arg;
 use function func_num_args;
+use function sprintf;
 use function strtolower;
 
 /**
@@ -812,7 +814,11 @@ abstract class AbstractSchemaManager
     {
         $list = [];
         foreach ($rows as $row) {
-            $column = $this->_getPortableTableColumnDefinition($row);
+            try {
+                $column = $this->_getPortableTableColumnDefinition($row);
+            } catch (UnknownColumnType $unknownTypeException) {
+                throw UnknownColumnType::withContext($unknownTypeException->getType(), sprintf('table %s', $table));
+            }
 
             $name        = strtolower($column->getQuotedName($this->platform));
             $list[$name] = $column;
