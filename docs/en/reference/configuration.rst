@@ -227,6 +227,7 @@ pdo_mysql
 -  ``dbname`` (string): Name of the database/schema to connect to.
 -  ``unix_socket`` (string): Name of the socket used to connect to
    the database.
+-  ``persistent`` (boolean): Whether to establish a persistent connection.
 -  ``charset`` (string): The charset used when connecting to the
    database.
 
@@ -283,6 +284,7 @@ pdo_pgsql / pgsql
    See `www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL <https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL>`_
 -  ``gssencmode`` (string): Optional GSS-encrypted channel/GSSEncMode configuration.
    See `www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-GSSENCMODE <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-GSSENCMODE>`_
+-  ``persistent`` (boolean): Whether to establish a persistent connection (currently supported only by ``pdo_pgsql``).
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 
