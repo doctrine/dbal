@@ -18,7 +18,7 @@ class BooleanBindingTest extends FunctionalTestCase
         }
 
         $table = new Table('boolean_test_table');
-        $table->addColumn('val', 'boolean');
+        $table->addColumn('val', 'boolean', ['notnull' => false]);
         $this->dropAndCreateTable($table);
     }
 
@@ -28,7 +28,7 @@ class BooleanBindingTest extends FunctionalTestCase
     }
 
     /** @dataProvider booleanProvider */
-    public function testBooleanInsert(bool $input): void
+    public function testBooleanInsert(?bool $input): void
     {
         $queryBuilder = $this->connection->createQueryBuilder();
 
@@ -37,11 +37,23 @@ class BooleanBindingTest extends FunctionalTestCase
         ])->executeStatement();
 
         self::assertSame(1, $result);
+
+        /** @var boolean|null $valueFromDatabase */
+        $valueFromDatabase = $this->connection->createQueryBuilder()
+            ->select('val')->from('boolean_test_table')
+            ->executeQuery()->fetchOne();
+        assert($valueFromDatabase !== false);
+
+        self::assertSame(
+            $input,
+            $this->connection->convertToPHPValue($valueFromDatabase, 'boolean'),
+            'Must return from database the same value inserted.',
+        );
     }
 
-    /** @return bool[][] */
+    /** @return array<int, list<bool|null>> */
     public static function booleanProvider(): array
     {
-        return [[true], [false]];
+        return [[true], [false], [null]];
     }
 }
