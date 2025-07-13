@@ -9,6 +9,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
+use function assert;
+use function is_bool;
+
 class BooleanBindingTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -37,12 +40,12 @@ class BooleanBindingTest extends FunctionalTestCase
         ])->executeStatement();
 
         self::assertSame(1, $result);
-        
+
         $valueFromDatabase = $this->connection->createQueryBuilder()
             ->select('val')->from('boolean_test_table')
             ->executeQuery()->fetchOne();
 
-        assert(is_null($valueFromDatabase) || is_bool($valueFromDatabase));
+        assert($valueFromDatabase === null || is_bool($valueFromDatabase));
 
         self::assertSame(
             $input,
