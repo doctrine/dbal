@@ -86,7 +86,7 @@ final class Statement implements StatementInterface
             if ($value !== null) {
                 $booleanValue = (bool) $value === false ? 'f' : 't';
             }
-            
+
             $this->parameters[$this->parameterMap[$param]]     = $booleanValue;
             $this->parameterTypes[$this->parameterMap[$param]] = ParameterType::STRING;
         } else {

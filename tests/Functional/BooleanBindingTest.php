@@ -37,12 +37,12 @@ class BooleanBindingTest extends FunctionalTestCase
         ])->executeStatement();
 
         self::assertSame(1, $result);
-
-        /** @var boolean|null $valueFromDatabase */
+        
         $valueFromDatabase = $this->connection->createQueryBuilder()
             ->select('val')->from('boolean_test_table')
             ->executeQuery()->fetchOne();
-        assert($valueFromDatabase !== false);
+
+        assert(is_null($valueFromDatabase) || is_bool($valueFromDatabase));
 
         self::assertSame(
             $input,
