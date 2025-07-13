@@ -38,18 +38,20 @@ class BooleanBindingTest extends FunctionalTestCase
 
         self::assertSame(1, $result);
 
-        $row = $this->connection->createQueryBuilder()
+        /** @var boolean|null $valueFromDatabase */
+        $valueFromDatabase = $this->connection->createQueryBuilder()
             ->select('val')->from('boolean_test_table')
-            ->executeQuery()->fetchAssociative();
+            ->executeQuery()->fetchOne();
+        assert($valueFromDatabase !== false);
 
         self::assertSame(
             $input,
-            $this->connection->convertToPHPValue($row['val'], 'boolean'),
-            'Must return from database the same value inserted.'
+            $this->connection->convertToPHPValue($valueFromDatabase, 'boolean'),
+            'Must return from database the same value inserted.',
         );
     }
 
-    /** @return bool[][] */
+    /** @return array<int, list<bool|null>> */
     public static function booleanProvider(): array
     {
         return [[true], [false], [null]];
