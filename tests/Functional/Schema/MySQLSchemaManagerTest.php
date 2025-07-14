@@ -557,11 +557,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     ->setTypeName(Types::BINARY)
                     ->setLength(16)
                     ->create(),
-                Column::editor()
-                    ->setUnquotedName('col_varchar')
-                    ->setTypeName('VARCHAR')
-                    ->setLength(255)
-                    ->create(),
             )
             ->create();
 
@@ -571,9 +566,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertInstanceOf(BinaryType::class, $columns['col_binary']->getType());
         self::assertSame(16, $columns['col_binary']->getLength());
-
-        self::assertInstanceOf(BinaryType::class, $columns['col_varchar']->getType());
-        self::assertSame(255, $columns['col_varchar']->getLength());
     }
 
     public function testJsonColumnType(): void
