@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\JsonType;
@@ -544,6 +545,27 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertInstanceOf(SmallFloatType::class, $columns['col_smallfloat_unsigned']->getType());
         self::assertTrue($columns['col_unsigned']->getUnsigned());
         self::assertTrue($columns['col_smallfloat_unsigned']->getUnsigned());
+    }
+
+    public function testConfigurableLengthColumns(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('test_configurable_length_columns')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('col_binary')
+                    ->setTypeName(Types::BINARY)
+                    ->setLength(16)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $columns = $this->schemaManager->listTableColumns('test_configurable_length_columns');
+
+        self::assertInstanceOf(BinaryType::class, $columns['col_binary']->getType());
+        self::assertSame(16, $columns['col_binary']->getLength());
     }
 
     public function testJsonColumnType(): void
