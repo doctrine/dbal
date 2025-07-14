@@ -14,6 +14,8 @@
         <ini name="error_reporting" value="-1" />
 
         <var name="db_driver" value="pdo_mysql"/>
+        <!-- see \PDO::ATTR_STRINGIFY_FETCHES-->
+        <var name="db_driver_options_17" value="true"/>
         <var name="db_host" value="127.0.0.1" />
         <var name="db_port" value="3306"/>
         <var name="db_user" value="root" />
