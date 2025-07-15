@@ -167,10 +167,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
             case 'real':
             case 'numeric':
             case 'decimal':
-                $precision = $tableColumn['numeric_precision'];
+                $precision = (int) $tableColumn['numeric_precision'];
 
                 if (isset($tableColumn['numeric_scale'])) {
-                    $scale = $tableColumn['numeric_scale'];
+                    $scale = (int) $tableColumn['numeric_scale'];
                 }
 
                 break;
