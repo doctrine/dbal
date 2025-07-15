@@ -266,4 +266,61 @@ final class SchemaManagerTest extends FunctionalTestCase
 
         self::assertCount(1, $table->getColumns());
     }
+
+    public function testIntrospectTableWithDotInIndexNames(): void
+    {
+        $table = Table::editor()
+            ->setQuotedName('user')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $tableTo = Table::editor()
+            ->setUnquotedName('example')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('user_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->setQuotedName('pk.example.id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('user_id')
+                    ->setReferencedTableName($foreignTableName)
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->setQuotedName('fk.example.user_id')
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setQuotedName('idx.example.id')
+                    ->setUnquotedColumnNames('id', 'user_id')
+                    ->create()
+            )
+            ->create();
+        $this->dropAndCreateTable($tableTo);
+
+
+        $table = $this->schemaManager->introspectTable('example');
+        self::assertCount(2, $table->getColumns());
+        self::assertSame('pk.example.id', $table->getPrimaryKeyConstraint()->getObjectName()->toString());
+        self::assertSame('fk.example.user_id', $table->getForeignKey('fk.example.user_id')->getName());
+        self::assertSame('idx.example.id', $table->getIndex('idx.example.id')->getName());
+    }
 }
