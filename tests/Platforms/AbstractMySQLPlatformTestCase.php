@@ -630,4 +630,15 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'multiple values' => [['foo', 'bar1'], "ENUM('foo', 'bar1')"],
         ];
     }
+
+    /** @return array<string, array{array<string>, int, string}> */
+    public static function getEnumDeclarationWithLengthSQLProvider(): array
+    {
+        return [
+            'single value and bigger length' => [['foo'], 42, "ENUM('foo')"],
+            'single value and lower length' => [['foo'], 1, "ENUM('foo')"],
+            'multiple values and bigger length' => [['foo', 'bar1'], 42, "ENUM('foo', 'bar1')"],
+            'multiple values and lower length' => [['foo', 'bar1'], 2, "ENUM('foo', 'bar1')"],
+        ];
+    }
 }
