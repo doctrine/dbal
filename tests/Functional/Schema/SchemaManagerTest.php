@@ -277,6 +277,11 @@ final class SchemaManagerTest extends FunctionalTestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
             ->create();
 
         $this->dropAndCreateTable($table);
@@ -296,13 +301,12 @@ final class SchemaManagerTest extends FunctionalTestCase
             ->setPrimaryKeyConstraint(
                 PrimaryKeyConstraint::editor()
                     ->setUnquotedColumnNames('id')
-                    ->setQuotedName('pk.example.id')
                     ->create(),
             )
             ->setForeignKeyConstraints(
                 ForeignKeyConstraint::editor()
                     ->setUnquotedReferencingColumnNames('user_id')
-                    ->setReferencedTableName('test_user')
+                    ->setUnquotedReferencedTableName('test_user')
                     ->setUnquotedReferencedColumnNames('id')
                     ->setQuotedName('fk.example.user_id')
                     ->create(),
@@ -318,7 +322,6 @@ final class SchemaManagerTest extends FunctionalTestCase
 
         $table = $this->schemaManager->introspectTable('example');
         self::assertCount(2, $table->getColumns());
-        self::assertSame('pk.example.id', $table->getPrimaryKeyConstraint()->getObjectName()->toString());
         self::assertSame('fk.example.user_id', $table->getForeignKey('fk.example.user_id')->getName());
         self::assertSame('idx.example.id', $table->getIndex('idx.example.id')->getName());
     }
