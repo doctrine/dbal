@@ -20,8 +20,6 @@ class TableDiff
     /**
      * Constructs a TableDiff object.
      *
-     * @internal The diff can be only instantiated by a {@see Comparator}.
-     *
      * @param array<ForeignKeyConstraint> $droppedForeignKeys
      * @param array<Column>               $addedColumns
      * @param array<string, ColumnDiff>   $changedColumns

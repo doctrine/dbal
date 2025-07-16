@@ -24,7 +24,6 @@ use function array_diff_assoc;
  */
 class Comparator extends BaseComparator
 {
-    /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(
         AbstractMySQLPlatform $platform,
         private readonly CharsetMetadataProvider $charsetMetadataProvider,

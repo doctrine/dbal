@@ -20,8 +20,6 @@ class SchemaDiff
     /**
      * Constructs an SchemaDiff object.
      *
-     * @internal The diff can be only instantiated by a {@see Comparator}.
-     *
      * @param array<string>    $createdSchemas
      * @param array<string>    $droppedSchemas
      * @param array<Table>     $createdTables

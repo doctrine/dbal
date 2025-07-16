@@ -13,7 +13,6 @@ use function strcasecmp;
  */
 class ColumnDiff
 {
-    /** @internal The diff can be only instantiated by a {@see Comparator}. */
     public function __construct(private readonly Column $oldColumn, private readonly Column $newColumn)
     {
     }
