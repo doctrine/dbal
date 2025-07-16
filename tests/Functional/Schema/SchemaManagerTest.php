@@ -270,7 +270,7 @@ final class SchemaManagerTest extends FunctionalTestCase
     public function testIntrospectTableWithDotInIndexNames(): void
     {
         $table = Table::editor()
-            ->setQuotedName('user')
+            ->setQuotedName('test_user')
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('id')
@@ -302,7 +302,7 @@ final class SchemaManagerTest extends FunctionalTestCase
             ->setForeignKeyConstraints(
                 ForeignKeyConstraint::editor()
                     ->setUnquotedReferencingColumnNames('user_id')
-                    ->setReferencedTableName($foreignTableName)
+                    ->setReferencedTableName('test_user')
                     ->setUnquotedReferencedColumnNames('id')
                     ->setQuotedName('fk.example.user_id')
                     ->create(),
@@ -311,11 +311,10 @@ final class SchemaManagerTest extends FunctionalTestCase
                 Index::editor()
                     ->setQuotedName('idx.example.id')
                     ->setUnquotedColumnNames('id', 'user_id')
-                    ->create()
+                    ->create(),
             )
             ->create();
         $this->dropAndCreateTable($tableTo);
-
 
         $table = $this->schemaManager->introspectTable('example');
         self::assertCount(2, $table->getColumns());
