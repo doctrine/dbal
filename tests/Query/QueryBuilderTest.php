@@ -33,10 +33,10 @@ class QueryBuilderTest extends TestCase
     {
         $this->conn = $this->createMock(Connection::class);
 
-        $expressionBuilder = new ExpressionBuilder($this->conn);
-
+        $this->conn->method('createQueryBuilder')
+            ->willReturnCallback(fn () => new QueryBuilder($this->conn));
         $this->conn->method('createExpressionBuilder')
-           ->willReturn($expressionBuilder);
+           ->willReturnCallback(fn () => new ExpressionBuilder($this->conn));
 
         $platform = $this->createMock(AbstractPlatform::class);
         $platform->method('getUnionSelectPartSQL')
@@ -855,17 +855,18 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectWithCTE(): void
     {
-        $cteQueryBuilder1 = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
+
+        $cteQueryBuilder1 = $qb->sub();
         $cteQueryBuilder1->select('ta.id', 'ta.name', 'ta.table_b_id')
             ->from('table_a', 'ta')
             ->where('ta.name LIKE :name');
 
-        $cteQueryBuilder2 = new QueryBuilder($this->conn);
+        $cteQueryBuilder2 = $qb->sub();
         $cteQueryBuilder2->select('ca.id AS virtual_id, ca.name AS virtual_name')
             ->from('cte_a', 'ca')
             ->join('ca', 'table_b', 'tb', 'ca.table_b_id = tb.id');
 
-        $qb = new QueryBuilder($this->conn);
         $qb->with('cte_a', $cteQueryBuilder1)
             ->with('cte_b', $cteQueryBuilder2, ['virtual_id', 'virtual_name'])
             ->select('cb.*')
