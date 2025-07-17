@@ -244,12 +244,21 @@ abstract class AbstractPlatform
             throw ColumnValuesRequired::new($this, 'ENUM');
         }
 
-        $configuredLength = $column['length'] ?? 0;
-        $neededLength     = count($column['values']) > 1
+        $length = count($column['values']) > 1
             ? max(...array_map(mb_strlen(...), $column['values']))
             : mb_strlen($column['values'][key($column['values'])]);
 
-        $length = max($configuredLength, $neededLength);
+        if (isset($column['length'])) {
+            if ($length > $column['length']) {
+                throw new InvalidArgumentException(sprintf(
+                    'Specified column length (%d) is less than the maximum length of provided values (%d).',
+                    $column['length'],
+                    $length,
+                ));
+            }
+
+            $length = $column['length'];
+        }
 
         return $this->getStringTypeDeclarationSQL(['length' => $length]);
     }

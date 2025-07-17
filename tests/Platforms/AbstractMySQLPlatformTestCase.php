@@ -631,7 +631,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /** @return array<string, array{array<string>, int, string}> */
+    /** @return array<string, array{array<string>, int, string|null}> */
     public static function getEnumDeclarationWithLengthSQLProvider(): array
     {
         return [

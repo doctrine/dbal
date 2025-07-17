@@ -1220,22 +1220,32 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     /** @param array<string> $values */
     #[DataProvider('getEnumDeclarationWithLengthSQLProvider')]
-    public function testGetEnumDeclarationWithLengthSQL(array $values, int $length, string $expectedSQL): void
+    public function testGetEnumDeclarationWithLengthSQL(array $values, int $length, ?string $expectedSQL = null): void
     {
-        self::assertSame($expectedSQL, $this->platform->getEnumDeclarationSQL([
+        if ($expectedSQL === null) {
+            $this->expectException(InvalidArgumentException::class);
+        }
+
+        $result = $this->platform->getEnumDeclarationSQL([
             'values' => $values,
             'length' => $length,
-        ]));
+        ]);
+
+        if ($expectedSQL === null) {
+            return;
+        }
+
+        self::assertSame($expectedSQL, $result);
     }
 
-    /** @return array<string, array{array<string>, int, string}> */
+    /** @return array<string, array{array<string>, int, string|null}> */
     public static function getEnumDeclarationWithLengthSQLProvider(): array
     {
         return [
             'single value and bigger length' => [['foo'], 42, 'VARCHAR(42)'],
-            'single value and lower length' => [['foo'], 1, 'VARCHAR(3)'],
+            'single value and lower length' => [['foo'], 1, null],
             'multiple values and bigger length' => [['foo', 'bar1'], 42, 'VARCHAR(42)'],
-            'multiple values and lower length' => [['foo', 'bar1'], 2, 'VARCHAR(4)'],
+            'multiple values and lower length' => [['foo', 'bar1'], 2, null],
         ];
     }
 
