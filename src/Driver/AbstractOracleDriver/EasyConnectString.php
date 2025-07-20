@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\AbstractOracleDriver;
 
-use Doctrine\Deprecations\Deprecation;
-
 use function implode;
 use function is_array;
 use function sprintf;
@@ -53,25 +51,12 @@ final readonly class EasyConnectString
 
         $connectData = [];
 
-        if (isset($params['service'])) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/7042',
-                'Using the "service" parameter to indicate that the value of the "dbname" parameter is the'
-                    . ' service name is deprecated. Use the "servicename" parameter instead.',
-            );
+        if (isset($params['dbname'])) {
+            $connectData['SID'] = $params['dbname'];
         }
 
-        if (isset($params['servicename']) || isset($params['dbname'])) {
-            $serviceKey = 'SID';
-
-            if (isset($params['service']) || isset($params['servicename'])) {
-                $serviceKey = 'SERVICE_NAME';
-            }
-
-            $serviceName = $params['servicename'] ?? $params['dbname'];
-
-            $connectData[$serviceKey] = $serviceName;
+        if (isset($params['servicename'])) {
+            $connectData['SERVICE_NAME'] = $params['servicename'];
         }
 
         if (isset($params['instancename'])) {

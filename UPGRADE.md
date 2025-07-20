@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed support for the `service` connection parameter.
+
+The `service` parameter of the `oci8` and `pdo_oci` connections is no longer supported.
+
 ## BC BREAK: Removed `Column` methods
 
 The following `Column` methods have been removed:
