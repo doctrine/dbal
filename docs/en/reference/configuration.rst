@@ -306,10 +306,6 @@ pdo_oci / oci8
 -  ``servicename`` (string): Optional name by which clients can
    connect to the database instance. Will be used as Oracle's
    ``SERVICE_NAME`` connection parameter if given.
--  ``service`` (boolean): Whether to use Oracle's ``SERVICE_NAME``
-   connection parameter in favour of ``SID`` when connecting. The
-   value for this will be read from Doctrine's ``servicename`` if
-   given, ``dbname`` otherwise. Using this parameter is deprecated.
 -  ``pooled`` (boolean): Whether to enable database resident
    connection pooling.
 -  ``charset`` (string): The charset used when connecting to the
