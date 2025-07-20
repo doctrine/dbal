@@ -707,6 +707,39 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testTypeChangeWithTheSameSQLGenerationWhileChangingAComment(): void
+    {
+        $table1 = Table::editor()
+            ->setQuotedName('Foo')
+            ->setColumns(Column::editor()
+                ->setQuotedName('Bar')
+                ->setTypeName(Types::DATETIMETZ_MUTABLE)
+                ->create())
+            ->create();
+
+        $table2 = Table::editor()
+            ->setQuotedName('Foo')
+            ->setColumns(Column::editor()
+                ->setQuotedName('Bar')
+                ->setTypeName(Types::DATETIMETZ_IMMUTABLE)
+                ->setComment('Baz')
+                ->create())
+            ->create();
+
+        $tableDiff = $this->createComparator()
+            ->compareTables($table1, $table2);
+
+        self::assertSame(
+            ['COMMENT ON COLUMN "Foo"."Bar" IS \'Baz\''],
+            $this->platform->getAlterTableSQL($tableDiff),
+        );
+    }
+
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
+    {
+        return 'CONSTRAINT "select" UNIQUE (foo)';
+    }
+
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX "select" ("foo")';

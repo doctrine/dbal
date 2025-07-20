@@ -199,31 +199,12 @@ class TestUtil
     {
         $parameters = [];
 
-        foreach (
-            [
-                'driver',
-                'user',
-                'password',
-                'host',
-                'dbname',
-                'memory',
-                'port',
-                'server',
-                'ssl_key',
-                'ssl_cert',
-                'ssl_ca',
-                'ssl_capath',
-                'ssl_cipher',
-                'unix_socket',
-                'path',
-                'charset',
-            ] as $parameter
-        ) {
-            if (! isset($configuration[$prefix . $parameter])) {
+        foreach ($configuration as $key => $value) {
+            if (! str_starts_with($key, $prefix)) {
                 continue;
             }
 
-            $parameters[$parameter] = $configuration[$prefix . $parameter];
+            $parameters[substr($key, strlen($prefix))] = $value;
         }
 
         if (isset($parameters['port'])) {

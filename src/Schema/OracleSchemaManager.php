@@ -236,7 +236,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $params = $this->connection->getParams();
 
         if (isset($params['password'])) {
-            $statement .= ' IDENTIFIED BY ' . $params['password'];
+            $statement .= ' IDENTIFIED BY ' . $this->connection->quoteSingleIdentifier($params['password']);
         }
 
         $this->connection->executeStatement($statement);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
@@ -255,21 +256,10 @@ class PostgreSQLPlatform extends AbstractPlatform
                 );
             }
 
-            if (
-                $columnDiff->hasTypeChanged()
-                || $columnDiff->hasPrecisionChanged()
-                || $columnDiff->hasScaleChanged()
-                || $columnDiff->hasFixedChanged()
-                || $columnDiff->hasLengthChanged()
-            ) {
-                $type = $newColumn->getType();
-
-                // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
-                $columnDefinition                  = $newColumn->toArray();
-                $columnDefinition['autoincrement'] = false;
-
-                // here was a server version check before, but DBAL API does not support this anymore.
-                $query = 'ALTER ' . $newColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
+            $newTypeSQLDeclaration = $this->getTypeSQLDeclaration($newColumn);
+            $oldTypeSQLDeclaration = $this->getTypeSQLDeclaration($oldColumn);
+            if ($oldTypeSQLDeclaration !== $newTypeSQLDeclaration) {
+                $query = 'ALTER ' . $newColumnName . ' TYPE ' . $newTypeSQLDeclaration;
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
@@ -321,6 +311,17 @@ class PostgreSQLPlatform extends AbstractPlatform
             $commentsSQL,
             $this->getPostAlterTableIndexForeignKeySQL($diff),
         );
+    }
+
+    private function getTypeSQLDeclaration(Column $column): string
+    {
+        $type = $column->getType();
+
+        // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
+        $columnDefinition                  = $column->toArray();
+        $columnDefinition['autoincrement'] = false;
+
+        return $type->getSQLDeclaration($columnDefinition, $this);
     }
 
     /**
