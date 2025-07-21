@@ -226,7 +226,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
+          - "8.4"
 
     steps:
       - name: "Checkout"
@@ -240,7 +240,9 @@ jobs:
           fail-fast: true
 
       - name: "Lower minimum stability"
-        run: "composer config minimum-stability dev"
+        run: | 
+          composer config minimum-stability dev
+          composer require --no-update --dev symfony/console:^8 symfony/cache:^8
 
       - name: "Install development dependencies with Composer"
         uses: "ramsey/composer-install@v3"
