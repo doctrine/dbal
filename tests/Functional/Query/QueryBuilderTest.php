@@ -244,14 +244,14 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['id' => 2], ['id' => 1], ['id' => 1]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $subQueryBuilder1 = $this->connection->createQueryBuilder();
-        $subQueryBuilder1->select('id')->from('for_update')->where($qb->expr()->eq('id', '1'));
+        $subQueryBuilder1 = $qb->sub()
+            ->select('id')->from('for_update')->where($qb->expr()->eq('id', '1'));
 
-        $subQueryBuilder2 = $this->connection->createQueryBuilder();
-        $subQueryBuilder2->select('id')->from('for_update')->where($qb->expr()->eq('id', '2'));
+        $subQueryBuilder2 = $qb->sub()
+            ->select('id')->from('for_update')->where($qb->expr()->eq('id', '2'));
 
-        $subQueryBuilder3 = $this->connection->createQueryBuilder();
-        $subQueryBuilder3->select('id')->from('for_update')->where($qb->expr()->eq('id', '1'));
+        $subQueryBuilder3 = $qb->sub()
+            ->select('id')->from('for_update')->where($qb->expr()->eq('id', '1'));
 
         $qb->union($subQueryBuilder1)
             ->addUnion($subQueryBuilder2, UnionType::ALL)
@@ -266,18 +266,18 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['id' => 2], ['id' => 1]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $subQueryBuilder1 = $this->connection->createQueryBuilder();
-        $subQueryBuilder1->select('id')
+        $subQueryBuilder1 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(1, ParameterType::INTEGER)));
 
-        $subQueryBuilder2 = $this->connection->createQueryBuilder();
-        $subQueryBuilder2->select('id')
+        $subQueryBuilder2 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(2, ParameterType::INTEGER)));
 
-        $subQueryBuilder3 = $this->connection->createQueryBuilder();
-        $subQueryBuilder3->select('id')
+        $subQueryBuilder3 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(1, ParameterType::INTEGER)));
 
@@ -294,18 +294,18 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['id' => 1], ['id' => 1], ['id' => 2]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $subQueryBuilder1 = $this->connection->createQueryBuilder();
-        $subQueryBuilder1->select('id')
+        $subQueryBuilder1 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(1, ParameterType::INTEGER)));
 
-        $subQueryBuilder2 = $this->connection->createQueryBuilder();
-        $subQueryBuilder2->select('id')
+        $subQueryBuilder2 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(2, ParameterType::INTEGER)));
 
-        $subQueryBuilder3 = $this->connection->createQueryBuilder();
-        $subQueryBuilder3->select('id')
+        $subQueryBuilder3 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(1, ParameterType::INTEGER)));
 
@@ -322,18 +322,18 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['id' => 1], ['id' => 2]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $subQueryBuilder1 = $this->connection->createQueryBuilder();
-        $subQueryBuilder1->select('id')
+        $subQueryBuilder1 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(1, ParameterType::INTEGER)));
 
-        $subQueryBuilder2 = $this->connection->createQueryBuilder();
-        $subQueryBuilder2->select('id')
+        $subQueryBuilder2 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(2, ParameterType::INTEGER)));
 
-        $subQueryBuilder3 = $this->connection->createQueryBuilder();
-        $subQueryBuilder3->select('id')
+        $subQueryBuilder3 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter(1, ParameterType::INTEGER)));
 
@@ -354,8 +354,8 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['virtual_id' => 1]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $cteQueryBuilder = $this->connection->createQueryBuilder();
-        $cteQueryBuilder->select('id AS virtual_id')
+        $cteQueryBuilder = $qb->sub()
+            ->select('id AS virtual_id')
             ->from('for_update')
             ->where('id = :id');
 
@@ -376,14 +376,14 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['virtual_id' => 1]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $cteQueryBuilder1 = $this->connection->createQueryBuilder();
-        $cteQueryBuilder1->select('id AS virtual_id')
+        $cteQueryBuilder1 = $qb->sub()
+            ->select('id AS virtual_id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', '?'));
         $qb->setParameter(0, 1, ParameterType::INTEGER);
 
-        $cteQueryBuilder2 = $this->connection->createQueryBuilder();
-        $cteQueryBuilder2->select('id AS virtual_id')
+        $cteQueryBuilder2 = $qb->sub()
+            ->select('id AS virtual_id')
             ->from('for_update')
             ->where($qb->expr()->in('id', ':id'));
         $qb->setParameter('id', [1, 2], ArrayParameterType::INTEGER);
@@ -410,16 +410,16 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['virtual_id' => 1]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $cteQueryBuilder1 = $this->connection->createQueryBuilder();
-        $cteQueryBuilder1->select('id AS virtual_id')
+        $cteQueryBuilder1 = $qb->sub()
+            ->select('id AS virtual_id')
             ->from('for_update')
             ->where($qb->expr()->eq(
                 'id',
                 $qb->createNamedParameter(1, ParameterType::INTEGER, ':id1'),
             ));
 
-        $cteQueryBuilder2 = $this->connection->createQueryBuilder();
-        $cteQueryBuilder2->select('id AS virtual_id')
+        $cteQueryBuilder2 = $qb->sub()
+            ->select('id AS virtual_id')
             ->from('for_update')
             ->where($qb->expr()->in(
                 'id',
@@ -448,16 +448,16 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['virtual_id' => 1]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $cteQueryBuilder1 = $this->connection->createQueryBuilder();
-        $cteQueryBuilder1->select('id AS virtual_id')
+        $cteQueryBuilder1 = $qb->sub()
+            ->select('id AS virtual_id')
             ->from('for_update')
             ->where($qb->expr()->eq(
                 'id',
                 $qb->createPositionalParameter(1, ParameterType::INTEGER),
             ));
 
-        $cteQueryBuilder2 = $this->connection->createQueryBuilder();
-        $cteQueryBuilder2->select('id AS virtual_id')
+        $cteQueryBuilder2 = $qb->sub()
+            ->select('id AS virtual_id')
             ->from('for_update')
             ->where($qb->expr()->in(
                 'id',
@@ -482,18 +482,18 @@ final class QueryBuilderTest extends FunctionalTestCase
         $expectedRows = $this->prepareExpectedRows([['id' => 2], ['id' => 1]]);
         $qb           = $this->connection->createQueryBuilder();
 
-        $subQueryBuilder1 = $this->connection->createQueryBuilder();
-        $subQueryBuilder1->select('id')
+        $subQueryBuilder1 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', '?'));
 
-        $subQueryBuilder2 = $this->connection->createQueryBuilder();
-        $subQueryBuilder2->select('id')
+        $subQueryBuilder2 = $qb->sub()
+            ->select('id')
             ->from('for_update')
             ->where($qb->expr()->eq('id', '?'));
 
-        $subQueryBuilder3 = $this->connection->createQueryBuilder();
-        $subQueryBuilder3->union($subQueryBuilder1)
+        $subQueryBuilder3 = $qb->sub()
+            ->union($subQueryBuilder1)
             ->addUnion($subQueryBuilder2);
 
         $qb->with('cte_a', $subQueryBuilder3)

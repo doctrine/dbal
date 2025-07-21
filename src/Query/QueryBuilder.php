@@ -204,6 +204,14 @@ class QueryBuilder
     }
 
     /**
+     * Returns a fresh query builder instance that can be used to build a subquery.
+     */
+    public function sub(): self
+    {
+        return $this->connection->createQueryBuilder();
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
