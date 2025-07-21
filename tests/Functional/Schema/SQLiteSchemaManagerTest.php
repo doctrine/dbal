@@ -191,6 +191,28 @@ SQL;
         self::assertSame(100, $columns['bar']->getLength());
     }
 
+    public function testListTableColumnsWithMixedCaseInTypeDeclarations(): void
+    {
+        $sql = <<<'SQL'
+CREATE TABLE dbal_mixed (
+    foo VarChar (64),
+    bar Text (100)
+)
+SQL;
+
+        $this->connection->executeStatement($sql);
+
+        $columns = $this->schemaManager->listTableColumns('dbal_mixed');
+
+        self::assertCount(2, $columns);
+
+        self::assertArrayHasKey('foo', $columns);
+        self::assertArrayHasKey('bar', $columns);
+
+        self::assertSame(Type::getType(Types::STRING), $columns['foo']->getType());
+        self::assertSame(Type::getType(Types::TEXT), $columns['bar']->getType());
+    }
+
     public function testPrimaryKeyAutoIncrement(): void
     {
         $table = Table::editor()
