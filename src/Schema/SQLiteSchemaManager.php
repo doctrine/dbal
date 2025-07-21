@@ -32,7 +32,6 @@ use function str_contains;
 use function str_replace;
 use function strcasecmp;
 use function strtolower;
-use function strtoupper;
 
 use const CASE_LOWER;
 
@@ -74,11 +73,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
-        $matchResult = preg_match(
-            '/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/',
-            strtoupper($tableColumn['type']),
-            $matches,
-        );
+        $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $tableColumn['type'], $matches);
         assert($matchResult === 1);
 
         $dbType = strtolower($matches[1]);
