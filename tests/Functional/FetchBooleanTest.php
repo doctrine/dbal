@@ -15,7 +15,7 @@ class FetchBooleanTest extends FunctionalTestCase
     {
         if (
             $this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform
-            && !TestUtil::isPdoStringifyFetchesEnabled()
+            && ! TestUtil::isPdoStringifyFetchesEnabled()
         ) {
             return;
         }

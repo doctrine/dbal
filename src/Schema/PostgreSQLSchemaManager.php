@@ -128,8 +128,8 @@ SQL,
             [
                 'onUpdate' => $onUpdate,
                 'onDelete' => $onDelete,
-                'deferrable' => $tableForeignKey['condeferrable'],
-                'deferred' => $tableForeignKey['condeferred'],
+                'deferrable' => (bool) $tableForeignKey['condeferrable'],
+                'deferred' => (bool) $tableForeignKey['condeferred'],
             ],
         );
     }
