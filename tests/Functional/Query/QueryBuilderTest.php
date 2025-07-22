@@ -555,11 +555,8 @@ final class QueryBuilderTest extends FunctionalTestCase
      */
     private function prepareExpectedRows(array $rows): array
     {
-        if (! TestUtil::isDriverOneOf('ibm_db2', 'pdo_oci', 'pdo_sqlsrv', 'oci8')) {
-            return $rows;
-        }
-
-        if (! TestUtil::isDriverOneOf('ibm_db2')) {
+        if (TestUtil::isDriverOneOf('pdo_oci', 'pdo_sqlsrv', 'oci8')
+            || (TestUtil::getConnectionParams()['driver_options'][\PDO::ATTR_STRINGIFY_FETCHES] ?? false) === true) {
             foreach ($rows as &$row) {
                 foreach ($row as &$value) {
                     $value = (string) $value;
@@ -567,12 +564,10 @@ final class QueryBuilderTest extends FunctionalTestCase
             }
         }
 
-        if (! TestUtil::isDriverOneOf('ibm_db2', 'pdo_oci', 'oci8')) {
-            return $rows;
-        }
-
-        foreach ($rows as &$row) {
-            $row = array_change_key_case($row, CASE_UPPER);
+        if (TestUtil::isDriverOneOf('ibm_db2', 'pdo_oci', 'oci8')) {
+            foreach ($rows as &$row) {
+                $row = array_change_key_case($row, CASE_UPPER);
+            }
         }
 
         return $rows;
