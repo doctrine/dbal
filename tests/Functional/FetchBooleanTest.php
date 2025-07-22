@@ -20,7 +20,9 @@ class FetchBooleanTest extends FunctionalTestCase
             return;
         }
 
-        self::markTestSkipped('Only PostgreSQL supports boolean values natively, as long as PDO does not stringify them.');
+        self::markTestSkipped(
+            'Only PostgreSQL supports boolean values natively, as long as PDO does not stringify them.'
+        );
     }
 
     #[DataProvider('booleanLiteralProvider')]
