@@ -6,13 +6,17 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class FetchBooleanTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
+        if (
+            $this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform
+            && !TestUtil::isPdoStringifyFetchesEnabled()
+        ) {
             return;
         }
 

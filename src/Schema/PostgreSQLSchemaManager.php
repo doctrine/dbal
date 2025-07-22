@@ -170,7 +170,7 @@ SQL,
                 return [
                     'key_name' => $row['relname'],
                     'non_unique' => ! $row['indisunique'],
-                    'primary' => $row['indisprimary'],
+                    'primary' => (bool) $row['indisprimary'],
                     'where' => $row['where'],
                     'column_name' => $row['attname'],
                 ];

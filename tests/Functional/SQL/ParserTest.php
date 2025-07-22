@@ -11,8 +11,8 @@ class ParserTest extends FunctionalTestCase
 {
     public function testPostgreSQLJSONBQuestionOperator(): void
     {
-        if (! TestUtil::isDriverOneOf('pdo_pgsql')) {
-            self::markTestSkipped('This test requires the pdo_pgsql driver.');
+        if ((! TestUtil::isDriverOneOf('pdo_pgsql')) || TestUtil::isPdoStringifyFetchesEnabled()) {
+            self::markTestSkipped('This test requires the pdo_pgsql driver without PDO::STRINGIFY_FETCHES option.');
         }
 
         self::assertTrue($this->connection->fetchOne('SELECT \'{"a":null}\'::jsonb ?? :key', ['key' => 'a']));

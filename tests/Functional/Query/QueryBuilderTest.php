@@ -24,7 +24,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
-use PDO;
 
 use function array_change_key_case;
 
@@ -558,7 +557,7 @@ final class QueryBuilderTest extends FunctionalTestCase
     {
         if (
             TestUtil::isDriverOneOf('pdo_oci', 'pdo_sqlsrv', 'oci8')
-            || (TestUtil::getConnectionParams()['driverOptions'][PDO::ATTR_STRINGIFY_FETCHES] ?? false) === true
+            || TestUtil::isPdoStringifyFetchesEnabled()
         ) {
             foreach ($rows as &$row) {
                 foreach ($row as &$value) {
