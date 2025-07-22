@@ -12,6 +12,10 @@ on:
       extension:
         required: true
         type: string
+      config-file-suffix:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   phpunit-mariadb:
