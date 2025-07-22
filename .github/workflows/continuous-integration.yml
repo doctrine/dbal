@@ -35,6 +35,7 @@ jobs:
       php-version: ${{ matrix.php-version }}
       extension: ${{ matrix.extension }}
       dependency-versions: ${{ matrix.dependency-versions }}
+      config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
       matrix:
@@ -61,7 +62,7 @@ jobs:
             php-version: "8.2"
             dependency-versions: "highest"
             extension: "pdo_sqlite"
-            config-file-suffix: ${{ matrix.config-file-suffix }}
+            config-file-suffix: "-stringify_fetches"
 
   phpunit-oracle:
     name: "PHPUnit with Oracle"
