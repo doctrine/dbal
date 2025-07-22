@@ -11,10 +11,16 @@ class ParserTest extends FunctionalTestCase
 {
     public function testPostgreSQLJSONBQuestionOperator(): void
     {
-        if (! TestUtil::isDriverOneOf('pdo_pgsql') || TestUtil::isPdoStringifyFetchesEnabled()) {
-            self::markTestSkipped('This test requires the pdo_pgsql driver without PDO::STRINGIFY_FETCHES option.');
+        if (! TestUtil::isDriverOneOf('pdo_pgsql')) {
+            self::markTestSkipped('This test requires the pdo_pgsql driver.');
         }
 
-        self::assertTrue($this->connection->fetchOne('SELECT \'{"a":null}\'::jsonb ?? :key', ['key' => 'a']));
+        $result = $this->connection->fetchOne('SELECT \'{"a":null}\'::jsonb ?? :key', ['key' => 'a']);
+
+        if (TestUtil::isPdoStringifyFetchesEnabled()) {
+            self::assertSame('1', $result);
+        } else {
+            self::assertTrue($result);
+        }
     }
 }
