@@ -556,7 +556,7 @@ final class QueryBuilderTest extends FunctionalTestCase
      */
     private function prepareExpectedRows(array $rows): array
     {
-        var_dump(TestUtil::getConnectionParams()['driverOptions']);
+        var_dump(TestUtil::getConnectionParams()['driverOptions'] ?? []);
         if (
             TestUtil::isDriverOneOf('pdo_oci', 'pdo_sqlsrv', 'oci8')
             || (TestUtil::getConnectionParams()['driverOptions'][PDO::ATTR_STRINGIFY_FETCHES] ?? false) === true
