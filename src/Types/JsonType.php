@@ -61,9 +61,14 @@ class JsonType extends Type
         }
 
         try {
-            return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+            return json_decode($value, $this->isAssociative(), 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             throw ValueNotConvertible::new($value, 'json', $e->getMessage(), $e);
         }
+    }
+
+    protected function isAssociative(): bool
+    {
+        return true;
     }
 }
