@@ -51,7 +51,16 @@ class JsonObjectTest extends TestCase
         self::assertNull($this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testJsonStringConvertsToPHPValue(): void
+    #[DataProvider('providerJsonString')]
+    public function testJsonStringConvertsToPHPValue(mixed $databaseValue, mixed $expectedValue): void
+    {
+        $phpValue = $this->type->convertToPHPValue($databaseValue, $this->platform);
+
+        self::assertEquals($expectedValue, $phpValue);
+    }
+
+    /** @return mixed[][] */
+    public static function providerJsonString(): iterable
     {
         $value         = new stdClass();
         $value->foo    = 'bar';
@@ -59,11 +68,11 @@ class JsonObjectTest extends TestCase
         $value->array  = [];
         $value->object = new stdClass();
 
-        $databaseValue = '{"foo":"bar","bar":"foo","array":[],"object":{}}';
-
-        $phpValue = $this->type->convertToPHPValue($databaseValue, $this->platform);
-
-        self::assertEquals($value, $phpValue);
+        return [
+            ['{"foo":"bar","bar":"foo","array":[],"object":{}}', $value],
+            ['1', 1],
+            ['["bar"]', ['bar']],
+        ];
     }
 
     #[DataProvider('providerFailure')]
@@ -100,7 +109,16 @@ class JsonObjectTest extends TestCase
         self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
     }
 
-    public function testPHPValueConvertsToJsonString(): void
+    #[DataProvider('providerPHPValue')]
+    public function testPHPValueConvertsToJsonString(mixed $phpValue, mixed $expectedValue): void
+    {
+        $databaseValue = $this->type->convertToDatabaseValue($phpValue, $this->platform);
+
+        self::assertSame($expectedValue, $databaseValue);
+    }
+
+    /** @return mixed[][] */
+    public static function providerPHPValue(): iterable
     {
         $source         = new stdClass();
         $source->foo    = 'bar';
@@ -108,9 +126,12 @@ class JsonObjectTest extends TestCase
         $source->array  = [];
         $source->object = new stdClass();
 
-        $databaseValue = $this->type->convertToDatabaseValue($source, $this->platform);
-
-        self::assertSame('{"foo":"bar","bar":"foo","array":[],"object":{}}', $databaseValue);
+        return [
+            [$source, '{"foo":"bar","bar":"foo","array":[],"object":{}}'],
+            [1, '1'],
+            [['foo' => 'bar'], '{"foo":"bar"}'],
+            [['bar'], '["bar"]'],
+        ];
     }
 
     public function testPHPFloatValueConvertsToJsonString(): void
