@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_shift;
 
@@ -622,6 +623,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
+    /** @param array<string> $values */
+    #[DataProvider('getEnumDeclarationExceptionWithLengthSQLProvider')]
+    public function testGetEnumDeclarationExceptionWithLengthSQL(array $values, int $length): void
+    {
+        self::markTestSkipped('There is no exception thrown on MySQL.');
+    }
+
     /** @return array<string, array{array<string>, string}> */
     public static function getEnumDeclarationSQLProvider(): array
     {
@@ -631,7 +639,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /** @return array<string, array{array<string>, int, string|null}> */
+    /** @return array<string, array{array<string>, int, string}> */
     public static function getEnumDeclarationWithLengthSQLProvider(): array
     {
         return [
