@@ -210,8 +210,8 @@ Maps and converts a string which is one of a set of predefined values. This
 type is specifically designed for MySQL and MariaDB, where it is mapped to
 the native ``ENUM`` type. For other database vendors, this type is mapped to
 a string field (``VARCHAR``) with the maximum length being the length of the
-longest value in the set. Values retrieved from the database are always
-converted to PHP's ``string`` type or ``null`` if no data is present.
+longest value in the set if none was configured. Values retrieved from the database
+are always converted to PHP's ``string`` type or ``null`` if no data is present.
 
 Binary string types
 ^^^^^^^^^^^^^^^^^^^
