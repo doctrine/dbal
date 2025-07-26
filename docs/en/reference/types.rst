@@ -476,6 +476,21 @@ jsonb
 This type is similar to ``json``. On PostgreSQL, it is mapped to the ``JSONB`` data type.
 On all other platforms, it is mapped to the same type as ``json``.
 
+.. _json_object:
+json_object
+^^^^^^^^^^^
+
+This type is similar to ``json``. Values retrieved from the database are also always converted
+to PHP's native types using PHP's ``json_decode()`` function but this time JSON objects are
+always converted to PHP `\stdClass`.
+
+.. _jsonb_object:
+jsonb_object
+^^^^^^^^^^^^
+
+This type is similar to ``json_object``. On PostgreSQL, it is mapped to the ``JSONB`` data type.
+On all other platforms, it is mapped to the same type as ``json``.
+
 .. _mappingMatrix:
 
 Mapping Matrix
@@ -701,7 +716,7 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |                    | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
     +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
     | **json**          | ``mixed``          | **MySQL**                | *all*   | ``JSON``                                                 |
-    |                   |                    +--------------------------+         +                                                          |
+    |                   |                    +--------------------------+         |                                                          |
     |                   |                    | **PostgreSQL**           | *all*   |                                                          |
     |                   |                    +--------------------------+---------+----------------------------------------------------------+
     |                   |                    | **Oracle**               | *all*   | ``CLOB``                                                 |
@@ -720,6 +735,27 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |                    +--------------------------+---------+----------------------------------------------------------+
     |                   |                    | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
     +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
+    | **json_object**   | ``mixed``          | **MySQL**                | *all*   | ``JSON``                                                 |
+    |                   |                    +--------------------------+         |                                                          |
+    |                   |                    | **PostgreSQL**           | *all*   |                                                          |
+    |                   |                    +--------------------------+---------+----------------------------------------------------------+
+    |                   |                    | **Oracle**               | *all*   | ``CLOB``                                                 |
+    |                   |                    +--------------------------+         |                                                          |
+    |                   |                    | **SQLite**               |         |                                                          |
+    |                   |                    +--------------------------+---------+----------------------------------------------------------+
+    |                   |                    | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
+    +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
+    | **jsonb_object**  | ``mixed``          | **MySQL**                | *all*   | ``JSON``                                                 |
+    |                   |                    +--------------------------+---------+----------------------------------------------------------+
+    |                   |                    | **PostgreSQL**           | *all*   | ``JSONB``                                                |
+    |                   |                    +--------------------------+---------+----------------------------------------------------------+
+    |                   |                    | **Oracle**               | *all*   | ``CLOB``                                                 |
+    |                   |                    +--------------------------+         |                                                          |
+    |                   |                    | **SQLite**               |         |                                                          |
+    |                   |                    +--------------------------+---------+----------------------------------------------------------+
+    |                   |                    | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
+    +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
+
 
 **Notes**
 

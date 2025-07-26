@@ -9,7 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 /**
  * Type generating json objects values
  */
-class JsonType extends Type
+class JsonbObjectType extends Type
 {
     use JsonTypeConvert;
 
@@ -18,11 +18,11 @@ class JsonType extends Type
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getJsonTypeDeclarationSQL($column);
+        return $platform->getJsonbTypeDeclarationSQL($column);
     }
 
     protected function isAssociative(): bool
     {
-        return true;
+        return false;
     }
 }

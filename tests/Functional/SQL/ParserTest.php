@@ -15,6 +15,12 @@ class ParserTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the pdo_pgsql driver.');
         }
 
-        self::assertTrue($this->connection->fetchOne('SELECT \'{"a":null}\'::jsonb ?? :key', ['key' => 'a']));
+        $result = $this->connection->fetchOne('SELECT \'{"a":null}\'::jsonb ?? :key', ['key' => 'a']);
+
+        if (TestUtil::isPdoStringifyFetchesEnabled()) {
+            self::assertSame('1', $result);
+        } else {
+            self::assertTrue($result);
+        }
     }
 }

@@ -15,6 +15,10 @@ on:
       dependency-versions:
         required: true
         type: string
+      config-file-suffix:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   phpunit-sqlite:
@@ -50,10 +54,10 @@ jobs:
         if: ${{ inputs.extension == 'sqlite3' }}
 
       - name: Run PHPUnit
-        run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}.xml --coverage-clover=coverage.xml
+        run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}${{ inputs.config-file-suffix }}.xml --coverage-clover=coverage.xml
 
       - name: Upload coverage file
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.job }}-php-${{ inputs.php-version }}-${{ inputs.extension }}-${{ inputs.dependency-versions }}.coverage
+          name: ${{ github.job }}-php-${{ inputs.php-version }}-${{ inputs.extension }}${{ inputs.config-file-suffix }}-${{ inputs.dependency-versions }}.coverage
           path: coverage.xml

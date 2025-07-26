@@ -17,6 +17,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use InvalidArgumentException;
+use PDO;
 use PHPUnit\Framework\Assert;
 
 use function array_map;
@@ -239,6 +240,11 @@ class TestUtil
         assert(isset($params['driver']));
 
         return in_array($params['driver'], $names, true);
+    }
+
+    public static function isPdoStringifyFetchesEnabled(): bool
+    {
+        return (self::getConnectionParams()['driverOptions'][PDO::ATTR_STRINGIFY_FETCHES] ?? false) === true;
     }
 
     /**

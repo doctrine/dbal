@@ -15,6 +15,10 @@ on:
       postgres-locale-provider:
         required: true
         type: string
+      config-file-suffix:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   phpunit-postgres:
@@ -51,10 +55,10 @@ jobs:
           composer-options: '--ignore-platform-req=php+'
 
       - name: Run PHPUnit
-        run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}.xml --coverage-clover=coverage.xml
+        run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}${{ inputs.config-file-suffix }}.xml --coverage-clover=coverage.xml
 
       - name: Upload coverage file
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.job }}-${{ inputs.postgres-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}.coverage
+          name: ${{ github.job }}-${{ inputs.postgres-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}${{ inputs.config-file-suffix }}.coverage
           path: coverage.xml
