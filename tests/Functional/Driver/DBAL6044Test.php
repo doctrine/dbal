@@ -16,7 +16,7 @@ class DBAL6044Test extends FunctionalTestCase
     {
         parent::setUp();
 
-        if (TestUtil::isDriverOneOf('pdo_pgsql', 'pgsql')) {
+        if (TestUtil::isDriverOneOf('pdo_pgsql', 'pgsql') && ! TestUtil::isPdoStringifyFetchesEnabled()) {
             return;
         }
 

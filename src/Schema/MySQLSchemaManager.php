@@ -125,12 +125,12 @@ class MySQLSchemaManager extends AbstractSchemaManager
         switch ($dbType) {
             case 'char':
             case 'varchar':
-                $editor->setLength($tableColumn['character_maximum_length']);
+                $editor->setLength((int) $tableColumn['character_maximum_length']);
                 break;
 
             case 'binary':
             case 'varbinary':
-                $editor->setLength($tableColumn['character_octet_length']);
+                $editor->setLength((int) $tableColumn['character_octet_length']);
                 break;
 
             case 'tinytext':
@@ -162,10 +162,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
             case 'real':
             case 'numeric':
             case 'decimal':
-                $editor->setPrecision($tableColumn['numeric_precision']);
+                $editor->setPrecision((int) $tableColumn['numeric_precision']);
 
                 if (isset($tableColumn['numeric_scale'])) {
-                    $editor->setScale($tableColumn['numeric_scale']);
+                    $editor->setScale((int) $tableColumn['numeric_scale']);
                 }
 
                 break;

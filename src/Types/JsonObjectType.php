@@ -9,7 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 /**
  * Type generating json objects values
  */
-class JsonType extends Type
+class JsonObjectType extends Type
 {
     use JsonTypeConvert;
 
@@ -23,6 +23,6 @@ class JsonType extends Type
 
     protected function isAssociative(): bool
     {
-        return true;
+        return false;
     }
 }

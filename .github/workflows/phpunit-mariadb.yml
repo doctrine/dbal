@@ -12,6 +12,10 @@ on:
       extension:
         required: true
         type: string
+      config-file-suffix:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   phpunit-mariadb:
@@ -53,5 +57,5 @@ jobs:
       - name: Upload coverage file
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.job }}-${{ inputs.mariadb-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}.coverage
+          name: ${{ github.job }}-${{ inputs.mariadb-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}${{ inputs.config-file-suffix }}.coverage
           path: coverage.xml

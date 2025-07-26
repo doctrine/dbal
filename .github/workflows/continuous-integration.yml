@@ -35,6 +35,7 @@ jobs:
       php-version: ${{ matrix.php-version }}
       extension: ${{ matrix.extension }}
       dependency-versions: ${{ matrix.dependency-versions }}
+      config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
       matrix:
@@ -57,6 +58,11 @@ jobs:
             php-version: "8.4"
             dependency-versions: "highest"
             extension: "sqlite3"
+          - os: "ubuntu-22.04"
+            php-version: "8.2"
+            dependency-versions: "highest"
+            extension: "pdo_sqlite"
+            config-file-suffix: "-stringify_fetches"
 
   phpunit-oracle:
     name: "PHPUnit with Oracle"
@@ -95,6 +101,7 @@ jobs:
       postgres-version: ${{ matrix.postgres-version }}
       extension: ${{ matrix.extension }}
       postgres-locale-provider: ${{ matrix.postgres-locale-provider }}
+      config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
       matrix:
@@ -121,6 +128,10 @@ jobs:
             postgres-version: "15"
             extension: "pdo_pgsql"
             postgres-locale-provider: "icu"
+          - php-version: "8.2"
+            postgres-version: "17"
+            extension: "pdo_pgsql"
+            config-file-suffix: "-stringify_fetches"
 
   phpunit-mariadb:
     name: "PHPUnit with MariaDB"
@@ -130,6 +141,7 @@ jobs:
       php-version: ${{ matrix.php-version }}
       mariadb-version: ${{ matrix.mariadb-version }}
       extension: ${{ matrix.extension }}
+      config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
       matrix:
@@ -150,6 +162,10 @@ jobs:
             mariadb-version: "11.4"
             extension: "mysqli"
           - php-version: "8.2"
+            mariadb-version: "11.4"
+            extension: "pdo_mysql"
+          - config-file-suffix: "-stringify_fetches"
+            php-version: "8.2"
             mariadb-version: "11.4"
             extension: "pdo_mysql"
 
@@ -179,6 +195,10 @@ jobs:
             php-version: "8.2"
             mysql-version: "9.1"
             extension: "mysqli"
+          - config-file-suffix: "-stringify_fetches"
+            php-version: "8.2"
+            mysql-version: "9.1"
+            extension: "pdo_mysql"
           - php-version: "8.2"
             mysql-version: "9.1"
             extension: "mysqli"
@@ -232,7 +252,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.3"
+          - "8.4"
 
     steps:
       - name: "Checkout"
@@ -246,7 +266,9 @@ jobs:
           fail-fast: true
 
       - name: "Lower minimum stability"
-        run: "composer config minimum-stability dev"
+        run: | 
+          composer config minimum-stability dev
+          composer require --no-update --dev symfony/console:^8 symfony/cache:^8
 
       - name: "Install development dependencies with Composer"
         uses: "ramsey/composer-install@v3"
