@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 
 class BooleanBindingTest extends FunctionalTestCase
 {
@@ -18,7 +19,7 @@ class BooleanBindingTest extends FunctionalTestCase
         }
 
         $table = new Table('boolean_test_table');
-        $table->addColumn('val', 'boolean');
+        $table->addColumn('val', 'boolean')->setNotnull(false);
         $this->dropAndCreateTable($table);
     }
 
@@ -28,7 +29,7 @@ class BooleanBindingTest extends FunctionalTestCase
     }
 
     /** @dataProvider booleanProvider */
-    public function testBooleanInsert(bool $input): void
+    public function testBooleanParameterInsert(?bool $input): void
     {
         $queryBuilder = $this->connection->createQueryBuilder();
 
@@ -37,11 +38,37 @@ class BooleanBindingTest extends FunctionalTestCase
         ])->executeStatement();
 
         self::assertSame(1, $result);
+
+        self::assertSame($input, $this->connection->convertToPHPValue(
+            $this->connection->fetchOne('SELECT val FROM boolean_test_table'),
+            Types::BOOLEAN,
+        ));
     }
 
-    /** @return bool[][] */
+    /** @dataProvider booleanProvider */
+    public function testBooleanTypeInsert(?bool $input): void
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $result = $queryBuilder->insert('boolean_test_table')->values([
+            'val' => $queryBuilder->createNamedParameter($input, Types::BOOLEAN),
+        ])->executeStatement();
+
+        self::assertSame(1, $result);
+
+        self::assertSame($input, $this->connection->convertToPHPValue(
+            $this->connection->fetchOne('SELECT val FROM boolean_test_table'),
+            Types::BOOLEAN,
+        ));
+    }
+
+    /** @return array<string, array{bool|null}> */
     public static function booleanProvider(): array
     {
-        return [[true], [false]];
+        return [
+            'true' => [true],
+            'false' => [false],
+            'null' => [null],
+        ];
     }
 }
