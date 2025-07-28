@@ -11,7 +11,7 @@ use Doctrine\Deprecations\Deprecation;
  *
  * @link https://mariadb.com/kb/en/the-mariadb-library/reserved-words/
  */
-final class MariaDb102Keywords extends MariaDBKeywords
+class MariaDb102Keywords extends MariaDBKeywords
 {
     /** @deprecated */
     public function getName(): string

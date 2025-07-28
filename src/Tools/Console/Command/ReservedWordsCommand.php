@@ -7,6 +7,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords;
+use Doctrine\DBAL\Platforms\Keywords\MariaDb117Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL84Keywords;
@@ -57,6 +58,7 @@ class ReservedWordsCommand extends Command
         $this->keywordLists = [
             'db2'        => new DB2Keywords(),
             'mariadb102' => new MariaDb102Keywords(),
+            'mariadb117' => new MariaDb117Keywords(),
             'mysql'      => new MySQLKeywords(),
             'mysql57'    => new MySQL57Keywords(),
             'mysql80'    => new MySQL80Keywords(),
@@ -128,6 +130,7 @@ The following keyword lists are currently shipped with Doctrine:
 
     * db2
     * mariadb102
+    * mariadb117
     * mysql
     * mysql57
     * mysql80

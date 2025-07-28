@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MariaDb1043Platform;
 use Doctrine\DBAL\Platforms\MariaDb1052Platform;
 use Doctrine\DBAL\Platforms\MariaDb1060Platform;
+use Doctrine\DBAL\Platforms\MariaDb110700Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
@@ -42,6 +43,10 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 
         if ($mariadb) {
             $mariaDbVersion = $this->getMariaDbMysqlVersionNumber($version);
+            if (version_compare($mariaDbVersion, '11.7.0', '>=')) {
+                return new MariaDb110700Platform();
+            }
+
             if (version_compare($mariaDbVersion, '10.10.0', '>=')) {
                 return new MariaDb1010Platform();
             }
