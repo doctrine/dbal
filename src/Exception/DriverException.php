@@ -26,7 +26,7 @@ class DriverException extends \Exception implements Exception, Driver\Exception
         if ($query !== null) {
             $message = 'An exception occurred while executing a query: ' . $driverException->getMessage();
         } else {
-            $message = 'An exception occurred in the driver: ' . $driverException->getMessage();
+            $message = 'An exception occurred in the database driver: ' . $driverException->getMessage();
         }
 
         parent::__construct($message, $driverException->getCode(), $driverException);
