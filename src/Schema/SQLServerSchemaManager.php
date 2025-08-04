@@ -12,8 +12,6 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 
 use function assert;
-use function func_get_arg;
-use function func_num_args;
 use function implode;
 use function is_string;
 use function preg_match;
@@ -220,12 +218,12 @@ SQL,
     }
 
     /** @throws Exception */
-    public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
+    public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
         return new SQLServer\Comparator(
             $this->platform,
             $this->getDatabaseCollation(),
-            func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig(),
+            $config,
         );
     }
 

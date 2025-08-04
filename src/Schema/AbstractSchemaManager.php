@@ -29,8 +29,6 @@ use function array_map;
 use function array_values;
 use function assert;
 use function count;
-use function func_get_arg;
-use function func_num_args;
 use function strtolower;
 
 /**
@@ -1204,9 +1202,9 @@ abstract class AbstractSchemaManager
         return $database;
     }
 
-    public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
+    public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
-        return new Comparator($this->platform, func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig());
+        return new Comparator($this->platform, $config);
     }
 
     /**
