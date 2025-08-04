@@ -14,7 +14,6 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
 use function str_repeat;
@@ -234,7 +233,6 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertSame('13.37', $this->processValue(Types::DECIMAL, '13.37'));
     }
 
-    #[RequiresPhp('8.4')]
     #[RequiresPhpExtension('bcmath')]
     public function testNumber(): void
     {

@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
-use Doctrine\DBAL\Driver\PDO\PDOConnect;
 use PDO;
 use PDOException;
 use SensitiveParameter;
@@ -17,8 +16,6 @@ use function is_string;
 
 final class Driver extends AbstractOracleDriver
 {
-    use PDOConnect;
-
     /**
      * {@inheritDoc}
      */
@@ -42,7 +39,7 @@ final class Driver extends AbstractOracleDriver
         unset($safeParams['password']);
 
         try {
-            $pdo = $this->doConnect(
+            $pdo = PDO::connect(
                 $this->constructPdoDsn($params),
                 $params['user'] ?? '',
                 $params['password'] ?? '',

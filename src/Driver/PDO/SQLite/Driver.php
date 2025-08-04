@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
-use Doctrine\DBAL\Driver\PDO\PDOConnect;
+use PDO;
 use PDOException;
 use SensitiveParameter;
 
@@ -17,8 +17,6 @@ use function is_string;
 
 final class Driver extends AbstractSQLiteDriver
 {
-    use PDOConnect;
-
     /**
      * {@inheritDoc}
      */
@@ -33,7 +31,7 @@ final class Driver extends AbstractSQLiteDriver
         }
 
         try {
-            $pdo = $this->doConnect(
+            $pdo = PDO::connect(
                 $this->constructPdoDsn(array_intersect_key($params, ['path' => true, 'memory' => true])),
                 $params['user'] ?? '',
                 $params['password'] ?? '',
