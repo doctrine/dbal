@@ -26,6 +26,7 @@ class BooleanBindingTest extends FunctionalTestCase
                 Column::editor()
                     ->setUnquotedName('val')
                     ->setTypeName(Types::BOOLEAN)
+                    ->setNotNull(false)
                     ->create(),
             )
             ->create();
@@ -39,7 +40,7 @@ class BooleanBindingTest extends FunctionalTestCase
     }
 
     #[DataProvider('booleanProvider')]
-    public function testBooleanInsert(bool $input): void
+    public function testBooleanParameterInsert(?bool $input): void
     {
         $queryBuilder = $this->connection->createQueryBuilder();
 
@@ -48,11 +49,37 @@ class BooleanBindingTest extends FunctionalTestCase
         ])->executeStatement();
 
         self::assertSame(1, $result);
+
+        self::assertSame($input, $this->connection->convertToPHPValue(
+            $this->connection->fetchOne('SELECT val FROM boolean_test_table'),
+            Types::BOOLEAN,
+        ));
     }
 
-    /** @return bool[][] */
+    #[DataProvider('booleanProvider')]
+    public function testBooleanTypeInsert(?bool $input): void
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $result = $queryBuilder->insert('boolean_test_table')->values([
+            'val' => $queryBuilder->createNamedParameter($input, Types::BOOLEAN),
+        ])->executeStatement();
+
+        self::assertSame(1, $result);
+
+        self::assertSame($input, $this->connection->convertToPHPValue(
+            $this->connection->fetchOne('SELECT val FROM boolean_test_table'),
+            Types::BOOLEAN,
+        ));
+    }
+
+    /** @return array<string, array{bool|null}> */
     public static function booleanProvider(): array
     {
-        return [[true], [false]];
+        return [
+            'true' => [true],
+            'false' => [false],
+            'null' => [null],
+        ];
     }
 }

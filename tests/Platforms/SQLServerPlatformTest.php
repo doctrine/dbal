@@ -1189,4 +1189,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             'multiple values' => [['foo', 'bar1'], 'NVARCHAR(4)'],
         ];
     }
+
+    /** @return array<string, array{array<string>, int, string}> */
+    public static function getEnumDeclarationWithLengthSQLProvider(): array
+    {
+        return [
+            'single value and bigger length' => [['foo'], 42, 'NVARCHAR(42)'],
+            'multiple values and bigger length' => [['foo', 'bar1'], 42, 'NVARCHAR(42)'],
+        ];
+    }
 }

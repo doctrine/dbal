@@ -57,6 +57,10 @@ final class Statement implements StatementInterface
             throw UnknownParameter::new((string) $param);
         }
 
+        if ($value === null) {
+            $type = ParameterType::NULL;
+        }
+
         if ($type === ParameterType::BOOLEAN) {
             $this->parameters[$this->parameterMap[$param]]     = (bool) $value === false ? 'f' : 't';
             $this->parameterTypes[$this->parameterMap[$param]] = ParameterType::STRING;

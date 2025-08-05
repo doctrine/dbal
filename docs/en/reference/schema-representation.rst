@@ -12,32 +12,86 @@ Metadata model. Up to very specific functionality of your database
 system this allows you to generate SQL code that makes your Domain
 model work.
 
-You will be pleased to hear, that Schema representation is
-completely decoupled from the Doctrine ORM though, that is you can
-also use it in any other project to implement database migrations
+Schema representation is completely decoupled from the Doctrine ORM.
+You can also use it in any other project to implement database migrations
 or for SQL schema generation for any metadata model that your
-application has. You can easily generate a Schema, as a simple
-example shows:
+application has. You can generate a Schema, as the example below
+shows:
 
 .. code-block:: php
 
     <?php
-    $schema = new \Doctrine\DBAL\Schema\Schema();
-    $myTable = $schema->createTable("my_table");
-    $myTable->addColumn("id", "integer", ["unsigned" => true]);
-    $myTable->addColumn("username", "string", ["length" => 32]);
-    $myTable->setPrimaryKey(["id"]);
-    $myTable->addUniqueIndex(["username"]);
-    $myTable->setComment('Some comment');
-    $schema->createSequence("my_table_seq");
 
-    $myForeign = $schema->createTable("my_foreign");
-    $myForeign->addColumn("id", "integer");
-    $myForeign->addColumn("user_id", "integer");
-    $myForeign->addForeignKeyConstraint($myTable, ["user_id"], ["id"], ["onUpdate" => "CASCADE"]);
+    use Doctrine\DBAL\Schema\Column;
+    use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+    use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+    use Doctrine\DBAL\Schema\Index;
+    use Doctrine\DBAL\Schema\Index\IndexType;
+    use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+    use Doctrine\DBAL\Schema\Schema;
+    use Doctrine\DBAL\Schema\Table;
 
-    $queries = $schema->toSql($myPlatform); // get queries to create this schema.
-    $dropSchema = $schema->toDropSql($myPlatform); // get queries to safely delete this schema.
+    $user = Table::editor()
+        ->setUnquotedName('user')
+        ->addColumn(
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName('integer')
+                ->setUnsigned(true)
+                ->create()
+        )
+        ->addColumn(
+            Column::editor()
+                ->setUnquotedName('username')
+                ->setTypeName('string')
+                ->setLength(32)
+                ->create()
+        )
+        ->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames('id')
+                ->create()
+        )
+        ->addIndex(
+            Index::editor()
+                ->setUnquotedName('idx_username')
+                ->setUnquotedColumnNames('username')
+                ->setType(IndexType::UNIQUE)
+                ->create()
+        )
+        ->setComment('User table')
+        ->create();
+
+    $post = Table::editor()
+        ->setUnquotedName('post')
+        ->addColumn(
+            Column::editor()
+                ->setUnquotedName('id')
+                ->setTypeName('integer')
+                ->create()
+        )
+        ->addColumn(
+            Column::editor()
+                ->setUnquotedName('user_id')
+                ->setTypeName('integer')
+                ->create()
+        )
+        ->addForeignKeyConstraint(
+            ForeignKeyConstraint::editor()
+                ->setUnquotedName('fk_user_id')
+                ->setUnquotedReferencingColumnNames('user_id')
+                ->setUnquotedReferencedTableName('user')
+                ->setUnquotedReferencedColumnNames('id')
+                ->setOnUpdateAction(ReferentialAction::CASCADE)
+                ->create()
+        )
+        ->create();
+
+    $schema = new Schema([$user, $post]);
+    $schema->createSequence('my_table_seq');
+
+    $createSQL = $schema->toSql($myPlatform);     // get queries to create this schema
+    $dropSQL   = $schema->toDropSql($myPlatform); // get queries to drop this schema
 
 Now if you want to compare this schema with another schema, you can
 use the ``Comparator`` class to get instances of ``SchemaDiff``,

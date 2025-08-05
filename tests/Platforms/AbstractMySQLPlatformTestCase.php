@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_shift;
 
@@ -594,12 +595,30 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
+    /** @param array<string> $values */
+    #[DataProvider('getEnumDeclarationExceptionWithLengthSQLProvider')]
+    public function testGetEnumDeclarationExceptionWithLengthSQL(array $values, int $length): void
+    {
+        self::markTestSkipped('There is no exception thrown on MySQL.');
+    }
+
     /** @return array<string, array{array<string>, string}> */
     public static function getEnumDeclarationSQLProvider(): array
     {
         return [
             'single value' => [['foo'], "ENUM('foo')"],
             'multiple values' => [['foo', 'bar1'], "ENUM('foo', 'bar1')"],
+        ];
+    }
+
+    /** @return array<string, array{array<string>, int, string}> */
+    public static function getEnumDeclarationWithLengthSQLProvider(): array
+    {
+        return [
+            'single value and bigger length' => [['foo'], 42, "ENUM('foo')"],
+            'single value and lower length' => [['foo'], 1, "ENUM('foo')"],
+            'multiple values and bigger length' => [['foo', 'bar1'], 42, "ENUM('foo', 'bar1')"],
+            'multiple values and lower length' => [['foo', 'bar1'], 2, "ENUM('foo', 'bar1')"],
         ];
     }
 }

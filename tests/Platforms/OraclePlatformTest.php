@@ -597,4 +597,13 @@ EOD;
             'multiple values' => [['foo', 'bar1'], 'VARCHAR2(4)'],
         ];
     }
+
+    /** @return array<string, array{array<string>, int, string}> */
+    public static function getEnumDeclarationWithLengthSQLProvider(): array
+    {
+        return [
+            'single value and bigger length' => [['foo'], 42, 'VARCHAR2(42)'],
+            'multiple values and bigger length' => [['foo', 'bar1'], 42, 'VARCHAR2(42)'],
+        ];
+    }
 }
