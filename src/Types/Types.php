@@ -9,35 +9,35 @@ namespace Doctrine\DBAL\Types;
  */
 final class Types
 {
-    public const ASCII_STRING         = 'ascii_string';
-    public const BIGINT               = 'bigint';
-    public const BINARY               = 'binary';
-    public const BLOB                 = 'blob';
-    public const BOOLEAN              = 'boolean';
-    public const DATE_MUTABLE         = 'date';
-    public const DATE_IMMUTABLE       = 'date_immutable';
-    public const DATEINTERVAL         = 'dateinterval';
-    public const DATETIME_MUTABLE     = 'datetime';
-    public const DATETIME_IMMUTABLE   = 'datetime_immutable';
-    public const DATETIMETZ_MUTABLE   = 'datetimetz';
-    public const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
-    public const DECIMAL              = 'decimal';
-    public const NUMBER               = 'number';
-    public const FLOAT                = 'float';
-    public const ENUM                 = 'enum';
-    public const GUID                 = 'guid';
-    public const INTEGER              = 'integer';
-    public const JSON                 = 'json';
-    public const JSON_OBJECT          = 'json_object';
-    public const JSONB                = 'jsonb';
-    public const JSONB_OBJECT         = 'jsonb_object';
-    public const SIMPLE_ARRAY         = 'simple_array';
-    public const SMALLFLOAT           = 'smallfloat';
-    public const SMALLINT             = 'smallint';
-    public const STRING               = 'string';
-    public const TEXT                 = 'text';
-    public const TIME_MUTABLE         = 'time';
-    public const TIME_IMMUTABLE       = 'time_immutable';
+    public const string ASCII_STRING         = 'ascii_string';
+    public const string BIGINT               = 'bigint';
+    public const string BINARY               = 'binary';
+    public const string BLOB                 = 'blob';
+    public const string BOOLEAN              = 'boolean';
+    public const string DATE_MUTABLE         = 'date';
+    public const string DATE_IMMUTABLE       = 'date_immutable';
+    public const string DATEINTERVAL         = 'dateinterval';
+    public const string DATETIME_MUTABLE     = 'datetime';
+    public const string DATETIME_IMMUTABLE   = 'datetime_immutable';
+    public const string DATETIMETZ_MUTABLE   = 'datetimetz';
+    public const string DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
+    public const string DECIMAL              = 'decimal';
+    public const string NUMBER               = 'number';
+    public const string FLOAT                = 'float';
+    public const string ENUM                 = 'enum';
+    public const string GUID                 = 'guid';
+    public const string INTEGER              = 'integer';
+    public const string JSON                 = 'json';
+    public const string JSON_OBJECT          = 'json_object';
+    public const string JSONB                = 'jsonb';
+    public const string JSONB_OBJECT         = 'jsonb_object';
+    public const string SIMPLE_ARRAY         = 'simple_array';
+    public const string SMALLFLOAT           = 'smallfloat';
+    public const string SMALLINT             = 'smallint';
+    public const string STRING               = 'string';
+    public const string TEXT                 = 'text';
+    public const string TIME_MUTABLE         = 'time';
+    public const string TIME_IMMUTABLE       = 'time_immutable';
 
     /** @codeCoverageIgnore */
     private function __construct()

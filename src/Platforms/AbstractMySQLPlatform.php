@@ -32,13 +32,13 @@ use function str_replace;
  */
 abstract class AbstractMySQLPlatform extends AbstractPlatform
 {
-    final public const LENGTH_LIMIT_TINYTEXT   = 255;
-    final public const LENGTH_LIMIT_TEXT       = 65535;
-    final public const LENGTH_LIMIT_MEDIUMTEXT = 16777215;
+    final public const int LENGTH_LIMIT_TINYTEXT   = 255;
+    final public const int LENGTH_LIMIT_TEXT       = 65535;
+    final public const int LENGTH_LIMIT_MEDIUMTEXT = 16777215;
 
-    final public const LENGTH_LIMIT_TINYBLOB   = 255;
-    final public const LENGTH_LIMIT_BLOB       = 65535;
-    final public const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
+    final public const int LENGTH_LIMIT_TINYBLOB   = 255;
+    final public const int LENGTH_LIMIT_BLOB       = 65535;
+    final public const int LENGTH_LIMIT_MEDIUMBLOB = 16777215;
 
     public function __construct()
     {

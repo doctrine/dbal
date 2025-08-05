@@ -25,9 +25,9 @@ use function str_repeat;
 
 final class Statement implements StatementInterface
 {
-    private const PARAMETER_TYPE_STRING  = 's';
-    private const PARAMETER_TYPE_INTEGER = 'i';
-    private const PARAMETER_TYPE_BINARY  = 'b';
+    private const string PARAMETER_TYPE_STRING  = 's';
+    private const string PARAMETER_TYPE_INTEGER = 'i';
+    private const string PARAMETER_TYPE_BINARY  = 'b';
 
     /** @var mixed[] */
     private array $boundValues;

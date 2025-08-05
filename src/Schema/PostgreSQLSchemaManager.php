@@ -31,7 +31,7 @@ use const CASE_LOWER;
  */
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
-    private const REFERENTIAL_ACTIONS = [
+    private const array REFERENTIAL_ACTIONS = [
         'a' => ReferentialAction::NO_ACTION,
         'c' => ReferentialAction::CASCADE,
         'd' => ReferentialAction::SET_DEFAULT,

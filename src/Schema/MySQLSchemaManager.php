@@ -38,7 +38,7 @@ use const CASE_LOWER;
 class MySQLSchemaManager extends AbstractSchemaManager
 {
     /** @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences */
-    private const MARIADB_ESCAPE_SEQUENCES = [
+    private const array MARIADB_ESCAPE_SEQUENCES = [
         '\\0' => "\0",
         "\\'" => "'",
         '\\"' => '"',

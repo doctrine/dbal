@@ -12,8 +12,8 @@ use function parse_str;
 
 class QueryCacheProfileTest extends TestCase
 {
-    private const LIFETIME  = 3600;
-    private const CACHE_KEY = 'user_specified_cache_key';
+    private const int LIFETIME     = 3600;
+    private const string CACHE_KEY = 'user_specified_cache_key';
 
     private QueryCacheProfile $queryCacheProfile;
     private string $query = 'SELECT * FROM foo WHERE bar = ?';

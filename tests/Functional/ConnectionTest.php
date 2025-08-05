@@ -28,7 +28,7 @@ use function unlink;
 
 class ConnectionTest extends FunctionalTestCase
 {
-    private const TABLE = 'connection_test';
+    private const string TABLE = 'connection_test';
 
     protected function tearDown(): void
     {

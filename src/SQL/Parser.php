@@ -29,17 +29,17 @@ use const PREG_NO_ERROR;
  */
 final class Parser
 {
-    private const SPECIAL_CHARS = ':\?\'"`\\[\\-\\/';
+    private const string SPECIAL_CHARS = ':\?\'"`\\[\\-\\/';
 
-    private const BACKTICK_IDENTIFIER  = '`[^`]*`';
-    private const BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
-    private const MULTICHAR            = ':{2,}';
-    private const NAMED_PARAMETER      = ':[a-zA-Z0-9_]+';
-    private const POSITIONAL_PARAMETER = '(?<!\\?)\\?(?!\\?)';
-    private const ONE_LINE_COMMENT     = '--[^\r\n]*';
-    private const MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
-    private const SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
-    private const OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
+    private const string BACKTICK_IDENTIFIER  = '`[^`]*`';
+    private const string BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
+    private const string MULTICHAR            = ':{2,}';
+    private const string NAMED_PARAMETER      = ':[a-zA-Z0-9_]+';
+    private const string POSITIONAL_PARAMETER = '(?<!\\?)\\?(?!\\?)';
+    private const string ONE_LINE_COMMENT     = '--[^\r\n]*';
+    private const string MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
+    private const string SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
+    private const string OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
 
     private readonly string $sqlPattern;
     private readonly string $tokenPattern;

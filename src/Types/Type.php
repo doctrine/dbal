@@ -24,7 +24,7 @@ abstract class Type
     /**
      * The map of supported doctrine mapping types.
      */
-    private const BUILTIN_TYPES_MAP = [
+    private const array BUILTIN_TYPES_MAP = [
         Types::ASCII_STRING         => AsciiStringType::class,
         Types::BIGINT               => BigIntType::class,
         Types::BINARY               => BinaryType::class,

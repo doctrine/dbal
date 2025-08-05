@@ -18,10 +18,10 @@ use const SQLITE3_TEXT;
 
 final class Statement implements StatementInterface
 {
-    private const TYPE_BLOB    = SQLITE3_BLOB;
-    private const TYPE_INTEGER = SQLITE3_INTEGER;
-    private const TYPE_NULL    = SQLITE3_NULL;
-    private const TYPE_TEXT    = SQLITE3_TEXT;
+    private const int TYPE_BLOB    = SQLITE3_BLOB;
+    private const int TYPE_INTEGER = SQLITE3_INTEGER;
+    private const int TYPE_NULL    = SQLITE3_NULL;
+    private const int TYPE_TEXT    = SQLITE3_TEXT;
 
     /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(

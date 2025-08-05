@@ -15,12 +15,12 @@ use function sprintf;
  */
 class ExpressionBuilder
 {
-    final public const EQ  = '=';
-    final public const NEQ = '<>';
-    final public const LT  = '<';
-    final public const LTE = '<=';
-    final public const GT  = '>';
-    final public const GTE = '>=';
+    final public const string EQ  = '=';
+    final public const string NEQ = '<>';
+    final public const string LT  = '<';
+    final public const string LTE = '<=';
+    final public const string GT  = '>';
+    final public const string GTE = '>=';
 
     /**
      * Initializes a new <tt>ExpressionBuilder</tt>.

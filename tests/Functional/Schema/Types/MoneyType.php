@@ -14,7 +14,7 @@ use function is_string;
 
 class MoneyType extends Type
 {
-    public const NAME = 'money';
+    public const string NAME = 'money';
 
     /**
      * {@inheritDoc}

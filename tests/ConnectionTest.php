@@ -33,7 +33,7 @@ class ConnectionTest extends TestCase
 {
     private Connection $connection;
 
-    private const CONNECTION_PARAMS = [
+    private const array CONNECTION_PARAMS = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
         'user' => 'root',

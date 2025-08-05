@@ -19,8 +19,8 @@ use const CASE_UPPER;
 
 final class Converter
 {
-    public const CASE_LOWER = CASE_LOWER;
-    public const CASE_UPPER = CASE_UPPER;
+    public const int CASE_LOWER = CASE_LOWER;
+    public const int CASE_UPPER = CASE_UPPER;
 
     private readonly Closure $convertNumeric;
     private readonly Closure $convertAssociative;
