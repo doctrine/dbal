@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PHPUnit\Framework\Constraint\IsType;
+use PHPUnit\Framework\NativeType;
 
 abstract class AbstractDriverTestCase extends FunctionalTestCase
 {
@@ -52,8 +53,8 @@ abstract class AbstractDriverTestCase extends FunctionalTestCase
         $nativeConnection = $this->connection->getNativeConnection();
 
         self::assertThat($nativeConnection, self::logicalOr(
-            new IsType(IsType::TYPE_OBJECT),
-            new IsType(IsType::TYPE_RESOURCE),
+            new IsType(NativeType::Object),
+            new IsType(NativeType::Resource),
         ));
     }
 
