@@ -17,6 +17,7 @@ use Doctrine\Deprecations\Deprecation;
 use function array_key_exists;
 use function array_keys;
 use function array_unshift;
+use function array_map;
 use function count;
 use function func_get_arg;
 use function func_get_args;
@@ -82,6 +83,7 @@ class QueryBuilder
         'orderBy'    => [],
         'values'     => [],
         'for_update' => null,
+        'comment'    => [],
     ];
 
     /**
@@ -411,21 +413,23 @@ class QueryBuilder
             return $this->sql;
         }
 
+        $sql = $this->getComments();
+
         switch ($this->type) {
             case self::INSERT:
-                $sql = $this->getSQLForInsert();
+                $sql .= $this->getSQLForInsert();
                 break;
 
             case self::DELETE:
-                $sql = $this->getSQLForDelete();
+                $sql .= $this->getSQLForDelete();
                 break;
 
             case self::UPDATE:
-                $sql = $this->getSQLForUpdate();
+                $sql .= $this->getSQLForUpdate();
                 break;
 
             case self::SELECT:
-                $sql = $this->getSQLForSelect();
+                $sql .= $this->getSQLForSelect();
                 break;
         }
 
@@ -636,6 +640,7 @@ class QueryBuilder
                 || $sqlPartName === 'groupBy'
                 || $sqlPartName === 'select'
                 || $sqlPartName === 'set'
+                || $sqlPartName === 'comment'
             ) {
                 foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
@@ -1755,5 +1760,19 @@ class QueryBuilder
         $this->resultCacheProfile = null;
 
         return $this;
+    }
+
+    public function withComment(string $comment): self
+    {
+        $this->add('comment', $comment, true);
+
+        return $this;
+    }
+
+    private function getComments(): string
+    {
+        return implode('', array_map(function ($comment) {
+            return sprintf('/* %s */ ', $comment);
+        }, $this->sqlParts['comment']));
     }
 }

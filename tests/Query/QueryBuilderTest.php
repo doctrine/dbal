@@ -421,6 +421,29 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('SELECT u.*, p.* FROM users u, phonenumbers p', (string) $qb);
     }
 
+    public function testSelectWithComment(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->withComment('Test comment');
+
+        self::assertEquals('/* Test comment */ SELECT u.id FROM users u', (string) $qb);
+    }
+
+    public function testSelectWithCommentMultiple(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->withComment('Test comment')
+            ->withComment('Second comment');
+
+        self::assertEquals('/* Test comment */ /* Second comment */ SELECT u.id FROM users u', (string) $qb);
+    }
+
     public function testUpdate(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -430,6 +453,18 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(QueryBuilder::UPDATE, $qb->getType());
         self::assertEquals('UPDATE users u SET u.foo = ?, u.bar = ?', (string) $qb);
+    }
+
+    public function testUpdateWithComment(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->update('users', 'u')
+           ->set('u.foo', '?')
+           ->set('u.bar', '?')
+           ->withComment('Test comment');
+
+        self::assertEquals(QueryBuilder::UPDATE, $qb->getType());
+        self::assertEquals('/* Test comment */ UPDATE users u SET u.foo = ?, u.bar = ?', (string) $qb);
     }
 
     public function testUpdateWithoutAlias(): void
@@ -468,6 +503,16 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(QueryBuilder::DELETE, $qb->getType());
         self::assertEquals('DELETE FROM users u', (string) $qb);
+    }
+
+    public function testDeleteWithComment(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->delete('users', 'u')
+           ->withComment('Test comment');
+
+        self::assertEquals(QueryBuilder::DELETE, $qb->getType());
+        self::assertEquals('/* Test comment */ DELETE FROM users u', (string) $qb);
     }
 
     public function testDeleteWithoutAlias(): void
@@ -510,6 +555,16 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
+    }
+
+    public function testInsertWithComment(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert('users')
+            ->withComment('Test comment');
+
+        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
+        self::assertEquals('/* Test comment */ INSERT INTO users () VALUES()', (string) $qb);
     }
 
     public function testInsertReplaceValues(): void
