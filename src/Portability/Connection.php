@@ -12,11 +12,11 @@ use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
  */
 final class Connection extends AbstractConnectionMiddleware
 {
-    public const PORTABILITY_ALL           = 255;
-    public const PORTABILITY_NONE          = 0;
-    public const PORTABILITY_RTRIM         = 1;
-    public const PORTABILITY_EMPTY_TO_NULL = 4;
-    public const PORTABILITY_FIX_CASE      = 8;
+    public const int PORTABILITY_ALL           = 255;
+    public const int PORTABILITY_NONE          = 0;
+    public const int PORTABILITY_RTRIM         = 1;
+    public const int PORTABILITY_EMPTY_TO_NULL = 4;
+    public const int PORTABILITY_FIX_CASE      = 8;
 
     public function __construct(ConnectionInterface $connection, private readonly Converter $converter)
     {

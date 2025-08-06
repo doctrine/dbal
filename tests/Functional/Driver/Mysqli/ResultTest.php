@@ -24,7 +24,7 @@ use const MYSQLI_REPORT_STRICT;
 #[RequiresPhpExtension('mysqli')]
 final class ResultTest extends FunctionalTestCase
 {
-    private const TABLE_NAME = 'result_test_table';
+    private const string TABLE_NAME = 'result_test_table';
 
     private mysqli $nativeConnection;
 

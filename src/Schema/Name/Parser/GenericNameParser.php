@@ -39,7 +39,7 @@ use function strlen;
  */
 final class GenericNameParser implements Parser
 {
-    private const IDENTIFIER_PATTERN = <<<'PATTERN'
+    private const string IDENTIFIER_PATTERN = <<<'PATTERN'
         /\G
         (?:
             "(?<ansi>[^"]*(?:""[^"]*)*)"         # ANSI SQL double-quoted

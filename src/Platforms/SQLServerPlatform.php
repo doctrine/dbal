@@ -54,7 +54,7 @@ use const PREG_OFFSET_CAPTURE;
 class SQLServerPlatform extends AbstractPlatform
 {
     /** @internal Should be used only from within the {@see AbstractSchemaManager} class hierarchy. */
-    public const OPTION_DEFAULT_CONSTRAINT_NAME = 'default_constraint_name';
+    public const string OPTION_DEFAULT_CONSTRAINT_NAME = 'default_constraint_name';
 
     public function __construct()
     {

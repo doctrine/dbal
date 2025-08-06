@@ -48,7 +48,7 @@ final class Statement implements StatementInterface
     /**
      * Append to any INSERT query to retrieve the last insert id.
      */
-    private const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
+    private const string LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
     /**
      * @internal The statement can be only instantiated by its driver connection.

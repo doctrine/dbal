@@ -27,11 +27,11 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
-    php: 8.3
+    php: 8.4
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 8.3
+    php: 8.4
 
 init:
   - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;%PATH%
@@ -65,7 +65,7 @@ install:
           Add-Content php.ini "`n extension=php_curl.dll"
 
           $DLLVersion = "5.12.0"
-          $VSVersion = "vs16"
+          $VSVersion = "vs17"
           cd c:\tools\php\ext
           $source = "https://downloads.php.net/~windows/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-x64.zip"
           $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-x64.zip"

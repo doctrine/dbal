@@ -21,12 +21,12 @@ class CompositeExpression implements Countable
     /**
      * Constant that represents an AND composite expression.
      */
-    final public const TYPE_AND = 'AND';
+    final public const string TYPE_AND = 'AND';
 
     /**
      * Constant that represents an OR composite expression.
      */
-    final public const TYPE_OR = 'OR';
+    final public const string TYPE_OR = 'OR';
 
     /**
      * Each expression part of the composite expression.

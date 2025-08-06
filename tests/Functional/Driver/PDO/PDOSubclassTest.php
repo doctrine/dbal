@@ -9,9 +9,7 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Pdo\Mysql;
 use Pdo\Pgsql;
 use Pdo\Sqlite;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 
-#[RequiresPhp('8.4')]
 final class PDOSubclassTest extends FunctionalTestCase
 {
     public function testMySQLSubclass(): void

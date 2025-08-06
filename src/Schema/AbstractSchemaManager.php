@@ -43,18 +43,18 @@ abstract class AbstractSchemaManager
      * The value representing the <code>NULL</code> schema key. Should be populated only by the schema managers
      * corresponding to the database platforms that don't support schemas.
      */
-    protected const NULL_SCHEMA_KEY = "\x00";
+    protected const string NULL_SCHEMA_KEY = "\x00";
 
     /**
      * The name of the column of the schema introspection result set that holds the schema name, if the underlying
      * platform supports schemas.
      */
-    protected const SCHEMA_NAME_COLUMN = 'SCHEMA_NAME';
+    protected const string SCHEMA_NAME_COLUMN = 'SCHEMA_NAME';
 
     /**
      * The name of the column of the schema introspection result set that holds the table name.
      */
-    protected const TABLE_NAME_COLUMN = 'TABLE_NAME';
+    protected const string TABLE_NAME_COLUMN = 'TABLE_NAME';
 
     /**
      * The current schema name determined from the connection. The <code>null</code> value means that there is no

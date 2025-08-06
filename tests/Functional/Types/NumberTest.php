@@ -9,11 +9,9 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Attributes\TestWith;
 
-#[RequiresPhp('8.4')]
 #[RequiresPhpExtension('bcmath')]
 final class NumberTest extends FunctionalTestCase
 {

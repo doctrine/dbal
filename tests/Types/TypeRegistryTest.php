@@ -15,8 +15,8 @@ use PHPUnit\Framework\TestCase;
 
 class TypeRegistryTest extends TestCase
 {
-    private const TEST_TYPE_NAME       = 'test';
-    private const OTHER_TEST_TYPE_NAME = 'other';
+    private const string TEST_TYPE_NAME       = 'test';
+    private const string OTHER_TEST_TYPE_NAME = 'other';
 
     private TypeRegistry $registry;
     private BlobType $testType;
