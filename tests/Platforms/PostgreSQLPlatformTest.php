@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Generator;
 use UnexpectedValueException;
 
 use function sprintf;
@@ -427,9 +428,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @param string|bool $databaseValue
+     * @param string|bool|null $databaseValue
      *
-     * @dataProvider pgBooleanProvider
+     * @dataProvider provideConvertBooleansAsLiteralStrings
      */
     public function testConvertBooleanAsLiteralStrings(
         $databaseValue,
@@ -438,6 +439,14 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $platform = $this->createPlatform();
 
         self::assertEquals($preparedStatementValue, $platform->convertBooleans($databaseValue));
+    }
+
+    /** @return Generator<int, array{string|bool|null, string}> */
+    public static function provideConvertBooleansAsLiteralStrings(): Generator
+    {
+        foreach (self::pgBooleanProvider() as $key => $params) {
+            yield $key => [$params[0], $params[1]];
+        }
     }
 
     public function testConvertBooleanAsLiteralIntegers(): void
@@ -452,20 +461,22 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals(0, $platform->convertBooleans('0'));
     }
 
-    /**
-     * @param string|bool $databaseValue
-     *
-     * @dataProvider pgBooleanProvider
-     */
+    /** @dataProvider provideConvertBooleanAsDatabaseValueStrings */
     public function testConvertBooleanAsDatabaseValueStrings(
-        $databaseValue,
-        string $preparedStatementValue,
         ?int $integerValue,
         ?bool $booleanValue
     ): void {
         $platform = $this->createPlatform();
 
         self::assertSame($integerValue, $platform->convertBooleansToDatabaseValue($booleanValue));
+    }
+
+    /** @return Generator<int, array{int|null, bool|null}> */
+    public static function provideConvertBooleanAsDatabaseValueStrings(): Generator
+    {
+        foreach (self::pgBooleanProvider() as $key => $params) {
+            yield $key => [$params[2], $params[3]];
+        }
     }
 
     public function testConvertBooleanAsDatabaseValueIntegers(): void
@@ -478,19 +489,25 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @param string|bool $databaseValue
+     * @param string|bool|null $databaseValue
      *
-     * @dataProvider pgBooleanProvider
+     * @dataProvider provideConvertFromBoolean
      */
     public function testConvertFromBoolean(
         $databaseValue,
-        string $prepareStatementValue,
-        ?int $integerValue,
         ?bool $booleanValue
     ): void {
         $platform = $this->createPlatform();
 
         self::assertSame($booleanValue, $platform->convertFromBoolean($databaseValue));
+    }
+
+    /** @return Generator<int, array{string|bool|null, bool|null}> */
+    public static function provideConvertFromBoolean(): Generator
+    {
+        foreach (self::pgBooleanProvider() as $key => $params) {
+            yield $key => [$params[0], $params[3]];
+        }
     }
 
     public function testThrowsExceptionWithInvalidBooleanLiteral(): void
@@ -745,7 +762,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     /**
      * PostgreSQL boolean strings provider
      *
-     * @return mixed[][]
+     * @return list<array{string|bool|null, string, int|null, bool|null}>
      */
     public static function pgBooleanProvider(): iterable
     {
