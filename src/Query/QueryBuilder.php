@@ -22,7 +22,6 @@ use function array_filter;
 use function array_intersect;
 use function array_key_exists;
 use function array_keys;
-use function array_map;
 use function array_merge;
 use function array_unshift;
 use function count;
@@ -1645,8 +1644,11 @@ class QueryBuilder
 
     private function getComments(): string
     {
-        return implode('', array_map(static function ($comment) {
-            return sprintf('/* %s */ ', $comment);
-        }, $this->comments));
+        $comments = '';
+        foreach ($this->comments as $comment) {
+            $comments .= sprintf('/* %s */ ', $comment);
+        }
+
+        return $comments;
     }
 }
