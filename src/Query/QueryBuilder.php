@@ -366,11 +366,7 @@ class QueryBuilder
      */
     public function getSQL(): string
     {
-        if ($this->sql) {
-            return $this->sql;
-        }
-
-        return $this->getComments() . match ($this->type) {
+        return $this->sql ??= $this->getComments() . match ($this->type) {
             QueryType::INSERT => $this->getSQLForInsert(),
             QueryType::DELETE => $this->getSQLForDelete(),
             QueryType::UPDATE => $this->getSQLForUpdate(),
