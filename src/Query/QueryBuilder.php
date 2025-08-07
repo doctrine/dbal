@@ -22,6 +22,7 @@ use function array_filter;
 use function array_intersect;
 use function array_key_exists;
 use function array_keys;
+use function array_map;
 use function array_merge;
 use function array_unshift;
 use function count;
@@ -169,6 +170,13 @@ class QueryBuilder
      * @var CommonTableExpression[]
      */
     private array $commonTableExpressions = [];
+
+    /**
+     * Comments that will be added to the query.
+     *
+     * @var string[]
+     */
+    private array $comments = [];
 
     /**
      * The query cache profile used for caching results.
@@ -358,7 +366,11 @@ class QueryBuilder
      */
     public function getSQL(): string
     {
-        return $this->sql ??= match ($this->type) {
+        if ($this->sql) {
+            return $this->sql;
+        }
+
+        return $this->getComments() . match ($this->type) {
             QueryType::INSERT => $this->getSQLForInsert(),
             QueryType::DELETE => $this->getSQLForDelete(),
             QueryType::UPDATE => $this->getSQLForUpdate(),
@@ -1624,5 +1636,21 @@ class QueryBuilder
         $this->resultCacheProfile = null;
 
         return $this;
+    }
+
+    public function withComment(string $comment): self
+    {
+        $this->comments[] = $comment;
+
+        $this->sql = null;
+
+        return $this;
+    }
+
+    private function getComments(): string
+    {
+        return implode('', array_map(static function ($comment) {
+            return sprintf('/* %s */ ', $comment);
+        }, $this->comments));
     }
 }

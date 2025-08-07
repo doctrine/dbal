@@ -528,6 +528,22 @@ final class QueryBuilderTest extends FunctionalTestCase
         self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
     }
 
+    public function testSelectWithComment(): void
+    {
+        $expectedRows = $this->prepareExpectedRows([['id' => 1], ['id' => 2]]);
+        $qb           = $this->connection->createQueryBuilder();
+
+        $select = $qb
+            ->select('id')
+            ->from('for_update')
+            ->where('id IN (?, ?)')
+            ->setParameters([1, 2], [ParameterType::INTEGER, ParameterType::INTEGER])
+            ->withComment('Test comment');
+
+        self::assertSame('/* Test comment */ SELECT id FROM for_update WHERE id IN (?, ?)', $select->getSQL());
+        self::assertSame($expectedRows, $select->executeQuery()->fetchAllAssociative());
+    }
+
     public function testPlatformDoesNotSupportCTE(): void
     {
         if ($this->platformSupportsCTEs()) {
