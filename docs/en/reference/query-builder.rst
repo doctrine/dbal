@@ -400,6 +400,34 @@ Multiple CTEs can be defined by calling the with method multiple times.
 
 Values of parameters used in a CTE should be defined in the main QueryBuilder.
 
+Comments
+~~~~~~~~~~~
+
+To add comments to the query you can use the ``withComment()`` method which will add the comment at the top of the query:
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->select('id', 'name')
+        ->from('users')
+        ->withComment('This is a comment');
+    // /* This is a comment */ SELECT id, name FROM users
+
+Multiple comments can be added by calling the method multiple times:
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->select('id', 'name')
+        ->from('users')
+        ->withComment('Comment 1')
+        ->withComment('Comment 2');
+    // /* Comment 1 */ /* Comment 2 */ SELECT id, name FROM users
+
 Building Expressions
 --------------------
 
