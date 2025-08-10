@@ -33,7 +33,6 @@ use function implode;
 use function sprintf;
 use function str_contains;
 use function strlen;
-use function strtoupper;
 use function substr;
 
 /**

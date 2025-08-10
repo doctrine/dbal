@@ -179,24 +179,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($anotherSchemaTable->hasColumn('email'));
     }
 
-    public function testReturnQuotedAssets(): void
-    {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS dbal91_something');
-
-        $sql = 'create table dbal91_something'
-            . ' (id integer CONSTRAINT id_something PRIMARY KEY NOT NULL, "table" integer)';
-        $this->connection->executeStatement($sql);
-
-        $sql = 'ALTER TABLE dbal91_something ADD CONSTRAINT something_input'
-            . ' FOREIGN KEY( "table" ) REFERENCES dbal91_something ON UPDATE CASCADE;';
-        $this->connection->executeStatement($sql);
-
-        $table  = $this->schemaManager->introspectTable('dbal91_something');
-        $column = $table->getColumn('table');
-
-        self::assertTrue($column->isQuoted());
-    }
-
     public function testDefaultValueCharacterVarying(): void
     {
         $testTable = Table::editor()

@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ColumnTest extends TestCase
@@ -120,26 +119,6 @@ class ColumnTest extends TestCase
 
         self::assertEquals('bar', $column->getName());
         self::assertEquals('[bar]', $column->getObjectName()->toSQL($sqlServerPlatform));
-    }
-
-    #[DataProvider('getIsQuoted')]
-    public function testIsQuoted(string $columnName, bool $isQuoted): void
-    {
-        $type   = Type::getType(Types::STRING);
-        $column = new Column($columnName, $type);
-
-        self::assertSame($isQuoted, $column->isQuoted());
-    }
-
-    /** @return mixed[][] */
-    public static function getIsQuoted(): iterable
-    {
-        return [
-            ['bar', false],
-            ['`bar`', true],
-            ['"bar"', true],
-            ['[bar]', true],
-        ];
     }
 
     public function testColumnComment(): void
