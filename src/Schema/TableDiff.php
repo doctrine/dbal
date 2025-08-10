@@ -100,7 +100,11 @@ final class TableDiff
                 continue;
             }
 
-            $oldColumnName           = $diff->getOldColumn()->getName();
+            $oldColumnName = $diff->getOldColumn()
+                ->getObjectName()
+                ->getIdentifier()
+                ->getValue();
+
             $renamed[$oldColumnName] = $diff->getNewColumn();
         }
 

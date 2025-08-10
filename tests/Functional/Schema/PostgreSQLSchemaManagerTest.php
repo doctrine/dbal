@@ -376,7 +376,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tables = $this->schemaManager->listTables();
 
-        $foundTable = $this->findObjectByShortestName($tables, 'list_tables_excludes_views_test_view');
+        $foundTable = $this->findObjectByName($tables, $view->getObjectName());
 
         self::assertNull($foundTable, 'View "list_tables_excludes_views_test_view" must not be found in table list');
     }

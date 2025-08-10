@@ -365,7 +365,10 @@ class AlterTableTest extends FunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $oldTable = $schemaManager->introspectTable($oldTable->getName());
+        $oldTable = $schemaManager->introspectTable(
+            $oldTable->getObjectName()
+                ->toString(),
+        );
 
         $editor = $oldTable->edit();
 

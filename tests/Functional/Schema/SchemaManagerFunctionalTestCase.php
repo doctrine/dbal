@@ -11,7 +11,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
-use Doctrine\DBAL\Schema\AbstractNamedObject;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
@@ -20,8 +19,10 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\NamedObject;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
@@ -45,6 +46,7 @@ use Doctrine\DBAL\Types\TimeType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+use function array_find;
 use function array_keys;
 use function array_map;
 use function array_search;
@@ -103,47 +105,57 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('The platform does not support sequences.');
         }
 
-        $name = 'create_sequences_test_seq';
+        $sequence = new Sequence('create_sequences_test_seq');
 
-        $this->schemaManager->createSequence(new Sequence($name));
+        $this->schemaManager->createSequence($sequence);
 
-        self::assertNotNull($this->findObjectByShortestName($this->schemaManager->listSequences(), $name));
+        self::assertNotNull(
+            $this->findObjectByName($this->schemaManager->listSequences(), $sequence->getObjectName()),
+        );
     }
 
     /**
+     * Finds an element by its name in a list of elements.
+     *
+     * In addition to taking the folding of the current database platform into account, it accounts for the fact that
+     * {@see AbstractSchemaManager}s explicitly unqualify the names of the objects in the current schema. Since
+     * {@see OptionallyQualifiedName::equals()} requires that both names are either qualified or unqualified, this
+     * method resolves the name of the element to be found and the name of the elements in the list before comparison.
+     *
      * @param list<T> $objects
      *
      * @return ?T
      *
-     * @template T of AbstractNamedObject<OptionallyQualifiedName>
+     * @template T of NamedObject<OptionallyQualifiedName>
      */
-    protected function findObjectByName(array $objects, string $name): ?AbstractNamedObject
+    protected function findObjectByName(array $objects, OptionallyQualifiedName $name): ?NamedObject
     {
-        foreach ($objects as $object) {
-            if (strtolower($object->getName()) === $name) {
-                return $object;
-            }
-        }
+        $defaultSchemaName = $this->schemaManager->createSchemaConfig()
+            ->getName();
 
-        return null;
+        $name = $this->resolveName($name, $defaultSchemaName);
+
+        $folding = $this->connection->getDatabasePlatform()
+            ->getUnquotedIdentifierFolding();
+
+        return array_find(
+            $objects,
+            fn (NamedObject $object) => $this->resolveName($object->getObjectName(), $defaultSchemaName)
+                ->equals($name, $folding),
+        );
     }
 
-    /**
-     * @param list<T> $objects
-     *
-     * @return ?T
-     *
-     * @template T of AbstractNamedObject<OptionallyQualifiedName>
-     */
-    protected function findObjectByShortestName(array $objects, string $name): ?AbstractNamedObject
+    /** @param ?non-empty-string $defaultSchemaName */
+    private function resolveName(OptionallyQualifiedName $name, ?string $defaultSchemaName): OptionallyQualifiedName
     {
-        foreach ($objects as $object) {
-            if (strtolower($object->getName()) === $name) {
-                return $object;
-            }
+        if ($name->getQualifier() === null && $defaultSchemaName !== null) {
+            return new OptionallyQualifiedName(
+                $name->getUnqualifiedName(),
+                Identifier::quoted($defaultSchemaName),
+            );
         }
 
-        return null;
+        return $name;
     }
 
     public function testListSequences(): void
@@ -154,14 +166,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('The platform does not support sequences.');
         }
 
-        $this->schemaManager->createSequence(
-            new Sequence('list_sequences_test_seq', 20, 10),
-        );
+        $sequence = new Sequence('list_sequences_test_seq', 20, 10);
 
-        $createdSequence = $this->findObjectByShortestName(
-            $this->schemaManager->listSequences(),
-            'list_sequences_test_seq',
-        );
+        $this->schemaManager->createSequence($sequence);
+
+        $createdSequence = $this->findObjectByName($this->schemaManager->listSequences(), $sequence->getObjectName());
 
         self::assertNotNull($createdSequence);
         self::assertSame(20, $createdSequence->getAllocationSize());
@@ -208,10 +217,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testListTables(): void
     {
-        $this->createTestTable('list_tables_test');
+        $table  = $this->createTestTable('list_tables_test');
         $tables = $this->schemaManager->listTables();
 
-        $table = $this->findObjectByShortestName($tables, 'list_tables_test');
+        $table = $this->findObjectByName($tables, $table->getObjectName());
         self::assertNotNull($table);
 
         self::assertTrue($table->hasColumn('id'));
@@ -229,7 +238,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->createView($view);
 
         $tables = $this->schemaManager->listTables();
-        $view   = $this->findObjectByShortestName($tables, 'test_view');
+        $view   = $this->findObjectByName($tables, $view->getObjectName());
         self::assertNull($view);
     }
 
@@ -781,16 +790,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $this->createTestTable('view_test_table');
 
-        $name = 'doctrine_test_view';
-        $sql  = 'SELECT * FROM view_test_table';
-
-        $view = new View($name, $sql);
+        $view = new View('doctrine_test_view', 'SELECT * FROM view_test_table');
 
         $this->schemaManager->createView($view);
 
         $views = $this->schemaManager->listViews();
 
-        $found = $this->findObjectByShortestName($views, $name);
+        $found = $this->findObjectByName($views, $view->getObjectName());
         self::assertNotNull($found);
 
         self::assertStringContainsString('view_test_table', $found->getSql());
@@ -1429,21 +1435,21 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('This test is only supported on platforms that support sequences.');
         }
 
-        $sequence1Name           = 'sequence_1';
         $sequence1AllocationSize = 1;
         $sequence1InitialValue   = 2;
-        $sequence2Name           = 'sequence_2';
         $sequence2AllocationSize = 3;
         $sequence2InitialValue   = 4;
-        $sequence1               = new Sequence($sequence1Name, $sequence1AllocationSize, $sequence1InitialValue);
-        $sequence2               = new Sequence($sequence2Name, $sequence2AllocationSize, $sequence2InitialValue);
+        $sequence1               = new Sequence('sequence_1', $sequence1AllocationSize, $sequence1InitialValue);
+        $sequence2               = new Sequence('sequence_2', $sequence2AllocationSize, $sequence2InitialValue);
+        $sequence1Name           = $sequence1->getObjectName();
+        $sequence2Name           = $sequence2->getObjectName();
 
         $this->schemaManager->createSequence($sequence1);
         $this->schemaManager->createSequence($sequence2);
 
         $actualSequences = $this->schemaManager->listSequences();
-        $actualSequence1 = $this->findObjectByShortestName($actualSequences, $sequence1Name);
-        $actualSequence2 = $this->findObjectByShortestName($actualSequences, $sequence2Name);
+        $actualSequence1 = $this->findObjectByName($actualSequences, $sequence1Name);
+        $actualSequence2 = $this->findObjectByName($actualSequences, $sequence2Name);
 
         self::assertNotNull($actualSequence1);
         self::assertEquals($sequence1AllocationSize, $actualSequence1->getAllocationSize());
@@ -1462,10 +1468,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('This test is only supported on platforms that support sequences.');
         }
 
-        $sequenceName           = 'sequence_auto_detect_test';
         $sequenceAllocationSize = 5;
         $sequenceInitialValue   = 10;
-        $sequence               = new Sequence($sequenceName, $sequenceAllocationSize, $sequenceInitialValue);
+
+        $sequence = new Sequence('sequence_auto_detect_test', $sequenceAllocationSize, $sequenceInitialValue);
+        $name     = $sequence->getObjectName();
 
         try {
             $this->schemaManager->dropSequence(
@@ -1477,7 +1484,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->createSequence($sequence);
 
-        $createdSequence = $this->findObjectByShortestName($this->schemaManager->listSequences(), $sequenceName);
+        $createdSequence = $this->findObjectByName($this->schemaManager->listSequences(), $name);
 
         self::assertNotNull($createdSequence);
 
@@ -1609,7 +1616,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $tables = $this->schemaManager->listTables();
 
-        $user = $this->findObjectByShortestName($tables, 'user');
+        $user = $this->findObjectByName($tables, OptionallyQualifiedName::unquoted('user'));
         self::assertNotNull($user);
         self::assertCount(2, $user->getColumns());
         self::assertCount(1, $user->getIndexes());
@@ -2042,7 +2049,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertContains('nested.schematable', $tableNames);
 
         $tables = $this->schemaManager->listTables();
-        self::assertNotNull($this->findObjectByName($tables, 'nested.schematable'));
+        self::assertNotNull($this->findObjectByName($tables, $nestedSchemaTable->getObjectName()));
 
         $nestedSchemaTable = $this->schemaManager->introspectTable('nested.schematable');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));

@@ -848,7 +848,7 @@ class Table extends AbstractNamedObject
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
         $indexName = UnqualifiedName::unquoted(
-            $this->generateNameFromObjectColumnNames('idx', $constraint->getReferencingColumnNames()),
+            $this->generateNameFromObjectColumnNames('idx', $columnNames),
         );
 
         $indexCandidate = Index::editor()

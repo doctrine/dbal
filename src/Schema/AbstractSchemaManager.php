@@ -953,7 +953,7 @@ abstract class AbstractSchemaManager
         foreach ($rows as $row) {
             $column = $this->_getPortableTableColumnDefinition($row);
 
-            $list[strtolower($column->getName())] = $column;
+            $list[strtolower($column->getObjectName()->getIdentifier()->getValue())] = $column;
         }
 
         return $list;

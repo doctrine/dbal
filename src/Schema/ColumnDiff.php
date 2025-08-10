@@ -44,10 +44,18 @@ final readonly class ColumnDiff
 
     public function hasNameChanged(): bool
     {
-        $oldColumn = $this->getOldColumn();
+        $oldColumnName = $this->getOldColumn()
+            ->getObjectName()
+            ->getIdentifier()
+            ->getValue();
 
-        // Column names are case insensitive
-        return strcasecmp($oldColumn->getName(), $this->getNewColumn()->getName()) !== 0;
+        $newColumnName = $this->getNewColumn()
+            ->getObjectName()
+            ->getIdentifier()
+            ->getValue();
+
+        // Column name comparison is currently performed in a case-insensitive way
+        return strcasecmp($oldColumnName, $newColumnName) !== 0;
     }
 
     public function hasTypeChanged(): bool
