@@ -513,7 +513,6 @@ SQL
             )
             ->create();
 
-        self::assertTrue($table->isQuoted());
         self::assertEquals('test', $table->getName());
         self::assertEquals('"test"', $table->getObjectName()->toSQL($this->platform));
 

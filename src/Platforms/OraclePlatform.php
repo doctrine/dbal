@@ -33,7 +33,6 @@ use function implode;
 use function sprintf;
 use function str_contains;
 use function strlen;
-use function strtoupper;
 use function substr;
 
 /**
@@ -309,9 +308,7 @@ class OraclePlatform extends AbstractPlatform
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT SEQUENCE_NAME, MIN_VALUE, INCREMENT_BY FROM SYS.ALL_SEQUENCES WHERE SEQUENCE_OWNER = '
-            . $this->quoteStringLiteral(
-                $this->normalizeIdentifier($database)->getName(),
-            );
+            . $this->quoteStringLiteral($database);
     }
 
     /**
@@ -432,21 +429,6 @@ SQL,
             'DROP TRIGGER ' . $triggerName->toSQL($this),
             $this->getDropSequenceSQL($sequenceName->toSQL($this)),
         ];
-    }
-
-    /**
-     * Normalizes the given identifier.
-     *
-     * Uppercases the given identifier if it is not quoted by intention
-     * to reflect Oracle's internal auto uppercasing strategy of unquoted identifiers.
-     *
-     * @param string $name The identifier to normalize.
-     */
-    private function normalizeIdentifier(string $name): Identifier
-    {
-        $identifier = new Identifier($name);
-
-        return $identifier->isQuoted() ? $identifier : new Identifier(strtoupper($name));
     }
 
     /**
