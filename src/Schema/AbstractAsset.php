@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function assert;
@@ -37,6 +38,7 @@ abstract class AbstractAsset
 {
     protected string $_name = '';
 
+    /** @deprecated */
     protected bool $_quoted = false;
 
     /** @var list<Identifier> */
@@ -111,9 +113,22 @@ abstract class AbstractAsset
 
     /**
      * Checks if this asset's name is quoted.
+     *
+     * @deprecated Depending on the concrete class of the object, use {@see NamedObject::getObjectName()} or
+     *             {@see OptionallyNamedObject::getObjectName()} to get the name. Then, depending on the type of the
+     *             name, use {@see UnqualifiedName::getIdentifier()}, {@see OptionallyQualifiedName::getQualifier()},
+     *             or {@see OptionallyQualifiedName::getUnqualifiedName()} to get the corresponding identifiers. Then,
+     *             use {@see Identifier::$isQuoted()}.
      */
     public function isQuoted(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7084',
+            '%s is deprecated and will be removed in 5.0.',
+            __METHOD__,
+        );
+
         return $this->_quoted;
     }
 

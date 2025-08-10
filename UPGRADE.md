@@ -352,6 +352,17 @@ all drivers and middleware.
 
 # Upgrade to 4.4
 
+## Deprecated `AbstractAsset::isQuoted()`
+
+The `AbstractAsset::isQuoted()` method has been deprecated. The recommended approach depends on the object class:
+
+1. Get the object name using `NamedObject::getObjectName()` or `OptionallyNamedObject::getObjectName()`.
+2. Depending on the type of the name, use one or a combination of the following methods to get the identifier(s):
+   - For unqualified names, use `UnqualifiedName::getIdentifier()`
+   - For optionally qualified names, use `OptionallyQualifiedName::getQualifier()` and/or
+     `OptionallyQualifiedName::getUnqualifiedName()`.
+3. Use `Identifier::isQuoted()` to check if corresponding identifier(s) is (are) quoted.
+
 ## Deprecated `service` connection parameter for `oci8` and `pdo_oci` connections.
 
 Using the `service` connection parameter to indicate that the value of the `dbname` parameter is the service name has
