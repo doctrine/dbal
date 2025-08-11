@@ -37,12 +37,15 @@ use function array_merge;
 use function array_shift;
 use function array_values;
 use function count;
+use function crc32;
+use function dechex;
 use function implode;
 use function in_array;
 use function is_int;
 use function sprintf;
 use function strtolower;
 use function strtoupper;
+use function substr;
 
 /**
  * Object Representation of a table.
@@ -159,11 +162,7 @@ class Table extends AbstractNamedObject
         ?string $indexName = null,
         array $flags = [],
     ): self {
-        $indexName ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $columnNames),
-            'uniq',
-            $this->maxIdentifierLength,
-        );
+        $indexName ??= $this->generateNameFromStringColumnNames('uniq', $columnNames);
 
         $isClustered = in_array('clustered', $flags, true);
 
@@ -181,11 +180,7 @@ class Table extends AbstractNamedObject
         array $flags = [],
         array $options = [],
     ): self {
-        $indexName ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $columnNames),
-            'idx',
-            $this->maxIdentifierLength,
-        );
+        $indexName ??= $this->generateNameFromStringColumnNames('idx', $columnNames);
 
         return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, $flags, $options));
     }
@@ -218,11 +213,7 @@ class Table extends AbstractNamedObject
      */
     public function addUniqueIndex(array $columnNames, ?string $indexName = null, array $options = []): self
     {
-        $indexName ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $columnNames),
-            'uniq',
-            $this->maxIdentifierLength,
-        );
+        $indexName ??= $this->generateNameFromStringColumnNames('uniq', $columnNames);
 
         return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, [], $options));
     }
@@ -258,7 +249,7 @@ class Table extends AbstractNamedObject
             $name = $this->parseUnqualifiedName($newName);
         } else {
             $name = UnqualifiedName::unquoted(
-                $this->generateName(
+                $this->generateNameFromObjectColumnNames(
                     $index->getType() === IndexType::UNIQUE ? 'uniq' : 'idx',
                     array_map(
                         static fn (IndexedColumn $indexedColumn): UnqualifiedName => $indexedColumn->getColumnName(),
@@ -429,7 +420,7 @@ class Table extends AbstractNamedObject
             );
         } else {
             $editor->setUnquotedName(
-                $this->generateName('fk', $referencingColumnNames),
+                $this->generateNameFromObjectColumnNames('fk', $referencingColumnNames),
             );
         }
 
@@ -790,7 +781,7 @@ class Table extends AbstractNamedObject
 
         $name = $constraint->getName() !== ''
             ? $constraint->getName()
-            : $this->generateName('fk', $columnNames);
+            : $this->generateNameFromObjectColumnNames('fk', $columnNames);
 
         $name = $this->normalizeIdentifier($name);
 
@@ -799,7 +790,7 @@ class Table extends AbstractNamedObject
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = $this->generateName('idx', $columnNames);
+        $indexName = $this->generateNameFromObjectColumnNames('idx', $columnNames);
 
         $indexCandidate = Index::editor()
             ->setName(UnqualifiedName::unquoted($indexName))
@@ -822,7 +813,7 @@ class Table extends AbstractNamedObject
     {
         $name = $constraint->getName() !== ''
             ? $constraint->getName()
-            : $this->generateName('fk', $constraint->getReferencingColumnNames());
+            : $this->generateNameFromObjectColumnNames('fk', $constraint->getReferencingColumnNames());
 
         $name = $this->normalizeIdentifier($name);
 
@@ -832,7 +823,7 @@ class Table extends AbstractNamedObject
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = $this->generateName('idx', $constraint->getReferencingColumnNames());
+        $indexName = $this->generateNameFromObjectColumnNames('idx', $constraint->getReferencingColumnNames());
 
         $indexCandidate = Index::editor()
             ->setName(UnqualifiedName::unquoted($indexName))
@@ -1055,21 +1046,42 @@ class Table extends AbstractNamedObject
     }
 
     /**
-     * Generates a name from a prefix and a list of column names obeying the configured maximum identifier length.
+     * Generates a name from a prefix and a list of column names represented as objects obeying the configured maximum
+     * identifier length.
      *
      * @param non-empty-list<UnqualifiedName> $columnNames
      *
      * @return non-empty-string
      */
-    private function generateName(string $prefix, array $columnNames): string
+    private function generateNameFromObjectColumnNames(string $prefix, array $columnNames): string
     {
-        return $this->_generateIdentifierName(
-            array_merge([$this->getName()], array_map(static function (UnqualifiedName $columnName): string {
-                return $columnName->getIdentifier()->getValue();
-            }, $columnNames)),
+        return $this->generateNameFromStringColumnNames(
             $prefix,
-            $this->maxIdentifierLength,
+            array_map(static function (UnqualifiedName $columnName): string {
+                return $columnName->getIdentifier()->getValue();
+            }, $columnNames),
         );
+    }
+
+    /**
+     * Generates a name from a prefix and a list of column names represented as strings obeying the configured maximum
+     * identifier length.
+     *
+     * @param array<int, string> $columnNames
+     *
+     * @return non-empty-string
+     */
+    private function generateNameFromStringColumnNames(string $prefix, array $columnNames): string
+    {
+        $hash = implode('', array_map(static function (string $columnName): string {
+            return dechex(crc32($columnName));
+        }, array_merge([
+            $this->getObjectName()
+                ->getUnqualifiedName()
+                ->getValue(),
+        ], $columnNames)));
+
+        return strtoupper(substr($prefix . '_' . $hash, 0, $this->maxIdentifierLength));
     }
 
     /** @param non-empty-string $newName */
