@@ -40,7 +40,7 @@
     },
     "require-dev": {
         "doctrine/cache": "^1.11|^2.0",
-        "doctrine/coding-standard": "13.0.0",
+        "doctrine/coding-standard": "13.0.1",
         "fig/log-test": "^1",
         "jetbrains/phpstorm-stubs": "2023.1",
         "phpstan/phpstan": "2.1.22",
