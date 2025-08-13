@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\DBAL\Platforms\Oracle\OracleMetadataProvider;
@@ -264,6 +265,42 @@ class OraclePlatform extends AbstractPlatform
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeometryFromGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeometryAsGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeographyFromGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeographyAsGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

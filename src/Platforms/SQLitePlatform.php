@@ -376,6 +376,42 @@ class SQLitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeometryFromGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeometryAsGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeographyFromGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeographyAsGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {

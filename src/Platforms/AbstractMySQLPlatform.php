@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\MySQL\MySQLMetadataProvider;
@@ -217,6 +218,42 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'TINYINT';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeometryFromGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeometryAsGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeographyFromGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeographyAsGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**
