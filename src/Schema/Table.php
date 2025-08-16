@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
@@ -22,7 +21,6 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
-use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
@@ -105,11 +103,15 @@ class Table extends AbstractNamedObject
         ?TableConfiguration $configuration = null,
         ?PrimaryKeyConstraint $primaryKeyConstraint = null,
     ) {
-        if ($name === '') {
-            throw InvalidTableName::new($name);
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            $parsedName = $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
         }
 
-        parent::__construct($name);
+        parent::__construct($parsedName);
 
         $configuration ??= (new SchemaConfig())->toTableConfiguration();
 
@@ -136,11 +138,6 @@ class Table extends AbstractNamedObject
         }
 
         $this->_options = array_merge($this->_options, $options);
-    }
-
-    protected function getNameParser(): OptionallyQualifiedNameParser
-    {
-        return Parsers::getOptionallyQualifiedNameParser();
     }
 
     public function addPrimaryKeyConstraint(PrimaryKeyConstraint $primaryKeyConstraint): self

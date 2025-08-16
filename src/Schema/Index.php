@@ -7,8 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
-use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
-use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
@@ -69,12 +67,7 @@ final class Index extends AbstractNamedObject
             }
         }
 
-        parent::__construct($name->toString());
-    }
-
-    protected function getNameParser(): UnqualifiedNameParser
-    {
-        return Parsers::getUnqualifiedNameParser();
+        parent::__construct($name);
     }
 
     public function getType(): IndexType

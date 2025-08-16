@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
-use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
@@ -75,15 +76,18 @@ class Column extends AbstractNamedObject
      */
     public function __construct(string $name, Type $type, array $options = [])
     {
-        parent::__construct($name);
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            $parsedName = $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+
+        parent::__construct($parsedName);
 
         $this->setType($type);
         $this->setOptions($options);
-    }
-
-    protected function getNameParser(): UnqualifiedNameParser
-    {
-        return Parsers::getUnqualifiedNameParser();
     }
 
     /** @param array<string, mixed> $options */
