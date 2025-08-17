@@ -356,6 +356,13 @@ all drivers and middleware.
 
 # Upgrade to 4.4
 
+## Deprecated `AbstractAsset::getName()`
+
+The `AbstractAsset::getName()` method has been deprecated. Instead, use `NamedObject::getObjectName()` or 
+`OptionallyQualifiedName::getObjectName()` to get the object representation of the name. SQL context, convert the
+resulting `Name` to SQL using `Name::toSQL()`. In other contexts, convert the resulting name to string using
+`Name::toString()`.
+
 ## Deprecated `AbstractAsset::isQuoted()`
 
 The `AbstractAsset::isQuoted()` method has been deprecated. The recommended approach depends on the object class:
@@ -674,7 +681,7 @@ The `Table::__construct()` method has been marked as internal. Use `Table::edito
 
 ## Deprecated `AbstractAsset::getShortestName()`
 
-The `AbstractAsset::getShortestName()` method has been deprecated. Use `AbstractAsset::getName()` instead.
+The `AbstractAsset::getShortestName()` method has been deprecated. Use `NamedObject::getObjectName()` instead.
 
 ## Deprecated `Sequence::isAutoIncrementsFor()`
 

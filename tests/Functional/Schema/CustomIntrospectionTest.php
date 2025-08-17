@@ -66,14 +66,13 @@ class CustomIntrospectionTest extends FunctionalTestCase
 
         $onlineTable = $schemaManager->introspectTable('test_custom_column_introspection');
         $diff        = $schemaManager->createComparator()->compareTables($onlineTable, $table);
-        $changedCols = array_map(
-            static fn (ColumnDiff $columnDiff): string => $columnDiff->getOldColumn()->getName(),
-            $diff->getChangedColumns(),
-        );
 
         self::assertTrue($diff->isEmpty(), sprintf(
             'Tables should be identical. Differences detected in %s.',
-            implode(', ', $changedCols),
+            implode(', ', array_map(
+                static fn (ColumnDiff $columnDiff): string => $columnDiff->getOldColumn()->getObjectName()->toString(),
+                $diff->getChangedColumns(),
+            )),
         ));
     }
 }

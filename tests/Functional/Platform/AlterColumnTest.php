@@ -7,9 +7,12 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+
+use function array_map;
 
 class AlterColumnTest extends FunctionalTestCase
 {
@@ -45,12 +48,15 @@ class AlterColumnTest extends FunctionalTestCase
 
         $sm->alterTable($diff);
 
-        $table   = $sm->introspectTable('test_alter');
-        $columns = $table->getColumns();
+        $table = $sm->introspectTable('test_alter');
 
-        self::assertCount(2, $columns);
-        self::assertEqualsIgnoringCase('c1', $columns[0]->getName());
-        self::assertEqualsIgnoringCase('c2', $columns[1]->getName());
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('c1'),
+            UnqualifiedName::unquoted('c2'),
+        ], array_map(
+            static fn (Column $column): UnqualifiedName => $column->getObjectName(),
+            $table->getColumns(),
+        ));
     }
 
     public function testSupportsCollations(): void

@@ -53,19 +53,19 @@ class DBAL6044Test extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
 
         $validationSchema        = $schemaManager->introspectSchema();
-        $validationUnloggedTable = $validationSchema->getTable($unloggedTable->getName());
+        $validationUnloggedTable = $validationSchema->getTable($unloggedTable->getObjectName()->toString());
         self::assertTrue($validationUnloggedTable->getOption('unlogged'));
-        $validationLoggedTable = $validationSchema->getTable($loggedTable->getName());
+        $validationLoggedTable = $validationSchema->getTable($loggedTable->getObjectName()->toString());
         self::assertFalse($validationLoggedTable->getOption('unlogged'));
 
         $sql  = 'SELECT relpersistence FROM pg_class WHERE relname = ?';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindValue(1, $unloggedTable->getName());
+        $stmt->bindValue(1, $unloggedTable->getObjectName()->toString());
         $unloggedTablePersistenceType = $stmt->executeQuery()->fetchOne();
         self::assertEquals('u', $unloggedTablePersistenceType);
 
-        $stmt->bindValue(1, $loggedTable->getName());
+        $stmt->bindValue(1, $loggedTable->getObjectName()->toString());
         $loggedTablePersistenceType = $stmt->executeQuery()->fetchOne();
         self::assertEquals('p', $loggedTablePersistenceType);
     }

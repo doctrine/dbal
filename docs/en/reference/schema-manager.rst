@@ -59,7 +59,7 @@ Now you can loop over the array inspecting each sequence object:
 
     <?php
     foreach ($sequences as $sequence) {
-        echo $sequence->getName() . "\n";
+        echo $sequence->getObjectName()->toString() . PHP_EOL;
     }
 
 listTableColumns()
@@ -79,7 +79,7 @@ Now you can loop over the array inspecting each column object:
 
     <?php
     foreach ($columns as $column) {
-        echo $column->getName() . ': ' . $column->getType() . "\n";
+        echo $column->getObjectName()->toString() . ': ' . $column->getType() . PHP_EOL;
     }
 
 introspectTable()
@@ -119,7 +119,7 @@ object:
 
     <?php
     foreach ($foreignKeys as $foreignKey) {
-        echo $foreignKey->getName() ."\n";
+        echo $foreignKey->getObjectName()->toString() . PHP_EOL;
     }
 
 listTableIndexes()
@@ -139,7 +139,12 @@ Now you can loop over the array inspecting each index object:
 
     <?php
     foreach ($indexes as $index) {
-        echo $index->getName() . ': ' . ($index->isUnique() ? 'unique' : 'not unique') . "\n";
+        echo $index->getObjectName()->toString() . ': ' . match($index->getType()) {
+            IndexType::REGULAR  => 'regular',
+            IndexType::UNIQUE   => 'unique',
+            IndexType::FULLTEXT => 'fulltext',
+            IndexType::SPATIAL  => 'spatial',
+        } . PHP_EOL;
     }
 
 listTables()
@@ -162,9 +167,9 @@ retrieved with the ``getColumns()`` method:
 
     <?php
     foreach ($tables as $table) {
-        echo $table->getName() . " columns:\n\n";
+        echo $table->getObjectName()->toString() . " columns:" . PHP_EOL;
         foreach ($table->getColumns() as $column) {
-            echo ' - ' . $column->getName() . "\n";
+            echo ' - ' . $column->getObjectName()->toString() . PHP_EOL;
         }
     }
 
@@ -185,7 +190,7 @@ Now you can loop over the array inspecting each view object:
 
     <?php
     foreach ($views as $view) {
-        echo $view->getName() . ': ' . $view->getSql() . "\n";
+        echo $view->getObjectName()->toString() . ': ' . $view->getSql() . PHP_EOL;
     }
 
 introspectSchema()

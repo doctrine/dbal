@@ -17,6 +17,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaException;
@@ -57,7 +58,10 @@ class TableTest extends TestCase
             )
             ->create();
 
-        self::assertEquals('foo', $table->getName());
+        self::assertEquals(
+            OptionallyQualifiedName::unquoted('foo'),
+            $table->getObjectName(),
+        );
     }
 
     public function testColumns(): void
@@ -80,8 +84,15 @@ class TableTest extends TestCase
         self::assertTrue($table->hasColumn('bar'));
         self::assertFalse($table->hasColumn('baz'));
 
-        self::assertSame('foo', $table->getColumn('foo')->getName());
-        self::assertSame('bar', $table->getColumn('bar')->getName());
+        self::assertEquals(
+            UnqualifiedName::unquoted('foo'),
+            $table->getColumn('foo')->getObjectName(),
+        );
+
+        self::assertEquals(
+            UnqualifiedName::unquoted('foo'),
+            $table->getColumn('foo')->getObjectName(),
+        );
 
         self::assertCount(2, $table->getColumns());
     }
@@ -445,8 +456,15 @@ class TableTest extends TestCase
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('some_idx'));
 
-        self::assertSame('foo_idx', $table->getIndex('foo_idx')->getName());
-        self::assertSame('bar_idx', $table->getIndex('bar_idx')->getName());
+        self::assertEquals(
+            UnqualifiedName::unquoted('foo_idx'),
+            $table->getIndex('foo_idx')->getObjectName(),
+        );
+
+        self::assertEquals(
+            UnqualifiedName::unquoted('bar_idx'),
+            $table->getIndex('bar_idx')->getObjectName(),
+        );
     }
 
     public function testGetUnknownIndexThrowsException(): void
@@ -1062,7 +1080,7 @@ class TableTest extends TestCase
         $mysqlPlatform  = new MySQLPlatform();
         $sqlitePlatform = new SQLitePlatform();
 
-        self::assertEquals('bar', $table->getName());
+        self::assertEquals('bar', $table->getObjectName()->getUnqualifiedName()->getValue());
         self::assertEquals('`bar`', $table->getObjectName()->toSQL($mysqlPlatform));
         self::assertEquals('"bar"', $table->getObjectName()->toSQL($sqlitePlatform));
     }
@@ -1136,7 +1154,7 @@ class TableTest extends TestCase
             )
             ->create();
 
-        self::assertEquals('test.test', $table->getName());
+        self::assertEquals('"test"."test"', $table->getObjectName()->toString());
         self::assertEquals('`test`.`test`', $table->getObjectName()->toSQL(new MySQLPlatform()));
     }
 

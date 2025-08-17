@@ -116,6 +116,10 @@ abstract class AbstractAsset
 
     /**
      * Returns the name of this schema asset.
+     *
+     * @deprecated Use {@see NamedObject::getObjectName()} or {@see OptionallyQualifiedName::getObjectName()} instead.
+     *             In SQL context, convert the resulting {@see Name} to SQL using {@see Name::toSQL()}. In other
+     *             contexts, convert the resulting name to string using {@see Name::toString()}.
      */
     public function getName(): string
     {

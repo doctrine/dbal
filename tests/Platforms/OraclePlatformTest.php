@@ -513,7 +513,7 @@ SQL
             )
             ->create();
 
-        self::assertEquals('test', $table->getName());
+        self::assertEquals('test', $table->getObjectName()->getUnqualifiedName()->getValue());
         self::assertEquals('"test"', $table->getObjectName()->toSQL($this->platform));
 
         $sql = $this->platform->getCreateTableSQL($table);

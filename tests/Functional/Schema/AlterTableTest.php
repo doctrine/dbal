@@ -380,7 +380,10 @@ class AlterTableTest extends FunctionalTestCase
 
         $schemaManager->alterTable($diff);
 
-        $introspectedTable = $schemaManager->introspectTable($newTable->getName());
+        $introspectedTable = $schemaManager->introspectTable(
+            $newTable->getObjectName()
+                ->toString(),
+        );
 
         $diff = $schemaManager->createComparator()
             ->compareTables($newTable, $introspectedTable);

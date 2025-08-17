@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
-use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -14,6 +13,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\NamedObject;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
@@ -267,7 +267,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         $renamedColumns = RenameColumnTest::getRenamedColumns($tableDiff);
         self::assertCount(1, $renamedColumns);
         self::assertArrayHasKey('datecolumn1', $renamedColumns);
-        self::assertEquals(['new_datecolumn2'], $this->getAssetNames($tableDiff->getAddedColumns()));
+        self::assertEquals(['new_datecolumn2'], $this->getObjectNames($tableDiff->getAddedColumns()));
 
         self::assertCount(0, $tableDiff->getDroppedColumns());
         self::assertCount(1, $tableDiff->getChangedColumns());
@@ -669,7 +669,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $renamedColumns = RenameColumnTest::getRenamedColumns($tableDiff);
         self::assertArrayHasKey('foo', $renamedColumns);
-        self::assertEquals('bar', $renamedColumns['foo']->getName());
+        self::assertEquals('bar', $renamedColumns['foo']->getObjectName()->toString());
     }
 
     public function testDetectRenameColumnDisabled(): void
@@ -735,8 +735,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
-        self::assertEquals(['baz'], $this->getAssetNames($tableDiff->getAddedColumns()));
-        self::assertEquals(['foo', 'bar'], $this->getAssetNames($tableDiff->getDroppedColumns()));
+        self::assertEquals(['baz'], $this->getObjectNames($tableDiff->getAddedColumns()));
+        self::assertEquals(['foo', 'bar'], $this->getObjectNames($tableDiff->getDroppedColumns()));
         self::assertCount(0, RenameColumnTest::getRenamedColumns($tableDiff));
     }
 
@@ -777,7 +777,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $renamedIndexes = $tableDiff->getRenamedIndexes();
         self::assertArrayHasKey('idx_foo', $renamedIndexes);
-        self::assertEquals('idx_bar', $renamedIndexes['idx_foo']->getName());
+        self::assertEquals('idx_bar', $renamedIndexes['idx_foo']->getObjectName()->toString());
     }
 
     public function testDetectRenameIndexDisabled(): void
@@ -861,8 +861,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $tableDiff = $this->comparator->compareTables($table1, $table2);
 
-        self::assertEquals(['idx_baz'], $this->getAssetNames($tableDiff->getAddedIndexes()));
-        self::assertEquals(['idx_foo', 'idx_bar'], $this->getAssetNames($tableDiff->getDroppedIndexes()));
+        self::assertEquals(['idx_baz'], $this->getObjectNames($tableDiff->getAddedIndexes()));
+        self::assertEquals(['idx_foo', 'idx_bar'], $this->getObjectNames($tableDiff->getDroppedIndexes()));
         self::assertCount(0, $tableDiff->getRenamedIndexes());
     }
 
@@ -895,7 +895,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertCount(1, $modifiedColumns);
         /** @var ColumnDiff $modifiedColumn */
         $modifiedColumn = current($modifiedColumns);
-        self::assertEquals('id', $modifiedColumn->getOldColumn()->getName());
+        self::assertEquals('id', $modifiedColumn->getOldColumn()->getObjectName()->toString());
     }
 
     public function testDiff(): void
@@ -957,7 +957,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         $tableDiff = $this->comparator->compareTables($table, $newtable);
 
         self::assertEquals(['twitterId', 'displayName'], array_keys(RenameColumnTest::getRenamedColumns($tableDiff)));
-        self::assertEquals(['logged_in_at'], $this->getAssetNames($tableDiff->getAddedColumns()));
+        self::assertEquals(['logged_in_at'], $this->getObjectNames($tableDiff->getAddedColumns()));
         self::assertCount(0, $tableDiff->getDroppedColumns());
     }
 
@@ -1195,16 +1195,16 @@ abstract class AbstractComparatorTestCase extends TestCase
     }
 
     /**
-     * @param array<AbstractAsset<UnqualifiedName>> $assets
+     * @param array<NamedObject<UnqualifiedName>> $objects
      *
      * @return array<string>
      */
-    protected function getAssetNames(array $assets): array
+    protected function getObjectNames(array $objects): array
     {
         $names = [];
 
-        foreach ($assets as $asset) {
-            $names[] = $asset->getName();
+        foreach ($objects as $asset) {
+            $names[] = $asset->getObjectName()->toString();
         }
 
         return $names;

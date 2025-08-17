@@ -111,7 +111,7 @@ abstract class AbstractSchemaManager
     /**
      * Lists the available sequences for this connection.
      *
-     * @return array<int, Sequence>
+     * @return list<Sequence>
      *
      * @throws Exception
      */
@@ -209,7 +209,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all tables in the current database.
      *
-     * @return array<int, non-empty-string>
+     * @return list<non-empty-string>
      *
      * @throws Exception
      */
@@ -218,6 +218,7 @@ abstract class AbstractSchemaManager
         $supportsSchemas   = $this->platform->supportsSchemas();
         $currentSchemaName = $this->getCurrentSchemaName();
 
+        /** @phpstan-ignore return.type */
         return $this->filterAssetNames(
             array_map(static function (array $row) use ($supportsSchemas, $currentSchemaName): string {
                 $name = $row[self::TABLE_NAME_COLUMN];
@@ -237,9 +238,11 @@ abstract class AbstractSchemaManager
      * Filters asset names if they are configured to return only a subset of all
      * the found elements.
      *
-     * @param array<int, mixed> $assetNames
+     * @param list<N> $assetNames
      *
-     * @return array<int, mixed>
+     * @return list<N>
+     *
+     * @template N
      */
     private function filterAssetNames(array $assetNames): array
     {

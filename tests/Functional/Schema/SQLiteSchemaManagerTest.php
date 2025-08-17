@@ -377,7 +377,7 @@ SQL;
         self::assertCount(2, $foreignKeys);
 
         $foreignKey1 = $foreignKeys[0];
-        self::assertEmpty($foreignKey1->getName());
+        self::assertNull($foreignKey1->getObjectName());
 
         $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::unquoted('album_id'),
@@ -388,7 +388,7 @@ SQL;
         ], $foreignKey1->getReferencedColumnNames());
 
         $foreignKey2 = $foreignKeys[1];
-        self::assertEmpty($foreignKey2->getName());
+        self::assertNull($foreignKey2->getObjectName());
 
         $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::unquoted('artist_id'),
@@ -469,7 +469,7 @@ SQL;
         self::assertCount(1, $foreignKeys);
 
         $foreignKey1 = $foreignKeys[0];
-        self::assertEmpty($foreignKey1->getName());
+        self::assertNull($foreignKey1->getObjectName());
 
         $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::unquoted('trackartist'),

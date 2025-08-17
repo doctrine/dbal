@@ -110,14 +110,21 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $schemaManager = $connection->createSchemaManager();
 
         try {
-            $schemaManager->dropTable($otherTable->getName());
+            $schemaManager->dropTable(
+                $otherTable->getObjectName()
+                    ->toSQL($connection->getDatabasePlatform()),
+            );
         } catch (DatabaseObjectNotFoundException) {
         }
 
         $schemaManager->createTable($otherTable);
         $connection->close();
 
-        $columns = $this->schemaManager->listTableColumns($table->getName());
+        $columns = $this->schemaManager->listTableColumns(
+            $table->getObjectName()
+                ->toString(),
+        );
+
         self::assertCount(7, $columns);
     }
 

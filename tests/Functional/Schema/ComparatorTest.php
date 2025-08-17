@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -113,11 +114,19 @@ class ComparatorTest extends FunctionalTestCase
         $renamedAndModified = $compareResult->getChangedColumns()['test'];
         $modifiedOnly       = $compareResult->getChangedColumns()['test3'];
 
-        self::assertEquals('foo', $renamedOnly->getNewColumn()->getName());
+        $this->assertUnqualifiedNameEquals(
+            UnqualifiedName::unquoted('foo'),
+            $renamedOnly->getNewColumn()->getObjectName(),
+        );
+
         self::assertTrue($renamedOnly->hasNameChanged());
         self::assertEquals(1, $renamedOnly->countChangedProperties());
 
-        self::assertEquals('baz', $renamedAndModified->getNewColumn()->getName());
+        $this->assertUnqualifiedNameEquals(
+            UnqualifiedName::unquoted('baz'),
+            $renamedAndModified->getNewColumn()->getObjectName(),
+        );
+
         self::assertTrue($renamedAndModified->hasNameChanged());
         self::assertTrue($renamedAndModified->hasLengthChanged());
         self::assertTrue($renamedAndModified->hasCommentChanged());

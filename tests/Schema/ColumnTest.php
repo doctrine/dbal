@@ -23,7 +23,7 @@ class ColumnTest extends TestCase
     {
         $column = $this->createColumn();
 
-        self::assertEquals('foo', $column->getName());
+        self::assertEquals(UnqualifiedName::unquoted('foo'), $column->getObjectName());
         self::assertSame(Type::getType(Types::STRING), $column->getType());
 
         self::assertEquals(200, $column->getLength());
@@ -106,7 +106,7 @@ class ColumnTest extends TestCase
         $mysqlPlatform  = new MySQLPlatform();
         $sqlitePlatform = new SQLitePlatform();
 
-        self::assertEquals('bar', $column->getName());
+        self::assertEquals('"bar"', $column->getObjectName()->toString());
         self::assertEquals('`bar`', $column->getObjectName()->toSQL($mysqlPlatform));
         self::assertEquals('"bar"', $column->getObjectName()->toSQL($sqlitePlatform));
 
@@ -117,7 +117,7 @@ class ColumnTest extends TestCase
 
         $sqlServerPlatform = new SQLServerPlatform();
 
-        self::assertEquals('bar', $column->getName());
+        self::assertEquals('"bar"', $column->getObjectName()->toString());
         self::assertEquals('[bar]', $column->getObjectName()->toSQL($sqlServerPlatform));
     }
 
