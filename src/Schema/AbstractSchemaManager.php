@@ -816,7 +816,11 @@ abstract class AbstractSchemaManager
             try {
                 $column = $this->_getPortableTableColumnDefinition($row);
             } catch (UnknownColumnType $unknownTypeException) {
-                throw UnknownColumnType::newWithContext($unknownTypeException->getRequestedType(), $table);
+                throw UnknownColumnType::newWithContext(
+                    $unknownTypeException->getRequestedType(),
+                    $table,
+                    $unknownTypeException,
+                );
             }
 
             $name        = strtolower($column->getQuotedName($this->platform));
