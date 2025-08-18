@@ -56,6 +56,11 @@ final class ColumnEditor
     /** @var ?non-empty-string */
     private ?string $columnDefinition = null;
 
+    /** @var ?non-empty-string */
+    private ?string $geometryType = null;
+
+    private ?int $srid = null;
+
     /** @internal Use {@link Column::editor()} or {@link Column::edit()} to create an instance */
     public function __construct()
     {
@@ -228,6 +233,21 @@ final class ColumnEditor
         return $this;
     }
 
+    /** @param ?non-empty-string $geometryType */
+    public function setGeometryType(?string $geometryType): self
+    {
+        $this->geometryType = $geometryType;
+
+        return $this;
+    }
+
+    public function setSrid(?int $srid): self
+    {
+        $this->srid = $srid;
+
+        return $this;
+    }
+
     public function create(): Column
     {
         if ($this->name === null) {
@@ -262,6 +282,14 @@ final class ColumnEditor
 
         if ($this->defaultConstraintName !== null) {
             $platformOptions[SQLServerPlatform::OPTION_DEFAULT_CONSTRAINT_NAME] = $this->defaultConstraintName;
+        }
+
+        if ($this->geometryType !== null) {
+            $platformOptions['geometryType'] = $this->geometryType;
+        }
+
+        if ($this->srid !== null) {
+            $platformOptions['srid'] = $this->srid;
         }
 
         return new Column(

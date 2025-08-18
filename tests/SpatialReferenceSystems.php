@@ -18,4 +18,12 @@ final class SpatialReferenceSystems
      * Used by GPS and most web mapping applications.
      */
     public const SRID_WGS84 = 4326;
+
+    /**
+     * EPSG:3857 - WGS 84 / Pseudo-Mercator (Web Mercator).
+     *
+     * Used by web mapping services like Google Maps, OpenStreetMap, and Bing Maps.
+     * Projects the spherical earth onto a flat surface for web display.
+     */
+    public const SRID_WEB_MERCATOR = 3857;
 }

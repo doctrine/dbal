@@ -15,6 +15,7 @@ use function array_change_key_case;
 use function array_map;
 use function assert;
 use function count;
+use function ctype_digit;
 use function explode;
 use function func_get_arg;
 use function func_num_args;
@@ -219,11 +220,13 @@ SQL,
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $length    = null;
-        $precision = null;
-        $scale     = 0;
-        $fixed     = false;
-        $jsonb     = false;
+        $length       = null;
+        $precision    = null;
+        $scale        = 0;
+        $fixed        = false;
+        $jsonb        = false;
+        $geometryType = null;
+        $srid         = null;
 
         $dbType = $tableColumn['type'];
 
@@ -263,6 +266,18 @@ SQL,
                 }
 
                 break;
+            case 'geometry':
+            case 'geography':
+                $parameters = $this->parseColumnTypeParameters($completeType);
+                if (count($parameters) > 0) {
+                    $geometryType = $parameters[0];
+                }
+
+                if (count($parameters) > 1) {
+                    $srid = $parameters[1];
+                }
+
+                break;
         }
 
         if ($dbType === 'bpchar') {
@@ -291,6 +306,14 @@ SQL,
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
+        if ($geometryType !== null) {
+            $column->setPlatformOption('geometryType', $geometryType);
+        }
+
+        if ($srid !== null) {
+            $column->setPlatformOption('srid', $srid);
+        }
+
         if ($column->getType() instanceof JsonType) {
             $column->setPlatformOption('jsonb', $jsonb);
         }
@@ -301,19 +324,24 @@ SQL,
     /**
      * Parses the parameters between parenthesis in the data type.
      *
-     * @return list<int>
+     * @return list<int|string>
      */
     private function parseColumnTypeParameters(string $type): array
     {
-        if (preg_match('/\((\d+)(?:,(\d+))?\)/', $type, $matches) !== 1) {
+        if (preg_match('/\(([\w]+)(?:,([\w]+))?\)/', $type, $matches) !== 1) {
             return [];
         }
 
-        $parameters = [(int) $matches[1]];
+        $parameters = [$matches[1]];
 
         if (isset($matches[2])) {
-            $parameters[] = (int) $matches[2];
+            $parameters[] = $matches[2];
         }
+
+        // Cast numeric strings to int automatically
+        $parameters = array_map(static function ($param) {
+            return ctype_digit($param) ? (int) $param : $param;
+        }, $parameters);
 
         return $parameters;
     }

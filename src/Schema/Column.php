@@ -30,6 +30,8 @@ use function method_exists;
  *     comment: string,
  *     charset?: ?non-empty-string,
  *     collation?: ?non-empty-string,
+ *     geometryType?: ?non-empty-string,
+ *     srid?: ?int,
  * }
  * @phpstan-type PlatformOptions = array{
  *     charset?: ?non-empty-string,
@@ -38,6 +40,8 @@ use function method_exists;
  *     enumType?: class-string,
  *     jsonb?: bool,
  *     version?: bool,
+ *     geometryType?: ?non-empty-string,
+ *     srid?: ?int,
  * }
  */
 class Column extends AbstractNamedObject
@@ -425,8 +429,26 @@ class Column extends AbstractNamedObject
     }
 
     /**
-     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()}, {@see getMaximumValue()}
-     *             or {@see getEnumType()} instead.
+     * Returns the geometry type for spatial columns.
+     *
+     * @return ?non-empty-string
+     */
+    public function getGeometryType(): ?string
+    {
+        return $this->_platformOptions['geometryType'] ?? null;
+    }
+
+    /**
+     * Returns the SRID (Spatial Reference System Identifier) for spatial columns.
+     */
+    public function getSrid(): ?int
+    {
+        return $this->_platformOptions['srid'] ?? null;
+    }
+
+    /**
+     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()}, {@see getMaximumValue()},
+     *             {@see getEnumType()}, {@see getGeometryType()} or {@see getSrid()} instead.
      *
      * @return PlatformOptions
      */
@@ -436,8 +458,8 @@ class Column extends AbstractNamedObject
     }
 
     /**
-     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()}, {@see getMaximumValue()}
-     *             or {@see getEnumType()} instead.
+     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()}, {@see getMaximumValue()},
+     *             {@see getEnumType()}, {@see getGeometryType()} or {@see getSrid()} instead.
      *
      * @param key-of<PlatformOptions> $name
      */
@@ -447,8 +469,8 @@ class Column extends AbstractNamedObject
     }
 
     /**
-     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()}, {@see getMaximumValue()}
-     *             or {@see getEnumType()} instead.
+     * @deprecated Use {@see getCharset()}, {@see getCollation()}, {@see getMinimumValue()}, {@see getMaximumValue()},
+     *             {@see getEnumType()}, {@see getGeometryType()} or {@see getSrid()} instead.
      *
      * @param key-of<PlatformOptions> $name
      */
@@ -579,6 +601,8 @@ class Column extends AbstractNamedObject
             ->setMinimumValue($this->getMinimumValue())
             ->setMaximumValue($this->getMaximumValue())
             ->setEnumType($this->getEnumType())
-            ->setDefaultConstraintName($this->getDefaultConstraintName());
+            ->setDefaultConstraintName($this->getDefaultConstraintName())
+            ->setGeometryType($this->getGeometryType())
+            ->setSrid($this->getSrid());
     }
 }

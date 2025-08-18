@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\PostgreSQL\PostgreSQLMetadataProvider;
@@ -740,6 +739,8 @@ class PostgreSQLPlatform extends AbstractPlatform
             'float'            => Types::FLOAT,
             'float4'           => Types::SMALLFLOAT,
             'float8'           => Types::FLOAT,
+            'geography'        => Types::GEOGRAPHY,
+            'geometry'         => Types::GEOMETRY,
             'inet'             => Types::STRING,
             'int'              => Types::INTEGER,
             'int2'             => Types::SMALLINT,
@@ -840,17 +841,29 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getGeometryTypeDeclarationSQL(array $column): string
     {
-        throw NotSupported::new(__METHOD__);
+        $geometryType = $column['geometryType'] ?? null;
+        $srid         = $column['srid'] ?? null;
+
+        if ($geometryType === null && $srid === null) {
+            return 'geometry';
+        }
+
+        return sprintf(
+            'geometry(%s%s)',
+            strtolower($geometryType ?? 'geometry'),
+            $srid !== null ? ',' . $srid : '',
+        );
     }
 
     public function getGeometryFromGeoJSONSQL(string $sqlExpr): string
     {
-        throw NotSupported::new(__METHOD__);
+        return sprintf('ST_GeomFromGeoJSON(%s)', $sqlExpr);
     }
 
     public function getGeometryAsGeoJSONSQL(string $sqlExpr): string
     {
-        throw NotSupported::new(__METHOD__);
+        // PostGIS 1.5+ - maxdecimaldigits=15 (full precision), options=2 (include CRS/SRID)
+        return sprintf('ST_AsGeoJSON(%s, 15, 2)', $sqlExpr);
     }
 
     /**
@@ -858,17 +871,27 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getGeographyTypeDeclarationSQL(array $column): string
     {
-        throw NotSupported::new(__METHOD__);
+        // geography defaults to SRID 4326 (WGS 84), unlike geometry which has no default SRID.
+        $geometryType = $column['geometryType'] ?? 'geometry';
+        $srid         = $column['srid'] ?? 4326;
+
+        return sprintf(
+            'geography(%s,%s)',
+            strtolower($geometryType),
+            $srid,
+        );
     }
 
     public function getGeographyFromGeoJSONSQL(string $sqlExpr): string
     {
-        throw NotSupported::new(__METHOD__);
+        // First parse as geometry, then cast to geography
+        return sprintf('ST_GeomFromGeoJSON(%s)::geography', $sqlExpr);
     }
 
     public function getGeographyAsGeoJSONSQL(string $sqlExpr): string
     {
-        throw NotSupported::new(__METHOD__);
+        // PostGIS 1.5+ - maxdecimaldigits=15 (full precision), options=2 (include CRS/SRID)
+        return sprintf('ST_AsGeoJSON(%s, 15, 2)', $sqlExpr);
     }
 
     public function createMetadataProvider(Connection $connection): PostgreSQLMetadataProvider
