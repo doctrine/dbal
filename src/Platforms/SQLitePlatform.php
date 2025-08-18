@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
@@ -640,21 +641,24 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->getChangedColumns() as $columnDiff) {
-            $oldColumnName = strtolower($columnDiff->getOldColumn()->getName());
+            $oldColumn     = $columnDiff->getOldColumn();
+            $oldColumnName = $oldColumn->getObjectName();
+            $oldColumnKey  = strtolower($oldColumn->getName());
             $newColumn     = $columnDiff->getNewColumn();
 
             $columns = $this->replaceColumn(
-                $table->getName(),
+                $table->getObjectName(),
                 $columns,
                 $oldColumnName,
+                $oldColumnKey,
                 $newColumn,
             );
 
-            if (! isset($newColumnNames[$oldColumnName])) {
+            if (! isset($newColumnNames[$oldColumnKey])) {
                 continue;
             }
 
-            $newColumnNames[$oldColumnName] = $newColumn->getObjectName()->toSQL($this);
+            $newColumnNames[$oldColumnKey] = $newColumn->getObjectName()->toSQL($this);
         }
 
         foreach ($diff->getAddedColumns() as $column) {
@@ -712,13 +716,18 @@ class SQLitePlatform extends AbstractPlatform
      *
      * @return array<string,Column>
      */
-    private function replaceColumn(string $tableName, array $columns, string $columnName, Column $column): array
-    {
+    private function replaceColumn(
+        OptionallyQualifiedName $tableName,
+        array $columns,
+        UnqualifiedName $columnName,
+        string $columnKey,
+        Column $column,
+    ): array {
         $keys  = array_keys($columns);
-        $index = array_search($columnName, $keys, true);
+        $index = array_search($columnKey, $keys, true);
 
         if ($index === false) {
-            throw ColumnDoesNotExist::new($columnName, $tableName);
+            throw ColumnDoesNotExist::new($tableName, $columnName);
         }
 
         $values = array_values($columns);

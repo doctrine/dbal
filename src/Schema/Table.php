@@ -146,7 +146,7 @@ class Table extends AbstractNamedObject
     public function addPrimaryKeyConstraint(PrimaryKeyConstraint $primaryKeyConstraint): self
     {
         if ($this->primaryKeyConstraint !== null) {
-            throw PrimaryKeyAlreadyExists::new($this->_name);
+            throw PrimaryKeyAlreadyExists::new($this->name);
         }
 
         $this->primaryKeyConstraint = $primaryKeyConstraint;
@@ -202,7 +202,7 @@ class Table extends AbstractNamedObject
         $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasIndex($name)) {
-            throw IndexDoesNotExist::new($name, $this->_name);
+            throw IndexDoesNotExist::new($this->name, $parsedName);
         }
 
         unset($this->_indexes[$this->getObjectKey($parsedName)]);
@@ -231,7 +231,7 @@ class Table extends AbstractNamedObject
         $parsedOldName = $this->parseUnqualifiedName($oldName);
 
         if (! $this->hasIndex($oldName)) {
-            throw IndexDoesNotExist::new($oldName, $this->_name);
+            throw IndexDoesNotExist::new($this->name, $parsedOldName);
         }
 
         $index = $this->getIndex($oldName);
@@ -244,10 +244,8 @@ class Table extends AbstractNamedObject
             }
 
             if ($this->hasIndex($newName)) {
-                throw IndexAlreadyExists::new($newName, $this->_name);
+                throw IndexAlreadyExists::new($this->name, $parsedNewName);
             }
-
-            $name = $this->parseUnqualifiedName($newName);
         } else {
             $parsedNewName = UnqualifiedName::unquoted(
                 $this->generateNameFromObjectColumnNames(
@@ -413,15 +411,16 @@ class Table extends AbstractNamedObject
         array $options = [],
         ?string $name = null,
     ): self {
+        $referencingColumnNames = $this->parseUnqualifiedNames($referencingColumnNames);
+
         foreach ($referencingColumnNames as $columnName) {
-            if (! $this->hasColumn($columnName)) {
-                throw ColumnDoesNotExist::new($columnName, $this->_name);
+            if (! $this->hasColumn($columnName->toString())) {
+                throw ColumnDoesNotExist::new($this->name, $columnName);
             }
         }
 
-        $referencingColumnNames = $this->parseUnqualifiedNames($referencingColumnNames);
-        $referencedTableName    = $this->parseOptionallyQualifiedName($referencedTableName);
-        $referencedColumnNames  = $this->parseUnqualifiedNames($referencedColumnNames);
+        $referencedTableName   = $this->parseOptionallyQualifiedName($referencedTableName);
+        $referencedColumnNames = $this->parseUnqualifiedNames($referencedColumnNames);
 
         $matchType      = $this->parseMatchType($options);
         $onUpdateAction = $this->parseReferentialAction($options, 'onUpdate');
@@ -565,7 +564,7 @@ class Table extends AbstractNamedObject
         $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasForeignKey($name)) {
-            throw ForeignKeyDoesNotExist::new($name, $this->_name);
+            throw ForeignKeyDoesNotExist::new($this->name, $parsedName);
         }
 
         return $this->_fkConstraints[$this->getObjectKey($parsedName)];
@@ -579,7 +578,7 @@ class Table extends AbstractNamedObject
         $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasForeignKey($name)) {
-            throw ForeignKeyDoesNotExist::new($name, $this->_name);
+            throw ForeignKeyDoesNotExist::new($this->name, $parsedName);
         }
 
         unset($this->_fkConstraints[$this->getObjectKey($parsedName)]);
@@ -603,7 +602,7 @@ class Table extends AbstractNamedObject
         $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasUniqueConstraint($name)) {
-            throw UniqueConstraintDoesNotExist::new($name, $this->_name);
+            throw UniqueConstraintDoesNotExist::new($this->name, $parsedName);
         }
 
         return $this->uniqueConstraints[$this->getObjectKey($parsedName)];
@@ -617,7 +616,7 @@ class Table extends AbstractNamedObject
         $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasUniqueConstraint($name)) {
-            throw UniqueConstraintDoesNotExist::new($name, $this->_name);
+            throw UniqueConstraintDoesNotExist::new($this->name, $parsedName);
         }
 
         unset($this->uniqueConstraints[$this->getObjectKey($parsedName)]);
@@ -652,7 +651,7 @@ class Table extends AbstractNamedObject
         $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasColumn($name)) {
-            throw ColumnDoesNotExist::new($name, $this->_name);
+            throw ColumnDoesNotExist::new($this->name, $parsedName);
         }
 
         return $this->_columns[$this->getObjectKey($parsedName)];
@@ -681,7 +680,7 @@ class Table extends AbstractNamedObject
         $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasIndex($name)) {
-            throw IndexDoesNotExist::new($name, $this->_name);
+            throw IndexDoesNotExist::new($this->name, $parsedName);
         }
 
         return $this->_indexes[$this->getObjectKey($parsedName)];
@@ -753,7 +752,7 @@ class Table extends AbstractNamedObject
         $columnKey  = $this->getObjectKey($columnName);
 
         if (isset($this->_columns[$columnKey])) {
-            throw ColumnAlreadyExists::new($this->getName(), $columnName->toString());
+            throw ColumnAlreadyExists::new($this->name, $column->getObjectName());
         }
 
         $this->_columns[$columnKey] = $column;
@@ -782,7 +781,7 @@ class Table extends AbstractNamedObject
         }
 
         if (isset($this->_indexes[$indexKey]) && ! isset($replacedImplicitIndexKeys[$indexKey])) {
-            throw IndexAlreadyExists::new($indexName->toString(), $this->_name);
+            throw IndexAlreadyExists::new($this->name, $index->getObjectName());
         }
 
         foreach ($replacedImplicitIndexKeys as $key => $_) {
@@ -934,14 +933,13 @@ class Table extends AbstractNamedObject
         bool $isClustered,
     ): UniqueConstraint {
         $constraintName = $this->parseUnqualifiedName($indexName);
+        $columnNames    = $this->parseUnqualifiedNames($columns);
 
-        foreach ($columns as $columnName) {
-            if (! $this->hasColumn($columnName)) {
-                throw ColumnDoesNotExist::new($columnName, $this->_name);
+        foreach ($columnNames as $columnName) {
+            if (! $this->hasColumn($columnName->toString())) {
+                throw ColumnDoesNotExist::new($this->name, $columnName);
             }
         }
-
-        $columnNames = $this->parseUnqualifiedNames($columns);
 
         return UniqueConstraint::editor()
             ->setName($constraintName)
@@ -1026,15 +1024,17 @@ class Table extends AbstractNamedObject
             $editor->setPredicate($options['where']);
         }
 
-        foreach ($columns as $columnName) {
-            if (! $this->hasColumn($columnName)) {
-                throw ColumnDoesNotExist::new($columnName, $this->_name);
+        $indexedColumns = $this->parseIndexColumns($columns, $options['lengths'] ?? []);
+
+        foreach ($indexedColumns as $indexedColumn) {
+            $columnName = $indexedColumn->getColumnName();
+
+            if (! $this->hasColumn($columnName->toString())) {
+                throw ColumnDoesNotExist::new($this->name, $columnName);
             }
         }
 
-        return $editor->setColumns(
-            ...$this->parseIndexColumns($columns, $options['lengths'] ?? []),
-        )
+        return $editor->setColumns(...$indexedColumns)
             ->create();
     }
 

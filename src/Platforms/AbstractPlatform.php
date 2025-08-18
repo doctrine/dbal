@@ -855,7 +855,7 @@ abstract class AbstractPlatform
     private function buildCreateTableSQL(Table $table, bool $createForeignKeys): array
     {
         if (count($table->getColumns()) === 0) {
-            throw NoColumnsSpecifiedForTable::new($table->getName());
+            throw NoColumnsSpecifiedForTable::new($table->getObjectName());
         }
 
         $tableName                       = $table->getObjectName();
