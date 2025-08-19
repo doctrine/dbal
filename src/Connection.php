@@ -38,7 +38,9 @@ use SensitiveParameter;
 use Throwable;
 use Traversable;
 
+use function array_is_list;
 use function array_key_exists;
+use function array_keys;
 use function array_merge;
 use function count;
 use function implode;
@@ -456,10 +458,18 @@ class Connection implements ServerVersionProvider
     {
         $columns = $values = $conditions = $set = [];
 
+        $platform = $this->getDatabasePlatform();
+        $typesMap = $this->normalizeTypes($types, array_keys($data));
+
         foreach ($data as $columnName => $value) {
             $columns[] = $columnName;
             $values[]  = $value;
-            $set[]     = $columnName . ' = ?';
+            $set[]     = $columnName . ' = ' . $this->getPlaceholderForColumn(
+                $columnName,
+                $value,
+                $typesMap,
+                $platform,
+            );
         }
 
         [$criteriaColumns, $criteriaValues, $criteriaConditions] = $this->getCriteriaCondition($criteria);
@@ -503,10 +513,18 @@ class Connection implements ServerVersionProvider
         $values  = [];
         $set     = [];
 
+        $platform = $this->getDatabasePlatform();
+        $typesMap = $this->normalizeTypes($types, array_keys($data));
+
         foreach ($data as $columnName => $value) {
             $columns[] = $columnName;
             $values[]  = $value;
-            $set[]     = '?';
+            $set[]     = $this->getPlaceholderForColumn(
+                $columnName,
+                $value,
+                $typesMap,
+                $platform,
+            );
         }
 
         return $this->executeStatement(
@@ -534,6 +552,78 @@ class Connection implements ServerVersionProvider
         }
 
         return $typeValues;
+    }
+
+    /**
+     * Normalizes types array from positional or associative to associative format.
+     *
+     * @param array<int<0,max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     * @param list<string>                                                                          $columnNames
+     *
+     * @return array<string, string|ParameterType|Type>
+     */
+    private function normalizeTypes(array $types, array $columnNames): array
+    {
+        if (count($types) === 0) {
+            return [];
+        }
+
+        // Already associative (string keys)
+        if (! array_is_list($types)) {
+            /** @var array<string, string|ParameterType|Type> $normalizedTypes */
+            $normalizedTypes = $types;
+
+            return $normalizedTypes;
+        }
+
+        // Convert positional to associative
+        $normalizedTypes = [];
+        foreach ($columnNames as $i => $columnName) {
+            if (! isset($types[$i])) {
+                continue;
+            }
+
+            $normalizedTypes[$columnName] = $types[$i];
+        }
+
+        return $normalizedTypes;
+    }
+
+    /**
+     * Gets the SQL placeholder for a column based on its type.
+     *
+     * @param array<string, string|ParameterType|Type> $typesMap
+     *
+     * @throws Exception
+     */
+    private function getPlaceholderForColumn(
+        string $columnName,
+        mixed $value,
+        array $typesMap,
+        AbstractPlatform $platform,
+    ): string {
+        // NULL values don't need special SQL conversion
+        if ($value === null) {
+            return '?';
+        }
+
+        if (! isset($typesMap[$columnName])) {
+            return '?';
+        }
+
+        $type = $typesMap[$columnName];
+
+        // Convert string type name to Type instance
+        if (is_string($type)) {
+            $type = Type::getType($type);
+        }
+
+        // Use Type's SQL conversion if it's a Type instance
+        if ($type instanceof Type) {
+            return $type->convertToDatabaseValueSQL('?', $platform);
+        }
+
+        return '?';
     }
 
     /**

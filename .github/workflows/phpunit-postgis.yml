@@ -1,0 +1,67 @@
+name: PHPUnit with PostGIS
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        required: true
+        type: string
+      postgis-version:
+        required: true
+        type: string
+      extension:
+        required: true
+        type: string
+      postgres-locale-provider:
+        required: true
+        type: string
+      config-file-suffix:
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  phpunit-postgis:
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgis/postgis:${{ inputs.postgis-version }}
+        ports:
+          - '5432:5432'
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_INITDB_ARGS: ${{ inputs.postgres-locale-provider == 'icu' && '--locale-provider=icu --icu-locale=en-US' || '' }}
+        options: >-
+          --health-cmd pg_isready
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: ${{ inputs.extension }}
+          coverage: pcov
+          ini-values: zend.assertions=1
+        env:
+          fail-fast: true
+
+      - name: Install dependencies with Composer
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '--ignore-platform-req=php+'
+
+      - name: Enable PostGIS extension
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -d template1 -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}${{ inputs.config-file-suffix }}.xml --coverage-clover=coverage.xml
+
+      - name: Upload coverage file
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.job }}-${{ inputs.postgis-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}${{ inputs.config-file-suffix }}.coverage
+          path: coverage.xml

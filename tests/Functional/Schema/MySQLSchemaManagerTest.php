@@ -794,6 +794,11 @@ SQL;
         $doctrineTypes = array_keys(Type::getTypesMap());
 
         foreach ($doctrineTypes as $type) {
+            // Skip GEOGRAPHY type - MySQL doesn't support it (PostgreSQL/PostGIS only)
+            if ($type === Types::GEOGRAPHY) {
+                continue;
+            }
+
             $columnEditor = Column::editor()
                 ->setUnquotedName('col_' . $type)
                 ->setTypeName($type);
