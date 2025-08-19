@@ -8,9 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
-## BC BREAK: Removed `AbstractAsset::isQuoted()`
+## BC BREAK: Removed `AbstractAsset` class
 
-The `AbstractAsset::isQuoted()` method has been removed.
+The `AbstractAsset` class has been removed.
+
+## BC BREAK: Removed `AbstractAsset::isQuoted()` and `AbstractAsset::getName()`
+
+The `AbstractAsset::isQuoted()` and `AbstractAsset::getName()` method has been removed.
 
 ## BC BREAK: Removed support for the `service` connection parameter.
 

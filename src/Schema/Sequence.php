@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 
 /**
@@ -25,15 +26,18 @@ class Sequence extends AbstractNamedObject
         int $initialValue = 1,
         protected ?int $cache = null,
     ) {
-        parent::__construct($name);
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            $parsedName = $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+
+        parent::__construct($parsedName);
 
         $this->setAllocationSize($allocationSize);
         $this->setInitialValue($initialValue);
-    }
-
-    protected function getNameParser(): OptionallyQualifiedNameParser
-    {
-        return Parsers::getOptionallyQualifiedNameParser();
     }
 
     public function getAllocationSize(): int

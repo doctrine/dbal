@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\GenericName;
-use Doctrine\DBAL\Schema\Name\Parser\GenericNameParser;
+use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 
 /**
@@ -20,8 +21,16 @@ use Doctrine\DBAL\Schema\Name\Parsers;
  */
 class Identifier extends AbstractNamedObject
 {
-    protected function getNameParser(): GenericNameParser
+    public function __construct(string $name)
     {
-        return Parsers::getGenericNameParser();
+        $parser = Parsers::getGenericNameParser();
+
+        try {
+            $parsedName = $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+
+        parent::__construct($parsedName);
     }
 }

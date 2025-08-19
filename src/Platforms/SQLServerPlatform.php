@@ -10,12 +10,15 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser;
+use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\Sequence;
@@ -28,7 +31,6 @@ use InvalidArgumentException;
 
 use function array_map;
 use function array_merge;
-use function explode;
 use function implode;
 use function is_array;
 use function is_bool;
@@ -36,11 +38,7 @@ use function is_numeric;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
-use function str_contains;
-use function str_ends_with;
 use function str_replace;
-use function str_starts_with;
-use function substr;
 use function substr_count;
 
 use const PREG_OFFSET_CAPTURE;
@@ -203,7 +201,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             $commentsSql[] = $this->getCreateColumnCommentSQL(
-                $tableName->toSQL($this),
+                $tableName,
                 $column['name'],
                 $column['comment'],
             );
@@ -240,13 +238,6 @@ class SQLServerPlatform extends AbstractPlatform
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
     }
 
-    private function unquoteSingleIdentifier(string $possiblyQuotedName): string
-    {
-        return str_starts_with($possiblyQuotedName, '[') && str_ends_with($possiblyQuotedName, ']')
-            ? substr($possiblyQuotedName, 1, -1)
-            : $possiblyQuotedName;
-    }
-
     /**
      * Returns the SQL statement for creating a column comment.
      *
@@ -260,12 +251,15 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql
      *
-     * @param string          $tableName  The quoted table name to which the column belongs.
-     * @param UnqualifiedName $columnName The column name to create the comment for.
-     * @param string          $comment    The column's comment.
+     * @param OptionallyQualifiedName $tableName  The name of the table to which the column belongs.
+     * @param UnqualifiedName         $columnName The column name to create the comment for.
+     * @param string                  $comment    The column's comment.
      */
-    private function getCreateColumnCommentSQL(string $tableName, UnqualifiedName $columnName, string $comment): string
-    {
+    private function getCreateColumnCommentSQL(
+        OptionallyQualifiedName $tableName,
+        UnqualifiedName $columnName,
+        string $comment,
+    ): string {
         return $this->getExecSQL(
             'sp_addextendedproperty',
             $this->quoteNationalStringLiteral('MS_Description'),
@@ -331,7 +325,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         $table = $diff->getOldTable();
 
-        $tableName = $table->getName();
+        $tableName = $table->getObjectName();
 
         $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
 
@@ -377,7 +371,7 @@ class SQLServerPlatform extends AbstractPlatform
             $queryParts[] = 'DROP COLUMN ' . $column->getObjectName()->toSQL($this);
         }
 
-        $tableNameSQL = $table->getObjectName()->toSQL($this);
+        $tableNameSQL = $tableName->toSQL($this);
 
         foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn   = $columnDiff->getNewColumn();
@@ -385,11 +379,15 @@ class SQLServerPlatform extends AbstractPlatform
             $nameChanged = $columnDiff->hasNameChanged();
 
             if ($nameChanged) {
-                // sp_rename accepts the old name as a qualified name, so it should be quoted.
+                // sp_rename accepts the old name as a qualified name, so it should be represented as SQL.
                 $oldColumnNameSQL = $oldColumn->getObjectName()->toSQL($this);
 
-                // sp_rename accepts the new name as a literal value, so it cannot be quoted.
-                $newColumnName = $newColumn->getName();
+                // sp_rename accepts the new name as a literal value.
+                $newColumnName = $newColumn->getObjectName()
+                    ->getIdentifier()
+                    ->toNormalizedValue(
+                        $this->getUnquotedIdentifierFolding(),
+                    );
 
                 $sql = array_merge(
                     $sql,
@@ -406,13 +404,13 @@ class SQLServerPlatform extends AbstractPlatform
             if ($hasOldComment && $hasNewComment && $oldComment !== $newComment) {
                 $commentsSql[] = $this->getAlterColumnCommentSQL(
                     $tableName,
-                    $newColumn->getObjectName()->toSQL($this),
+                    $newColumn->getObjectName(),
                     $newComment,
                 );
             } elseif ($hasOldComment && ! $hasNewComment) {
                 $commentsSql[] = $this->getDropColumnCommentSQL(
                     $tableName,
-                    $newColumn->getObjectName()->toSQL($this),
+                    $newColumn->getObjectName(),
                 );
             } elseif (! $hasOldComment && $hasNewComment) {
                 $commentsSql[] = $this->getCreateColumnCommentSQL(
@@ -449,7 +447,7 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
+            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($newColumn);
         }
 
         $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
@@ -478,10 +476,9 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL clause for adding a default constraint in an ALTER TABLE statement.
      *
-     * @param string $tableName The name of the table to generate the clause for.
-     * @param Column $column    The column to generate the clause for.
+     * @param Column $column The column to generate the clause for.
      */
-    private function getAlterTableAddDefaultConstraintClause(string $tableName, Column $column): string
+    private function getAlterTableAddDefaultConstraintClause(Column $column): string
     {
         $columnDef         = $column->toArray();
         $columnDef['name'] = $column->getObjectName();
@@ -498,8 +495,11 @@ class SQLServerPlatform extends AbstractPlatform
 
         if ($constraintName === null) {
             throw new InvalidArgumentException(
-                'Column ' . $column->getName() . ' was not properly introspected as it has a default value'
-                    . ' but does not have the default constraint name.',
+                sprintf(
+                    'Column %s was not properly introspected as it has a default value'
+                        . ' but does not have the default constraint name.',
+                    $column->getObjectName()->toString(),
+                ),
             );
         }
 
@@ -546,19 +546,26 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-updateextendedproperty-transact-sql
      *
-     * @param string $tableName  The quoted table name to which the column belongs.
-     * @param string $columnName The quoted column name to alter the comment for.
-     * @param string $comment    The column's comment.
+     * @param OptionallyQualifiedName $tableName  The name of the table to which the column belongs.
+     * @param UnqualifiedName         $columnName The name of the column to alter the comment for.
+     * @param string                  $comment    The column's comment.
      */
-    private function getAlterColumnCommentSQL(string $tableName, string $columnName, string $comment): string
-    {
+    private function getAlterColumnCommentSQL(
+        OptionallyQualifiedName $tableName,
+        UnqualifiedName $columnName,
+        string $comment,
+    ): string {
         return $this->getExecSQL(
             'sp_updateextendedproperty',
             $this->quoteNationalStringLiteral('MS_Description'),
             $this->quoteNationalStringLiteral($comment),
             ...$this->getArgumentsForExtendedProperties([
                 ...$this->getExtendedPropertiesForTable($tableName),
-                'COLUMN' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+                'COLUMN' => $this->quoteStringLiteral(
+                    $columnName->getIdentifier()->toNormalizedValue(
+                        $this->getUnquotedIdentifierFolding(),
+                    ),
+                ),
             ]),
         );
     }
@@ -574,19 +581,23 @@ class SQLServerPlatform extends AbstractPlatform
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
-     * @param string $tableName  The quoted table name to which the column belongs.
-     * @param string $columnName The quoted column name to drop the comment for.
+     * @param OptionallyQualifiedName $tableName  The name of the table to which the column belongs.
+     * @param UnqualifiedName         $columnName The name of the column to drop the comment for.
      *
      * https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-dropextendedproperty-transact-sql
      */
-    private function getDropColumnCommentSQL(string $tableName, string $columnName): string
+    private function getDropColumnCommentSQL(OptionallyQualifiedName $tableName, UnqualifiedName $columnName): string
     {
         return $this->getExecSQL(
             'sp_dropextendedproperty',
             $this->quoteNationalStringLiteral('MS_Description'),
             ...$this->getArgumentsForExtendedProperties([
                 ...$this->getExtendedPropertiesForTable($tableName),
-                'COLUMN' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+                'COLUMN' => $this->quoteStringLiteral(
+                    $columnName->getIdentifier()->toNormalizedValue(
+                        $this->getUnquotedIdentifierFolding(),
+                    ),
+                ),
             ]),
         );
     }
@@ -596,7 +607,17 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
-        return [$this->getRenameSQL($tableName . '.' . $oldIndexName, $index->getName(), 'INDEX')];
+        return [
+            $this->getRenameSQL(
+                $tableName . '.' . $oldIndexName,
+                $index->getObjectName()
+                    ->getIdentifier()
+                    ->toNormalizedValue(
+                        $this->getUnquotedIdentifierFolding(),
+                    ),
+                'INDEX',
+            ),
+        ];
     }
 
     /**
@@ -671,17 +692,20 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @return array<string,string>
      */
-    private function getExtendedPropertiesForTable(string $tableName): array
+    private function getExtendedPropertiesForTable(OptionallyQualifiedName $tableName): array
     {
-        if (str_contains($tableName, '.')) {
-            [$schemaName, $tableName] = explode('.', $tableName);
-        } else {
-            $schemaName = 'dbo';
-        }
+        $folding = $this->getUnquotedIdentifierFolding();
+
+        $unqualifiedName = $tableName->getUnqualifiedName()
+            ->toNormalizedValue($folding);
+
+        $qualifier = $tableName->getQualifier()
+            ?->toNormalizedValue($folding)
+            ?? 'dbo';
 
         return [
-            'SCHEMA' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($schemaName)),
-            'TABLE' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($tableName)),
+            'SCHEMA' => $this->quoteStringLiteral($qualifier),
+            'TABLE' => $this->quoteStringLiteral($unqualifiedName),
         ];
     }
 
@@ -1129,12 +1153,20 @@ class SQLServerPlatform extends AbstractPlatform
     /** @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql */
     protected function getCommentOnTableSQL(string $tableName, string $comment): string
     {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            $parsedName = $parser->parse($tableName);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($tableName, $e);
+        }
+
         return $this->getExecSQL(
             'sp_addextendedproperty',
             $this->quoteNationalStringLiteral('MS_Description'),
             $this->quoteNationalStringLiteral($comment),
             ...$this->getArgumentsForExtendedProperties(
-                $this->getExtendedPropertiesForTable($tableName),
+                $this->getExtendedPropertiesForTable($parsedName),
             ),
         );
     }

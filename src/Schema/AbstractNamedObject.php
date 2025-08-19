@@ -4,27 +4,25 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Schema\Exception\InvalidName;
-
 /**
  * An abstract {@see NamedObject}.
  *
  * @template N of Name
- * @extends AbstractAsset<N>
  * @implements NamedObject<N>
  */
-abstract class AbstractNamedObject extends AbstractAsset implements NamedObject
+abstract class AbstractNamedObject implements NamedObject
 {
     /**
      * The name of the database object.
      *
      * @var N
      */
-    protected Name $name;
+    protected readonly Name $name;
 
-    public function __construct(string $name)
+    /** @param N $name */
+    public function __construct(Name $name)
     {
-        parent::__construct($name);
+        $this->name = $name;
     }
 
     /**
@@ -35,14 +33,5 @@ abstract class AbstractNamedObject extends AbstractAsset implements NamedObject
     public function getObjectName(): Name
     {
         return $this->name;
-    }
-
-    protected function setName(?Name $name): void
-    {
-        if ($name === null) {
-            throw InvalidName::fromEmpty();
-        }
-
-        $this->name = $name;
     }
 }

@@ -8,30 +8,25 @@ namespace Doctrine\DBAL\Schema;
  * An abstract {@see OptionallyNamedObject}.
  *
  * @template N of Name
- * @extends AbstractAsset<N>
  * @implements OptionallyNamedObject<N>
  */
-abstract class AbstractOptionallyNamedObject extends AbstractAsset implements OptionallyNamedObject
+abstract class AbstractOptionallyNamedObject implements OptionallyNamedObject
 {
     /**
      * The name of the database object.
      *
      * @var ?N
      */
-    protected ?Name $name;
+    protected readonly ?Name $name;
 
-    public function __construct(?string $name)
+    /** @param ?N $name */
+    public function __construct(?Name $name)
     {
-        parent::__construct($name ?? '');
+        $this->name = $name;
     }
 
     public function getObjectName(): ?Name
     {
         return $this->name;
-    }
-
-    protected function setName(?Name $name): void
-    {
-        $this->name = $name;
     }
 }

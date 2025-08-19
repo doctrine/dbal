@@ -33,7 +33,7 @@ use PHPUnit\Framework\TestCase;
 use ValueError;
 
 use function array_keys;
-use function array_shift;
+use function array_values;
 
 class TableTest extends TestCase
 {
@@ -748,12 +748,11 @@ class TableTest extends TestCase
             )
             ->create();
 
-        $indexes = $table->getIndexes();
+        $indexes = array_values($table->getIndexes());
         self::assertCount(1, $indexes);
-        $index = array_shift($indexes);
-        self::assertNotNull($index);
+        $index = $indexes[0];
 
-        self::assertTrue($table->hasIndex($index->getName()));
+        self::assertTrue($table->hasIndex($index->getObjectName()->toString()));
 
         self::assertEquals([
             new IndexedColumn(UnqualifiedName::unquoted('id'), null),
@@ -866,14 +865,13 @@ class TableTest extends TestCase
 
         $table->addIndex(['baz']);
 
-        $indexes = $table->getIndexes();
+        $indexes = array_values($table->getIndexes());
         self::assertCount(1, $indexes);
-        $index = array_shift($indexes);
-        self::assertNotNull($index);
+        $index = $indexes[0];
 
         $table->addUniqueIndex(['baz']);
         self::assertCount(2, $table->getIndexes());
-        self::assertTrue($table->hasIndex($index->getName()));
+        self::assertTrue($table->hasIndex($index->getObjectName()->toString()));
     }
 
     public function testAllowsAddingDuplicateIndexesBasedOnColumns(): void

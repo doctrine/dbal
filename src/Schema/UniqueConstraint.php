@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
-use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
-use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function count;
@@ -37,12 +35,7 @@ final class UniqueConstraint extends AbstractOptionallyNamedObject
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($name);
         }
 
-        parent::__construct($name?->toString() ?? '');
-    }
-
-    protected function getNameParser(): UnqualifiedNameParser
-    {
-        return Parsers::getUnqualifiedNameParser();
+        parent::__construct($name);
     }
 
     /**

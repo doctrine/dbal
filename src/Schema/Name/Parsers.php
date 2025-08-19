@@ -11,7 +11,7 @@ use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 /**
  * A static registry for name parsers.
  *
- * @internal This class should be used by {@link AbstractAsset} subclasses only.
+ * @internal This class should be used by schema object classes only.
  */
 final class Parsers
 {

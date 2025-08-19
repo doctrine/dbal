@@ -53,7 +53,7 @@ class Comparator
         }
 
         foreach ($newSchema->getTables() as $newTable) {
-            $newTableName = $newTable->getName();
+            $newTableName = $newTable->getObjectName()->toString();
             if (! $oldSchema->hasTable($newTableName)) {
                 $createdTables[] = $newTable;
             } else {
@@ -70,7 +70,7 @@ class Comparator
 
         // Check if there are tables removed
         foreach ($oldSchema->getTables() as $oldTable) {
-            $oldTableName = $oldTable->getName();
+            $oldTableName = $oldTable->getObjectName()->toString();
 
             $oldTable = $oldSchema->getTable($oldTableName);
             if ($newSchema->hasTable($oldTableName)) {
@@ -81,7 +81,7 @@ class Comparator
         }
 
         foreach ($newSchema->getSequences() as $newSequence) {
-            $newSequenceName = $newSequence->getName();
+            $newSequenceName = $newSequence->getObjectName()->toString();
             if (! $oldSchema->hasSequence($newSequenceName)) {
                 $createdSequences[] = $newSequence;
             } else {
@@ -92,7 +92,7 @@ class Comparator
         }
 
         foreach ($oldSchema->getSequences() as $oldSequence) {
-            $oldSequenceName = $oldSequence->getName();
+            $oldSequenceName = $oldSequence->getObjectName()->toString();
 
             if ($newSchema->hasSequence($oldSequenceName)) {
                 continue;
@@ -143,7 +143,11 @@ class Comparator
 
         // See if all the columns in the old table exist in the new table
         foreach ($newColumns as $newColumn) {
-            $newColumnName = strtolower($newColumn->getName());
+            $newColumnName = strtolower(
+                $newColumn->getObjectName()
+                    ->getIdentifier()
+                    ->getValue(),
+            );
 
             if ($oldTable->hasColumn($newColumnName)) {
                 continue;
@@ -154,7 +158,11 @@ class Comparator
 
         // See if there are any removed columns in the new table
         foreach ($oldColumns as $oldColumn) {
-            $oldColumnName = strtolower($oldColumn->getName());
+            $oldColumnName = strtolower(
+                $oldColumn->getObjectName()
+                    ->getIdentifier()
+                    ->getValue(),
+            );
 
             // See if column is removed in the new table.
             if (! $newTable->hasColumn($oldColumnName)) {
@@ -175,11 +183,22 @@ class Comparator
         $renamedColumnNames = $newTable->getRenamedColumns();
 
         foreach ($addedColumns as $addedColumnName => $addedColumn) {
-            if (! isset($renamedColumnNames[$addedColumn->getName()])) {
+            if (
+                ! isset(
+                    $renamedColumnNames[$addedColumn->getObjectName()
+                        ->getIdentifier()
+                        ->getValue()],
+                )
+            ) {
                 continue;
             }
 
-            $removedColumnName = strtolower($renamedColumnNames[$addedColumn->getName()]);
+            $removedColumnName = strtolower(
+                $renamedColumnNames[$addedColumn->getObjectName()
+                        ->getIdentifier()
+                        ->getValue()],
+            );
+
             // Explicitly renamed columns need to be diffed, because their types can also have changed
             $modifiedColumns[$removedColumnName] = new ColumnDiff(
                 $droppedColumns[$removedColumnName],
@@ -248,7 +267,14 @@ class Comparator
                 if ($newForeignKey->equals($oldForeignKey, $folding)) {
                     unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                 } else {
-                    if (strtolower($oldForeignKey->getName()) === strtolower($newForeignKey->getName())) {
+                    $oldForeignKeyName = $oldForeignKey->getObjectName();
+                    $newForeignKeyName = $newForeignKey->getObjectName();
+                    if (
+                        $oldForeignKeyName !== null
+                        && $newForeignKeyName !== null
+                        && strtolower($oldForeignKeyName->getIdentifier()->getValue())
+                        === strtolower($newForeignKeyName->getIdentifier()->getValue())
+                    ) {
                         $droppedForeignKeys[$oldKey] = $oldForeignKey;
                         $addedForeignKeys[$newKey]   = $newForeignKey;
 
@@ -310,7 +336,11 @@ class Comparator
             }
 
             [$oldColumn, $newColumn] = $candidates[0];
-            $oldColumnName           = strtolower($oldColumn->getName());
+            $oldColumnName           = strtolower(
+                $oldColumn->getObjectName()
+                    ->getIdentifier()
+                    ->getValue(),
+            );
 
             if (isset($modifiedColumns[$oldColumnName])) {
                 continue;
@@ -365,7 +395,9 @@ class Comparator
                     continue;
                 }
 
-                $candidatesByName[$addedIndex->getName()][] = [$removedIndex, $addedIndex, $addedIndexName];
+                $candidatesByName[$addedIndex->getObjectName()
+                        ->getIdentifier()
+                        ->getValue()][] = [$removedIndex, $addedIndex, $addedIndexName];
             }
         }
 
@@ -382,8 +414,17 @@ class Comparator
 
             [$removedIndex, $addedIndex] = $candidates[0];
 
-            $removedIndexName = strtolower($removedIndex->getName());
-            $addedIndexName   = strtolower($addedIndex->getName());
+            $removedIndexName = strtolower(
+                $removedIndex->getObjectName()
+                    ->getIdentifier()
+                    ->getValue(),
+            );
+
+            $addedIndexName = strtolower(
+                $addedIndex->getObjectName()
+                    ->getIdentifier()
+                    ->getValue(),
+            );
 
             if (isset($renamedIndexes[$removedIndexName])) {
                 continue;

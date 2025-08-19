@@ -494,7 +494,9 @@ SQL;
         $schemaManager = $this->connection->createSchemaManager();
         $table         = $schemaManager->introspectTable('test_collation');
 
-        self::assertSame($expectedCollation, $table->getColumn($columnName)->getCollation());
+        self::assertSame($expectedCollation, $table->getColumn(
+            $this->connection->quoteSingleIdentifier($columnName),
+        )->getCollation());
     }
 
     /** @return iterable<array{string, string, string}> */
