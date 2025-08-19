@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Exception\ForeignKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
@@ -1797,7 +1796,7 @@ class TableTest extends TestCase
 
         $table->addForeignKeyConstraint('bar', ['id'], ['id']);
 
-        $this->expectException(ForeignKeyAlreadyExists::class);
+        $this->expectException(InvalidTableModification::class);
         $table->addForeignKeyConstraint('baz', ['id'], ['id']);
     }
 }
