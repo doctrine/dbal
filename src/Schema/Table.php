@@ -64,12 +64,13 @@ class Table extends AbstractNamedObject
     protected array $_indexes = [];
 
     /**
-     * The keys of this array are the names of the indexes that were implicitly created as backing for foreign key
-     * constraints. The values are not used but must be non-null for {@link isset()} to work correctly.
+     * The keys of this array are the keys of the {@see $_indexes} array that correspond to the indexes that were
+     * implicitly created as backing for foreign key constraints. The values are not used but must be non-null for
+     * {@link isset()} to work correctly.
      *
      * @var array<string,true>
      */
-    private array $implicitIndexNames = [];
+    private array $implicitIndexKeys = [];
 
     /** @var UniqueConstraint[] */
     protected array $uniqueConstraints = [];
@@ -198,13 +199,13 @@ class Table extends AbstractNamedObject
      */
     public function dropIndex(string $name): void
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasIndex($name)) {
             throw IndexDoesNotExist::new($name, $this->_name);
         }
 
-        unset($this->_indexes[$name]);
+        unset($this->_indexes[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -227,18 +228,18 @@ class Table extends AbstractNamedObject
      */
     public function renameIndex(string $oldName, ?string $newName = null): self
     {
+        $parsedOldName = $this->parseUnqualifiedName($oldName);
+
         if (! $this->hasIndex($oldName)) {
             throw IndexDoesNotExist::new($oldName, $this->_name);
         }
 
-        $normalizedOldName = $this->normalizeIdentifier($oldName);
-
         $index = $this->getIndex($oldName);
 
         if ($newName !== null) {
-            $normalizedNewName = $this->normalizeIdentifier($newName);
+            $parsedNewName = $this->parseUnqualifiedName($newName);
 
-            if ($normalizedOldName === $normalizedNewName) {
+            if ($this->getObjectKey($parsedOldName) === $this->getObjectKey($parsedNewName)) {
                 return $this;
             }
 
@@ -248,7 +249,7 @@ class Table extends AbstractNamedObject
 
             $name = $this->parseUnqualifiedName($newName);
         } else {
-            $name = UnqualifiedName::unquoted(
+            $parsedNewName = UnqualifiedName::unquoted(
                 $this->generateNameFromObjectColumnNames(
                     $index->getType() === IndexType::UNIQUE ? 'uniq' : 'idx',
                     array_map(
@@ -260,10 +261,10 @@ class Table extends AbstractNamedObject
         }
 
         $index = $index->edit()
-            ->setName($name)
+            ->setName($parsedNewName)
             ->create();
 
-        unset($this->_indexes[$normalizedOldName]);
+        unset($this->_indexes[$this->getObjectKey($parsedOldName)]);
 
         return $this->_addIndex($index);
     }
@@ -296,10 +297,13 @@ class Table extends AbstractNamedObject
      */
     final public function renameColumn(string $oldName, string $newName): Column
     {
-        $oldName = $this->normalizeIdentifier($oldName);
-        $newName = $this->normalizeIdentifier($newName);
+        $parsedOldName = $this->parseUnqualifiedName($oldName);
+        $parsedNewName = $this->parseUnqualifiedName($newName);
 
-        if ($oldName === $newName) {
+        $oldKey = $this->getObjectKey($parsedOldName);
+        $newKey = $this->getObjectKey($parsedNewName);
+
+        if ($newKey === $oldKey) {
             throw new LogicException(sprintf(
                 'Attempt to rename column "%s.%s" to the same name.',
                 $this->name->toString(),
@@ -312,24 +316,24 @@ class Table extends AbstractNamedObject
 
         unset($options['name'], $options['type']);
 
-        $newColumn = new Column($newName, $oldColumn->getType(), $options);
+        $newColumn = new Column($parsedNewName->toString(), $oldColumn->getType(), $options);
 
-        unset($this->_columns[$oldName]);
+        unset($this->_columns[$this->getObjectKey($parsedOldName)]);
         $this->_addColumn($newColumn);
 
-        $this->renameColumnInIndexes($oldName, $newName);
-        $this->renameColumnInForeignKeyConstraints($oldName, $newName);
-        $this->renameColumnInUniqueConstraints($oldName, $newName);
+        $this->renameColumnInIndexes($oldKey, $parsedNewName);
+        $this->renameColumnInForeignKeyConstraints($oldKey, $parsedNewName);
+        $this->renameColumnInUniqueConstraints($oldKey, $parsedNewName);
 
         // If a column is renamed multiple times, we only want to know the original and last new name
-        if (isset($this->renamedColumns[$oldName])) {
-            $toRemove = $oldName;
-            $oldName  = $this->renamedColumns[$oldName];
-            unset($this->renamedColumns[$toRemove]);
+        if (isset($this->renamedColumns[$oldKey])) {
+            $keyToRemove = $oldKey;
+            $oldKey      = $this->renamedColumns[$oldKey];
+            unset($this->renamedColumns[$keyToRemove]);
         }
 
-        if ($newName !== $oldName) {
-            $this->renamedColumns[$newName] = $oldName;
+        if ($newKey !== $oldKey) {
+            $this->renamedColumns[$newKey] = $oldKey;
         }
 
         return $newColumn;
@@ -349,20 +353,21 @@ class Table extends AbstractNamedObject
      */
     public function dropColumn(string $name): self
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
-        $foreignKeyConstraintNames = $this->getForeignKeyConstraintNamesByLocalColumnName($name);
-        $uniqueConstraintNames     = $this->getUniqueConstraintNamesByColumnName($name);
+        $foreignKeyConstraintNames = $this->getForeignKeyConstraintNamesByLocalColumnName($parsedName);
+        $uniqueConstraintNames     = $this->getUniqueConstraintNamesByColumnName($parsedName);
 
         if (count($foreignKeyConstraintNames) > 0 || count($uniqueConstraintNames) > 0) {
             $constraints = [];
 
             if (count($foreignKeyConstraintNames) > 0) {
-                $constraints[] = 'foreign key constraints: ' . implode(', ', $foreignKeyConstraintNames);
+                $constraints[] = 'foreign key constraints: '
+                    . $this->unqualifiedNameListsToString($foreignKeyConstraintNames);
             }
 
             if (count($uniqueConstraintNames) > 0) {
-                $constraints[] = 'unique constraints: ' . implode(', ', $uniqueConstraintNames);
+                $constraints[] = 'unique constraints: ' . $this->unqualifiedNameListsToString($uniqueConstraintNames);
             }
 
             Deprecation::trigger(
@@ -375,9 +380,21 @@ class Table extends AbstractNamedObject
             );
         }
 
-        unset($this->_columns[$name]);
+        unset($this->_columns[$this->getObjectKey($parsedName)]);
 
         return $this;
+    }
+
+    /** @param non-empty-list<?UnqualifiedName> $names */
+    private function unqualifiedNameListsToString(array $names): string
+    {
+        return implode(', ', array_map(static function (?UnqualifiedName $name): string {
+            if ($name !== null) {
+                return $name->toString();
+            }
+
+            return '<unnamed>';
+        }, $names));
     }
 
     /**
@@ -535,9 +552,9 @@ class Table extends AbstractNamedObject
      */
     public function hasForeignKey(string $name): bool
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->_fkConstraints[$name]);
+        return isset($this->_fkConstraints[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -545,13 +562,13 @@ class Table extends AbstractNamedObject
      */
     public function getForeignKey(string $name): ForeignKeyConstraint
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasForeignKey($name)) {
             throw ForeignKeyDoesNotExist::new($name, $this->_name);
         }
 
-        return $this->_fkConstraints[$name];
+        return $this->_fkConstraints[$this->getObjectKey($parsedName)];
     }
 
     /**
@@ -559,13 +576,13 @@ class Table extends AbstractNamedObject
      */
     public function dropForeignKey(string $name): void
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasForeignKey($name)) {
             throw ForeignKeyDoesNotExist::new($name, $this->_name);
         }
 
-        unset($this->_fkConstraints[$name]);
+        unset($this->_fkConstraints[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -573,9 +590,9 @@ class Table extends AbstractNamedObject
      */
     public function hasUniqueConstraint(string $name): bool
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->uniqueConstraints[$name]);
+        return isset($this->uniqueConstraints[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -583,13 +600,13 @@ class Table extends AbstractNamedObject
      */
     public function getUniqueConstraint(string $name): UniqueConstraint
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasUniqueConstraint($name)) {
             throw UniqueConstraintDoesNotExist::new($name, $this->_name);
         }
 
-        return $this->uniqueConstraints[$name];
+        return $this->uniqueConstraints[$this->getObjectKey($parsedName)];
     }
 
     /**
@@ -597,13 +614,13 @@ class Table extends AbstractNamedObject
      */
     public function dropUniqueConstraint(string $name): void
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasUniqueConstraint($name)) {
             throw UniqueConstraintDoesNotExist::new($name, $this->_name);
         }
 
-        unset($this->uniqueConstraints[$name]);
+        unset($this->uniqueConstraints[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -622,9 +639,9 @@ class Table extends AbstractNamedObject
      */
     public function hasColumn(string $name): bool
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->_columns[$name]);
+        return isset($this->_columns[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -632,13 +649,13 @@ class Table extends AbstractNamedObject
      */
     public function getColumn(string $name): Column
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasColumn($name)) {
             throw ColumnDoesNotExist::new($name, $this->_name);
         }
 
-        return $this->_columns[$name];
+        return $this->_columns[$this->getObjectKey($parsedName)];
     }
 
     public function getPrimaryKeyConstraint(): ?PrimaryKeyConstraint
@@ -651,9 +668,9 @@ class Table extends AbstractNamedObject
      */
     public function hasIndex(string $name): bool
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->_indexes[$name]);
+        return isset($this->_indexes[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -661,13 +678,13 @@ class Table extends AbstractNamedObject
      */
     public function getIndex(string $name): Index
     {
-        $name = $this->normalizeIdentifier($name);
+        $parsedName = $this->parseUnqualifiedName($name);
 
         if (! $this->hasIndex($name)) {
             throw IndexDoesNotExist::new($name, $this->_name);
         }
 
-        return $this->_indexes[$name];
+        return $this->_indexes[$this->getObjectKey($parsedName)];
     }
 
     /** @return array<string, Index> */
@@ -732,14 +749,14 @@ class Table extends AbstractNamedObject
 
     protected function _addColumn(Column $column): void
     {
-        $columnName = $column->getName();
-        $columnName = $this->normalizeIdentifier($columnName);
+        $columnName = $column->getObjectName();
+        $columnKey  = $this->getObjectKey($columnName);
 
-        if (isset($this->_columns[$columnName])) {
-            throw ColumnAlreadyExists::new($this->getName(), $columnName);
+        if (isset($this->_columns[$columnKey])) {
+            throw ColumnAlreadyExists::new($this->getName(), $columnName->toString());
         }
 
-        $this->_columns[$columnName] = $column;
+        $this->_columns[$columnKey] = $column;
     }
 
     /**
@@ -747,54 +764,58 @@ class Table extends AbstractNamedObject
      */
     protected function _addIndex(Index $index): self
     {
-        $indexName = $this->normalizeIdentifier($index->getName());
+        $indexName = $index->getObjectName();
+        $indexKey  = $this->getObjectKey($indexName);
 
-        $replacedImplicitIndexNames = [];
+        $replacedImplicitIndexKeys = [];
 
-        foreach ($this->implicitIndexNames as $implicitIndexName => $_) {
-            if (! isset($this->_indexes[$implicitIndexName])) {
+        foreach ($this->implicitIndexKeys as $implicitIndexKey => $_) {
+            if (! isset($this->_indexes[$implicitIndexKey])) {
                 continue;
             }
 
-            if (! $this->_indexes[$implicitIndexName]->isFulfilledBy($index)) {
+            if (! $this->_indexes[$implicitIndexKey]->isFulfilledBy($index)) {
                 continue;
             }
 
-            $replacedImplicitIndexNames[$implicitIndexName] = true;
+            $replacedImplicitIndexKeys[$implicitIndexKey] = true;
         }
 
-        if (isset($this->_indexes[$indexName]) && ! isset($replacedImplicitIndexNames[$indexName])) {
-            throw IndexAlreadyExists::new($indexName, $this->_name);
+        if (isset($this->_indexes[$indexKey]) && ! isset($replacedImplicitIndexKeys[$indexKey])) {
+            throw IndexAlreadyExists::new($indexName->toString(), $this->_name);
         }
 
-        foreach ($replacedImplicitIndexNames as $name => $_) {
-            unset($this->_indexes[$name], $this->implicitIndexNames[$name]);
+        foreach ($replacedImplicitIndexKeys as $key => $_) {
+            unset($this->_indexes[$key], $this->implicitIndexKeys[$key]);
         }
 
-        $this->_indexes[$indexName] = $index;
+        $this->_indexes[$indexKey] = $index;
 
         return $this;
     }
 
     protected function _addUniqueConstraint(UniqueConstraint $constraint): self
     {
-        $columnNames = $constraint->getColumnNames();
+        $constraintName = $constraint->getObjectName();
+        $columnNames    = $constraint->getColumnNames();
 
-        $name = $constraint->getName() !== ''
-            ? $constraint->getName()
-            : $this->generateNameFromObjectColumnNames('fk', $columnNames);
+        if ($constraintName !== null) {
+            $key = $this->getObjectKey($constraintName);
+        } else {
+            $key = strtolower($this->generateNameFromObjectColumnNames('fk', $columnNames));
+        }
 
-        $name = $this->normalizeIdentifier($name);
-
-        $this->uniqueConstraints[$name] = $constraint;
+        $this->uniqueConstraints[$key] = $constraint;
 
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = $this->generateNameFromObjectColumnNames('idx', $columnNames);
+        $indexName = UnqualifiedName::unquoted(
+            $this->generateNameFromObjectColumnNames('idx', $columnNames),
+        );
 
         $indexCandidate = Index::editor()
-            ->setName(UnqualifiedName::unquoted($indexName))
+            ->setName($indexName)
             ->setType(IndexType::UNIQUE)
             ->setColumnNames(...$columnNames)
             ->create();
@@ -805,29 +826,34 @@ class Table extends AbstractNamedObject
             }
         }
 
-        $this->implicitIndexNames[$this->normalizeIdentifier($indexName)] = true;
+        $this->implicitIndexKeys[$this->getObjectKey($indexName)] = true;
 
         return $this;
     }
 
     protected function _addForeignKeyConstraint(ForeignKeyConstraint $constraint): self
     {
-        $name = $constraint->getName() !== ''
-            ? $constraint->getName()
-            : $this->generateNameFromObjectColumnNames('fk', $constraint->getReferencingColumnNames());
+        $constraintName = $constraint->getObjectName();
+        $columnNames    = $constraint->getReferencingColumnNames();
 
-        $name = $this->normalizeIdentifier($name);
+        if ($constraintName !== null) {
+            $key = $this->getObjectKey($constraintName);
+        } else {
+            $key = strtolower($this->generateNameFromObjectColumnNames('fk', $columnNames));
+        }
 
-        $this->_fkConstraints[$name] = $constraint;
+        $this->_fkConstraints[$key] = $constraint;
 
         // add an explicit index on the foreign key columns.
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = $this->generateNameFromObjectColumnNames('idx', $constraint->getReferencingColumnNames());
+        $indexName = UnqualifiedName::unquoted(
+            $this->generateNameFromObjectColumnNames('idx', $constraint->getReferencingColumnNames()),
+        );
 
         $indexCandidate = Index::editor()
-            ->setName(UnqualifiedName::unquoted($indexName))
+            ->setName($indexName)
             ->setColumnNames(...$constraint->getReferencingColumnNames())
             ->create();
 
@@ -838,22 +864,19 @@ class Table extends AbstractNamedObject
         }
 
         $this->_addIndex($indexCandidate);
-        $this->implicitIndexNames[$this->normalizeIdentifier($indexName)] = true;
+        $this->implicitIndexKeys[$this->getObjectKey($indexName)] = true;
 
         return $this;
     }
 
     /**
-     * Normalizes a given identifier.
-     *
-     * Trims quotes and lowercases the given identifier.
+     * Returns the key to be used to represent an object with the given name in a collection of objects.
      *
      * @return non-empty-string
      */
-    private function normalizeIdentifier(string $identifier): string
+    private function getObjectKey(UnqualifiedName $name): string
     {
-        /** @phpstan-ignore return.type */
-        return $this->trimQuotes(strtolower($identifier));
+        return strtolower($name->getIdentifier()->getValue());
     }
 
     public function setComment(string $comment): self
@@ -885,7 +908,7 @@ class Table extends AbstractNamedObject
         $editor = self::editor()
             ->setName($this->getObjectName())
             ->setColumns(...array_values($this->_columns))
-            ->setIndexes(...array_values(array_diff_key($this->_indexes, $this->implicitIndexNames)))
+            ->setIndexes(...array_values(array_diff_key($this->_indexes, $this->implicitIndexKeys)))
             ->setPrimaryKeyConstraint($this->primaryKeyConstraint)
             ->setUniqueConstraints(...array_values($this->uniqueConstraints))
             ->setForeignKeyConstraints(...array_values($this->_fkConstraints));
@@ -1085,16 +1108,15 @@ class Table extends AbstractNamedObject
         return strtoupper(substr($prefix . '_' . $hash, 0, $this->maxIdentifierLength));
     }
 
-    /** @param non-empty-string $newName */
-    private function renameColumnInIndexes(string $oldName, string $newName): void
+    private function renameColumnInIndexes(string $oldKey, UnqualifiedName $newName): void
     {
         foreach ($this->_indexes as $key => $index) {
             $modified    = false;
             $columnNames = [];
             foreach ($index->getIndexedColumns() as $indexedColumn) {
                 $columnName = $indexedColumn->getColumnName();
-                if ($columnName->getIdentifier()->getValue() === $oldName) {
-                    $columnNames[] = UnqualifiedName::unquoted($newName);
+                if ($this->getObjectKey($columnName) === $oldKey) {
+                    $columnNames[] = $newName;
                     $modified      = true;
                 } else {
                     $columnNames[] = $columnName;
@@ -1111,18 +1133,14 @@ class Table extends AbstractNamedObject
         }
     }
 
-    /**
-     * @param non-empty-string $oldName
-     * @param non-empty-string $newName
-     */
-    private function renameColumnInForeignKeyConstraints(string $oldName, string $newName): void
+    private function renameColumnInForeignKeyConstraints(string $oldKey, UnqualifiedName $newName): void
     {
         foreach ($this->_fkConstraints as $key => $constraint) {
             $modified    = false;
             $columnNames = [];
             foreach ($constraint->getReferencingColumnNames() as $columnName) {
-                if ($columnName->getIdentifier()->getValue() === $oldName) {
-                    $columnNames[] = UnqualifiedName::unquoted($newName);
+                if ($this->getObjectKey($columnName) === $oldKey) {
+                    $columnNames[] = $newName;
                     $modified      = true;
                 } else {
                     $columnNames[] = $columnName;
@@ -1139,18 +1157,14 @@ class Table extends AbstractNamedObject
         }
     }
 
-    /**
-     * @param non-empty-string $oldName
-     * @param non-empty-string $newName
-     */
-    private function renameColumnInUniqueConstraints(string $oldName, string $newName): void
+    private function renameColumnInUniqueConstraints(string $oldKey, UnqualifiedName $newName): void
     {
         foreach ($this->uniqueConstraints as $key => $constraint) {
             $modified    = false;
             $columnNames = [];
             foreach ($constraint->getColumnNames() as $columnName) {
-                if ($columnName->getIdentifier()->getValue() === $oldName) {
-                    $columnNames[] = UnqualifiedName::unquoted($newName);
+                if ($this->getObjectKey($columnName) === $oldKey) {
+                    $columnNames[] = $newName;
                     $modified      = true;
                 } else {
                     $columnNames[] = $columnName;
@@ -1167,15 +1181,17 @@ class Table extends AbstractNamedObject
         }
     }
 
-    /** @return list<string> */
-    private function getForeignKeyConstraintNamesByLocalColumnName(string $columnName): array
+    /** @return list<?UnqualifiedName> */
+    private function getForeignKeyConstraintNamesByLocalColumnName(UnqualifiedName $columnName): array
     {
+        $columnKey = $this->getObjectKey($columnName);
+
         $names = [];
 
-        foreach ($this->_fkConstraints as $name => $constraint) {
+        foreach ($this->_fkConstraints as $key => $constraint) {
             foreach ($constraint->getReferencingColumnNames() as $referencingColumnName) {
-                if ($referencingColumnName->getIdentifier()->getValue() === $columnName) {
-                    $names[] = $name;
+                if ($this->getObjectKey($referencingColumnName) === $columnKey) {
+                    $names[] = $constraint->getObjectName();
                     break;
                 }
             }
@@ -1184,15 +1200,17 @@ class Table extends AbstractNamedObject
         return $names;
     }
 
-    /** @return list<string> */
-    private function getUniqueConstraintNamesByColumnName(string $columnName): array
+    /** @return list<?UnqualifiedName> */
+    private function getUniqueConstraintNamesByColumnName(UnqualifiedName $columnName): array
     {
+        $columnKey = $this->getObjectKey($columnName);
+
         $constraintNames = [];
 
-        foreach ($this->uniqueConstraints as $constraintName => $constraint) {
+        foreach ($this->uniqueConstraints as $key => $constraint) {
             foreach ($constraint->getColumnNames() as $constraintColumnName) {
-                if ($constraintColumnName->getIdentifier()->getValue() === $columnName) {
-                    $constraintNames[] = $constraintName;
+                if ($this->getObjectKey($constraintColumnName) === $columnKey) {
+                    $constraintNames[] = $constraint->getObjectName();
                     break;
                 }
             }
