@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Schema\Exception\ColumnAlreadyExists;
+use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
+use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
@@ -13,6 +14,7 @@ use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
@@ -53,8 +55,8 @@ use function substr;
  */
 final class Table extends AbstractNamedObject
 {
-    /** @var Column[] */
-    private array $columns = [];
+    /** @var UnqualifiedNamedObjectSet<Column> */
+    private UnqualifiedNamedObjectSet $columns;
 
     /** @var array<string, string> keys are new names, values are old names */
     private array $renamedColumns = [];
@@ -118,9 +120,9 @@ final class Table extends AbstractNamedObject
 
         $this->maxIdentifierLength = $configuration->getMaxIdentifierLength();
 
-        foreach ($columns as $column) {
-            $this->_addColumn($column);
-        }
+        /** @var UnqualifiedNamedObjectSet<Column> $columnsSet */
+        $columnsSet    = new UnqualifiedNamedObjectSet(...$columns);
+        $this->columns = $columnsSet;
 
         foreach ($indexes as $idx) {
             $this->_addIndex($idx);
@@ -314,7 +316,7 @@ final class Table extends AbstractNamedObject
 
         $newColumn = new Column($parsedNewName->toString(), $oldColumn->getType(), $options);
 
-        unset($this->columns[$this->getObjectKey($parsedOldName)]);
+        $this->columns->remove($parsedOldName);
         $this->_addColumn($newColumn);
 
         $this->renameColumnInIndexes($oldKey, $parsedNewName);
@@ -376,7 +378,7 @@ final class Table extends AbstractNamedObject
             );
         }
 
-        unset($this->columns[$this->getObjectKey($parsedName)]);
+        $this->columns->remove($parsedName);
 
         return $this;
     }
@@ -628,7 +630,7 @@ final class Table extends AbstractNamedObject
     public function getColumns(): array
     {
         /** @phpstan-ignore return.type */
-        return array_values($this->columns);
+        return $this->columns->toList();
     }
 
     /**
@@ -638,7 +640,7 @@ final class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->columns[$this->getObjectKey($parsedName)]);
+        return $this->columns->get($parsedName) !== null;
     }
 
     /**
@@ -648,11 +650,13 @@ final class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        if (! $this->hasColumn($name)) {
+        $column = $this->columns->get($parsedName);
+
+        if ($column === null) {
             throw ColumnDoesNotExist::new($this->name, $parsedName);
         }
 
-        return $this->columns[$this->getObjectKey($parsedName)];
+        return $column;
     }
 
     public function getPrimaryKeyConstraint(): ?PrimaryKeyConstraint
@@ -731,9 +735,7 @@ final class Table extends AbstractNamedObject
      */
     public function __clone()
     {
-        foreach ($this->columns as $k => $column) {
-            $this->columns[$k] = clone $column;
-        }
+        $this->columns = clone $this->columns;
 
         foreach ($this->indexes as $k => $index) {
             $this->indexes[$k] = clone $index;
@@ -746,14 +748,11 @@ final class Table extends AbstractNamedObject
 
     private function _addColumn(Column $column): void
     {
-        $columnName = $column->getObjectName();
-        $columnKey  = $this->getObjectKey($columnName);
-
-        if (isset($this->columns[$columnKey])) {
-            throw ColumnAlreadyExists::new($this->name, $column->getObjectName());
+        try {
+            $this->columns->add($column);
+        } catch (ObjectAlreadyExists $e) {
+            throw InvalidTableModification::columnAlreadyExists($this->name, $e);
         }
-
-        $this->columns[$columnKey] = $column;
     }
 
     /**
@@ -908,7 +907,7 @@ final class Table extends AbstractNamedObject
     {
         $editor = self::editor()
             ->setName($this->getObjectName())
-            ->setColumns(...array_values($this->columns))
+            ->setColumns(...$this->columns->toList())
             ->setIndexes(...array_values(array_diff_key($this->indexes, $this->implicitIndexKeys)))
             ->setPrimaryKeyConstraint($this->primaryKeyConstraint)
             ->setUniqueConstraints(...array_values($this->uniqueConstraints))
