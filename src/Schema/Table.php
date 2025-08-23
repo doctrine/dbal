@@ -48,22 +48,21 @@ use function substr;
 /**
  * Object Representation of a table.
  *
- * @final
  * @extends AbstractNamedObject<OptionallyQualifiedName>
  */
-class Table extends AbstractNamedObject
+final class Table extends AbstractNamedObject
 {
     /** @var Column[] */
-    protected array $_columns = [];
+    private array $columns = [];
 
     /** @var array<string, string> keys are new names, values are old names */
-    protected array $renamedColumns = [];
+    private array $renamedColumns = [];
 
     /** @var Index[] */
-    protected array $_indexes = [];
+    private array $indexes = [];
 
     /**
-     * The keys of this array are the keys of the {@see $_indexes} array that correspond to the indexes that were
+     * The keys of this array are the keys of the {@see $indexes} array that correspond to the indexes that were
      * implicitly created as backing for foreign key constraints. The values are not used but must be non-null for
      * {@link isset()} to work correctly.
      *
@@ -72,13 +71,13 @@ class Table extends AbstractNamedObject
     private array $implicitIndexKeys = [];
 
     /** @var UniqueConstraint[] */
-    protected array $uniqueConstraints = [];
+    private array $uniqueConstraints = [];
 
     /** @var ForeignKeyConstraint[] */
-    protected array $_fkConstraints = [];
+    private array $foreignKeyConstraints = [];
 
     /** @var mixed[] */
-    protected array $_options = [
+    private array $options = [
         'create_options' => [],
     ];
 
@@ -138,7 +137,7 @@ class Table extends AbstractNamedObject
             $this->_addForeignKeyConstraint($fkConstraint);
         }
 
-        $this->_options = array_merge($this->_options, $options);
+        $this->options = array_merge($this->options, $options);
     }
 
     public function addPrimaryKeyConstraint(PrimaryKeyConstraint $primaryKeyConstraint): self
@@ -165,7 +164,7 @@ class Table extends AbstractNamedObject
 
         $isClustered = in_array('clustered', $flags, true);
 
-        return $this->_addUniqueConstraint($this->_createUniqueConstraint($columnNames, $indexName, $isClustered));
+        return $this->_addUniqueConstraint($this->createUniqueConstraint($columnNames, $indexName, $isClustered));
     }
 
     /**
@@ -181,7 +180,7 @@ class Table extends AbstractNamedObject
     ): self {
         $indexName ??= $this->generateNameFromStringColumnNames('idx', $columnNames);
 
-        return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, $flags, $options));
+        return $this->_addIndex($this->createIndex($columnNames, $indexName, false, $flags, $options));
     }
 
     /**
@@ -203,7 +202,7 @@ class Table extends AbstractNamedObject
             throw IndexDoesNotExist::new($this->name, $parsedName);
         }
 
-        unset($this->_indexes[$this->getObjectKey($parsedName)]);
+        unset($this->indexes[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -214,7 +213,7 @@ class Table extends AbstractNamedObject
     {
         $indexName ??= $this->generateNameFromStringColumnNames('uniq', $columnNames);
 
-        return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, [], $options));
+        return $this->_addIndex($this->createIndex($columnNames, $indexName, true, [], $options));
     }
 
     /**
@@ -260,7 +259,7 @@ class Table extends AbstractNamedObject
             ->setName($parsedNewName)
             ->create();
 
-        unset($this->_indexes[$this->getObjectKey($parsedOldName)]);
+        unset($this->indexes[$this->getObjectKey($parsedOldName)]);
 
         return $this->_addIndex($index);
     }
@@ -280,7 +279,7 @@ class Table extends AbstractNamedObject
     }
 
     /** @return array<string, string> */
-    final public function getRenamedColumns(): array
+    public function getRenamedColumns(): array
     {
         return $this->renamedColumns;
     }
@@ -291,7 +290,7 @@ class Table extends AbstractNamedObject
      *
      * @throws LogicException
      */
-    final public function renameColumn(string $oldName, string $newName): Column
+    public function renameColumn(string $oldName, string $newName): Column
     {
         $parsedOldName = $this->parseUnqualifiedName($oldName);
         $parsedNewName = $this->parseUnqualifiedName($newName);
@@ -314,7 +313,7 @@ class Table extends AbstractNamedObject
 
         $newColumn = new Column($parsedNewName->toString(), $oldColumn->getType(), $options);
 
-        unset($this->_columns[$this->getObjectKey($parsedOldName)]);
+        unset($this->columns[$this->getObjectKey($parsedOldName)]);
         $this->_addColumn($newColumn);
 
         $this->renameColumnInIndexes($oldKey, $parsedNewName);
@@ -376,7 +375,7 @@ class Table extends AbstractNamedObject
             );
         }
 
-        unset($this->_columns[$this->getObjectKey($parsedName)]);
+        unset($this->columns[$this->getObjectKey($parsedName)]);
 
         return $this;
     }
@@ -539,7 +538,7 @@ class Table extends AbstractNamedObject
 
     public function addOption(string $name, mixed $value): self
     {
-        $this->_options[$name] = $value;
+        $this->options[$name] = $value;
 
         return $this;
     }
@@ -551,7 +550,7 @@ class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->_fkConstraints[$this->getObjectKey($parsedName)]);
+        return isset($this->foreignKeyConstraints[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -565,7 +564,7 @@ class Table extends AbstractNamedObject
             throw ForeignKeyDoesNotExist::new($this->name, $parsedName);
         }
 
-        return $this->_fkConstraints[$this->getObjectKey($parsedName)];
+        return $this->foreignKeyConstraints[$this->getObjectKey($parsedName)];
     }
 
     /**
@@ -579,7 +578,7 @@ class Table extends AbstractNamedObject
             throw ForeignKeyDoesNotExist::new($this->name, $parsedName);
         }
 
-        unset($this->_fkConstraints[$this->getObjectKey($parsedName)]);
+        unset($this->foreignKeyConstraints[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -628,7 +627,7 @@ class Table extends AbstractNamedObject
     public function getColumns(): array
     {
         /** @phpstan-ignore return.type */
-        return array_values($this->_columns);
+        return array_values($this->columns);
     }
 
     /**
@@ -638,7 +637,7 @@ class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->_columns[$this->getObjectKey($parsedName)]);
+        return isset($this->columns[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -652,7 +651,7 @@ class Table extends AbstractNamedObject
             throw ColumnDoesNotExist::new($this->name, $parsedName);
         }
 
-        return $this->_columns[$this->getObjectKey($parsedName)];
+        return $this->columns[$this->getObjectKey($parsedName)];
     }
 
     public function getPrimaryKeyConstraint(): ?PrimaryKeyConstraint
@@ -667,7 +666,7 @@ class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->_indexes[$this->getObjectKey($parsedName)]);
+        return isset($this->indexes[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -681,13 +680,13 @@ class Table extends AbstractNamedObject
             throw IndexDoesNotExist::new($this->name, $parsedName);
         }
 
-        return $this->_indexes[$this->getObjectKey($parsedName)];
+        return $this->indexes[$this->getObjectKey($parsedName)];
     }
 
     /** @return array<string, Index> */
     public function getIndexes(): array
     {
-        return $this->_indexes;
+        return $this->indexes;
     }
 
     /**
@@ -707,23 +706,23 @@ class Table extends AbstractNamedObject
      */
     public function getForeignKeys(): array
     {
-        return $this->_fkConstraints;
+        return $this->foreignKeyConstraints;
     }
 
     public function hasOption(string $name): bool
     {
-        return isset($this->_options[$name]);
+        return isset($this->options[$name]);
     }
 
     public function getOption(string $name): mixed
     {
-        return $this->_options[$name] ?? null;
+        return $this->options[$name] ?? null;
     }
 
     /** @return array<string, mixed> */
     public function getOptions(): array
     {
-        return $this->_options;
+        return $this->options;
     }
 
     /**
@@ -731,35 +730,35 @@ class Table extends AbstractNamedObject
      */
     public function __clone()
     {
-        foreach ($this->_columns as $k => $column) {
-            $this->_columns[$k] = clone $column;
+        foreach ($this->columns as $k => $column) {
+            $this->columns[$k] = clone $column;
         }
 
-        foreach ($this->_indexes as $k => $index) {
-            $this->_indexes[$k] = clone $index;
+        foreach ($this->indexes as $k => $index) {
+            $this->indexes[$k] = clone $index;
         }
 
-        foreach ($this->_fkConstraints as $k => $fk) {
-            $this->_fkConstraints[$k] = clone $fk;
+        foreach ($this->foreignKeyConstraints as $k => $fk) {
+            $this->foreignKeyConstraints[$k] = clone $fk;
         }
     }
 
-    protected function _addColumn(Column $column): void
+    private function _addColumn(Column $column): void
     {
         $columnName = $column->getObjectName();
         $columnKey  = $this->getObjectKey($columnName);
 
-        if (isset($this->_columns[$columnKey])) {
+        if (isset($this->columns[$columnKey])) {
             throw ColumnAlreadyExists::new($this->name, $column->getObjectName());
         }
 
-        $this->_columns[$columnKey] = $column;
+        $this->columns[$columnKey] = $column;
     }
 
     /**
      * Adds an index to the table.
      */
-    protected function _addIndex(Index $index): self
+    private function _addIndex(Index $index): self
     {
         $indexName = $index->getObjectName();
         $indexKey  = $this->getObjectKey($indexName);
@@ -767,31 +766,31 @@ class Table extends AbstractNamedObject
         $replacedImplicitIndexKeys = [];
 
         foreach ($this->implicitIndexKeys as $implicitIndexKey => $_) {
-            if (! isset($this->_indexes[$implicitIndexKey])) {
+            if (! isset($this->indexes[$implicitIndexKey])) {
                 continue;
             }
 
-            if (! $this->_indexes[$implicitIndexKey]->isFulfilledBy($index)) {
+            if (! $this->indexes[$implicitIndexKey]->isFulfilledBy($index)) {
                 continue;
             }
 
             $replacedImplicitIndexKeys[$implicitIndexKey] = true;
         }
 
-        if (isset($this->_indexes[$indexKey]) && ! isset($replacedImplicitIndexKeys[$indexKey])) {
+        if (isset($this->indexes[$indexKey]) && ! isset($replacedImplicitIndexKeys[$indexKey])) {
             throw IndexAlreadyExists::new($this->name, $index->getObjectName());
         }
 
         foreach ($replacedImplicitIndexKeys as $key => $_) {
-            unset($this->_indexes[$key], $this->implicitIndexKeys[$key]);
+            unset($this->indexes[$key], $this->implicitIndexKeys[$key]);
         }
 
-        $this->_indexes[$indexKey] = $index;
+        $this->indexes[$indexKey] = $index;
 
         return $this;
     }
 
-    protected function _addUniqueConstraint(UniqueConstraint $constraint): self
+    private function _addUniqueConstraint(UniqueConstraint $constraint): self
     {
         $constraintName = $constraint->getObjectName();
         $columnNames    = $constraint->getColumnNames();
@@ -817,7 +816,7 @@ class Table extends AbstractNamedObject
             ->setColumnNames(...$columnNames)
             ->create();
 
-        foreach ($this->_indexes as $existingIndex) {
+        foreach ($this->indexes as $existingIndex) {
             if ($indexCandidate->isFulfilledBy($existingIndex)) {
                 return $this;
             }
@@ -828,7 +827,7 @@ class Table extends AbstractNamedObject
         return $this;
     }
 
-    protected function _addForeignKeyConstraint(ForeignKeyConstraint $constraint): self
+    private function _addForeignKeyConstraint(ForeignKeyConstraint $constraint): self
     {
         $constraintName = $constraint->getObjectName();
         $columnNames    = $constraint->getReferencingColumnNames();
@@ -839,7 +838,7 @@ class Table extends AbstractNamedObject
             $key = strtolower($this->generateNameFromObjectColumnNames('fk', $columnNames));
         }
 
-        $this->_fkConstraints[$key] = $constraint;
+        $this->foreignKeyConstraints[$key] = $constraint;
 
         // add an explicit index on the foreign key columns.
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
@@ -854,7 +853,7 @@ class Table extends AbstractNamedObject
             ->setColumnNames(...$constraint->getReferencingColumnNames())
             ->create();
 
-        foreach ($this->_indexes as $existingIndex) {
+        foreach ($this->indexes as $existingIndex) {
             if ($indexCandidate->isFulfilledBy($existingIndex)) {
                 return $this;
             }
@@ -886,7 +885,7 @@ class Table extends AbstractNamedObject
 
     public function getComment(): ?string
     {
-        return $this->_options['comment'] ?? null;
+        return $this->options['comment'] ?? null;
     }
 
     /**
@@ -904,13 +903,13 @@ class Table extends AbstractNamedObject
     {
         $editor = self::editor()
             ->setName($this->getObjectName())
-            ->setColumns(...array_values($this->_columns))
-            ->setIndexes(...array_values(array_diff_key($this->_indexes, $this->implicitIndexKeys)))
+            ->setColumns(...array_values($this->columns))
+            ->setIndexes(...array_values(array_diff_key($this->indexes, $this->implicitIndexKeys)))
             ->setPrimaryKeyConstraint($this->primaryKeyConstraint)
             ->setUniqueConstraints(...array_values($this->uniqueConstraints))
-            ->setForeignKeyConstraints(...array_values($this->_fkConstraints));
+            ->setForeignKeyConstraints(...array_values($this->foreignKeyConstraints));
 
-        $options = $this->_options;
+        $options = $this->options;
 
         if (isset($options['comment'])) {
             $editor->setComment($options['comment']);
@@ -925,7 +924,7 @@ class Table extends AbstractNamedObject
     }
 
     /** @param non-empty-list<string> $columns */
-    private function _createUniqueConstraint(
+    private function createUniqueConstraint(
         array $columns,
         string $indexName,
         bool $isClustered,
@@ -951,7 +950,7 @@ class Table extends AbstractNamedObject
      * @param array<int, string>     $flags
      * @param array<string, mixed>   $options
      */
-    private function _createIndex(
+    private function createIndex(
         array $columns,
         string $indexName,
         bool $isUnique,
@@ -1108,7 +1107,7 @@ class Table extends AbstractNamedObject
 
     private function renameColumnInIndexes(string $oldKey, UnqualifiedName $newName): void
     {
-        foreach ($this->_indexes as $key => $index) {
+        foreach ($this->indexes as $key => $index) {
             $modified    = false;
             $columnNames = [];
             foreach ($index->getIndexedColumns() as $indexedColumn) {
@@ -1125,7 +1124,7 @@ class Table extends AbstractNamedObject
                 continue;
             }
 
-            $this->_indexes[$key] = $index->edit()
+            $this->indexes[$key] = $index->edit()
                 ->setColumnNames(...$columnNames)
                 ->create();
         }
@@ -1133,7 +1132,7 @@ class Table extends AbstractNamedObject
 
     private function renameColumnInForeignKeyConstraints(string $oldKey, UnqualifiedName $newName): void
     {
-        foreach ($this->_fkConstraints as $key => $constraint) {
+        foreach ($this->foreignKeyConstraints as $key => $constraint) {
             $modified    = false;
             $columnNames = [];
             foreach ($constraint->getReferencingColumnNames() as $columnName) {
@@ -1149,7 +1148,7 @@ class Table extends AbstractNamedObject
                 continue;
             }
 
-            $this->_fkConstraints[$key] = $constraint->edit()
+            $this->foreignKeyConstraints[$key] = $constraint->edit()
                 ->setReferencingColumnNames(...$columnNames)
                 ->create();
         }
@@ -1186,7 +1185,7 @@ class Table extends AbstractNamedObject
 
         $names = [];
 
-        foreach ($this->_fkConstraints as $key => $constraint) {
+        foreach ($this->foreignKeyConstraints as $key => $constraint) {
             foreach ($constraint->getReferencingColumnNames() as $referencingColumnName) {
                 if ($this->getObjectKey($referencingColumnName) === $columnKey) {
                     $names[] = $constraint->getObjectName();

@@ -12,20 +12,19 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 /**
  * Sequence structure.
  *
- * @final
  * @extends AbstractNamedObject<OptionallyQualifiedName>
  */
-class Sequence extends AbstractNamedObject
+final class Sequence extends AbstractNamedObject
 {
-    protected int $allocationSize = 1;
+    private int $allocationSize = 1;
 
-    protected int $initialValue = 1;
+    private int $initialValue = 1;
 
     public function __construct(
         string $name,
         int $allocationSize = 1,
         int $initialValue = 1,
-        protected ?int $cache = null,
+        private ?int $cache = null,
     ) {
         $parser = Parsers::getOptionallyQualifiedNameParser();
 
