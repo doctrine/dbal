@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 /**
  * Sequence structure.
  *
+ * @final
  * @extends AbstractNamedObject<OptionallyQualifiedName>
  */
 class Sequence extends AbstractNamedObject

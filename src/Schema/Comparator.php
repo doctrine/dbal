@@ -228,31 +228,35 @@ class Comparator
         $folding    = $this->platform->getUnquotedIdentifierFolding();
 
         // See if all the indexes from the old table exist in the new one
-        foreach ($newIndexes as $newIndexName => $newIndex) {
-            if ($oldTable->hasIndex($newIndexName)) {
+        foreach ($newIndexes as $newIndex) {
+            $newIndexName = $newIndex->getObjectName();
+
+            if ($oldTable->hasIndex($newIndexName->toString())) {
                 continue;
             }
 
-            $addedIndexes[$newIndexName] = $newIndex;
+            $addedIndexes[] = $newIndex;
         }
 
         // See if there are any removed indexes in the new table
-        foreach ($oldIndexes as $oldIndexName => $oldIndex) {
-            if (! $newTable->hasIndex($oldIndexName)) {
-                $droppedIndexes[$oldIndexName] = $oldIndex;
+        foreach ($oldIndexes as $oldIndex) {
+            $oldIndexName = $oldIndex->getObjectName();
+
+            if (! $newTable->hasIndex($oldIndexName->toString())) {
+                $droppedIndexes[] = $oldIndex;
 
                 continue;
             }
 
             // See if index has changed in the new table.
-            $newIndex = $newTable->getIndex($oldIndexName);
+            $newIndex = $newTable->getIndex($oldIndexName->toString());
 
             if ($oldIndex->equals($newIndex, $folding)) {
                 continue;
             }
 
-            $droppedIndexes[$oldIndexName] = $oldIndex;
-            $addedIndexes[$oldIndexName]   = $newIndex;
+            $droppedIndexes[] = $oldIndex;
+            $addedIndexes[]   = $newIndex;
         }
 
         if ($this->config->getDetectRenamedIndexes()) {
@@ -376,8 +380,8 @@ class Comparator
      * Try to find indexes that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
      *
-     * @param array<string,Index> $addedIndexes
-     * @param array<string,Index> $removedIndexes
+     * @param array<Index> $addedIndexes
+     * @param array<Index> $removedIndexes
      *
      * @return array<string,Index>
      */
@@ -389,15 +393,15 @@ class Comparator
         $candidatesByName = [];
 
         // Gather possible rename candidates by comparing each added and removed index based on semantics.
-        foreach ($addedIndexes as $addedIndexName => $addedIndex) {
-            foreach ($removedIndexes as $removedIndex) {
+        foreach ($addedIndexes as $addedIndexKey => $addedIndex) {
+            foreach ($removedIndexes as $removedIndexKey => $removedIndex) {
                 if (! $addedIndex->equals($removedIndex, $folding)) {
                     continue;
                 }
 
                 $candidatesByName[$addedIndex->getObjectName()
                         ->getIdentifier()
-                        ->getValue()][] = [$removedIndex, $addedIndex, $addedIndexName];
+                        ->getValue()][] = [$removedIndexKey, $addedIndexKey];
             }
         }
 
@@ -412,16 +416,11 @@ class Comparator
                 continue;
             }
 
-            [$removedIndex, $addedIndex] = $candidates[0];
+            [$removedIndexKey, $addedIndexKey] = $candidates[0];
 
+            $removedIndex     = $removedIndexes[$removedIndexKey];
             $removedIndexName = strtolower(
                 $removedIndex->getObjectName()
-                    ->getIdentifier()
-                    ->getValue(),
-            );
-
-            $addedIndexName = strtolower(
-                $addedIndex->getObjectName()
                     ->getIdentifier()
                     ->getValue(),
             );
@@ -430,10 +429,12 @@ class Comparator
                 continue;
             }
 
+            $addedIndex = $addedIndexes[$addedIndexKey];
+
             $renamedIndexes[$removedIndexName] = $addedIndex;
             unset(
-                $addedIndexes[$addedIndexName],
-                $removedIndexes[$removedIndexName],
+                $addedIndexes[$addedIndexKey],
+                $removedIndexes[$removedIndexKey],
             );
         }
 

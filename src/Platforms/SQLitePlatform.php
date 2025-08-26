@@ -803,8 +803,9 @@ class SQLitePlatform extends AbstractPlatform
         $nameMap  = $this->getDiffColumnNameMap($diff);
 
         foreach ($indexes as $key => $index) {
+            $indexName = $index->getObjectName()->getIdentifier()->getValue();
             foreach ($diff->getRenamedIndexes() as $oldIndexName => $renamedIndex) {
-                if (strtolower($key) !== strtolower($oldIndexName)) {
+                if (strtolower($indexName) !== strtolower($oldIndexName)) {
                     continue;
                 }
 

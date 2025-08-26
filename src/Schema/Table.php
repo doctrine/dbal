@@ -48,6 +48,7 @@ use function substr;
 /**
  * Object Representation of a table.
  *
+ * @final
  * @extends AbstractNamedObject<OptionallyQualifiedName>
  */
 class Table extends AbstractNamedObject

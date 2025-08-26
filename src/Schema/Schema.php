@@ -53,6 +53,8 @@ use function strtolower;
  * the CREATE/DROP SQL visitors will just filter this queries and do not
  * execute them. Only the queries for the currently connected database are
  * executed.
+ *
+ * @final
  */
 class Schema
 {
