@@ -12,10 +12,9 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 /**
  * Representation of a Database View.
  *
- * @final
  * @extends AbstractNamedObject<OptionallyQualifiedName>
  */
-class View extends AbstractNamedObject
+final class View extends AbstractNamedObject
 {
     public function __construct(string $name, private readonly string $sql)
     {

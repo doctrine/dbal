@@ -86,8 +86,12 @@ The following classes have been marked as final:
 
 - `StaticServerVersionProvider`
 - `ColumnDiff`
+- `Table`
 - `TableDiff`
+- `Sequence`
+- `Schema`
 - `SchemaDiff`
+- `View`
 
 ## BC BREAK: Changes in `Index` methods, properties and behavior
 

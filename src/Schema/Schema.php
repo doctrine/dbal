@@ -53,10 +53,8 @@ use function strtolower;
  * the CREATE/DROP SQL visitors will just filter this queries and do not
  * execute them. Only the queries for the currently connected database are
  * executed.
- *
- * @final
  */
-class Schema
+final class Schema
 {
     /**
      * The namespaces in this schema.
@@ -66,12 +64,12 @@ class Schema
     private array $namespaces = [];
 
     /** @var array<string, Table> */
-    protected array $_tables = [];
+    private array $tables = [];
 
     /** @var array<string, Sequence> */
-    protected array $_sequences = [];
+    private array $sequences = [];
 
-    protected SchemaConfig $_schemaConfig;
+    private SchemaConfig $schemaConfig;
 
     /**
      * The default namespace name that the schema will use as a qualifier to resolve unqualified names.
@@ -101,7 +99,7 @@ class Schema
     ) {
         $schemaConfig ??= new SchemaConfig();
 
-        $this->_schemaConfig = $schemaConfig;
+        $this->schemaConfig = $schemaConfig;
 
         $this->defaultNamespaceName = $schemaConfig->getName();
 
@@ -110,42 +108,42 @@ class Schema
         }
 
         foreach ($tables as $table) {
-            $this->_addTable($table);
+            $this->addTable($table);
         }
 
         foreach ($sequences as $sequence) {
-            $this->_addSequence($sequence);
+            $this->addSequence($sequence);
         }
     }
 
-    protected function _addTable(Table $table): void
+    private function addTable(Table $table): void
     {
         $resolvedName = $this->resolveName($table->getObjectName());
 
         $key = $this->getKeyFromResolvedName($resolvedName);
 
-        if (isset($this->_tables[$key])) {
+        if (isset($this->tables[$key])) {
             throw TableAlreadyExists::new($resolvedName->toString());
         }
 
         $this->registerQualifier($resolvedName->getQualifier());
 
-        $this->_tables[$key] = $table;
+        $this->tables[$key] = $table;
     }
 
-    protected function _addSequence(Sequence $sequence): void
+    private function addSequence(Sequence $sequence): void
     {
         $resolvedName = $this->resolveName($sequence->getObjectName());
 
         $key = $this->getKeyFromResolvedName($resolvedName);
 
-        if (isset($this->_sequences[$key])) {
+        if (isset($this->sequences[$key])) {
             throw SequenceAlreadyExists::new($resolvedName->toString());
         }
 
         $this->registerQualifier($resolvedName->getQualifier());
 
-        $this->_sequences[$key] = $sequence;
+        $this->sequences[$key] = $sequence;
     }
 
     private function registerQualifier(?Identifier $qualifier): void
@@ -186,17 +184,17 @@ class Schema
      */
     public function getTables(): array
     {
-        return array_values($this->_tables);
+        return array_values($this->tables);
     }
 
     public function getTable(string $name): Table
     {
         $key = $this->getKeyFromName($name);
-        if (! isset($this->_tables[$key])) {
+        if (! isset($this->tables[$key])) {
             throw TableDoesNotExist::new($name);
         }
 
-        return $this->_tables[$key];
+        return $this->tables[$key];
     }
 
     /**
@@ -275,30 +273,30 @@ class Schema
     {
         $key = $this->getKeyFromName($name);
 
-        return isset($this->_tables[$key]);
+        return isset($this->tables[$key]);
     }
 
     public function hasSequence(string $name): bool
     {
         $key = $this->getKeyFromName($name);
 
-        return isset($this->_sequences[$key]);
+        return isset($this->sequences[$key]);
     }
 
     public function getSequence(string $name): Sequence
     {
         $key = $this->getKeyFromName($name);
-        if (! isset($this->_sequences[$key])) {
+        if (! isset($this->sequences[$key])) {
             throw SequenceDoesNotExist::new($name);
         }
 
-        return $this->_sequences[$key];
+        return $this->sequences[$key];
     }
 
     /** @return list<Sequence> */
     public function getSequences(): array
     {
-        return array_values($this->_sequences);
+        return array_values($this->sequences);
     }
 
     /**
@@ -340,10 +338,10 @@ class Schema
      */
     public function createTable(string $name): Table
     {
-        $table = new Table($name, [], [], [], [], [], $this->_schemaConfig->toTableConfiguration());
-        $this->_addTable($table);
+        $table = new Table($name, [], [], [], [], [], $this->schemaConfig->toTableConfiguration());
+        $this->addTable($table);
 
-        foreach ($this->_schemaConfig->getDefaultTableOptions() as $option => $value) {
+        foreach ($this->schemaConfig->getDefaultTableOptions() as $option => $value) {
             $table->addOption($option, $value);
         }
 
@@ -365,7 +363,7 @@ class Schema
             ->create();
 
         $this->dropTable($oldName);
-        $this->_addTable($table);
+        $this->addTable($table);
 
         return $this;
     }
@@ -378,11 +376,11 @@ class Schema
     public function dropTable(string $name): self
     {
         $key = $this->getKeyFromName($name);
-        if (! isset($this->_tables[$key])) {
+        if (! isset($this->tables[$key])) {
             throw TableDoesNotExist::new($name);
         }
 
-        unset($this->_tables[$key]);
+        unset($this->tables[$key]);
 
         return $this;
     }
@@ -393,7 +391,7 @@ class Schema
     public function createSequence(string $name, int $allocationSize = 1, int $initialValue = 1): Sequence
     {
         $seq = new Sequence($name, $allocationSize, $initialValue);
-        $this->_addSequence($seq);
+        $this->addSequence($seq);
 
         return $seq;
     }
@@ -402,7 +400,7 @@ class Schema
     public function dropSequence(string $name): self
     {
         $key = $this->getKeyFromName($name);
-        unset($this->_sequences[$key]);
+        unset($this->sequences[$key]);
 
         return $this;
     }
@@ -438,12 +436,12 @@ class Schema
      */
     public function __clone()
     {
-        foreach ($this->_tables as $k => $table) {
-            $this->_tables[$k] = clone $table;
+        foreach ($this->tables as $k => $table) {
+            $this->tables[$k] = clone $table;
         }
 
-        foreach ($this->_sequences as $k => $sequence) {
-            $this->_sequences[$k] = clone $sequence;
+        foreach ($this->sequences as $k => $sequence) {
+            $this->sequences[$k] = clone $sequence;
         }
     }
 
