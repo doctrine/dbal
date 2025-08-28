@@ -976,8 +976,8 @@ abstract class AbstractComparatorTestCase extends TestCase
         $oldSchema = new Schema();
         $oldSchema->createSequence('baz');
 
-        $newSchema = clone $oldSchema;
-        $newSchema->getSequence('baz')->setAllocationSize(20);
+        $newSchema = new Schema();
+        $newSchema->createSequence('baz', 20);
 
         $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
 

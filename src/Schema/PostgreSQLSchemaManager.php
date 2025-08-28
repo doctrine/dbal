@@ -166,13 +166,17 @@ SQL,
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
         // @phpstan-ignore missingType.checkedException
-        if ($sequence['schemaname'] !== $this->getCurrentSchemaName()) {
-            $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
+        if ($sequence['sequence_schema'] !== $this->getCurrentSchemaName()) {
+            $name = OptionallyQualifiedName::quoted($sequence['sequence_name'], $sequence['sequence_schema']);
         } else {
-            $sequenceName = $sequence['relname'];
+            $name = OptionallyQualifiedName::quoted($sequence['sequence_name']);
         }
 
-        return new Sequence($sequenceName, (int) $sequence['increment_by'], (int) $sequence['min_value']);
+        return Sequence::editor()
+            ->setName($name)
+            ->setAllocationSize((int) $sequence['increment'])
+            ->setInitialValue((int) $sequence['minimum_value'])
+            ->create();
     }
 
     /**

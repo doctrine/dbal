@@ -390,7 +390,20 @@ final class Schema
      */
     public function createSequence(string $name, int $allocationSize = 1, int $initialValue = 1): Sequence
     {
-        $seq = new Sequence($name, $allocationSize, $initialValue);
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            $parsedName = $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+
+        $seq = Sequence::editor()
+            ->setName($parsedName)
+            ->setAllocationSize($allocationSize)
+            ->setInitialValue($initialValue)
+            ->create();
+
         $this->addSequence($seq);
 
         return $seq;

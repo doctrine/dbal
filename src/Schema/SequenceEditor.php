@@ -85,7 +85,7 @@ final class SequenceEditor
         }
 
         return new Sequence(
-            $this->name->toString(),
+            $this->name,
             $this->allocationSize,
             $this->initialValue,
             $this->cacheSize,

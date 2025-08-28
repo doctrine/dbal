@@ -363,8 +363,12 @@ class OraclePlatform extends AbstractPlatform
 
         $triggerName  = $this->generateAutoincrementTriggerName($tableName->getUnqualifiedName());
         $sequenceName = $this->generateAutoincrementSequenceName($tableName);
-        $sequence     = new Sequence($sequenceName->toString());
-        $sql[]        = $this->getCreateSequenceSQL($sequence);
+
+        $sequence = Sequence::editor()
+            ->setName($sequenceName)
+            ->create();
+
+        $sql[] = $this->getCreateSequenceSQL($sequence);
 
         $sql[] = sprintf(
             <<<'SQL'
