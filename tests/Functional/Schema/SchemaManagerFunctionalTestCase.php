@@ -105,7 +105,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('The platform does not support sequences.');
         }
 
-        $sequence = new Sequence('create_sequences_test_seq');
+        $sequence = Sequence::editor()
+            ->setUnquotedName('create_sequences_test_seq')
+            ->create();
 
         $this->schemaManager->createSequence($sequence);
 
@@ -166,7 +168,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('The platform does not support sequences.');
         }
 
-        $sequence = new Sequence('list_sequences_test_seq', 20, 10);
+        $sequence = Sequence::editor()
+            ->setUnquotedName('list_sequences_test_seq')
+            ->setAllocationSize(20)
+            ->setInitialValue(10)
+            ->create();
 
         $this->schemaManager->createSequence($sequence);
 
@@ -234,7 +240,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $sql = 'SELECT * FROM test_table_for_view';
 
-        $view = new View('test_view', $sql);
+        $view = View::editor()
+            ->setUnquotedName('test_view')
+            ->setSQL($sql)
+            ->create();
+
         $this->schemaManager->createView($view);
 
         $tables = $this->schemaManager->listTables();
@@ -790,7 +800,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $this->createTestTable('view_test_table');
 
-        $view = new View('doctrine_test_view', 'SELECT * FROM view_test_table');
+        $sql = 'SELECT * FROM view_test_table';
+
+        $view = View::editor()
+            ->setUnquotedName('doctrine_test_view')
+            ->setSQL($sql)
+            ->create();
 
         $this->schemaManager->createView($view);
 
@@ -1439,10 +1454,21 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $sequence1InitialValue   = 2;
         $sequence2AllocationSize = 3;
         $sequence2InitialValue   = 4;
-        $sequence1               = new Sequence('sequence_1', $sequence1AllocationSize, $sequence1InitialValue);
-        $sequence2               = new Sequence('sequence_2', $sequence2AllocationSize, $sequence2InitialValue);
-        $sequence1Name           = $sequence1->getObjectName();
-        $sequence2Name           = $sequence2->getObjectName();
+
+        $sequence1 = Sequence::editor()
+            ->setUnquotedName('sequence_1')
+            ->setAllocationSize($sequence1AllocationSize)
+            ->setInitialValue($sequence1InitialValue)
+            ->create();
+
+        $sequence2 = Sequence::editor()
+            ->setUnquotedName('sequence_2')
+            ->setAllocationSize($sequence2AllocationSize)
+            ->setInitialValue($sequence2InitialValue)
+            ->create();
+
+        $sequence1Name = $sequence1->getObjectName();
+        $sequence2Name = $sequence2->getObjectName();
 
         $this->schemaManager->createSequence($sequence1);
         $this->schemaManager->createSequence($sequence2);
@@ -1471,8 +1497,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $sequenceAllocationSize = 5;
         $sequenceInitialValue   = 10;
 
-        $sequence = new Sequence('sequence_auto_detect_test', $sequenceAllocationSize, $sequenceInitialValue);
-        $name     = $sequence->getObjectName();
+        $sequence = Sequence::editor()
+            ->setUnquotedName('sequence_auto_detect_test')
+            ->setAllocationSize($sequenceAllocationSize)
+            ->setInitialValue($sequenceInitialValue)
+            ->create();
+
+        $name = $sequence->getObjectName();
 
         try {
             $this->schemaManager->dropSequence(

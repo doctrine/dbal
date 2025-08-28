@@ -120,7 +120,9 @@ class SchemaTest extends TestCase
 
     public function testAddSequences(): void
     {
-        $sequence = new Sequence('a_seq', 1, 1);
+        $sequence = Sequence::editor()
+            ->setUnquotedName('a_seq')
+            ->create();
 
         $schema = new Schema([], [$sequence]);
 
@@ -135,7 +137,9 @@ class SchemaTest extends TestCase
 
     public function testSequenceAccessCaseInsensitive(): void
     {
-        $sequence = new Sequence('a_Seq');
+        $sequence = Sequence::editor()
+            ->setUnquotedName('a_Seq')
+            ->create();
 
         $schema = new Schema([], [$sequence]);
         self::assertTrue($schema->hasSequence('a_seq'));
@@ -178,7 +182,9 @@ class SchemaTest extends TestCase
 
     public function testDropSequence(): void
     {
-        $sequence = new Sequence('a_seq', 1, 1);
+        $sequence = Sequence::editor()
+            ->setUnquotedName('a_seq')
+            ->create();
 
         $schema = new Schema([], [$sequence]);
 
@@ -190,7 +196,9 @@ class SchemaTest extends TestCase
     {
         $this->expectException(SchemaException::class);
 
-        $sequence = new Sequence('a_seq', 1, 1);
+        $sequence = Sequence::editor()
+            ->setUnquotedName('a_seq')
+            ->create();
 
         new Schema([], [$sequence, $sequence]);
     }

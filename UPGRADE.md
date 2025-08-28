@@ -364,6 +364,18 @@ all drivers and middleware.
 
 # Upgrade to 4.4
 
+## Deprecated `View` features
+
+The `View` constructor has been marked as internal. Use `View::editor()` to instantiate an editor and
+`ViewEditor::create()` to create a view.
+
+## Deprecated `Sequence` features
+
+1. The `Sequence` constructor has been marked as internal. Use `Sequence::editor()` to instantiate an editor and
+   `SequenceEditor::create()` to create a sequence.
+2. Passing a negative value as sequence cache size has been deprecated.
+3. The `Sequence::getCache()` method has been deprecated. Use `Sequence::getCacheSize()` instead.
+
 ## Deprecated extension of schema classes
 
 Extending the following classes has been deprecated. Use them directly.

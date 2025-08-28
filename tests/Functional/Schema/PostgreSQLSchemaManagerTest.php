@@ -370,7 +370,10 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $name = 'list_tables_excludes_views_test_view';
         $sql  = 'SELECT * from list_tables_excludes_views';
 
-        $view = new View($name, $sql);
+        $view = View::editor()
+            ->setUnquotedName($name)
+            ->setSQL($sql)
+            ->create();
 
         $this->schemaManager->createView($view);
 

@@ -215,7 +215,11 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesSequenceSqlCommands(): void
     {
-        $sequence = new Sequence('myseq', 20, 1);
+        $sequence = Sequence::editor()
+            ->setUnquotedName('myseq')
+            ->setAllocationSize(20)
+            ->create();
+
         self::assertEquals(
             'CREATE SEQUENCE "myseq" INCREMENT BY 20 MINVALUE 1 START 1',
             $this->platform->getCreateSequenceSQL($sequence),
@@ -467,14 +471,19 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $sql);
     }
 
+    /** @param non-negative-int $cacheSize */
     #[DataProvider('dataCreateSequenceWithCache')]
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
-        $sequence = new Sequence('foo', 1, 1, $cacheSize);
+        $sequence = Sequence::editor()
+            ->setUnquotedName('foo')
+            ->setCacheSize($cacheSize)
+            ->create();
+
         self::assertStringContainsString($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
-    /** @return mixed[][] */
+    /** @return iterable<array{non-negative-int, string}> */
     public static function dataCreateSequenceWithCache(): iterable
     {
         return [

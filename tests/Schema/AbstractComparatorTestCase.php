@@ -275,12 +275,22 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     public function testCompareSequences(): void
     {
-        $seq1 = new Sequence('foo', 1, 1);
-        $seq2 = new Sequence('foo', 1, 2);
-        $seq3 = new Sequence('foo', 2, 1);
+        $sequence1 = Sequence::editor()
+            ->setUnquotedName('foo')
+            ->create();
 
-        self::assertTrue($this->comparator->diffSequence($seq1, $seq2));
-        self::assertTrue($this->comparator->diffSequence($seq1, $seq3));
+        $sequence2 = Sequence::editor()
+            ->setUnquotedName('foo')
+            ->setInitialValue(2)
+            ->create();
+
+        $sequence3 = Sequence::editor()
+            ->setUnquotedName('foo')
+            ->setAllocationSize(2)
+            ->create();
+
+        self::assertTrue($this->comparator->diffSequence($sequence1, $sequence2));
+        self::assertTrue($this->comparator->diffSequence($sequence1, $sequence3));
     }
 
     public function testRemovedSequence(): void

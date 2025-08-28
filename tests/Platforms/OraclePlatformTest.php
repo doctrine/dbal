@@ -361,14 +361,19 @@ SQL
         );
     }
 
+    /** @param non-negative-int $cacheSize */
     #[DataProvider('dataCreateSequenceWithCache')]
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
-        $sequence = new Sequence('foo', 1, 1, $cacheSize);
+        $sequence = Sequence::editor()
+            ->setUnquotedName('foo')
+            ->setCacheSize($cacheSize)
+            ->create();
+
         self::assertStringContainsString($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
-    /** @return mixed[][] */
+    /** @return iterable<array{non-negative-int, string}> */
     public static function dataCreateSequenceWithCache(): iterable
     {
         return [

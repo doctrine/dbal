@@ -1104,7 +1104,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesSequenceSqlCommands(): void
     {
-        $sequence = new Sequence('myseq', 20, 1);
+        $sequence = Sequence::editor()
+            ->setUnquotedName('myseq')
+            ->setAllocationSize(20)
+            ->create();
+
         self::assertEquals(
             'CREATE SEQUENCE [myseq] START WITH 1 INCREMENT BY 20 MINVALUE 1',
             $this->platform->getCreateSequenceSQL($sequence),
