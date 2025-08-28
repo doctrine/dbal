@@ -225,7 +225,10 @@ SQL,
      */
     protected function _getPortableViewDefinition(array $view): View
     {
-        return new View($view['name'], $view['definition']);
+        return View::editor()
+            ->setQuotedName($view['name'])
+            ->setSQL($view['definition'])
+            ->create();
     }
 
     /** @throws Exception */

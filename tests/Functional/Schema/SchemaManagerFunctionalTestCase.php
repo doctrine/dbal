@@ -814,7 +814,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $found = $this->findObjectByName($views, $view->getObjectName());
         self::assertNotNull($found);
 
-        self::assertStringContainsString('view_test_table', $found->getSql());
+        self::assertStringContainsString('view_test_table', $found->getSQL());
     }
 
     public function testUpdateSchemaWithForeignKeyRenaming(): void

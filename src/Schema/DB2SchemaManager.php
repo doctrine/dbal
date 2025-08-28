@@ -171,7 +171,10 @@ class DB2SchemaManager extends AbstractSchemaManager
             $sql = substr($view['text'], $pos + 4);
         }
 
-        return new View($view['name'], $sql);
+        return View::editor()
+            ->setQuotedName($view['name'])
+            ->setSQL($sql)
+            ->create();
     }
 
     protected function selectTableNames(string $databaseName): Result

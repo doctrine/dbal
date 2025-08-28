@@ -90,13 +90,16 @@ SQL,
     protected function _getPortableViewDefinition(array $view): View
     {
         // @phpstan-ignore missingType.checkedException
-        if ($view['schemaname'] === $this->getCurrentSchemaName()) {
-            $name = $view['viewname'];
+        if ($view['table_schema'] !== $this->getCurrentSchemaName()) {
+            $name = OptionallyQualifiedName::quoted($view['table_name'], $view['table_schema']);
         } else {
-            $name = $view['schemaname'] . '.' . $view['viewname'];
+            $name = OptionallyQualifiedName::quoted($view['table_name']);
         }
 
-        return new View($name, $view['definition']);
+        return View::editor()
+            ->setName($name)
+            ->setSQL($view['view_definition'])
+            ->create();
     }
 
     /**

@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\Parser;
-use Doctrine\DBAL\Schema\Name\Parsers;
 
 /**
  * Representation of a Database View.
@@ -17,20 +14,12 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 final class View extends AbstractNamedObject
 {
     /** @internal Use {@link View::editor()} to instantiate an editor and {@link ViewEditor::create()} to create a view. */
-    public function __construct(string $name, private readonly string $sql)
+    public function __construct(OptionallyQualifiedName $name, private readonly string $sql)
     {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
-        try {
-            $parsedName = $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($name, $e);
-        }
-
-        parent::__construct($parsedName);
+        parent::__construct($name);
     }
 
-    public function getSql(): string
+    public function getSQL(): string
     {
         return $this->sql;
     }

@@ -162,9 +162,9 @@ class PostgreSQLPlatform extends AbstractPlatform
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {
-        return 'SELECT quote_ident(table_name) AS viewname,
-                       table_schema AS schemaname,
-                       view_definition AS definition
+        return 'SELECT table_name,
+                       table_schema,
+                       view_definition
                 FROM   information_schema.views
                 WHERE  view_definition IS NOT NULL';
     }

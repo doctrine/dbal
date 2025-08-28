@@ -64,9 +64,6 @@ final class ViewEditor
             throw InvalidViewDefinition::sqlNotSet($this->name);
         }
 
-        return new View(
-            $this->name->toString(),
-            $this->sql,
-        );
+        return new View($this->name, $this->sql);
     }
 }

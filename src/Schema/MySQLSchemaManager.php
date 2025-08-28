@@ -62,7 +62,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableViewDefinition(array $view): View
     {
-        return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);
+        return View::editor()
+            ->setQuotedName($view['TABLE_NAME'])
+            ->setSQL($view['VIEW_DEFINITION'])
+            ->create();
     }
 
     /**
