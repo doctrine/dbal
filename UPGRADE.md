@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Changes in `Table` method return types
+
+The following `Table` methods no longer return associative arrays of objects. Instead, they return lists:
+- `Table::getIndexes()`
+- `Table::getUniqueConstraints()`
+- `Table::getForeignKeys()`
+
 ## BC BREAK: Changes in `Sequence` API
 
 The following `Sequence` methods have been removed:

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Exception\UnsupportedTableDefinition;
+use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -799,17 +800,17 @@ class SQLitePlatform extends AbstractPlatform
     private function getIndexesInAlteredTable(TableDiff $diff): array
     {
         $oldTable = $diff->getOldTable();
-        $indexes  = $oldTable->getIndexes();
+        $indexes  = new UnqualifiedNamedObjectSet(...$oldTable->getIndexes());
         $nameMap  = $this->getDiffColumnNameMap($diff);
 
         foreach ($indexes as $key => $index) {
-            $indexName = $index->getObjectName()->getIdentifier()->getValue();
+            $indexName = $index->getObjectName();
             foreach ($diff->getRenamedIndexes() as $oldIndexName => $renamedIndex) {
-                if (strtolower($indexName) !== strtolower($oldIndexName)) {
+                if (strtolower($indexName->getIdentifier()->getValue()) !== strtolower($oldIndexName)) {
                     continue;
                 }
 
-                unset($indexes[$key]);
+                $indexes->remove($indexName);
             }
 
             $changed     = false;
@@ -817,7 +818,7 @@ class SQLitePlatform extends AbstractPlatform
             foreach ($index->getIndexedColumns() as $column) {
                 $name = $column->getColumnName()->getIdentifier()->getValue();
                 if (! isset($nameMap[$name])) {
-                    unset($indexes[$key]);
+                    $indexes->remove($indexName);
                     continue 2;
                 }
 
@@ -833,19 +834,14 @@ class SQLitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $indexes[$key] = $index->edit()
+            $indexes->modify($indexName, static fn (Index $index): Index => $index
+                ->edit()
                 ->setUnquotedColumnNames(...$columnNames)
-                ->create();
+                ->create());
         }
 
         foreach ($diff->getDroppedIndexes() as $index) {
-            $indexKey = strtolower(
-                $index->getObjectName()
-                    ->getIdentifier()
-                    ->getValue(),
-            );
-
-            unset($indexes[$indexKey]);
+            $indexes->remove($index->getObjectName());
         }
 
         foreach (
@@ -854,16 +850,10 @@ class SQLitePlatform extends AbstractPlatform
                 $diff->getRenamedIndexes(),
             ) as $index
         ) {
-            $indexKey = strtolower(
-                $index->getObjectName()
-                    ->getIdentifier()
-                    ->getValue(),
-            );
-
-            $indexes[$indexKey] = $index;
+            $indexes->add($index);
         }
 
-        return $indexes;
+        return $indexes->toList();
     }
 
     /** @return array<ForeignKeyConstraint> */

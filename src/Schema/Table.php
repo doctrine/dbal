@@ -683,30 +683,30 @@ final class Table extends AbstractNamedObject
         return $this->indexes[$this->getObjectKey($parsedName)];
     }
 
-    /** @return array<string, Index> */
+    /** @return list<Index> */
     public function getIndexes(): array
     {
-        return $this->indexes;
+        return array_values($this->indexes);
     }
 
     /**
      * Returns the unique constraints.
      *
-     * @return array<string, UniqueConstraint>
+     * @return list<UniqueConstraint>
      */
     public function getUniqueConstraints(): array
     {
-        return $this->uniqueConstraints;
+        return array_values($this->uniqueConstraints);
     }
 
     /**
      * Returns the foreign key constraints.
      *
-     * @return array<string, ForeignKeyConstraint>
+     * @return list<ForeignKeyConstraint>
      */
     public function getForeignKeys(): array
     {
-        return $this->foreignKeyConstraints;
+        return array_values($this->foreignKeyConstraints);
     }
 
     public function hasOption(string $name): bool
