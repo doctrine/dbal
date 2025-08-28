@@ -861,7 +861,7 @@ abstract class AbstractSchemaManager
         $this->connection->executeStatement(
             $this->platform->getCreateViewSQL(
                 $view->getObjectName()->toSQL($this->platform),
-                $view->getSql(),
+                $view->getSQL(),
             ),
         );
     }

@@ -125,7 +125,10 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableViewDefinition(array $view): View
     {
-        return new View($view['name'], $view['sql']);
+        return View::editor()
+            ->setQuotedName($view['name'])
+            ->setSQL($view['sql'])
+            ->create();
     }
 
     /**

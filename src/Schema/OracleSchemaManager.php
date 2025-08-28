@@ -42,7 +42,10 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $view = array_change_key_case($view, CASE_LOWER);
 
-        return new View($this->getQuotedIdentifierName($view['view_name']), $view['text']);
+        return View::editor()
+            ->setQuotedName($view['view_name'])
+            ->setSQL($view['text'])
+            ->create();
     }
 
     /**
@@ -270,21 +273,6 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         parent::dropTable($name);
-    }
-
-    /**
-     * Returns the quoted representation of the given identifier name.
-     *
-     * Quotes non-uppercase identifiers explicitly to preserve case
-     * and thus make references to the particular identifier work.
-     */
-    private function getQuotedIdentifierName(string $identifier): string
-    {
-        if (preg_match('/[a-z]/', $identifier) === 1) {
-            return $this->platform->quoteSingleIdentifier($identifier);
-        }
-
-        return $identifier;
     }
 
     protected function selectTableNames(string $databaseName): Result
