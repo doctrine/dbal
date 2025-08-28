@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Changes in `Sequence` API
+
+The following `Sequence` methods have been removed:
+
+- `Sequence::getCache()`
+- `Sequence::setAllocationSize()`
+- `Sequence::setInitialValue()`
+- `Sequence::setCache()`
+
+Additionally, the `Sequence` class has been declared as final.
+
 ## BC BREAK: Removed `AbstractAsset` class
 
 The `AbstractAsset` class has been removed.
@@ -88,7 +99,6 @@ The following classes have been marked as final:
 - `ColumnDiff`
 - `Table`
 - `TableDiff`
-- `Sequence`
 - `Schema`
 - `SchemaDiff`
 - `View`

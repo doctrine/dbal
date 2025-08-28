@@ -212,11 +212,11 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $sequence = array_change_key_case($sequence, CASE_LOWER);
 
-        return new Sequence(
-            $this->getQuotedIdentifierName($sequence['sequence_name']),
-            (int) $sequence['increment_by'],
-            (int) $sequence['min_value'],
-        );
+        return Sequence::editor()
+            ->setQuotedName($sequence['sequence_name'])
+            ->setAllocationSize((int) $sequence['increment_by'])
+            ->setInitialValue((int) $sequence['min_value'])
+            ->create();
     }
 
     /**

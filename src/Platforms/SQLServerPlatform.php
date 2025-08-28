@@ -153,13 +153,16 @@ class SQLServerPlatform extends AbstractPlatform
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT seq.name,
+                       scm.name AS schema_name,
                        CAST(
                            seq.increment AS VARCHAR(MAX)
                        ) AS increment, -- CAST avoids driver error for sql_variant type
                        CAST(
                            seq.start_value AS VARCHAR(MAX)
                        ) AS start_value -- CAST avoids driver error for sql_variant type
-                FROM   sys.sequences AS seq';
+                FROM   sys.sequences AS seq
+                JOIN   sys.schemas AS scm
+                ON     scm.schema_id = seq.schema_id';
     }
 
     public function getSequenceNextValSQL(string $sequence): string

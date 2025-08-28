@@ -46,7 +46,18 @@ SQL,
      */
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
-        return new Sequence($sequence['name'], (int) $sequence['increment'], (int) $sequence['start_value']);
+        // @phpstan-ignore missingType.checkedException
+        if ($sequence['schema_name'] !== $this->getCurrentSchemaName()) {
+            $name = OptionallyQualifiedName::quoted($sequence['name'], $sequence['schema_name']);
+        } else {
+            $name = OptionallyQualifiedName::quoted($sequence['name']);
+        }
+
+        return Sequence::editor()
+            ->setName($name)
+            ->setAllocationSize((int) $sequence['increment'])
+            ->setInitialValue((int) $sequence['start_value'])
+            ->create();
     }
 
     /**

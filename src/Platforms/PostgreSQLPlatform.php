@@ -149,10 +149,10 @@ class PostgreSQLPlatform extends AbstractPlatform
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListSequencesSQL(string $database): string
     {
-        return 'SELECT sequence_name AS relname,
-                       sequence_schema AS schemaname,
-                       minimum_value AS min_value,
-                       increment AS increment_by
+        return 'SELECT sequence_name,
+                       sequence_schema,
+                       minimum_value,
+                       increment
                 FROM   information_schema.sequences
                 WHERE  sequence_catalog = ' . $this->quoteStringLiteral($database) . "
                 AND    sequence_schema NOT LIKE 'pg\_%'
