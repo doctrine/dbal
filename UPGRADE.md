@@ -391,7 +391,13 @@ The `View` constructor has been marked as internal. Use `View::editor()` to inst
 1. The `Sequence` constructor has been marked as internal. Use `Sequence::editor()` to instantiate an editor and
    `SequenceEditor::create()` to create a sequence.
 2. Passing a negative value as sequence cache size has been deprecated.
-3. The `Sequence::getCache()` method has been deprecated. Use `Sequence::getCacheSize()` instead.
+
+The following `Sequence` methods have been deprecated:
+
+- `Sequence::getCache()` - use `Sequence::getCacheSize()` instead.
+- `Sequence::setAllocationSize()`, `Sequence::setInitialValue()` and `Sequence::setCache()` - use
+   `SequenceEditor::setAllocationSize()`, `SequenceEditor::setInitialValue()` and `SequenceEditor::setCacheSize()`
+   instead.
 
 ## Deprecated extension of schema classes
 
