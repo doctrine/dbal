@@ -48,7 +48,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_find;
 use function array_keys;
-use function array_values;
 use function get_debug_type;
 use function sprintf;
 use function str_starts_with;
@@ -760,7 +759,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertFalse($table->hasIndex('bar_idx'));
 
         /** @var list<ForeignKeyConstraint> $fks */
-        $fks = array_values($table->getForeignKeys());
+        $fks = $table->getForeignKeys();
         self::assertCount(1, $fks);
         $foreignKey = $fks[0];
 
@@ -940,7 +939,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($table->hasColumn('rename_fk_id'));
 
         /** @var list<ForeignKeyConstraint> $foreignKeys */
-        $foreignKeys = array_values($table->getForeignKeys());
+        $foreignKeys = $table->getForeignKeys();
         self::assertCount(1, $foreignKeys);
         $foreignKey = $foreignKeys[0];
 
@@ -2114,7 +2113,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->assertPrimaryKeyConstraintEquals($primaryKeyConstraint, $nestedSchemaTable->getPrimaryKeyConstraint());
 
-        $relatedFks = array_values($nestedSchemaTable->getForeignKeys());
+        $relatedFks = $nestedSchemaTable->getForeignKeys();
         self::assertCount(1, $relatedFks);
         $relatedFk = $relatedFks[0];
 

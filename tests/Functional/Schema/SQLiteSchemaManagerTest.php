@@ -24,8 +24,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-use function array_values;
-
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
@@ -372,7 +370,7 @@ SQL;
         $song = $schemaManager->introspectTableByUnquotedName('song');
 
         /** @var list<ForeignKeyConstraint> $foreignKeys */
-        $foreignKeys = array_values($song->getForeignKeys());
+        $foreignKeys = $song->getForeignKeys();
         self::assertCount(2, $foreignKeys);
 
         $foreignKey1 = $foreignKeys[0];
@@ -419,7 +417,7 @@ SQL;
         $notes = $this->schemaManager->introspectTableByUnquotedName('notes');
 
         /** @var list<ForeignKeyConstraint> $foreignKeys */
-        $foreignKeys = array_values($notes->getForeignKeys());
+        $foreignKeys = $notes->getForeignKeys();
         self::assertCount(1, $foreignKeys);
 
         $foreignKey = $foreignKeys[0];
@@ -464,7 +462,7 @@ SQL;
         $song = $schemaManager->introspectTableByUnquotedName('track');
 
         /** @var list<ForeignKeyConstraint> $foreignKeys */
-        $foreignKeys = array_values($song->getForeignKeys());
+        $foreignKeys = $song->getForeignKeys();
         self::assertCount(1, $foreignKeys);
 
         $foreignKey1 = $foreignKeys[0];

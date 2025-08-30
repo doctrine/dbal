@@ -33,8 +33,6 @@ use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use ValueError;
 
-use function array_values;
-
 class TableTest extends TestCase
 {
     use VerifyDeprecations;
@@ -748,7 +746,7 @@ class TableTest extends TestCase
             )
             ->create();
 
-        $indexes = array_values($table->getIndexes());
+        $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
         $index = $indexes[0];
 
@@ -865,7 +863,7 @@ class TableTest extends TestCase
 
         $table->addIndex(['baz']);
 
-        $indexes = array_values($table->getIndexes());
+        $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
         $index = $indexes[0];
 
