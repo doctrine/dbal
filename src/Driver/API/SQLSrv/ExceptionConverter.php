@@ -19,6 +19,8 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
 
+use function str_contains;
+
 /**
  * @internal
  *
@@ -40,7 +42,10 @@ final class ExceptionConverter implements ExceptionConverterInterface
             2627 => new UniqueConstraintViolationException($exception, $query),
             2714 => new TableExistsException($exception, $query),
             3701,
-            15151 => new DatabaseObjectNotFoundException($exception, $query),
+            15151 => str_contains($exception->getMessage(), 'Cannot drop the table ')
+                || str_contains($exception->getMessage(), 'Cannot alter the table ')
+                ? new TableNotFoundException($exception, $query)
+                : new DatabaseObjectNotFoundException($exception, $query),
             11001,
             18456 => new ConnectionException($exception, $query),
             default => new DriverException($exception, $query),
