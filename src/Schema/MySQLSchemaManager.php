@@ -279,6 +279,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
                     $row['update_rule'] = null;
                 }
 
+                dump($row['referenced_table_name']);
                 $list[$row['constraint_name']] = [
                     'name' => $this->getQuotedIdentifierName($row['constraint_name']),
                     'local' => [],
@@ -332,7 +333,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     protected function selectTableNames(string $databaseName): Result
     {
         $sql = <<<'SQL'
-SELECT TABLE_NAME
+SELECT CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS TABLE_NAME
 FROM information_schema.TABLES
 WHERE TABLE_SCHEMA = ?
   AND TABLE_TYPE = 'BASE TABLE'
@@ -358,7 +359,7 @@ SQL;
         $sql = sprintf(
             <<<'SQL'
 SELECT
-       c.TABLE_NAME,
+       CONCAT(c.TABLE_SCHEMA, '.', c.TABLE_NAME) AS TABLE_NAME,
        c.COLUMN_NAME        AS field,
        %s                   AS type,
        c.COLUMN_TYPE,
@@ -401,7 +402,7 @@ SQL,
         $sql = sprintf(
             <<<'SQL'
 SELECT
-        TABLE_NAME,
+        CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) AS TABLE_NAME,
         NON_UNIQUE  AS Non_Unique,
         INDEX_NAME  AS Key_name,
         COLUMN_NAME AS Column_Name,
@@ -434,7 +435,7 @@ SQL,
         $sql = sprintf(
             <<<'SQL'
 SELECT
-            k.TABLE_NAME,
+            CONCAT(k.TABLE_SCHEMA, '.', k.TABLE_NAME) AS TABLE_NAME,
             k.CONSTRAINT_NAME,
             k.COLUMN_NAME,
             k.REFERENCED_TABLE_NAME,
