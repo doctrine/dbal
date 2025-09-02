@@ -279,7 +279,6 @@ class MySQLSchemaManager extends AbstractSchemaManager
                     $row['update_rule'] = null;
                 }
 
-                dump($row['referenced_table_name']);
                 $list[$row['constraint_name']] = [
                     'name' => $this->getQuotedIdentifierName($row['constraint_name']),
                     'local' => [],
