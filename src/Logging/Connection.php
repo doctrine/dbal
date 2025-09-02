@@ -13,14 +13,20 @@ use Psr\Log\LoggerInterface;
 final class Connection extends AbstractConnectionMiddleware
 {
     /** @internal This connection can be only instantiated by its driver. */
-    public function __construct(ConnectionInterface $connection, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        ConnectionInterface $connection,
+        private readonly LoggerInterface $logger,
+        private readonly LogLevelConfig $logLevelConfig,
+    ) {
         parent::__construct($connection);
     }
 
     public function __destruct()
     {
-        $this->logger->info('Disconnecting');
+        $this->logger->log(
+            $this->logLevelConfig->getLevel(LogMessage::DISCONNECT),
+            'Disconnecting',
+        );
     }
 
     public function prepare(string $sql): DriverStatement
@@ -29,40 +35,58 @@ final class Connection extends AbstractConnectionMiddleware
             parent::prepare($sql),
             $this->logger,
             $sql,
+            $this->logLevelConfig,
         );
     }
 
     public function query(string $sql): Result
     {
-        $this->logger->debug('Executing query: {sql}', ['sql' => $sql]);
+        $this->logger->log(
+            $this->logLevelConfig->getLevel(LogMessage::QUERY),
+            'Executing query: {sql}',
+            ['sql' => $sql],
+        );
 
         return parent::query($sql);
     }
 
     public function exec(string $sql): int|string
     {
-        $this->logger->debug('Executing statement: {sql}', ['sql' => $sql]);
+        $this->logger->log(
+            $this->logLevelConfig->getLevel(LogMessage::EXECUTE),
+            'Executing statement: {sql}',
+            ['sql' => $sql],
+        );
 
         return parent::exec($sql);
     }
 
     public function beginTransaction(): void
     {
-        $this->logger->debug('Beginning transaction');
+        $this->logger->log(
+            $this->logLevelConfig->getLevel(LogMessage::BEGIN_TRANSACTION),
+            'Beginning transaction',
+        );
 
         parent::beginTransaction();
     }
 
     public function commit(): void
     {
-        $this->logger->debug('Committing transaction');
+        $this->logger->log(
+            $this->logLevelConfig->getLevel(LogMessage::COMMIT),
+            'Committing transaction',
+        );
 
         parent::commit();
     }
 
     public function rollBack(): void
     {
-        $this->logger->debug('Rolling back transaction');
+        $this->logger->log(
+            $this->logLevelConfig->getLevel(LogMessage::ROLL_BACK),
+            'Rolling back transaction',
+        );
 
         parent::rollBack();
     }

@@ -10,12 +10,14 @@ use Psr\Log\LoggerInterface;
 
 final class Middleware implements MiddlewareInterface
 {
-    public function __construct(private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly LogLevelConfig $logLevelConfig = new LogLevelConfig(),
+    ) {
     }
 
     public function wrap(DriverInterface $driver): DriverInterface
     {
-        return new Driver($driver, $this->logger);
+        return new Driver($driver, $this->logger, $this->logLevelConfig);
     }
 }

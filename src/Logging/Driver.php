@@ -12,8 +12,11 @@ use SensitiveParameter;
 final class Driver extends AbstractDriverMiddleware
 {
     /** @internal This driver can be only instantiated by its middleware. */
-    public function __construct(DriverInterface $driver, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        DriverInterface $driver,
+        private readonly LoggerInterface $logger,
+        private readonly LogLevelConfig $logLevelConfig,
+    ) {
         parent::__construct($driver);
     }
 
@@ -24,11 +27,16 @@ final class Driver extends AbstractDriverMiddleware
         #[SensitiveParameter]
         array $params,
     ): Connection {
-        $this->logger->info('Connecting with parameters {params}', ['params' => $this->maskPassword($params)]);
+        $this->logger->log(
+            $this->logLevelConfig->getLevel(LogMessage::CONNECT),
+            'Connecting with parameters {params}',
+            ['params' => $this->maskPassword($params)],
+        );
 
         return new Connection(
             parent::connect($params),
             $this->logger,
+            $this->logLevelConfig,
         );
     }
 

@@ -23,6 +23,7 @@ final class Statement extends AbstractStatementMiddleware
         StatementInterface $statement,
         private readonly LoggerInterface $logger,
         private readonly string $sql,
+        private readonly LogLevelConfig $logLevelConfig,
     ) {
         parent::__construct($statement);
     }
@@ -37,11 +38,15 @@ final class Statement extends AbstractStatementMiddleware
 
     public function execute(): ResultInterface
     {
-        $this->logger->debug('Executing statement: {sql} (parameters: {params}, types: {types})', [
-            'sql'    => $this->sql,
-            'params' => $this->params,
-            'types'  => $this->types,
-        ]);
+        $this->logger->log(
+            $this->logLevelConfig->getLevel(LogMessage::STATEMENT),
+            'Executing statement: {sql} (parameters: {params}, types: {types})',
+            [
+                'sql' => $this->sql,
+                'params' => $this->params,
+                'types' => $this->types,
+            ],
+        );
 
         return parent::execute();
     }
