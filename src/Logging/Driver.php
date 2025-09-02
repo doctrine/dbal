@@ -28,7 +28,7 @@ final class Driver extends AbstractDriverMiddleware
         array $params,
     ): Connection {
         $this->logger->log(
-            $this->logLevelConfig->getLevel(LogMessage::CONNECT),
+            $this->logLevelConfig->getLevel(LogLevelConfig::LOG_CONNECT),
             'Connecting with parameters {params}',
             ['params' => $this->maskPassword($params)],
         );

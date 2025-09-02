@@ -24,7 +24,7 @@ final class Connection extends AbstractConnectionMiddleware
     public function __destruct()
     {
         $this->logger->log(
-            $this->logLevelConfig->getLevel(LogMessage::DISCONNECT),
+            $this->logLevelConfig->getLevel(LogLevelConfig::LOG_DISCONNECT),
             'Disconnecting',
         );
     }
@@ -42,7 +42,7 @@ final class Connection extends AbstractConnectionMiddleware
     public function query(string $sql): Result
     {
         $this->logger->log(
-            $this->logLevelConfig->getLevel(LogMessage::QUERY),
+            $this->logLevelConfig->getLevel(LogLevelConfig::LOG_QUERY),
             'Executing query: {sql}',
             ['sql' => $sql],
         );
@@ -53,7 +53,7 @@ final class Connection extends AbstractConnectionMiddleware
     public function exec(string $sql): int|string
     {
         $this->logger->log(
-            $this->logLevelConfig->getLevel(LogMessage::EXECUTE),
+            $this->logLevelConfig->getLevel(LogLevelConfig::LOG_EXECUTE),
             'Executing statement: {sql}',
             ['sql' => $sql],
         );
@@ -64,7 +64,7 @@ final class Connection extends AbstractConnectionMiddleware
     public function beginTransaction(): void
     {
         $this->logger->log(
-            $this->logLevelConfig->getLevel(LogMessage::BEGIN_TRANSACTION),
+            $this->logLevelConfig->getLevel(LogLevelConfig::LOG_BEGIN_TRANSACTION),
             'Beginning transaction',
         );
 
@@ -74,7 +74,7 @@ final class Connection extends AbstractConnectionMiddleware
     public function commit(): void
     {
         $this->logger->log(
-            $this->logLevelConfig->getLevel(LogMessage::COMMIT),
+            $this->logLevelConfig->getLevel(LogLevelConfig::LOG_COMMIT),
             'Committing transaction',
         );
 
@@ -84,7 +84,7 @@ final class Connection extends AbstractConnectionMiddleware
     public function rollBack(): void
     {
         $this->logger->log(
-            $this->logLevelConfig->getLevel(LogMessage::ROLL_BACK),
+            $this->logLevelConfig->getLevel(LogLevelConfig::LOG_ROLL_BACK),
             'Rolling back transaction',
         );
 

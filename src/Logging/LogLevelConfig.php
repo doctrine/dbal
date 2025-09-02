@@ -8,25 +8,38 @@ use Psr\Log\LogLevel;
 
 final class LogLevelConfig
 {
+    public const LOG_BEGIN_TRANSACTION = 'begin_transaction';
+    public const LOG_COMMIT            = 'commit_transaction';
+    public const LOG_CONNECT           = 'connect';
+    public const LOG_DISCONNECT        = 'disconnect';
+    public const LOG_EXECUTE           = 'execute';
+    public const LOG_QUERY             = 'query';
+    public const LOG_ROLL_BACK         = 'roll_back_transaction';
+    public const LOG_STATEMENT         = 'statement';
+
     private const DEFAULT_OPTIONS = [
-        LogMessage::BEGIN_TRANSACTION->value => LogLevel::DEBUG,
-        LogMessage::CONNECT->value => LogLevel::INFO,
-        LogMessage::COMMIT->value => LogLevel::DEBUG,
-        LogMessage::DISCONNECT->value => LogLevel::INFO,
-        LogMessage::EXECUTE->value => LogLevel::DEBUG,
-        LogMessage::QUERY->value => LogLevel::DEBUG,
-        LogMessage::ROLL_BACK->value => LogLevel::DEBUG,
-        LogMessage::STATEMENT->value => LogLevel::DEBUG,
+        self::LOG_BEGIN_TRANSACTION => LogLevel::DEBUG,
+        self::LOG_CONNECT => LogLevel::INFO,
+        self::LOG_COMMIT => LogLevel::DEBUG,
+        self::LOG_DISCONNECT => LogLevel::INFO,
+        self::LOG_EXECUTE => LogLevel::DEBUG,
+        self::LOG_QUERY => LogLevel::DEBUG,
+        self::LOG_ROLL_BACK => LogLevel::DEBUG,
+        self::LOG_STATEMENT => LogLevel::DEBUG,
     ];
 
-    /** @param array<LogMessage::value, LogLevel::*> $options */
+    /** @param array<self::LOG_*, LogLevel::*> $options */
     public function __construct(private readonly array $options = [])
     {
     }
 
-    /** @return LogLevel::* */
-    public function getLevel(LogMessage $message): string
+    /**
+     * @param self::LOG_* $message
+     *
+     * @return LogLevel::*
+     */
+    public function getLevel(string $message): string
     {
-        return $this->options[$message->value] ?? self::DEFAULT_OPTIONS[$message->value];
+        return $this->options[$message] ?? self::DEFAULT_OPTIONS[$message];
     }
 }

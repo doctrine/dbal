@@ -39,7 +39,7 @@ final class Statement extends AbstractStatementMiddleware
     public function execute(): ResultInterface
     {
         $this->logger->log(
-            $this->logLevelConfig->getLevel(LogMessage::STATEMENT),
+            $this->logLevelConfig->getLevel(LogLevelConfig::LOG_STATEMENT),
             'Executing statement: {sql} (parameters: {params}, types: {types})',
             [
                 'sql' => $this->sql,
