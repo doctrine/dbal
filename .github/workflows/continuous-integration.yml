@@ -218,7 +218,9 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.4"
+          - "8.3"
+          # The DB2 workflow currently segfaults with PHP 8.4
+          # - "8.4"
 
   development-deps:
     name: "PHPUnit with PDO_SQLite and development dependencies"
