@@ -275,14 +275,17 @@ class Comparator
             foreach ($newForeignKeys as $newKey => $newForeignKey) {
                 if ($this->diffForeignKey($oldForeignKey, $newForeignKey) === false) {
                     unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
-                } else {
-                    if (strtolower($oldForeignKey->getName()) === strtolower($newForeignKey->getName())) {
-                        $droppedForeignKeys[$oldKey] = $oldForeignKey;
-                        $addedForeignKeys[$newKey]   = $newForeignKey;
-
-                        unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
-                    }
+                    continue 2;
                 }
+
+                if (strtolower($oldForeignKey->getName()) !== strtolower($newForeignKey->getName())) {
+                    continue;
+                }
+
+                $droppedForeignKeys[$oldKey] = $oldForeignKey;
+                $addedForeignKeys[$newKey]   = $newForeignKey;
+
+                unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
             }
         }
 
