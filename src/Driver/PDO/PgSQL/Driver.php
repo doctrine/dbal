@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use PDO;
+use Pdo\Pgsql;
 use PDOException;
 use SensitiveParameter;
 
@@ -50,10 +51,10 @@ final class Driver extends AbstractPostgreSQLDriver
         }
 
         if (
-            ! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
-            || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
+            ! isset($driverOptions[Pgsql::ATTR_DISABLE_PREPARES])
+            || $driverOptions[Pgsql::ATTR_DISABLE_PREPARES] === true
         ) {
-            $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
+            $pdo->setAttribute(Pgsql::ATTR_DISABLE_PREPARES, true);
         }
 
         $connection = new Connection($pdo);

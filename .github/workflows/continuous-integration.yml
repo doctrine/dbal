@@ -156,18 +156,19 @@ jobs:
           - "8.4"
         mysql-version:
           - "8.0"
-          - "9.3"
+          - "8.4" # LTS
+          - "9.4"
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - config-file-suffix: "-tls"
             php-version: "8.4"
-            mysql-version: "9.1"
+            mysql-version: "9.4"
             extension: "mysqli"
           - config-file-suffix: "-stringify_fetches"
             php-version: "8.4"
-            mysql-version: "9.1"
+            mysql-version: "9.4"
             extension: "pdo_mysql"
 
   phpunit-mssql:
@@ -190,17 +191,18 @@ jobs:
           - "Latin1_General_100_CI_AS_SC_UTF8"
           - "Latin1_General_100_CS_AS_SC_UTF8"
 
-  phpunit-ibm-db2:
-    name: "PHPUnit with IBM DB2"
-    needs: "phpunit-smoke-check"
-    uses: ./.github/workflows/phpunit-db2.yml
-    with:
-      php-version: ${{ matrix.php-version }}
-
-    strategy:
-      matrix:
-        php-version:
-          - "8.4"
+# The DB2 workflow currently segfaults with PHP 8.4
+#  phpunit-ibm-db2:
+#    name: "PHPUnit with IBM DB2"
+#    needs: "phpunit-smoke-check"
+#    uses: ./.github/workflows/phpunit-db2.yml
+#    with:
+#      php-version: ${{ matrix.php-version }}
+#
+#    strategy:
+#      matrix:
+#        php-version:
+#          - "8.4"
 
   development-deps:
     name: "PHPUnit with PDO_SQLite and development dependencies"

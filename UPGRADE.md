@@ -843,10 +843,7 @@ and `::dropUniqueConstraint()` respectively instead.
 ## Support for new PDO subclasses on PHP 8.4
 
 On PHP 8.4, if you call `getNativeConnection()` on a connection established through one of the PDO drivers,
-you will get an instance of the new PDO subclasses, e.g. `Pdo\Mysql` or `Pdo\Ppgsql` instead of just `PDO`.
-
-However, this currently does not apply to persistent connections.
-See https://github.com/php/php-src/issues/16314 for details.
+you will get an instance of the new PDO subclasses, e.g. `Pdo\Mysql` or `Pdo\Pgsql` instead of just `PDO`.
 
 ## Minor BC break: incompatible query cache format
 
@@ -1798,6 +1795,16 @@ The following methods have been removed.
 | `QueryCacheProfile` | `getResultCacheDriver()` | `getResultCache()` |
 
 # Upgrade to 3.10
+
+## Support for new PDO subclasses on PHP 8.4
+
+In 3.10.2, we've backported support for new PDO subclasses introduced in PHP 8.4 because not using them
+could trigger deprecation warnings under certain circumstances in PHP 8.5.
+
+On PHP 8.4, if you call `getNativeConnection()` on a connection established through one of the PDO drivers,
+you will get an instance of the new PDO subclasses, e.g. `Pdo\Mysql` or `Pdo\Pgsql` instead of just `PDO`.
+
+## Optional `doctrine/cache` dependency
 
 The `doctrine/cache` package is now an optional dependency. If you are using the
 `Doctrine\DBAL\Cache` classes, you need to require the `doctrine/cache` package
