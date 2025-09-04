@@ -247,7 +247,7 @@ jobs:
       - "phpunit-mariadb"
       - "phpunit-mysql"
       - "phpunit-mssql"
-      - "phpunit-ibm-db2"
+#      - "phpunit-ibm-db2"
 
     steps:
       - name: "Checkout"
