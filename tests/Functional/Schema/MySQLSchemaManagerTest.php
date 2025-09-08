@@ -875,6 +875,84 @@ SQL;
         );
     }
 
+    public function testListTables(): void
+    {
+        $this->createTestTable('list_tables_test');
+        $tables = $this->schemaManager->listTables();
+
+        $table = $this->findTableByName($tables, 'doctrine_tests.list_tables_test');
+        self::assertNotNull($table);
+
+        self::assertTrue($table->hasColumn('id'));
+        self::assertTrue($table->hasColumn('test'));
+        self::assertTrue($table->hasColumn('foreign_key_test'));
+    }
+
+    /** @return iterable<string, array{string, int}> */
+    public static function tableFilterProvider(): iterable
+    {
+        yield 'One table' => ['doctrine_tests.filter_test_1', 1];
+        yield 'Two tables' => ['doctrine_tests.filter_test_', 2];
+    }
+
+    public function testRenameTable(): void
+    {
+        $this->createTestTable('old_name');
+        $this->schemaManager->renameTable('old_name', 'new_name');
+
+        self::assertFalse($this->schemaManager->tablesExist(['doctrine_tests.old_name']));
+        self::assertTrue($this->schemaManager->tablesExist(['doctrine_tests.new_name']));
+    }
+
+    public function testSchemaIntrospection(): void
+    {
+        $this->createTestTable('test_table');
+
+        $schema = $this->schemaManager->introspectSchema();
+        self::assertTrue($schema->hasTable('doctrine_tests.test_table'));
+    }
+
+    public function testMigrateSchema(): void
+    {
+        $this->createTestTable('table_to_alter');
+        $this->createTestTable('table_to_drop');
+
+        $schema = $this->schemaManager->introspectSchema();
+
+        $tableToAlter = $schema->getTable('doctrine_tests.table_to_alter');
+        $tableToAlter->dropColumn('foreign_key_test');
+        $tableToAlter->addColumn('number', Types::INTEGER);
+
+        $schema->dropTable('doctrine_tests.table_to_drop');
+
+        $tableToCreate = $schema->createTable('table_to_create');
+        $tableToCreate->addColumn('id', Types::INTEGER, ['notnull' => true]);
+        $tableToCreate->setPrimaryKey(['id']);
+
+        $this->schemaManager->migrateSchema($schema);
+
+        $schema = $this->schemaManager->introspectSchema();
+
+        self::assertTrue($schema->hasTable('doctrine_tests.table_to_alter'));
+        self::assertFalse($schema->getTable('doctrine_tests.table_to_alter')->hasColumn('foreign_key_test'));
+        self::assertTrue($schema->getTable('doctrine_tests.table_to_alter')->hasColumn('number'));
+        self::assertFalse($schema->hasTable('doctrine_tests.table_to_drop'));
+        self::assertTrue($schema->hasTable('doctrine_tests.table_to_create'));
+    }
+
+    public function testIntrospectReservedKeywordTableViaListTables(): void
+    {
+        $this->createReservedKeywordTables();
+
+        $tables = $this->schemaManager->listTables();
+
+        $user = $this->findTableByName($tables, 'doctrine_tests.user');
+        self::assertNotNull($user);
+        self::assertCount(2, $user->getColumns());
+        self::assertCount(2, $user->getIndexes());
+        self::assertCount(1, $user->getForeignKeys());
+    }
+
     public function getExpectedDefaultSchemaName(): ?string
     {
         return null;
