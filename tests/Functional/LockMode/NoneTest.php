@@ -65,7 +65,7 @@ class NoneTest extends FunctionalTestCase
             $this->connection2->createSchemaManager()->tableExists(
                 $this->connection2->getDatabasePlatform() instanceof AbstractMySQLPlatform
                 ? 'doctrine_tests.users'
-                : 'users'
+                : 'users',
             )
         ) {
             return;
