@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -164,11 +164,13 @@ class NamedParametersTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        if ($this->connection->createSchemaManager()->tableExists(
-            $this->connection->getDatabasePlatform() instanceof MySQLPlatform
-                ? 'doctrine_tests.ddc1372_foobar'
-                : 'ddc1372_foobar'
-        )) {
+        if (
+            $this->connection->createSchemaManager()->tableExists(
+                $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform
+                    ? 'doctrine_tests.ddc1372_foobar'
+                    : 'ddc1372_foobar',
+            )
+        ) {
             return;
         }
 

@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -63,9 +63,9 @@ class NoneTest extends FunctionalTestCase
 
         if (
             $this->connection2->createSchemaManager()->tableExists(
-                $this->connection2->getDatabasePlatform() instanceof MySQLPlatform
+                $this->connection2->getDatabasePlatform() instanceof AbstractMySQLPlatform
                 ? 'doctrine_tests.users'
-                : 'users',
+                : 'users'
             )
         ) {
             return;
