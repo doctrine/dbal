@@ -811,7 +811,7 @@ SQL;
         $this->connection->executeStatement('DROP TABLE IF EXISTS table_with_custom_type');
 
         $this->connection->executeStatement('CREATE TABLE table_with_custom_type (col1 VARCHAR(255) NOT NULL)');
-        $onlineTable = $this->schemaManager->introspectTable('table_with_custom_type');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('table_with_custom_type');
 
         $comparator = $this->schemaManager->createComparator();
         $tablesDiff = $comparator->compareTables($onlineTable, $metadataTable);

@@ -204,10 +204,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($testTable);
 
-        $databaseTable = $this->schemaManager->introspectTable(
-            $testTable->getObjectName()
-                ->toString(),
-        );
+        $databaseTable = $this->schemaManager->introspectTable($testTable->getObjectName());
 
         self::assertEquals('foo', $databaseTable->getColumn('def')->getDefault());
     }
@@ -252,10 +249,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $databaseTable = $this->schemaManager->introspectTable(
-            $table->getObjectName()
-                ->toString(),
-        );
+        $databaseTable = $this->schemaManager->introspectTable($table->getObjectName());
 
         self::assertTrue(
             $this->schemaManager->createComparator()
@@ -284,10 +278,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $databaseTable = $this->schemaManager->introspectTable(
-            $table->getObjectName()
-                ->toString(),
-        );
+        $databaseTable = $this->schemaManager->introspectTable($table->getObjectName());
 
         self::assertTrue(
             $this->schemaManager->createComparator()
@@ -379,7 +370,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createView($view);
 
-        $tables = $this->schemaManager->listTables();
+        $tables = $this->schemaManager->introspectTables();
 
         $foundTable = $this->findObjectByName($tables, $view->getObjectName());
 
@@ -441,9 +432,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_jsonb');
+        [$column] = $this->schemaManager->introspectTableColumnsByUnquotedName('test_jsonb');
 
-        self::assertInstanceOf(JsonbType::class, $columns['foo']->getType());
+        self::assertInstanceOf(JsonbType::class, $column->getType());
     }
 
     public function testListNegativeColumnDefaultValue(): void
@@ -703,8 +694,7 @@ SQL;
             )
             ->create();
 
-        $platform = $this->connection->getDatabasePlatform();
-        $diff     = $this->schemaManager->createComparator()->compareTables($tableFrom, $tableTo);
+        $diff = $this->schemaManager->createComparator()->compareTables($tableFrom, $tableTo);
 
         $this->schemaManager->alterTable($diff);
 

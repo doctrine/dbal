@@ -18,10 +18,16 @@ final readonly class PrimaryKeyConstraintColumnMetadataProcessor
 {
     public function initializeEditor(PrimaryKeyConstraintColumnRow $row): PrimaryKeyConstraintEditor
     {
-        // Ignore the constraint name in 4.x, since it represents primary key constraints as indexes, and the name of
-        // the constraint may conflict with the name of its backing index.
-        return PrimaryKeyConstraint::editor()
-            ->setIsClustered($row->isClustered());
+        $editor = PrimaryKeyConstraint::editor();
+
+        $constraintName = $row->getConstraintName();
+        if ($constraintName !== null) {
+            $editor->setName(
+                UnqualifiedName::quoted($constraintName),
+            );
+        }
+
+        return $editor->setIsClustered($row->isClustered());
     }
 
     public function applyRow(PrimaryKeyConstraintEditor $editor, PrimaryKeyConstraintColumnRow $row): void

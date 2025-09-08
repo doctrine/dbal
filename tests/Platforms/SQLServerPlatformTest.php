@@ -95,7 +95,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $dropDatabaseExpectation = 'DROP DATABASE foobar';
 
-        self::assertEquals('SELECT * FROM sys.databases', $this->platform->getListDatabasesSQL());
         self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
         self::assertEquals($dropDatabaseExpectation, $this->platform->getDropDatabaseSQL('foobar'));
         self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));

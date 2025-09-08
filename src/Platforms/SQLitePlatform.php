@@ -376,12 +376,6 @@ class SQLitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListViewsSQL(string $database): string
-    {
-        return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
-    }
-
     protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
     {
         $this->ensurePrimaryKeyConstraintIsNotNamed($constraint);

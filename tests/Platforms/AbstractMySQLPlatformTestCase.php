@@ -99,7 +99,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets(): void
     {
-        self::assertEquals('SHOW DATABASES', $this->platform->getListDatabasesSQL());
         self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
         self::assertEquals('DROP DATABASE foobar', $this->platform->getDropDatabaseSQL('foobar'));
         self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
@@ -546,14 +545,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             [['scale' => 5], 'FLOAT'],
             [['precision' => 4, 'scale' => 2], 'FLOAT'],
         ];
-    }
-
-    public function testQuotesDatabaseNameInListViewsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\\\'",
-            $this->platform->getListViewsSQL("Foo'Bar\\"),
-        );
     }
 
     public function testGetCreateTableSQLWithColumnCollation(): void

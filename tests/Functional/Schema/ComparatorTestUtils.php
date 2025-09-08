@@ -22,8 +22,7 @@ final class ComparatorTestUtils
     ): TableDiff {
         return $comparator->compareTables(
             $schemaManager->introspectTable(
-                $desiredTable->getObjectName()
-                    ->toString(),
+                $desiredTable->getObjectName(),
             ),
             $desiredTable,
         );
@@ -38,8 +37,7 @@ final class ComparatorTestUtils
         return $comparator->compareTables(
             $desiredTable,
             $schemaManager->introspectTable(
-                $desiredTable->getObjectName()
-                    ->toString(),
+                $desiredTable->getObjectName(),
             ),
         );
     }

@@ -8,6 +8,19 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `AbstractSchemaManager` methods
+
+The following `AbstractSchemaManager` methods have been removed:
+1. `listDatabases()`
+2. `listSchemaNames()`
+3. `listTableNames()`
+4. `listTableColumns()`
+5. `listTableIndexes()`
+6. `listTableForeignKeys()`
+7. `listTables()`
+8. `listViews()`
+9. `listSequences()`
+
 ## BC BREAK: changes in `Table` class
 
 The `Table` class no longer accepts `foreignKeyConstraints`

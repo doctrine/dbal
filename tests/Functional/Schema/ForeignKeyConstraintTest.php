@@ -211,7 +211,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $sm->createTable($teams);
         $sm->createTable($users);
 
-        $table = $sm->introspectTable('users');
+        $table = $sm->introspectTableByUnquotedName('users');
 
         $this->assertForeignKeyConstraintListEquals($foreignKeyConstraints, array_values($table->getForeignKeys()));
     }
@@ -325,7 +325,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $sm->createTable($roles);
         $sm->createTable($users);
 
-        $constraints = $sm->listTableForeignKeys('users');
+        $constraints = $sm->introspectTableForeignKeyConstraintsByUnquotedName('users');
 
         self::assertCount(1, $constraints);
 
@@ -457,7 +457,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $sm->createTable($roles);
         $sm->createTable($users);
 
-        $table = $sm->introspectTable('users');
+        $table = $sm->introspectTableByUnquotedName('users');
 
         /** @var list<ForeignKeyConstraint> $constraints */
         $constraints = array_values($table->getForeignKeys());

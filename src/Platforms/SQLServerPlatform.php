@@ -150,22 +150,6 @@ class SQLServerPlatform extends AbstractPlatform
             ' MINVALUE ' . $sequence->getInitialValue();
     }
 
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListSequencesSQL(string $database): string
-    {
-        return 'SELECT seq.name,
-                       scm.name AS schema_name,
-                       CAST(
-                           seq.increment AS VARCHAR(MAX)
-                       ) AS increment, -- CAST avoids driver error for sql_variant type
-                       CAST(
-                           seq.start_value AS VARCHAR(MAX)
-                       ) AS start_value -- CAST avoids driver error for sql_variant type
-                FROM   sys.sequences AS seq
-                JOIN   sys.schemas AS scm
-                ON     scm.schema_id = seq.schema_id';
-    }
-
     public function getSequenceNextValSQL(string $sequence): string
     {
         return 'SELECT NEXT VALUE FOR ' . $sequence;
@@ -718,14 +702,6 @@ class SQLServerPlatform extends AbstractPlatform
         return 'INSERT INTO ' . $quotedTableName . ' DEFAULT VALUES';
     }
 
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListViewsSQL(string $database): string
-    {
-        return "SELECT name, definition FROM sysobjects
-                    INNER JOIN sys.sql_modules ON sysobjects.id = sys.sql_modules.object_id
-                WHERE type = 'V' ORDER BY name";
-    }
-
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {
@@ -772,12 +748,6 @@ class SQLServerPlatform extends AbstractPlatform
     public function getConcatExpression(string ...$string): string
     {
         return sprintf('CONCAT(%s)', implode(', ', $string));
-    }
-
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListDatabasesSQL(): string
-    {
-        return 'SELECT * FROM sys.databases';
     }
 
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string

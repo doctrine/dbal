@@ -47,7 +47,6 @@ parameters:
             paths:
                 - src/Platforms/*MetadataProvider.php
                 - src/Platforms/*Platform.php
-                - src/Schema/*SchemaManager.php
 
         # Some APIs use variable method calls internally
         -
