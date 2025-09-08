@@ -60,7 +60,7 @@ class NoneTest extends FunctionalTestCase
 
         $this->connection2 = DriverManager::getConnection($params);
 
-        if ($this->connection2->createSchemaManager()->tableExists('users')) {
+        if ($this->connection2->createSchemaManager()->tableExists('doctrine_tests.users')) {
             return;
         }
 

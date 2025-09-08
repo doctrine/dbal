@@ -163,7 +163,7 @@ class NamedParametersTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        if ($this->connection->createSchemaManager()->tableExists('ddc1372_foobar')) {
+        if ($this->connection->createSchemaManager()->tableExists('doctrine_tests.ddc1372_foobar')) {
             return;
         }
 
