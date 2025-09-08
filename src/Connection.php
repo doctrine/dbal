@@ -77,7 +77,7 @@ class Connection implements ServerVersionProvider
     /**
      * The transaction nesting level.
      */
-    private int $transactionNestingLevel = 0;
+    protected int $transactionNestingLevel = 0;
 
     /**
      * The currently active transaction isolation level or NULL before it has been determined.
@@ -1392,7 +1392,6 @@ class Connection implements ServerVersionProvider
         return $this->handleDriverException($e, new Query($sql, $params, $types));
     }
 
-    /** @internal */
     final public function convertException(Driver\Exception $e): DriverException
     {
         return $this->handleDriverException($e, null);
