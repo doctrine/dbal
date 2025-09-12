@@ -54,6 +54,7 @@ abstract class Type
         Types::TEXT                 => TextType::class,
         Types::TIME_MUTABLE         => TimeType::class,
         Types::TIME_IMMUTABLE       => TimeImmutableType::class,
+        Types::VECTOR               => VectorType::class,
     ];
 
     private static ?TypeRegistry $typeRegistry = null;
