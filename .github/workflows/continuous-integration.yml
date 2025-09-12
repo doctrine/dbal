@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - "*.x"
+      - feature/vector-type
     paths:
       - .github/workflows/continuous-integration.yml
       - .github/workflows/phpunit-*.yml
