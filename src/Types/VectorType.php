@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 
 use function array_values;
 use function is_array;
@@ -26,7 +27,7 @@ final class VectorType extends Type
         return ParameterType::BINARY;
     }
 
-    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): string|null
     {
         if ($value === null) {
             return null;
@@ -43,12 +44,21 @@ final class VectorType extends Type
         return pack('f*', ...$value);
     }
 
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
+    /** @return list<float>|null */
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): array|null
     {
         if ($value === null) {
             return null;
         }
 
-        return array_values(unpack('f*', $value));
+        $unpacked = unpack('f*', $value);
+        if ($unpacked === false) {
+            throw ValueNotConvertible::new(
+                $value,
+                static::class,
+            );
+        }
+
+        return array_values($unpacked);
     }
 }
