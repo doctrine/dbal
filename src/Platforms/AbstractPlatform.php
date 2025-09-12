@@ -148,6 +148,16 @@ abstract class AbstractPlatform
     abstract public function getSmallIntTypeDeclarationSQL(array $column): string;
 
     /**
+     * Returns the SQL snippet that declares a 2 byte integer column.
+     *
+     * @param array<string, mixed> $column
+     */
+    public function getVectorTypeDeclarationSQL(array $column)
+    {
+        throw new NotSupported(__METHOD__);
+    }
+
+    /**
      * Returns the SQL snippet that declares common properties of an integer column.
      *
      * @param array<string, mixed> $column
