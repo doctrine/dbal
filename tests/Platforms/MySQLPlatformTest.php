@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
@@ -95,5 +96,11 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
             'my_collation',
             $this->platform->getCreateTableSQL($table)[0],
         );
+    }
+
+    public function testGetVectorTypeDeclarationSQL(): void
+    {
+        self::expectException(NotSupported::class);
+        $this->platform->getVectorTypeDeclarationSQL(['length' => 2048]);
     }
 }

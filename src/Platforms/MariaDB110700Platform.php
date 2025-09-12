@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDB117Keywords;
 use Doctrine\Deprecations\Deprecation;
-
-use function sprintf;
 
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB 11.7 database platform.
