@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDB117Keywords;
 use Doctrine\Deprecations\Deprecation;
@@ -33,6 +34,11 @@ class MariaDB110700Platform extends MariaDB1010Platform
     /** @inheritdoc */
     public function getVectorTypeDeclarationSQL(array $column): string
     {
-        return sprintf('VECTOR(%d)', $column['dimensions'] ?? 1536);
+        $length = $column['length'] ?? null;
+        if ($length === null) {
+            throw ColumnLengthRequired::new($this, 'VECTOR');
+        }
+
+        return sprintf('VECTOR(%d)', $length);
     }
 }
