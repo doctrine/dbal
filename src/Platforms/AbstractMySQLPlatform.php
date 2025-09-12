@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
@@ -651,6 +652,17 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
+    }
+
+    /** @inheritdoc */
+    public function getVectorTypeDeclarationSQL(array $column): string
+    {
+        $length = $column['length'] ?? null;
+        if ($length === null) {
+            throw ColumnLengthRequired::new($this, 'VECTOR');
+        }
+
+        return sprintf('VECTOR(%d)', $length);
     }
 
     /**

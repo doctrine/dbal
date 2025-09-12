@@ -173,4 +173,9 @@ class MariaDBPlatform extends AbstractMySQLPlatform
 
         return new MariaDBKeywords();
     }
+
+    public function getVectorTypeDeclarationSQL(array $column): string
+    {
+        return AbstractPlatform::getVectorTypeDeclarationSQL($column);
+    }
 }
