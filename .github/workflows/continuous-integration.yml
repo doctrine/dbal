@@ -135,6 +135,7 @@ jobs:
           - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
           - "11.4"  # LTS (May 2029)
           - "11.8"  # LTS (Jun 2028)
+          - "12.0"  # Rolling Release (Q4 2025)
         extension:
           - "mysqli"
           - "pdo_mysql"
