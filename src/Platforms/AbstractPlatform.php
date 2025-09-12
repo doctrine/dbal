@@ -152,7 +152,7 @@ abstract class AbstractPlatform
      *
      * @param array<string, mixed> $column
      */
-    public function getVectorTypeDeclarationSQL(array $column)
+    public function getVectorTypeDeclarationSQL(array $column): string
     {
         throw new NotSupported(__METHOD__);
     }

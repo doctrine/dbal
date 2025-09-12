@@ -8,6 +8,8 @@ use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDB117Keywords;
 use Doctrine\Deprecations\Deprecation;
 
+use function sprintf;
+
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB 11.7 database platform.
  *
@@ -26,5 +28,11 @@ class MariaDB110700Platform extends MariaDB1010Platform
         );
 
         return new MariaDB117Keywords();
+    }
+
+    /** @inheritdoc */
+    public function getVectorTypeDeclarationSQL(array $column): string
+    {
+        return sprintf('VECTOR(%d)', $column['dimensions'] ?? 1536);
     }
 }
