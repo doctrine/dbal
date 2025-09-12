@@ -145,6 +145,7 @@ jobs:
       config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - "8.3"
@@ -184,6 +185,7 @@ jobs:
       config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - "8.3"
