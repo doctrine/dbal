@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\MariaDB110700Platform;
+use Doctrine\DBAL\Platforms\MySQL90Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -18,8 +19,8 @@ final class VectorTypeTest extends FunctionalTestCase
         parent::setUp();
 
         $platform = $this->connection->getDatabasePlatform();
-        if (! $platform instanceof MariaDB110700Platform) {
-            self::markTestSkipped('Vector type is only supported on MariaDB 11.7+.');
+        if (! $platform instanceof MariaDB110700Platform && ! $platform instanceof MySQL90Platform) {
+            self::markTestSkipped('Vector type is only supported on MariaDB 11.7+ and MySQL 9.0+.');
         }
 
         $table = Table::editor()
