@@ -42,6 +42,16 @@ final class TableDiff
         private readonly ?PrimaryKeyConstraint $addedPrimaryKeyConstraint = null,
         private readonly ?PrimaryKeyConstraint $droppedPrimaryKeyConstraint = null,
     ) {
+        foreach ($droppedForeignKeys as $droppedForeignKey) {
+            if ($droppedForeignKey->getObjectName() === null) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/7143',
+                    'Dropping a foreign key constraints without specifying its name is deprecated.',
+                );
+                break;
+            }
+        }
     }
 
     public function getOldTable(): Table

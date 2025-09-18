@@ -131,6 +131,7 @@ jobs:
           - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
           - "11.4"  # LTS (May 2029)
           - "11.8"  # LTS (Jun 2028)
+          - "12.0"  # Rolling Release (Q4 2025)
         extension:
           - "mysqli"
           - "pdo_mysql"
@@ -191,18 +192,17 @@ jobs:
           - "Latin1_General_100_CI_AS_SC_UTF8"
           - "Latin1_General_100_CS_AS_SC_UTF8"
 
-# The DB2 workflow currently segfaults with PHP 8.4
-#  phpunit-ibm-db2:
-#    name: "PHPUnit with IBM DB2"
-#    needs: "phpunit-smoke-check"
-#    uses: ./.github/workflows/phpunit-db2.yml
-#    with:
-#      php-version: ${{ matrix.php-version }}
-#
-#    strategy:
-#      matrix:
-#        php-version:
-#          - "8.4"
+  phpunit-ibm-db2:
+    name: "PHPUnit with IBM DB2"
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-db2.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.4"
 
   development-deps:
     name: "PHPUnit with PDO_SQLite and development dependencies"

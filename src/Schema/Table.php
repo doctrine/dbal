@@ -838,6 +838,15 @@ final class Table extends AbstractNamedObject
             $key = strtolower($this->generateNameFromObjectColumnNames('fk', $columnNames));
         }
 
+        if (isset($this->foreignKeyConstraints[$key])) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7125',
+                'Overwriting an existing foreign key constraint ("%s") is deprecated.',
+                $key,
+            );
+        }
+
         $this->foreignKeyConstraints[$key] = $constraint;
 
         // add an explicit index on the foreign key columns.

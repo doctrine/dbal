@@ -381,6 +381,17 @@ all drivers and middleware.
 
 # Upgrade to 4.4
 
+## Deprecated dropping unnamed constraints in SQLite
+
+Passing unnamed foreign key constraints as part of the `$droppedForeignKeys` argument of the `TableDiff` constructor
+has been deprecated.
+
+## Deprecated overwriting foreign key constraints
+
+Adding a foreign key constraint with a name that matches an existing one, whether explicitly specified or
+auto-generated, has been deprecated. In order to replace an existing constraint, drop it first
+via `dropForeignKey()`.
+
 ## Deprecated `View` features
 
 The `View` constructor has been marked as internal. Use `View::editor()` to instantiate an editor and
