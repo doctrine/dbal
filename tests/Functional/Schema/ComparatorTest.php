@@ -6,11 +6,15 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -150,5 +154,59 @@ class ComparatorTest extends FunctionalTestCase
             [Types::BOOLEAN, false],
             [Types::TEXT, 'Doctrine'],
         ];
+    }
+
+    public function testDropUnnamedForeignKeyConstraint(): void
+    {
+        $this->dropTableIfExists('tree');
+
+        $table1 = Table::editor()
+            ->setUnquotedName('tree')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('parent_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('parent_id')
+                    ->setUnquotedReferencedTableName('tree')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->schemaManager->createTable($table1);
+
+        $table1 = $this->schemaManager->introspectTableByUnquotedName('tree');
+
+        $table2 = $table1->edit()
+            ->setForeignKeyConstraints()
+            ->create();
+
+        $comparator = $this->schemaManager->createComparator();
+
+        // SQLite does not automatically generate names for unnamed constraints
+        if ($this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
+            $this->expectException(UnspecifiedConstraintName::class);
+        }
+
+        $diff = $comparator->compareTables($table1, $table2);
+
+        $this->schemaManager->alterTable($diff);
+
+        $table2 = $this->schemaManager->introspectTableByUnquotedName('tree');
+
+        self::assertEmpty($table2->getForeignKeys());
     }
 }

@@ -8,6 +8,12 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `TableDiff::getDroppedForeignKeys()`
+
+The `TableDiff::getDroppedForeignKeys()` method has been removed.
+
+An attempt to drop an unnamed foreign key constraint on SQLite will result in an exception.
+
 ## BC BREAK: Removed `AbstractSchemaManager` methods
 
 The following `AbstractSchemaManager` methods have been removed:

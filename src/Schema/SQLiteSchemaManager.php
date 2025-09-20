@@ -27,11 +27,17 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
     public function dropForeignKey(string $name, string $table): void
     {
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            $parsedName = $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+
         $table = $this->introspectTableByStringName($table);
 
-        $foreignKey = $table->getForeignKey($name);
-
-        $this->alterTable(new TableDiff($table, droppedForeignKeys: [$foreignKey]));
+        $this->alterTable(new TableDiff($table, droppedForeignKeyConstraintNames: [$parsedName]));
     }
 
     /** @throws Exception */

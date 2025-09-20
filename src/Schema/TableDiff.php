@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\Deprecations\Deprecation;
 
@@ -23,7 +21,6 @@ final class TableDiff
      *
      * @internal The diff can be only instantiated by a {@see Comparator}.
      *
-     * @param array<ForeignKeyConstraint> $droppedForeignKeys
      * @param array<Column>               $addedColumns
      * @param array<string, ColumnDiff>   $changedColumns
      * @param array<Column>               $droppedColumns
@@ -31,6 +28,7 @@ final class TableDiff
      * @param array<Index>                $droppedIndexes
      * @param array<string, Index>        $renamedIndexes
      * @param array<ForeignKeyConstraint> $addedForeignKeys
+     * @param array<UnqualifiedName>      $droppedForeignKeyConstraintNames
      */
     public function __construct(
         private readonly Table $oldTable,
@@ -41,17 +39,10 @@ final class TableDiff
         private array $droppedIndexes = [],
         private readonly array $renamedIndexes = [],
         private readonly array $addedForeignKeys = [],
-        private readonly array $droppedForeignKeys = [],
+        private readonly array $droppedForeignKeyConstraintNames = [],
         private readonly ?PrimaryKeyConstraint $addedPrimaryKeyConstraint = null,
         private readonly ?PrimaryKeyConstraint $droppedPrimaryKeyConstraint = null,
     ) {
-        foreach ($droppedForeignKeys as $droppedForeignKey) {
-            if ($droppedForeignKey->getObjectName() === null) {
-                throw new InvalidArgumentException(
-                    'Dropping a foreign key constraints without specifying its name is not allowed.',
-                );
-            }
-        }
     }
 
     public function getOldTable(): Table
@@ -179,31 +170,10 @@ final class TableDiff
         return $this->addedForeignKeys;
     }
 
-    /**
-     * @deprecated Use {@see getDroppedForeignKeyConstraintNames()}.
-     *
-     * @return array<ForeignKeyConstraint>
-     */
-    public function getDroppedForeignKeys(): array
-    {
-        return $this->droppedForeignKeys;
-    }
-
     /** @return array<UnqualifiedName> */
     public function getDroppedForeignKeyConstraintNames(): array
     {
-        $names = [];
-        foreach ($this->droppedForeignKeys as $constraint) {
-            $name = $constraint->getObjectName();
-
-            if ($name === null) {
-                throw InvalidState::tableDiffContainsUnnamedDroppedForeignKeyConstraints();
-            }
-
-            $names[] = $name;
-        }
-
-        return $names;
+        return $this->droppedForeignKeyConstraintNames;
     }
 
     public function getAddedPrimaryKeyConstraint(): ?PrimaryKeyConstraint
@@ -228,7 +198,7 @@ final class TableDiff
             && count($this->droppedIndexes) === 0
             && count($this->renamedIndexes) === 0
             && count($this->addedForeignKeys) === 0
-            && count($this->droppedForeignKeys) === 0
+            && count($this->droppedForeignKeyConstraintNames) === 0
             && $this->addedPrimaryKeyConstraint === null
             && $this->droppedPrimaryKeyConstraint === null;
     }
