@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
@@ -44,12 +45,9 @@ final class TableDiff
     ) {
         foreach ($droppedForeignKeys as $droppedForeignKey) {
             if ($droppedForeignKey->getObjectName() === null) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/7143',
-                    'Dropping a foreign key constraints without specifying its name is deprecated.',
+                throw new InvalidArgumentException(
+                    'Dropping a foreign key constraints without specifying its name is not allowed.',
                 );
-                break;
             }
         }
     }
