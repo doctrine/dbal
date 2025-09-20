@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: changes in `TableDiff` constructor
+
+The `TableDiff` class constructor no longer accepts `droppedForeignKeys`
+without a name.
+
 ## BC BREAK: Changes in `Table` method return types
 
 The following `Table` methods no longer return associative arrays of objects. Instead, they return lists:

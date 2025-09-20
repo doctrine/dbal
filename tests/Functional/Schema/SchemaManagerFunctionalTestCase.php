@@ -859,6 +859,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             )
             ->setForeignKeyConstraints(
                 ForeignKeyConstraint::editor()
+                    ->setUnquotedName('fk_rename_name')
                     ->setUnquotedReferencingColumnNames('fk_id')
                     ->setUnquotedReferencedTableName('test_fk_base')
                     ->setUnquotedReferencedColumnNames('id')
@@ -902,6 +903,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             )
             ->setForeignKeyConstraints(
                 ForeignKeyConstraint::editor()
+                    ->setUnquotedName('fk_rename_name')
                     ->setUnquotedReferencingColumnNames('rename_fk_id')
                     ->setUnquotedReferencedTableName('test_fk_base')
                     ->setUnquotedReferencedColumnNames('id')

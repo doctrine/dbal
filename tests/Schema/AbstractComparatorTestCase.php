@@ -393,6 +393,7 @@ abstract class AbstractComparatorTestCase extends TestCase
             )
             ->setForeignKeyConstraints(
                 ForeignKeyConstraint::editor()
+                    ->setUnquotedName('fk_foo')
                     ->setUnquotedReferencingColumnNames('fk')
                     ->setUnquotedReferencedTableName('bar')
                     ->setUnquotedReferencedColumnNames('id')
@@ -417,6 +418,7 @@ abstract class AbstractComparatorTestCase extends TestCase
             )
             ->setForeignKeyConstraints(
                 ForeignKeyConstraint::editor()
+                    ->setUnquotedName('fk_foo')
                     ->setUnquotedReferencingColumnNames('fk')
                     ->setUnquotedReferencedTableName('bar')
                     ->setUnquotedReferencedColumnNames('id')
@@ -460,6 +462,7 @@ abstract class AbstractComparatorTestCase extends TestCase
             )
             ->setForeignKeyConstraints(
                 ForeignKeyConstraint::editor()
+                    ->setUnquotedName('fk_foo')
                     ->setUnquotedReferencingColumnNames('fk')
                     ->setUnquotedReferencedTableName('bar')
                     ->setUnquotedReferencedColumnNames('id')
@@ -1116,6 +1119,7 @@ abstract class AbstractComparatorTestCase extends TestCase
                 )
                 ->setForeignKeyConstraints(
                     ForeignKeyConstraint::editor()
+                        ->setUnquotedName('fk_table2')
                         ->setUnquotedReferencingColumnNames('id_table1')
                         ->setUnquotedReferencedTableName('table1')
                         ->setUnquotedReferencedColumnNames('fk_table2_table1')
