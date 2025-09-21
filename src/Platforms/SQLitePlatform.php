@@ -861,7 +861,23 @@ class SQLitePlatform extends AbstractPlatform
     {
         $oldTable    = $diff->getOldTable();
         $foreignKeys = $oldTable->getForeignKeys();
-        $nameMap     = $this->getDiffColumnNameMap($diff);
+        $keysByName  = [];
+        foreach ($foreignKeys as $key => $foreignKey) {
+            $constraintName = $foreignKey->getObjectName();
+
+            if ($constraintName === null) {
+                continue;
+            }
+
+            $constraintKey = strtolower(
+                $constraintName->getIdentifier()
+                    ->getValue(),
+            );
+
+            $keysByName[$constraintKey] = $key;
+        }
+
+        $nameMap = $this->getDiffColumnNameMap($diff);
 
         foreach ($foreignKeys as $key => $constraint) {
             $changed = false;
@@ -905,7 +921,7 @@ class SQLitePlatform extends AbstractPlatform
                     ->getValue(),
             );
 
-            unset($foreignKeys[$constraintKey]);
+            unset($foreignKeys[$keysByName[$constraintKey]]);
         }
 
         foreach ($diff->getAddedForeignKeys() as $constraint) {
@@ -917,7 +933,11 @@ class SQLitePlatform extends AbstractPlatform
                         ->getValue(),
                 );
 
-                $foreignKeys[$constraintKey] = $constraint;
+                if (isset($keysByName[$constraintKey])) {
+                    $foreignKeys[$keysByName[$constraintKey]] = $constraint;
+                } else {
+                    $foreignKeys[] = $constraint;
+                }
             } else {
                 $foreignKeys[] = $constraint;
             }
