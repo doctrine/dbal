@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
+use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
+use Doctrine\DBAL\Schema\Collections\OptionallyUnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyAlreadyExists;
@@ -73,8 +75,8 @@ final class Table extends AbstractNamedObject
      */
     private array $implicitIndexKeys = [];
 
-    /** @var UniqueConstraint[] */
-    private array $uniqueConstraints = [];
+    /** @var OptionallyUnqualifiedNamedObjectSet<UniqueConstraint> */
+    private OptionallyUnqualifiedNamedObjectSet $uniqueConstraints;
 
     /** @var ForeignKeyConstraint[] */
     private array $foreignKeyConstraints = [];
@@ -123,6 +125,10 @@ final class Table extends AbstractNamedObject
         /** @var UnqualifiedNamedObjectSet<Column> $columnsSet */
         $columnsSet    = new UnqualifiedNamedObjectSet(...$columns);
         $this->columns = $columnsSet;
+
+        /** @var OptionallyUnqualifiedNamedObjectSet<UniqueConstraint> $uniqueConstraintSet */
+        $uniqueConstraintSet     = new OptionallyUnqualifiedNamedObjectSet();
+        $this->uniqueConstraints = $uniqueConstraintSet;
 
         foreach ($indexes as $idx) {
             $this->_addIndex($idx);
@@ -591,7 +597,7 @@ final class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->uniqueConstraints[$this->getObjectKey($parsedName)]);
+        return $this->uniqueConstraints->get($parsedName) !== null;
     }
 
     /**
@@ -601,11 +607,13 @@ final class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        if (! $this->hasUniqueConstraint($name)) {
+        $uniqueConstraint = $this->uniqueConstraints->get($parsedName);
+
+        if ($uniqueConstraint === null) {
             throw UniqueConstraintDoesNotExist::new($this->name, $parsedName);
         }
 
-        return $this->uniqueConstraints[$this->getObjectKey($parsedName)];
+        return $uniqueConstraint;
     }
 
     /**
@@ -615,11 +623,11 @@ final class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        if (! $this->hasUniqueConstraint($name)) {
-            throw UniqueConstraintDoesNotExist::new($this->name, $parsedName);
+        try {
+            $this->uniqueConstraints->remove($parsedName);
+        } catch (ObjectDoesNotExist $e) {
+            throw InvalidTableModification::uniqueConstraintDoesNotExist($this->name, $e);
         }
-
-        unset($this->uniqueConstraints[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -701,7 +709,7 @@ final class Table extends AbstractNamedObject
      */
     public function getUniqueConstraints(): array
     {
-        return array_values($this->uniqueConstraints);
+        return $this->uniqueConstraints->toList();
     }
 
     /**
@@ -740,6 +748,8 @@ final class Table extends AbstractNamedObject
         foreach ($this->indexes as $k => $index) {
             $this->indexes[$k] = clone $index;
         }
+
+        $this->uniqueConstraints = clone $this->uniqueConstraints;
 
         foreach ($this->foreignKeyConstraints as $k => $fk) {
             $this->foreignKeyConstraints[$k] = clone $fk;
@@ -792,16 +802,13 @@ final class Table extends AbstractNamedObject
 
     private function _addUniqueConstraint(UniqueConstraint $constraint): self
     {
-        $constraintName = $constraint->getObjectName();
-        $columnNames    = $constraint->getColumnNames();
-
-        if ($constraintName !== null) {
-            $key = $this->getObjectKey($constraintName);
-        } else {
-            $key = strtolower($this->generateNameFromObjectColumnNames('fk', $columnNames));
+        try {
+            $this->uniqueConstraints->add($constraint);
+        } catch (ObjectAlreadyExists $e) {
+            throw InvalidTableModification::uniqueConstraintAlreadyExists($this->name, $e);
         }
 
-        $this->uniqueConstraints[$key] = $constraint;
+        $columnNames = $constraint->getColumnNames();
 
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
@@ -910,7 +917,7 @@ final class Table extends AbstractNamedObject
             ->setColumns(...$this->columns->toList())
             ->setIndexes(...array_values(array_diff_key($this->indexes, $this->implicitIndexKeys)))
             ->setPrimaryKeyConstraint($this->primaryKeyConstraint)
-            ->setUniqueConstraints(...array_values($this->uniqueConstraints))
+            ->setUniqueConstraints(...$this->uniqueConstraints->toList())
             ->setForeignKeyConstraints(...array_values($this->foreignKeyConstraints));
 
         $options = $this->options;
@@ -1160,7 +1167,7 @@ final class Table extends AbstractNamedObject
 
     private function renameColumnInUniqueConstraints(string $oldKey, UnqualifiedName $newName): void
     {
-        foreach ($this->uniqueConstraints as $key => $constraint) {
+        foreach ($this->uniqueConstraints->toList() as $position => $constraint) {
             $modified    = false;
             $columnNames = [];
             foreach ($constraint->getColumnNames() as $columnName) {
@@ -1176,9 +1183,12 @@ final class Table extends AbstractNamedObject
                 continue;
             }
 
-            $this->uniqueConstraints[$key] = $constraint->edit()
-                ->setColumnNames(...$columnNames)
-                ->create();
+            $this->uniqueConstraints->modifyByPosition(
+                $position,
+                static fn (UniqueConstraint $constraint): UniqueConstraint => $constraint->edit()
+                    ->setColumnNames(...$columnNames)
+                    ->create(),
+            );
         }
     }
 
@@ -1208,7 +1218,7 @@ final class Table extends AbstractNamedObject
 
         $constraintNames = [];
 
-        foreach ($this->uniqueConstraints as $key => $constraint) {
+        foreach ($this->uniqueConstraints->toList() as $constraint) {
             foreach ($constraint->getColumnNames() as $constraintColumnName) {
                 if ($this->getObjectKey($constraintColumnName) === $columnKey) {
                     $constraintNames[] = $constraint->getObjectName();

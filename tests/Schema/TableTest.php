@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
@@ -1546,8 +1547,6 @@ class TableTest extends TestCase
 
     public function testDropUniqueConstraintUnknownNameThrowsException(): void
     {
-        $this->expectException(SchemaException::class);
-
         $table = Table::editor()
             ->setUnquotedName('foo')
             ->setColumns(
@@ -1557,6 +1556,8 @@ class TableTest extends TestCase
                     ->create(),
             )
             ->create();
+
+        $this->expectException(InvalidTableModification::class);
 
         $table->dropUniqueConstraint('unique_constraint');
     }
