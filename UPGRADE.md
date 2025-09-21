@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: changes in `Table` class
+
+The `Table` class no longer accepts `foreignKeyConstraints`
+with duplicate names.
+
 ## BC BREAK: changes in `TableDiff` constructor
 
 The `TableDiff` class constructor no longer accepts `droppedForeignKeys`
