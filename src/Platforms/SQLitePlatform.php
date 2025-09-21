@@ -27,6 +27,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 
 use function array_merge;
+use function assert;
 use function count;
 use function explode;
 use function implode;
@@ -861,23 +862,8 @@ class SQLitePlatform extends AbstractPlatform
     {
         $oldTable    = $diff->getOldTable();
         $foreignKeys = $oldTable->getForeignKeys();
+        $nameMap     = $this->getDiffColumnNameMap($diff);
         $keysByName  = [];
-        foreach ($foreignKeys as $key => $foreignKey) {
-            $constraintName = $foreignKey->getObjectName();
-
-            if ($constraintName === null) {
-                continue;
-            }
-
-            $constraintKey = strtolower(
-                $constraintName->getIdentifier()
-                    ->getValue(),
-            );
-
-            $keysByName[$constraintKey] = $key;
-        }
-
-        $nameMap = $this->getDiffColumnNameMap($diff);
 
         foreach ($foreignKeys as $key => $constraint) {
             $changed = false;
@@ -898,6 +884,17 @@ class SQLitePlatform extends AbstractPlatform
                 }
 
                 $changed = true;
+            }
+
+            $constraintName = $constraint->getObjectName();
+
+            if ($constraintName !== null) {
+                $constraintKey = strtolower(
+                    $constraintName->getIdentifier()
+                        ->getValue(),
+                );
+
+                $keysByName[$constraintKey] = $key;
             }
 
             if (! $changed) {
@@ -921,7 +918,8 @@ class SQLitePlatform extends AbstractPlatform
                     ->getValue(),
             );
 
-            unset($foreignKeys[$keysByName[$constraintKey]]);
+            assert(isset($keysByName[$constraintKey]));
+            unset($foreignKeys[$keysByName[$constraintKey]], $keysByName[$constraintKey]);
         }
 
         foreach ($diff->getAddedForeignKeys() as $constraint) {
@@ -933,11 +931,10 @@ class SQLitePlatform extends AbstractPlatform
                         ->getValue(),
                 );
 
-                if (isset($keysByName[$constraintKey])) {
-                    $foreignKeys[$keysByName[$constraintKey]] = $constraint;
-                } else {
-                    $foreignKeys[] = $constraint;
-                }
+                assert(! isset($keysByName[$constraintKey]));
+                $foreignKeys[] = $constraint;
+
+                $keysByName[$constraintKey] = count($foreignKeys) - 1;
             } else {
                 $foreignKeys[] = $constraint;
             }

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\ColumnAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
+use Doctrine\DBAL\Schema\Exception\ForeignKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
@@ -839,12 +840,7 @@ final class Table extends AbstractNamedObject
         }
 
         if (isset($this->foreignKeyConstraints[$key])) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/7125',
-                'Overwriting an existing foreign key constraint ("%s") is deprecated.',
-                $key,
-            );
+            throw ForeignKeyAlreadyExists::new($this->name, UnqualifiedName::unquoted($key));
         }
 
         $this->foreignKeyConstraints[$key] = $constraint;
