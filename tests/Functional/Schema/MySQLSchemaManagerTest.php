@@ -64,9 +64,10 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $indexes = $this->schemaManager->listTableIndexes('fulltext_index');
-        self::assertArrayHasKey('f_index', $indexes);
-        $this->assertIndexEquals($index, $indexes['f_index']);
+        $this->assertIndexListEquals(
+            [$index],
+            $this->schemaManager->introspectTableIndexesByUnquotedName('fulltext_index'),
+        );
     }
 
     public function testSpatialIndex(): void
@@ -94,9 +95,10 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // see https://github.com/doctrine/dbal/issues/4983
         $this->markConnectionNotReusable();
 
-        $indexes = $this->schemaManager->listTableIndexes('spatial_index');
-        self::assertArrayHasKey('s_index', $indexes);
-        $this->assertIndexEquals($index, $indexes['s_index']);
+        $this->assertIndexListEquals(
+            [$index],
+            $this->schemaManager->introspectTableIndexesByUnquotedName('spatial_index'),
+        );
     }
 
     public function testIndexWithLength(): void
@@ -122,9 +124,10 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $indexes = $this->schemaManager->listTableIndexes('index_length');
-        self::assertArrayHasKey('text_index', $indexes);
-        $this->assertIndexEquals($index, $indexes['text_index']);
+        $this->assertIndexListEquals(
+            [$index],
+            $this->schemaManager->introspectTableIndexesByUnquotedName('index_length'),
+        );
     }
 
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
@@ -165,7 +168,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->introspectTable('text_blob_default_value');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('text_blob_default_value');
 
         self::assertNull($onlineTable->getColumn('def_text')->getDefault());
         self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
@@ -205,11 +208,11 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_column_charset');
+        [$id, $foo, $bar] = $this->schemaManager->introspectTableColumnsByUnquotedName('test_column_charset');
 
-        self::assertNull($columns['id']->getCharset());
-        self::assertEquals('ascii', $columns['foo']->getCharset());
-        self::assertEquals('latin1', $columns['bar']->getCharset());
+        self::assertNull($id->getCharset());
+        self::assertEquals('ascii', $foo->getCharset());
+        self::assertEquals('latin1', $bar->getCharset());
     }
 
     public function testAlterColumnCharset(): void
@@ -238,7 +241,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->introspectTable('test_alter_column_charset');
+        $table = $this->schemaManager->introspectTableByUnquotedName('test_alter_column_charset');
 
         self::assertEquals('ascii', $table->getColumn('col_text')->getCharset());
     }
@@ -272,7 +275,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertEquals(
             'ascii',
-            $this->schemaManager->introspectTable('test_column_charset_change')
+            $this->schemaManager->introspectTableByUnquotedName('test_column_charset_change')
                 ->getColumn('col_string')
                 ->getCharset(),
         );
@@ -315,13 +318,14 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_collation');
+        [$id, $text, $foo, $bar, $baz]
+            = $this->schemaManager->introspectTableColumnsByUnquotedName('test_collation');
 
-        self::assertNull($columns['id']->getCollation());
-        self::assertEquals('latin1_swedish_ci', $columns['text']->getCollation());
-        self::assertEquals('latin1_swedish_ci', $columns['foo']->getCollation());
-        self::assertEquals('utf8mb4_general_ci', $columns['bar']->getCollation());
-        self::assertInstanceOf(BlobType::class, $columns['baz']->getType());
+        self::assertNull($id->getCollation());
+        self::assertEquals('latin1_swedish_ci', $text->getCollation());
+        self::assertEquals('latin1_swedish_ci', $foo->getCollation());
+        self::assertEquals('utf8mb4_general_ci', $bar->getCollation());
+        self::assertInstanceOf(BlobType::class, $baz->getType());
     }
 
     public function testListLobTypeColumns(): void
@@ -372,41 +376,42 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $platform      = $this->connection->getDatabasePlatform();
-        $onlineColumns = $this->schemaManager->listTableColumns('lob_type_columns');
+        $platform = $this->connection->getDatabasePlatform();
+
+        [$colTinyText, $colText, $colMediumText, $colLongText, $colTinyBlob, $colBlob, $colMediumBlob, $colLongBlob]
+            = $this->schemaManager->introspectTableColumnsByUnquotedName('lob_type_columns');
 
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($table->getColumn('col_tinytext')->toArray()),
-            $platform->getClobTypeDeclarationSQL($onlineColumns['col_tinytext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($colTinyText->toArray()),
         );
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($table->getColumn('col_text')->toArray()),
-            $platform->getClobTypeDeclarationSQL($onlineColumns['col_text']->toArray()),
+            $platform->getClobTypeDeclarationSQL($colText->toArray()),
         );
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($table->getColumn('col_mediumtext')->toArray()),
-            $platform->getClobTypeDeclarationSQL($onlineColumns['col_mediumtext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($colMediumText->toArray()),
         );
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($table->getColumn('col_longtext')->toArray()),
-            $platform->getClobTypeDeclarationSQL($onlineColumns['col_longtext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($colLongText->toArray()),
         );
-
         self::assertSame(
             $platform->getBlobTypeDeclarationSQL($table->getColumn('col_tinyblob')->toArray()),
-            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_tinyblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($colTinyBlob->toArray()),
         );
         self::assertSame(
             $platform->getBlobTypeDeclarationSQL($table->getColumn('col_blob')->toArray()),
-            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_blob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($colBlob->toArray()),
         );
         self::assertSame(
             $platform->getBlobTypeDeclarationSQL($table->getColumn('col_mediumblob')->toArray()),
-            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_mediumblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($colMediumBlob->toArray()),
         );
         self::assertSame(
             $platform->getBlobTypeDeclarationSQL($table->getColumn('col_longblob')->toArray()),
-            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_longblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($colLongBlob->toArray()),
         );
     }
 
@@ -424,7 +429,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($offlineTable);
 
-        $onlineTable = $this->schemaManager->introspectTable('list_guid_table_column');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('list_guid_table_column');
 
         self::assertTrue(
             $this->schemaManager
@@ -458,12 +463,10 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_list_decimal_columns');
+        [$signed, $unsigned] = $this->schemaManager->introspectTableColumnsByUnquotedName('test_list_decimal_columns');
 
-        self::assertArrayHasKey('col', $columns);
-        self::assertArrayHasKey('col_unsigned', $columns);
-        self::assertFalse($columns['col']->getUnsigned());
-        self::assertTrue($columns['col_unsigned']->getUnsigned());
+        self::assertFalse($signed->getUnsigned());
+        self::assertTrue($unsigned->getUnsigned());
     }
 
     public function testListUnsignedFloatTypeColumns(): void
@@ -486,12 +489,13 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_unsigned_float_columns');
+        [$colUnsigned, $colSmallFloatUnsigned]
+            = $this->schemaManager->introspectTableColumnsByUnquotedName('test_unsigned_float_columns');
 
-        self::assertInstanceOf(FloatType::class, $columns['col_unsigned']->getType());
-        self::assertInstanceOf(SmallFloatType::class, $columns['col_smallfloat_unsigned']->getType());
-        self::assertTrue($columns['col_unsigned']->getUnsigned());
-        self::assertTrue($columns['col_smallfloat_unsigned']->getUnsigned());
+        self::assertInstanceOf(FloatType::class, $colUnsigned->getType());
+        self::assertInstanceOf(SmallFloatType::class, $colSmallFloatUnsigned->getType());
+        self::assertTrue($colUnsigned->getUnsigned());
+        self::assertTrue($colSmallFloatUnsigned->getUnsigned());
     }
 
     public function testConfigurableLengthColumns(): void
@@ -509,10 +513,10 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_configurable_length_columns');
+        [$column] = $this->schemaManager->introspectTableColumnsByUnquotedName('test_configurable_length_columns');
 
-        self::assertInstanceOf(BinaryType::class, $columns['col_binary']->getType());
-        self::assertSame(16, $columns['col_binary']->getLength());
+        self::assertInstanceOf(BinaryType::class, $column->getType());
+        self::assertSame(16, $column->getLength());
     }
 
     public function testJsonColumnType(): void
@@ -529,9 +533,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_mysql_json');
+        [$column] = $this->schemaManager->introspectTableColumnsByUnquotedName('test_mysql_json');
 
-        self::assertInstanceOf(JsonType::class, $columns['col_json']->getType());
+        self::assertInstanceOf(JsonType::class, $column->getType());
     }
 
     public function testColumnDefaultCurrentTimestamp(): void
@@ -558,7 +562,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->introspectTable('test_column_defaults_current_timestamp');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('test_column_defaults_current_timestamp');
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
 
@@ -684,7 +688,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->introspectTable('test_column_defaults_current_time_and_date');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName(
+            'test_column_defaults_current_time_and_date',
+        );
 
         self::assertSame($currentTimestampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
@@ -715,7 +721,7 @@ PARTITION BY HASH (col1)
 SQL;
 
         $this->connection->executeStatement($sql);
-        $onlineTable = $this->schemaManager->introspectTable('test_table_metadata');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('test_table_metadata');
 
         self::assertEquals('InnoDB', $onlineTable->getOption('engine'));
         self::assertEquals('utf8mb4_general_ci', $onlineTable->getOption('collation'));
@@ -732,7 +738,7 @@ SQL;
         $this->connection->executeStatement('DROP TABLE IF EXISTS test_table_empty_metadata');
 
         $this->connection->executeStatement('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
-        $onlineTable = $this->schemaManager->introspectTable('test_table_empty_metadata');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('test_table_empty_metadata');
 
         self::assertNotEmpty($onlineTable->getOption('engine'));
         // collation could be set to default or not set, information_schema indicate a possibly null value
@@ -768,7 +774,7 @@ SQL;
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->introspectTable('test_column_introspection');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('test_column_introspection');
 
         $diff = $this->schemaManager->createComparator()->compareTables($table, $onlineTable);
 
@@ -785,7 +791,7 @@ SQL;
 
         $this->expectException(DatabaseRequired::class);
 
-        $schemaManager->listTableColumns('users');
+        $schemaManager->introspectTableColumnsByUnquotedName('users');
     }
 
     public function testSchemaDiffWithCustomColumnTypeWhileDatabaseTypeDiffers(): void

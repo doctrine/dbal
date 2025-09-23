@@ -391,7 +391,28 @@ all drivers and middleware.
 
 # Upgrade to 4.4
 
-## Deprecated dropping unnamed constraints in SQLite
+## Deprecated `AbstractSchemaManager` methods
+
+The following `AbstractSchemaManager` methods have been deprecated:
+1. `listDatabases()` - use `introspectDatabaseNames()` instead.
+2. `listSchemaNames()` - use `introspectSchemaNames()` instead.
+3. `listTableNames()` - use `introspectTableNames()` instead.
+4. `listTableColumns()` - use `introspectTableColumns()`, `introspectTableColumnsByUnquotedName()`
+    or `introspectTableColumnsByQuotedName()` instead.
+5. `listTableIndexes()` - use `introspectTableIndexes()`, `introspectTableIndexesByUnquotedName()`
+    or `introspectTableIndexesByQuotedName()` instead.
+6. `listTableForeignKeys()` - use `introspectTableForeignKeys()`, `introspectTableForeignKeysByUnquotedName()`
+   or `introspectTableForeignKeysByQuotedName()` instead.
+7. `introspectTable()` - use `introspectTableByUnquotedName()` or `introspectTableByQuotedName()` instead.
+8. `listTables()` - use `introspectTables()` instead.
+9. `listViews()` - use `introspectViews()` instead.
+10. `listSequences()` - use `introspectSequences()` instead.
+
+## Marked `PostgreSQLPlatform::getDefaultColumnValueSQLSnippet()` as internal
+
+The `PostgreSQLPlatform::getDefaultColumnValueSQLSnippet()` method has been marked as internal.
+
+## Deprecated dropping unnamed constraints
 
 Passing unnamed foreign key constraints as part of the `$droppedForeignKeys` argument of the `TableDiff` constructor
 has been deprecated.

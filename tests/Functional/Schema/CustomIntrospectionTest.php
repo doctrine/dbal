@@ -64,7 +64,7 @@ class CustomIntrospectionTest extends FunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $onlineTable = $schemaManager->introspectTable('test_custom_column_introspection');
+        $onlineTable = $schemaManager->introspectTableByUnquotedName('test_custom_column_introspection');
         $diff        = $schemaManager->createComparator()->compareTables($onlineTable, $table);
 
         self::assertTrue($diff->isEmpty(), sprintf(

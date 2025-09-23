@@ -70,7 +70,7 @@ final class NumberTest extends FunctionalTestCase
 
         self::assertTrue(
             $schemaManager->createComparator()
-                ->compareTables($schemaManager->introspectTable('number_table'), $table)
+                ->compareTables($schemaManager->introspectTableByUnquotedName('number_table'), $table)
                 ->isEmpty(),
         );
     }

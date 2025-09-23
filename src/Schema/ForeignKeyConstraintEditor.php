@@ -107,6 +107,13 @@ final class ForeignKeyConstraintEditor
         return $this;
     }
 
+    public function addReferencingColumnName(UnqualifiedName $columName): self
+    {
+        $this->referencingColumnNames[] = $columName;
+
+        return $this;
+    }
+
     public function setReferencedTableName(OptionallyQualifiedName $referencedTableName): self
     {
         $this->referencedTableName = $referencedTableName;
@@ -179,6 +186,13 @@ final class ForeignKeyConstraintEditor
             static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
             [$firstColumnName, ...array_values($otherColumnNames)],
         );
+
+        return $this;
+    }
+
+    public function addReferencedColumnName(UnqualifiedName $columName): self
+    {
+        $this->referencedColumnNames[] = $columName;
 
         return $this;
     }

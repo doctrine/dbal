@@ -54,11 +54,11 @@ class RenameColumnTest extends FunctionalTestCase
 
         $sm   =  $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
-            ->compareTables($sm->introspectTable('test_rename'), $table);
+            ->compareTables($sm->introspectTableByUnquotedName('test_rename'), $table);
 
         $sm->alterTable($diff);
 
-        $table = $sm->introspectTable('test_rename');
+        $table = $sm->introspectTableByUnquotedName('test_rename');
 
         $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::unquoted($newColumnName),
@@ -122,11 +122,11 @@ class RenameColumnTest extends FunctionalTestCase
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
-            ->compareTables($sm->introspectTable('test_rename'), $table);
+            ->compareTables($sm->introspectTableByUnquotedName('test_rename'), $table);
 
         $sm->alterTable($diff);
 
-        $table = $sm->introspectTable('test_rename');
+        $table = $sm->introspectTableByUnquotedName('test_rename');
 
         self::assertCount(1, $diff->getChangedColumns());
         self::assertCount(1, $diff->getRenamedColumns());

@@ -27,6 +27,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
@@ -2214,6 +2215,16 @@ abstract class AbstractPlatform
     public function getUnquotedIdentifierFolding(): UnquotedIdentifierFolding
     {
         return $this->unquotedIdentifierFolding;
+    }
+
+    /**
+     * Creates a metadata provider that can be used access the metadata of the underlying database schema.
+     *
+     * @throws Exception
+     */
+    public function createMetadataProvider(Connection $connection): MetadataProvider
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

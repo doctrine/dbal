@@ -46,11 +46,11 @@ class AlterDecimalColumnTest extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
 
         $diff = $schemaManager->createComparator()
-            ->compareTables($schemaManager->introspectTable('decimal_table'), $table);
+            ->compareTables($schemaManager->introspectTableByUnquotedName('decimal_table'), $table);
 
         $schemaManager->alterTable($diff);
 
-        $table  = $schemaManager->introspectTable('decimal_table');
+        $table  = $schemaManager->introspectTableByUnquotedName('decimal_table');
         $column = $table->getColumn('val');
 
         self::assertSame($newPrecision, $column->getPrecision());

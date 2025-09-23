@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Exception\UnsupportedTableDefinition;
+use Doctrine\DBAL\Platforms\SQLite\SQLiteMetadataProvider;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
@@ -989,6 +990,11 @@ class SQLitePlatform extends AbstractPlatform
         return $primaryKeyConstraint->edit()
             ->setUnquotedColumnNames(...$columnNames)
             ->create();
+    }
+
+    public function createMetadataProvider(Connection $connection): SQLiteMetadataProvider
+    {
+        return new SQLiteMetadataProvider($connection, $this);
     }
 
     public function createSchemaManager(Connection $connection): SQLiteSchemaManager

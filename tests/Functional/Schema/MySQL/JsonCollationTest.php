@@ -133,7 +133,7 @@ final class JsonCollationTest extends FunctionalTestCase
     {
         $this->dropAndCreateTable($originalTable);
 
-        $onlineTable = $this->schemaManager->introspectTable('mariadb_json_column_comparator_test');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('mariadb_json_column_comparator_test');
         $diff        = $this->comparator->compareTables($originalTable, $onlineTable);
 
         self::assertTrue($diff->isEmpty(), 'Tables should be identical.');

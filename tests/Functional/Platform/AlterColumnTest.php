@@ -44,11 +44,11 @@ class AlterColumnTest extends FunctionalTestCase
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
-            ->compareTables($sm->introspectTable('test_alter'), $table);
+            ->compareTables($sm->introspectTableByUnquotedName('test_alter'), $table);
 
         $sm->alterTable($diff);
 
-        $table = $sm->introspectTable('test_alter');
+        $table = $sm->introspectTableByUnquotedName('test_alter');
 
         $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::unquoted('c1'),
@@ -84,7 +84,7 @@ class AlterColumnTest extends FunctionalTestCase
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
-            ->compareTables($sm->introspectTable('test_alter'), $table);
+            ->compareTables($sm->introspectTableByUnquotedName('test_alter'), $table);
 
         self::assertTrue($diff->isEmpty());
     }
@@ -118,7 +118,7 @@ class AlterColumnTest extends FunctionalTestCase
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
-            ->compareTables($sm->introspectTable('test_alter'), $table);
+            ->compareTables($sm->introspectTableByUnquotedName('test_alter'), $table);
 
         self::assertTrue($diff->isEmpty());
     }

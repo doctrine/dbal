@@ -19,11 +19,14 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Constraint\Callback;
+use PHPUnit\Framework\Constraint\LogicalNot;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
 use function array_values;
 use function count;
+use function sprintf;
 use function usort;
 
 abstract class FunctionalTestCase extends TestCase
@@ -246,6 +249,120 @@ abstract class FunctionalTestCase extends TestCase
     }
 
     /**
+     * @param non-empty-string          $needle
+     * @param iterable<UnqualifiedName> $haystack
+     */
+    protected function assertUnqualifiedNameListContainsUnquotedName(string $needle, iterable $haystack): void
+    {
+        static::assertThat(
+            $haystack,
+            $this->unqualifiedNameListContains(UnqualifiedName::unquoted($needle)),
+            sprintf('The list does not contain the unquoted name "%s".', $needle),
+        );
+    }
+
+    /**
+     * @param non-empty-string          $needle
+     * @param iterable<UnqualifiedName> $haystack
+     */
+    protected function assertUnqualifiedNameListContainsQuotedName(string $needle, iterable $haystack): void
+    {
+        static::assertThat(
+            $haystack,
+            $this->unqualifiedNameListContains(UnqualifiedName::quoted($needle)),
+            sprintf('The list does not contain the quoted name "%s".', $needle),
+        );
+    }
+
+    /**
+     * @param non-empty-string          $needle
+     * @param iterable<UnqualifiedName> $haystack
+     */
+    protected function assertUnqualifiedNameListNotContainsUnquotedName(string $needle, iterable $haystack): void
+    {
+        static::assertThat(
+            $haystack,
+            new LogicalNot($this->unqualifiedNameListContains(UnqualifiedName::unquoted($needle))),
+            sprintf('The list contains the unquoted name "%s".', $needle),
+        );
+    }
+
+    private function unqualifiedNameListContains(UnqualifiedName $needle): Callback
+    {
+        return self::callback(
+            /**
+             * @param iterable<UnqualifiedName> $haystack
+             *
+             * @throws Exception
+             */
+            function (iterable $haystack) use ($needle): bool {
+                $platform = $this->connection->getDatabasePlatform();
+                $folding  = $platform->getUnquotedIdentifierFolding();
+
+                foreach ($haystack as $name) {
+                    if ($name->equals($needle, $folding)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+        );
+    }
+
+    /**
+     * @param non-empty-string                  $needleName
+     * @param ?non-empty-string                 $needleQualifier
+     * @param iterable<OptionallyQualifiedName> $haystack
+     *
+     * @throws Exception
+     */
+    protected function assertOptionallyQualifiedNameListContainsUnquotedName(
+        string $needleName,
+        ?string $needleQualifier,
+        iterable $haystack,
+    ): void {
+        $needle = OptionallyQualifiedName::unquoted($needleName, $needleQualifier);
+
+        static::assertThat(
+            $haystack,
+            $this->optionallyQualifiedNameListContains($needle),
+            sprintf('The list does not contain the unquoted name "%s".', $needle->toString()),
+        );
+    }
+
+    private function optionallyQualifiedNameListContains(OptionallyQualifiedName $needle): Callback
+    {
+        return self::callback(
+            /**
+             * @param iterable<OptionallyQualifiedName> $haystack
+             *
+             * @throws Exception
+             */
+            function (iterable $haystack) use ($needle): bool {
+                $platform = $this->connection->getDatabasePlatform();
+                $folding  = $platform->getUnquotedIdentifierFolding();
+
+                $isNeedleQualified = $needle->getQualifier() !== null;
+
+                foreach ($haystack as $name) {
+                    // In the testing context, consider non-equally qualified names non-equal as they don't match field
+                    // by field. From the perspective of the library logic, they are still incomparable.
+                    if (($name->getQualifier() !== null) !== $isNeedleQualified) {
+                        continue;
+                    }
+
+                    if ($name->equals($needle, $folding)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+        );
+    }
+
+    /**
      * @param list<UnqualifiedName> $names
      *
      * @return ($names is non-empty-list ? non-empty-list<UnqualifiedName> : list<UnqualifiedName>)
@@ -335,11 +452,14 @@ abstract class FunctionalTestCase extends TestCase
         $quotedExpected = $this->toQuotedIndexList(array_values($expected));
         $quotedActual   = $this->toQuotedIndexList(array_values($actual));
 
+        $folding = $this->connection->getDatabasePlatform()
+            ->getUnquotedIdentifierFolding();
+
         // PHPUnit's implementation of assertEqualsCanonicalizing() sorts object properties and may trigger notices
         // while comparing an integer IndexedColumn::$length with an object IndexedColumn::$columnName
-        $comparator = static function (Index $a, Index $b): int {
-            return $a->getObjectName()->getIdentifier()->getValue()
-                <=> $b->getObjectName()->getIdentifier()->getValue();
+        $comparator = static function (Index $a, Index $b) use ($folding): int {
+            return $a->getObjectName()->getIdentifier()->toNormalizedValue($folding)
+                <=> $b->getObjectName()->getIdentifier()->toNormalizedValue($folding);
         };
 
         usort($quotedExpected, $comparator);

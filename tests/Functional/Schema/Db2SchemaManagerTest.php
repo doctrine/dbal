@@ -15,11 +15,11 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
         return $platform instanceof DB2Platform;
     }
 
-    public function testListDatabases(): void
+    public function testIntrospectDatabaseNames(): void
     {
         $this->expectException(Exception::class);
 
-        $this->schemaManager->listDatabases();
+        $this->schemaManager->introspectDatabaseNames();
     }
 
     public function getExpectedDefaultSchemaName(): ?string

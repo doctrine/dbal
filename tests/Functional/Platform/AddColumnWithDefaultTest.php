@@ -42,7 +42,7 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
             ->create();
 
         $diff = $schemaManager->createComparator()->compareTables(
-            $schemaManager->introspectTable('add_default_test'),
+            $schemaManager->introspectTableByUnquotedName('add_default_test'),
             $table,
         );
 

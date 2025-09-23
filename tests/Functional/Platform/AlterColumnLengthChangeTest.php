@@ -28,7 +28,7 @@ class AlterColumnLengthChangeTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $sm      = $this->connection->createSchemaManager();
-        $table   = $sm->introspectTable('test_alter_length');
+        $table   = $sm->introspectTableByUnquotedName('test_alter_length');
         $columns = $table->getColumns();
         self::assertCount(1, $columns);
         self::assertSame(50, $columns[0]->getLength());
@@ -40,11 +40,11 @@ class AlterColumnLengthChangeTest extends FunctionalTestCase
             ->create();
 
         $diff = $sm->createComparator()
-            ->compareTables($sm->introspectTable('test_alter_length'), $table);
+            ->compareTables($sm->introspectTableByUnquotedName('test_alter_length'), $table);
 
         $sm->alterTable($diff);
 
-        $table   = $sm->introspectTable('test_alter_length');
+        $table   = $sm->introspectTableByUnquotedName('test_alter_length');
         $columns = $table->getColumns();
 
         self::assertCount(1, $columns);

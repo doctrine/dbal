@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\Platforms\Oracle\OracleMetadataProvider;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -792,6 +793,11 @@ SQL,
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BLOB';
+    }
+
+    public function createMetadataProvider(Connection $connection): OracleMetadataProvider
+    {
+        return new OracleMetadataProvider($connection, $this);
     }
 
     public function createSchemaManager(Connection $connection): OracleSchemaManager

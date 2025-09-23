@@ -1,9 +1,9 @@
-Schema-Manager
+Schema manager
 ==============
 
-A Schema Manager instance helps you with the abstraction of the
-generation of SQL assets such as Tables, Sequences, Foreign Keys
-and Indexes.
+A schema manager instance helps you with the abstraction of the
+generation of SQL objects such as tables, sequences, foreign key
+constraints and indexes.
 
 To instantiate a ``SchemaManager`` for your connection you can use
 the ``createSchemaManager()`` method:
@@ -14,46 +14,30 @@ the ``createSchemaManager()`` method:
     $schemaManager = $conn->createSchemaManager();
 
 Now with the ``SchemaManager`` instance in ``$schemaManager`` you can use the
-available methods to learn about your database schema:
+available methods to learn about your database schema.
 
-.. note::
+Introspecting database names
+----------------------------
 
-    Parameters containing identifiers passed to the SchemaManager
-    methods are *NOT* quoted automatically! Identifier quoting is
-    really difficult to do manually in a consistent way across
-    different databases. You have to manually quote the identifiers
-    when you accept data from user or other sources not under your
-    control.
-
-listDatabases()
----------------
-
-Retrieve an array of databases on the configured connection:
+Retrieve a list of the names of available databases:
 
 .. code-block:: php
 
     <?php
-    $databases = $sm->listDatabases();
+    $databaseNames = $schemaManager->introspectDatabaseNames();
 
-listSequences()
----------------
+Introspecting sequences
+-----------------------
 
-Retrieve an array of ``Doctrine\DBAL\Schema\Sequence`` instances
-that exist for a database:
-
-.. code-block:: php
-
-    <?php
-    $sequences = $sm->listSequences();
-
-Or if you want to manually specify a database name:
+Retrieve a list of ``Doctrine\DBAL\Schema\Sequence`` instances
+that exist in the current database:
 
 .. code-block:: php
 
     <?php
-    $sequences = $sm->listSequences('dbname');
+    $sequences = $schemaManager->introspectSequences();
 
-Now you can loop over the array inspecting each sequence object:
+Now you can loop over the list inspecting each sequence object:
 
 .. code-block:: php
 
@@ -62,18 +46,25 @@ Now you can loop over the array inspecting each sequence object:
         echo $sequence->getObjectName()->toString() . PHP_EOL;
     }
 
-listTableColumns()
-------------------
+Introspecting table columns
+---------------------------
 
-Retrieve an array of ``Doctrine\DBAL\Schema\Column`` instances that
+Retrieve a list of ``Doctrine\DBAL\Schema\Column`` instances that
 exist for the given table:
 
 .. code-block:: php
 
     <?php
-    $columns = $sm->listTableColumns('user');
+    $columns = $schemaManager->introspectTableColumnsByUnquotedName('user');
 
-Now you can loop over the array inspecting each column object:
+Or if the table name should be represented as a quoted identifier:
+
+.. code-block:: php
+
+    <?php
+    $columns = $schemaManager->introspectTableColumnsByQuotedName('user');
+
+Now you can loop over the list inspecting each column object:
 
 .. code-block:: php
 
@@ -82,8 +73,8 @@ Now you can loop over the array inspecting each column object:
         echo $column->getObjectName()->toString() . ': ' . $column->getType() . PHP_EOL;
     }
 
-introspectTable()
------------------
+Introspecting a table
+---------------------
 
 Retrieve a single ``Doctrine\DBAL\Schema\Table`` instance that
 encapsulates the definition of the given table:
@@ -91,7 +82,14 @@ encapsulates the definition of the given table:
 .. code-block:: php
 
     <?php
-    $table = $sm->introspectTable('user');
+    $table = $schemaManager->introspectTableByUnquotedName('user');
+
+Or if the table name should be represented as a quoted identifier:
+
+.. code-block:: php
+
+    <?php
+    $columns = $schemaManager->introspectTableByQuotedName('user');
 
 Now you can call methods on the table to manipulate the in memory
 schema for that table. For example we can add a new column:
@@ -101,39 +99,52 @@ schema for that table. For example we can add a new column:
     <?php
     $table->addColumn('email_address', 'string');
 
-listTableForeignKeys()
-----------------------
+Introspecting foreign key constraints of a table
+------------------------------------------------
 
-Retrieve an array of ``Doctrine\DBAL\Schema\ForeignKeyConstraint``
+Retrieve a list of ``Doctrine\DBAL\Schema\ForeignKeyConstraint``
 instances that exist for the given table:
 
 .. code-block:: php
 
     <?php
-    $foreignKeys = $sm->listTableForeignKeys('user');
+    $foreignKeyConstraints = $schemaManager->introspectTableForeignKeyConstraintsByUnquotedName('user');
 
-Now you can loop over the array inspecting each foreign key
-object:
+Or if the table name should be represented as a quoted identifier:
 
 .. code-block:: php
 
     <?php
-    foreach ($foreignKeys as $foreignKey) {
-        echo $foreignKey->getObjectName()->toString() . PHP_EOL;
+    $foreignKeyConstraints = $schemaManager->introspectTableForeignKeyConstraintsByQuotedName('user');
+
+Now you can loop over the list inspecting each foreign key constraint object:
+
+.. code-block:: php
+
+    <?php
+    foreach ($foreignKeyConstraints as $foreignKeyConstraint) {
+        echo $foreignKeyConstraint->getObjectName()->toString() . PHP_EOL;
     }
 
-listTableIndexes()
-------------------
+Introspecting table indexes
+---------------------------
 
-Retrieve an array of ``Doctrine\DBAL\Schema\Index`` instances that
+Retrieve a list of ``Doctrine\DBAL\Schema\Index`` instances that
 exist for the given table:
 
 .. code-block:: php
 
     <?php
-    $indexes = $sm->listTableIndexes('user');
+    $indexes = $schemaManager->introspectTableIndexesByUnquotedName('user');
 
-Now you can loop over the array inspecting each index object:
+Or if the table name should be represented as a quoted identifier:
+
+.. code-block:: php
+
+    <?php
+    $indexes = $schemaManager->introspectTableIndexesByQuotedName('user');
+
+Now you can loop over the list inspecting each index object:
 
 .. code-block:: php
 
@@ -147,20 +158,20 @@ Now you can loop over the array inspecting each index object:
         } . PHP_EOL;
     }
 
-listTables()
-------------
+Introspecting all tables in the database
+----------------------------------------
 
-Retrieve an array of ``Doctrine\DBAL\Schema\Table`` instances that
-exist in the connections database:
+Retrieve a list of ``Doctrine\DBAL\Schema\Table`` instances that
+exist in the current database:
 
 .. code-block:: php
 
     <?php
-    $tables = $sm->listTables();
+    $tables = $schemaManager->introspectTables();
 
 Each ``Doctrine\DBAl\Schema\Table`` instance is populated with
 information provided by all the above methods. So it encapsulates
-an array of ``Doctrine\DBAL\Schema\Column`` instances that can be
+a list of ``Doctrine\DBAL\Schema\Column`` instances that can be
 retrieved with the ``getColumns()`` method:
 
 .. code-block:: php
@@ -173,18 +184,18 @@ retrieved with the ``getColumns()`` method:
         }
     }
 
-listViews()
------------
+Introspecting all views in the database
+---------------------------------------
 
-Retrieve an array of ``Doctrine\DBAL\Schema\View`` instances that
-exist in the connections database:
+Retrieve a list of ``Doctrine\DBAL\Schema\View`` instances that
+exist in the current database:
 
 .. code-block:: php
 
     <?php
-    $views = $sm->listViews();
+    $views = $schemaManager->introspectViews();
 
-Now you can loop over the array inspecting each view object:
+Now you can loop over the list inspecting each view object:
 
 .. code-block:: php
 
@@ -193,18 +204,18 @@ Now you can loop over the array inspecting each view object:
         echo $view->getObjectName()->toString() . ': ' . $view->getSql() . PHP_EOL;
     }
 
-introspectSchema()
-------------------
+Introspecting the database schema
+---------------------------------
 
-For a complete representation of the current database you can use
+For a complete representation of the schema of current database you can use
 the ``introspectSchema()`` method which returns an instance of
 ``Doctrine\DBAL\Schema\Schema``, which you can use in conjunction
-with the SchemaTool or Schema Comparator.
+with a schema comparator.
 
 .. code-block:: php
 
     <?php
-    $fromSchema = $sm->introspectSchema();
+    $fromSchema = $schemaManager->introspectSchema();
 
 Now we can clone the ``$fromSchema`` to ``$toSchema`` and drop a
 table:
@@ -222,9 +233,11 @@ the changes on the database:
 .. code-block:: php
 
     <?php
-    $sql = $sm->createComparator()->compareSchemas($fromSchema, $toSchema)->toSql($conn->getDatabasePlatform());
+    $statements = $schemaManager->createComparator()
+        ->compareSchemas($fromSchema, $toSchema)
+        ->toSql($conn->getDatabasePlatform());
 
-The ``$sql`` array should give you a SQL query to drop the user
+The ``$statements`` list should give you the SQL statements to drop the user
 table:
 
 .. code-block:: php
@@ -238,8 +251,8 @@ table:
     )
     */
 
-createComparator()
-------------------
+Creating a schema comparator
+----------------------------
 
 To create a comparator that can be used to compare two schemas use the
 ``createComparator()`` method which returns an instance of
@@ -248,7 +261,7 @@ To create a comparator that can be used to compare two schemas use the
 .. code-block:: php
 
     <?php
-    $comparator = $sm->createComparator();
+    $comparator = $schemaManager->createComparator();
     $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
 
 To change the configuration of the comparator, you can pass a
@@ -258,7 +271,7 @@ To change the configuration of the comparator, you can pass a
 
     <?php
     $config = (new ComparatorConfig())->withDetectRenamedColumns(false);
-    $comparator = $sm->createComparator($config);
+    $comparator = $schemaManager->createComparator($config);
     $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
 
 Overriding the schema manager

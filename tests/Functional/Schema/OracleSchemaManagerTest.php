@@ -63,11 +63,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('list_table_column_notnull');
+        [$id, $foo, $bar] = $this->schemaManager->introspectTableColumnsByUnquotedName('list_table_column_notnull');
 
-        self::assertTrue($columns['id']->getNotnull());
-        self::assertTrue($columns['foo']->getNotnull());
-        self::assertTrue($columns['bar']->getNotnull());
+        self::assertTrue($id->getNotnull());
+        self::assertTrue($foo->getNotnull());
+        self::assertTrue($bar->getNotnull());
 
         $diffTable = $table->edit()
             ->modifyColumnByUnquotedName('foo', static function (ColumnEditor $editor): void {
@@ -83,11 +83,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $columns = $this->schemaManager->listTableColumns('list_table_column_notnull');
+        [$id, $foo, $bar] = $this->schemaManager->introspectTableColumnsByUnquotedName('list_table_column_notnull');
 
-        self::assertTrue($columns['id']->getNotnull());
-        self::assertFalse($columns['foo']->getNotnull());
-        self::assertTrue($columns['bar']->getNotnull());
+        self::assertTrue($id->getNotnull());
+        self::assertFalse($foo->getNotnull());
+        self::assertTrue($bar->getNotnull());
     }
 
     public function testListTableColumnsSameTableNamesInDifferentSchemas(): void
@@ -120,9 +120,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $schemaManager->createTable($otherTable);
         $connection->close();
 
-        $columns = $this->schemaManager->listTableColumns(
-            $table->getObjectName()
-                ->toString(),
+        $columns = $this->schemaManager->introspectTableColumns(
+            $table->getObjectName(),
         );
 
         self::assertCount(7, $columns);
@@ -150,11 +149,12 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('tbl_date');
+        [$colDate, $colDateTime, $colDateTimeTz]
+            = $this->schemaManager->introspectTableColumnsByUnquotedName('tbl_date');
 
-        self::assertInstanceOf(DateType::class, $columns['col_date']->getType());
-        self::assertInstanceOf(DateTimeType::class, $columns['col_datetime']->getType());
-        self::assertInstanceOf(DateTimeTzType::class, $columns['col_datetimetz']->getType());
+        self::assertInstanceOf(DateType::class, $colDate->getType());
+        self::assertInstanceOf(DateTimeType::class, $colDateTime->getType());
+        self::assertInstanceOf(DateTimeTzType::class, $colDateTimeTz->getType());
     }
 
     public function testCreateAndListSequences(): void
@@ -194,7 +194,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $schemaManager->alterSchema($diff);
 
-        $columns = $schemaManager->listTableColumns('"tester"');
+        $columns = $schemaManager->introspectTableColumnsByQuotedName('tester');
         self::assertCount(1, $columns);
     }
 

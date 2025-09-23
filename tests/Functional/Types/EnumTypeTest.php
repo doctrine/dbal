@@ -36,7 +36,7 @@ final class EnumTypeTest extends FunctionalTestCase
             SQL);
 
         $schemaManager = $this->connection->createSchemaManager();
-        $table         = $schemaManager->introspectTable('my_enum_table');
+        $table         = $schemaManager->introspectTableByUnquotedName('my_enum_table');
 
         self::assertCount(2, $table->getColumns());
         self::assertTrue($table->hasColumn('suit'));
@@ -72,7 +72,7 @@ final class EnumTypeTest extends FunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $introspectedTable = $schemaManager->introspectTable('my_enum_table');
+        $introspectedTable = $schemaManager->introspectTableByUnquotedName('my_enum_table');
 
         self::assertTrue($schemaManager->createComparator()->compareTables($table, $introspectedTable)->isEmpty());
 
@@ -124,7 +124,7 @@ final class EnumTypeTest extends FunctionalTestCase
             SQL);
 
         $schemaManager = $this->connection->createSchemaManager();
-        $table         = $schemaManager->introspectTable('my_enum_table');
+        $table         = $schemaManager->introspectTableByUnquotedName('my_enum_table');
 
         self::assertInstanceOf(EnumType::class, $table->getColumn('my_enum')->getType());
         self::assertSame($expectedValues, $table->getColumn('my_enum')->getValues());

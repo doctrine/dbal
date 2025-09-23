@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Introspection\IntrospectingSchemaProvider;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
@@ -83,6 +84,8 @@ abstract class AbstractSchemaManager
     /**
      * Lists the available databases for this connection.
      *
+     * @deprecated Use {@see introspectDatabaseNames()} instead.
+     *
      * @return array<int, string>
      *
      * @throws Exception
@@ -99,6 +102,8 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of the names of all schemata in the current database.
      *
+     * @deprecated Use {@see introspectSchemaNames()} instead.
+     *
      * @return list<string>
      *
      * @throws Exception
@@ -110,6 +115,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Lists the available sequences for this connection.
+     *
+     * @deprecated Use {@see introspectSequences()} instead.
      *
      * @return list<Sequence>
      *
@@ -138,6 +145,9 @@ abstract class AbstractSchemaManager
      * of a table. Where a RDBMS specifies more details, these are held
      * in the platformDetails array.
      *
+     * @deprecated Use {@see introspectTableColumns()}, {@see introspectTableColumnsByUnquotedName()}
+     *             or {@see introspectTableColumnsByQuotedName()} instead.
+     *
      * @return array<string, Column>
      *
      * @throws Exception
@@ -156,6 +166,9 @@ abstract class AbstractSchemaManager
      * Lists the indexes for a given table returning an array of Index instances.
      *
      * Keys of the portable indexes list are all lower-cased.
+     *
+     * @deprecated Use {@see introspectTableIndexes()}, {@see introspectTableIndexesByUnquotedName()}
+     *             or {@see introspectTableIndexesByQuotedName()}
      *
      * @return array<string, Index>
      *
@@ -209,6 +222,8 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all tables in the current database.
      *
+     * @deprecated Use {@see introspectTableNames()} instead.
+     *
      * @return list<non-empty-string>
      *
      * @throws Exception
@@ -253,6 +268,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Lists the tables for this connection.
+     *
+     * @deprecated Use {@see introspectTables()} instead.
      *
      * @return list<Table>
      *
@@ -587,6 +604,8 @@ abstract class AbstractSchemaManager
     /**
      * Introspects the table with the given name.
      *
+     * @deprecated Use {@see introspectTableByUnquotedName()} or {@see introspectTableByQuotedName()} instead.
+     *
      * @throws Exception
      */
     public function introspectTable(string $name): Table
@@ -612,6 +631,8 @@ abstract class AbstractSchemaManager
     /**
      * Lists the views this connection has.
      *
+     * @deprecated Use {@see introspectViews()} instead.
+     *
      * @return list<View>
      *
      * @throws Exception
@@ -629,6 +650,10 @@ abstract class AbstractSchemaManager
 
     /**
      * Lists the foreign keys for the given table.
+     *
+     * @deprecated Use {@see introspectTableForeignKeyConstraints()},
+     *             {@see introspectTableForeignKeyConstraintsByUnquotedName()}
+     *             or {@see introspectTableForeignKeyConstraintsByQuotedName()} instead.
      *
      * @return array<int|string, ForeignKeyConstraint>
      *
@@ -666,6 +691,446 @@ abstract class AbstractSchemaManager
             $this->getDatabase(__METHOD__),
             $tableName,
         )[$schemaNameKey][$unqualifiedTableName] ?? [];
+    }
+
+    /**
+     * Introspects available databases and returns their names.
+     *
+     * @return list<UnqualifiedName>
+     *
+     * @throws Exception
+     */
+    public function introspectDatabaseNames(): array
+    {
+        return $this->createSchemaProvider()->getAllDatabaseNames();
+    }
+
+    /**
+     * Introspects schemas in the current database and returns their names.
+     *
+     * @return list<UnqualifiedName>
+     *
+     * @throws Exception
+     */
+    public function introspectSchemaNames(): array
+    {
+        return $this->createSchemaProvider()->getAllSchemaNames();
+    }
+
+    /**
+     * Introspects tables in the current database and returns their names.
+     *
+     * @return list<OptionallyQualifiedName>
+     *
+     * @throws Exception
+     */
+    public function introspectTableNames(): array
+    {
+        $filter     = $this->connection->getConfiguration()->getSchemaAssetsFilter();
+        $tableNames = [];
+
+        foreach ($this->createSchemaProvider()->getAllTableNames() as $tableName) {
+            if (! $this->testTableName($tableName, $filter)) {
+                continue;
+            }
+
+            $tableNames[] = $tableName;
+        }
+
+        return $tableNames;
+    }
+
+    /**
+     * Introspects tables in the current database and returns their definitions.
+     *
+     * @return list<Table>
+     *
+     * @throws Exception
+     */
+    public function introspectTables(): array
+    {
+        $filter = $this->connection->getConfiguration()->getSchemaAssetsFilter();
+        $tables = [];
+
+        foreach ($this->createSchemaProvider()->getAllTables() as $table) {
+            if (! $this->testTableName($table->getObjectName(), $filter)) {
+                continue;
+            }
+
+            $tables[] = $table;
+        }
+
+        return $tables;
+    }
+
+    /**
+     * Tests whether the table name matches the filter.
+     */
+    private function testTableName(OptionallyQualifiedName $tableName, callable $filter): bool
+    {
+        $formattedName = $tableName->getUnqualifiedName()->getValue();
+        $qualifier     = $tableName->getQualifier();
+
+        if ($qualifier !== null) {
+            $formattedName = $qualifier->getValue() . '.' . $formattedName;
+        }
+
+        return $filter($formattedName);
+    }
+
+    /**
+     * Introspects the table with the given name and returns its definition. If the name is unqualified, and the
+     * underlying database platform supports schemas, the current schema is used.
+     *
+     * This method is currently private due to the conflict with {@see introspectTable()}. Use
+     * {@see introspectTableByUnquotedName()} or {@see introspectTableByQuotedName()} instead.
+     *
+     * @throws Exception
+     */
+    private function introspectTable0(OptionallyQualifiedName $tableName): Table
+    {
+        $columns = $this->introspectTableColumns($tableName);
+
+        if ($columns === []) {
+            throw TableDoesNotExist::new($tableName->toString());
+        }
+
+        $options = $this->introspectTableOptions($tableName);
+        assert($options !== null);
+
+        return Table::editor()
+            ->setName($tableName)
+            ->setColumns(...$columns)
+            ->setPrimaryKeyConstraint($this->introspectTablePrimaryKeyConstraint($tableName))
+            ->setIndexes(...$this->introspectTableIndexes($tableName))
+            ->setForeignKeyConstraints(...$this->introspectTableForeignKeyConstraints($tableName))
+            ->setOptions($options)
+            ->create();
+    }
+
+    /**
+     * Introspects the table with the given unquoted name and schema name and returns its definition. If the schema name
+     * is omitted, and the underlying database platform supports schemas, the current schema is used.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @throws Exception
+     */
+    public function introspectTableByUnquotedName(string $tableName, ?string $schemaName = null): Table
+    {
+        return $this->introspectTable0(
+            OptionallyQualifiedName::unquoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * Introspects the table with the given quoted name and schema name and returns its definition. If the schema name
+     * is omitted, and the underlying database platform supports schemas, the current schema is used.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @throws Exception
+     */
+    public function introspectTableByQuotedName(string $tableName, ?string $schemaName = null): Table
+    {
+        return $this->introspectTable0(
+            OptionallyQualifiedName::quoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * Introspects the columns of a given table and returns their definitions. If the name is unqualified, and the
+     * underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @return list<Column>
+     *
+     * @throws Exception
+     */
+    public function introspectTableColumns(OptionallyQualifiedName $tableName): array
+    {
+        return $this->introspectTableObjects(
+            $tableName,
+            static function (SchemaProvider $schemaProvider, ?string $schemaName, string $tableName): array {
+                return $schemaProvider->getColumnsForTable($schemaName, $tableName);
+            },
+        );
+    }
+
+    /**
+     * Introspects the columns of the table with the given unquoted name and schema name and returns their definitions.
+     * If the schema name is omitted and the underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @return list<Column>
+     *
+     * @throws Exception
+     */
+    public function introspectTableColumnsByUnquotedName(string $tableName, ?string $schemaName = null): array
+    {
+        return $this->introspectTableColumns(
+            OptionallyQualifiedName::unquoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * Introspects the columns of the table with the given quoted name and schema name and returns their definitions. If
+     * the schema name is omitted and the underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @return list<Column>
+     *
+     * @throws Exception
+     */
+    public function introspectTableColumnsByQuotedName(string $tableName, ?string $schemaName = null): array
+    {
+        return $this->introspectTableColumns(
+            OptionallyQualifiedName::quoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * Introspects the indexes of a given table and returns their definitions. If the name is unqualified, and the
+     * underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @return list<Index>
+     *
+     * @throws Exception
+     */
+    public function introspectTableIndexes(OptionallyQualifiedName $tableName): array
+    {
+        return $this->introspectTableObjects(
+            $tableName,
+            static function (SchemaProvider $schemaProvider, ?string $schemaName, string $tableName): array {
+                return $schemaProvider->getIndexesForTable($schemaName, $tableName);
+            },
+        );
+    }
+
+    /**
+     * Introspects the indexes of the table with the given unquoted name and schema name and returns their definitions.
+     * If the schema name is omitted and the underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @return list<Index>
+     *
+     * @throws Exception
+     */
+    public function introspectTableIndexesByUnquotedName(string $tableName, ?string $schemaName = null): array
+    {
+        return $this->introspectTableIndexes(
+            OptionallyQualifiedName::unquoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * Introspects the indexes of the table with the given quoted name and schema name and returns their definitions. If
+     * the schema name is omitted and the underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @return list<Index>
+     *
+     * @throws Exception
+     */
+    public function introspectTableIndexesByQuotedName(string $tableName, ?string $schemaName = null): array
+    {
+        return $this->introspectTableIndexes(
+            OptionallyQualifiedName::quoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * Introspects the primary key constraint of a given table and returns its definition. If the name is unqualified,
+     * and the underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns <code>null</code> if the table does not exist or does not have a primary key constraint.
+     *
+     * @throws Exception
+     */
+    public function introspectTablePrimaryKeyConstraint(OptionallyQualifiedName $tableName): ?PrimaryKeyConstraint
+    {
+        return $this->introspectTableObjects(
+            $tableName,
+            static function (
+                SchemaProvider $schemaProvider,
+                ?string $schemaName,
+                string $tableName,
+            ): ?PrimaryKeyConstraint {
+                return $schemaProvider->getPrimaryKeyConstraintForTable($schemaName, $tableName);
+            },
+        );
+    }
+
+    /**
+     * Introspects the foreign key constraints of a given table and returns their definitions. If the name is
+     * unqualified, and the underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @return list<ForeignKeyConstraint>
+     *
+     * @throws Exception
+     */
+    public function introspectTableForeignKeyConstraints(OptionallyQualifiedName $tableName): array
+    {
+        return $this->introspectTableObjects(
+            $tableName,
+            static function (SchemaProvider $schemaProvider, ?string $schemaName, string $tableName): array {
+                return $schemaProvider->getForeignKeyConstraintsForTable($schemaName, $tableName);
+            },
+        );
+    }
+
+    /**
+     * Introspects the foreign key constraints of the table with the given unquoted name and schema name and returns
+     * their definitions. If the name is unqualified, and the underlying database platform supports schemas, the current
+     * schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @return list<ForeignKeyConstraint>
+     *
+     * @throws Exception
+     */
+    public function introspectTableForeignKeyConstraintsByUnquotedName(
+        string $tableName,
+        ?string $schemaName = null,
+    ): array {
+        return $this->introspectTableForeignKeyConstraints(
+            OptionallyQualifiedName::unquoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * Introspects the foreign key constraints of the table with the given quoted name and schema name and returns their
+     * definitions. If the name is unqualified, and the underlying database platform supports schemas, the current
+     * schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @return list<ForeignKeyConstraint>
+     *
+     * @throws Exception
+     */
+    public function introspectTableForeignKeyConstraintsByQuotedName(
+        string $tableName,
+        ?string $schemaName = null,
+    ): array {
+        return $this->introspectTableForeignKeyConstraints(
+            OptionallyQualifiedName::quoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * @param callable(SchemaProvider, ?non-empty-string, non-empty-string): R $function
+     *
+     * @return R
+     *
+     * @throws Exception
+     *
+     * @template R
+     */
+    private function introspectTableObjects(OptionallyQualifiedName $tableName, callable $function)
+    {
+        $folding   = $this->platform->getUnquotedIdentifierFolding();
+        $qualifier = $tableName->getQualifier();
+
+        if ($qualifier !== null) {
+            $schemaName = $qualifier->toNormalizedValue($folding);
+        } else {
+            $schemaName = $this->getCurrentSchemaName();
+        }
+
+        return $function(
+            $this->createSchemaProvider(),
+            $schemaName,
+            $tableName->getUnqualifiedName()->toNormalizedValue($folding),
+        );
+    }
+
+    /**
+     * @return ?array<non-empty-string, mixed>
+     *
+     * @throws Exception
+     */
+    private function introspectTableOptions(OptionallyQualifiedName $tableName): ?array
+    {
+        $folding   = $this->platform->getUnquotedIdentifierFolding();
+        $qualifier = $tableName->getQualifier();
+
+        if ($qualifier !== null) {
+            $schemaName = $qualifier->toNormalizedValue($folding);
+        } else {
+            $schemaName = $this->getCurrentSchemaName();
+        }
+
+        return $this->createSchemaProvider()->getOptionsForTable(
+            $schemaName,
+            $tableName->getUnqualifiedName()->toNormalizedValue($folding),
+        );
+    }
+
+    /**
+     * Introspects the views in the current database and returns their definitions.
+     *
+     * @return list<View>
+     *
+     * @throws Exception
+     */
+    public function introspectViews(): array
+    {
+        return $this->createSchemaProvider()->getAllViews();
+    }
+
+    /**
+     * Introspects the sequences in the current database and returns their definitions.
+     *
+     * @return list<Sequence>
+     *
+     * @throws Exception
+     */
+    public function introspectSequences(): array
+    {
+        return $this->filterAssetNames(
+            $this->createSchemaProvider()->getAllSequences(),
+        );
+    }
+
+    /** @throws Exception */
+    private function createSchemaProvider(): IntrospectingSchemaProvider
+    {
+        return new IntrospectingSchemaProvider(
+            $this->platform->createMetadataProvider($this->connection),
+            $this->getCurrentSchemaName(),
+            $this->createSchemaConfig()->toTableConfiguration(),
+        );
     }
 
     /* drop*() Methods */

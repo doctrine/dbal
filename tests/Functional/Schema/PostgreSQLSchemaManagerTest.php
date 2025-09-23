@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -35,9 +36,10 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testGetSchemaNames(): void
     {
-        $names = $this->schemaManager->listSchemaNames();
-
-        self::assertContains('public', $names, 'The public schema should be found.');
+        $this->assertUnqualifiedNameListContainsQuotedName(
+            'public',
+            $this->schemaManager->introspectSchemaNames(),
+        );
     }
 
     public function testSupportDomainTypeFallback(): void
@@ -48,13 +50,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $createTableSQL = 'CREATE TABLE domain_type_test (id INT PRIMARY KEY, value MyMoney)';
         $this->connection->executeStatement($createTableSQL);
 
-        $table = $this->connection->createSchemaManager()->introspectTable('domain_type_test');
+        $table = $this->connection->createSchemaManager()->introspectTableByUnquotedName('domain_type_test');
         self::assertInstanceOf(DecimalType::class, $table->getColumn('value')->getType());
 
         Type::addType('MyMoney', MoneyType::class);
         $this->connection->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'MyMoney');
 
-        $table = $this->connection->createSchemaManager()->introspectTable('domain_type_test');
+        $table = $this->connection->createSchemaManager()->introspectTableByUnquotedName('domain_type_test');
         self::assertInstanceOf(MoneyType::class, $table->getColumn('value')->getType());
     }
 
@@ -71,7 +73,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->create();
 
         $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->introspectTable('autoinc_table_add');
+        $tableFrom = $this->schemaManager->introspectTableByUnquotedName('autoinc_table_add');
         self::assertFalse($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = Table::editor()
@@ -90,7 +92,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->compareTables($tableFrom, $tableTo);
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->introspectTable('autoinc_table_add');
+        $tableFinal = $this->schemaManager->introspectTableByUnquotedName('autoinc_table_add');
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
@@ -108,7 +110,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->create();
 
         $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->introspectTable('autoinc_table_drop');
+        $tableFrom = $this->schemaManager->introspectTableByUnquotedName('autoinc_table_drop');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = Table::editor()
@@ -126,7 +128,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->compareTables($tableFrom, $tableTo);
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->introspectTable('autoinc_table_drop');
+        $tableFinal = $this->schemaManager->introspectTableByUnquotedName('autoinc_table_drop');
         self::assertFalse($tableFinal->getColumn('id')->getAutoincrement());
     }
 
@@ -165,13 +167,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createTable($anotherSchemaTable);
 
-        $table = $this->schemaManager->introspectTable('table');
+        $table = $this->schemaManager->introspectTableByUnquotedName('table');
         self::assertCount(2, $table->getColumns());
         self::assertTrue($table->hasColumn('id'));
         self::assertInstanceOf(IntegerType::class, $table->getColumn('id')->getType());
         self::assertTrue($table->hasColumn('name'));
 
-        $anotherSchemaTable = $this->schemaManager->introspectTable('another.table');
+        $anotherSchemaTable = $this->schemaManager->introspectTableByUnquotedName('table', 'another');
         self::assertCount(2, $anotherSchemaTable->getColumns());
         self::assertTrue($anotherSchemaTable->hasColumn('id'));
         self::assertInstanceOf(TextType::class, $anotherSchemaTable->getColumn('id')->getType());
@@ -225,10 +227,10 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($testTable);
 
-        $columns = $this->schemaManager->listTableColumns('test_json');
+        [$column] = $this->schemaManager->introspectTableColumnsByUnquotedName('test_json');
 
-        self::assertSame(Type::getType(Types::JSON), $columns['foo']->getType());
-        self::assertSame('{"key": "value with a single quote \' in string value"}', $columns['foo']->getDefault());
+        self::assertSame(Type::getType(Types::JSON), $column->getType());
+        self::assertSame('{"key": "value with a single quote \' in string value"}', $column->getDefault());
     }
 
     public function testBooleanDefault(): void
@@ -414,7 +416,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($offlineTable);
 
-        $onlineTable = $this->schemaManager->introspectTable('person');
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('person');
 
         self::assertTrue(
             $this->schemaManager->createComparator()
@@ -491,15 +493,16 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_default_negative');
+        [$colSmallInt, $colInteger, $colBigInt, $colFloat, $colSmallFloat, $colDecimal, $colString]
+            = $this->schemaManager->introspectTableColumnsByUnquotedName('test_default_negative');
 
-        self::assertEquals(-1, $columns['col_smallint']->getDefault());
-        self::assertEquals(-1, $columns['col_integer']->getDefault());
-        self::assertEquals(-1, $columns['col_bigint']->getDefault());
-        self::assertEquals(-1.1, $columns['col_float']->getDefault());
-        self::assertEquals(-1.1, $columns['col_smallfloat']->getDefault());
-        self::assertEquals(-1.1, $columns['col_decimal']->getDefault());
-        self::assertEquals('(-1)', $columns['col_string']->getDefault());
+        self::assertEquals(-1, $colSmallInt->getDefault());
+        self::assertEquals(-1, $colInteger->getDefault());
+        self::assertEquals(-1, $colBigInt->getDefault());
+        self::assertEquals(-1.1, $colFloat->getDefault());
+        self::assertEquals(-1.1, $colSmallFloat->getDefault());
+        self::assertEquals(-1.1, $colDecimal->getDefault());
+        self::assertEquals('(-1)', $colString->getDefault());
     }
 
     /** @return mixed[][] */
@@ -530,9 +533,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns($tableName);
+        [$id] = $this->schemaManager->introspectTableColumnsByUnquotedName($tableName);
 
-        self::assertNull($columns['id']->getDefault());
+        self::assertNull($id->getDefault());
     }
 
     #[DataProvider('serialTypes')]
@@ -555,9 +558,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns($tableName);
+        [$id] = $this->schemaManager->introspectTableColumnsByUnquotedName($tableName);
 
-        self::assertNull($columns['id']->getDefault());
+        self::assertNull($id->getDefault());
     }
 
     #[DataProvider('autoIncrementTypeMigrations')]
@@ -576,7 +579,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $oldTable = $this->schemaManager->introspectTable('autoinc_type_modification');
+        $oldTable = $this->schemaManager->introspectTableByUnquotedName('autoinc_type_modification');
         self::assertTrue($oldTable->getColumn('id')->getAutoincrement());
 
         $newTable = Table::editor()
@@ -594,7 +597,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->compareTables($oldTable, $newTable);
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->introspectTable('autoinc_type_modification');
+        $tableFinal = $this->schemaManager->introspectTableByUnquotedName('autoinc_type_modification');
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
@@ -606,8 +609,11 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = 'test_list_table_columns_oid_conflicts';
         $this->connection->executeStatement(sprintf('CREATE TABLE IF NOT EXISTS %s(id INT NOT NULL)', $table));
-        $beforeColumns = $this->schemaManager->listTableColumns($table);
-        self::assertArrayHasKey('id', $beforeColumns);
+        [$beforeColumn] = $this->schemaManager->introspectTableColumnsByUnquotedName($table);
+        $this->assertUnqualifiedNameEquals(
+            UnqualifiedName::unquoted('id'),
+            $beforeColumn->getObjectName(),
+        );
 
         $this->connection->executeStatement('CREATE EXTENSION IF NOT EXISTS pg_prewarm');
         $originalTableOid = $this->connection->fetchOne(
@@ -638,7 +644,7 @@ SQL;
             [$conflictingOid, $originalTableOid],
         );
 
-        $afterColumns = $this->schemaManager->listTableColumns($table);
+        [$afterColumn] = $this->schemaManager->introspectTableColumnsByUnquotedName($table);
 
         // revert to the database to original state prior to asserting result
         $this->connection->executeStatement(
@@ -656,7 +662,10 @@ SQL;
         $this->connection->executeStatement(sprintf('DROP TABLE IF EXISTS %s', $table));
         $this->connection->executeStatement('DROP EXTENSION IF EXISTS pg_prewarm');
 
-        self::assertArrayHasKey('id', $afterColumns);
+        $this->assertUnqualifiedNameEquals(
+            UnqualifiedName::unquoted('id'),
+            $beforeColumn->getObjectName(),
+        );
     }
 
     /** @return iterable<mixed[]> */
@@ -676,15 +685,15 @@ SQL;
         );
         $this->connection->executeStatement('CREATE TABLE partition PARTITION OF partitioned_table FOR VALUES IN (1);');
         try {
-            $this->schemaManager->introspectTable('partition');
+            $this->schemaManager->introspectTableByUnquotedName('partition');
         } catch (TableDoesNotExist $e) {
         }
 
         self::assertNotNull($e ?? null, 'Partition table should not be introspected');
 
-        $tableFrom = $this->schemaManager->introspectTable('partitioned_table');
+        $tableFrom = $this->schemaManager->introspectTableByUnquotedName('partitioned_table');
 
-        $tableTo = $this->schemaManager->introspectTable('partitioned_table');
+        $tableTo = $this->schemaManager->introspectTableByUnquotedName('partitioned_table');
         $tableTo = $tableTo->edit()
             ->addColumn(
                 Column::editor()
@@ -699,7 +708,7 @@ SQL;
 
         $this->schemaManager->alterTable($diff);
 
-        $tableFinal = $this->schemaManager->introspectTable('partitioned_table');
+        $tableFinal = $this->schemaManager->introspectTableByUnquotedName('partitioned_table');
         self::assertTrue($tableFinal->hasColumn('id'));
         self::assertTrue($tableFinal->hasColumn('foo'));
 

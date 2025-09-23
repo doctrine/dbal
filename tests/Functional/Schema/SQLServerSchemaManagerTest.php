@@ -32,10 +32,10 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->create();
 
         $this->dropAndCreateTable($table);
-        $columns = $this->schemaManager->listTableColumns('test_collation');
+        [$test] = $this->schemaManager->introspectTableColumnsByUnquotedName('test_collation');
 
         // SQL Server should report a default collation on the column
-        self::assertNotNull($columns['test']->getCollation());
+        self::assertNotNull($test->getCollation());
 
         $table = $table->edit()
             ->modifyColumnByUnquotedName('test', static function (ColumnEditor $editor): void {
@@ -44,9 +44,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->create();
 
         $this->dropAndCreateTable($table);
-        $columns = $this->schemaManager->listTableColumns('test_collation');
+        [$test] = $this->schemaManager->introspectTableColumnsByUnquotedName('test_collation');
 
-        self::assertEquals('Icelandic_CS_AS', $columns['test']->getCollation());
+        self::assertEquals('Icelandic_CS_AS', $test->getCollation());
     }
 
     public function testDefaultConstraints(): void
@@ -97,14 +97,16 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->create();
 
         $this->schemaManager->createTable($oldTable);
-        $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
+        [$noDefault, $dfInteger, $dfString1, $dfString2, $dfString3, $dfString4, $dfBoolean]
+            = $this->schemaManager->introspectTableColumnsByUnquotedName('sqlsrv_default_constraints');
 
-        self::assertNull($columns['no_default']->getDefault());
-        self::assertEquals(666, $columns['df_integer']->getDefault());
-        self::assertEquals('foobar', $columns['df_string_1']->getDefault());
-        self::assertEquals('Doctrine rocks!!!', $columns['df_string_2']->getDefault());
-        self::assertEquals('another default value', $columns['df_string_3']->getDefault());
-        self::assertEquals(1, $columns['df_boolean']->getDefault());
+        self::assertNull($noDefault->getDefault());
+        self::assertEquals(666, $dfInteger->getDefault());
+        self::assertEquals('foobar', $dfString1->getDefault());
+        self::assertEquals('Doctrine rocks!!!', $dfString2->getDefault());
+        self::assertEquals('another default value', $dfString3->getDefault());
+        self::assertEquals('column to rename', $dfString4->getDefault());
+        self::assertEquals(1, $dfBoolean->getDefault());
 
         $newTable = $oldTable->edit()
             ->modifyColumnByUnquotedName('df_integer', static function (ColumnEditor $editor): void {
@@ -130,19 +132,20 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $diff = $this->schemaManager->createComparator()
             ->compareTables(
-                $this->schemaManager->introspectTable('sqlsrv_default_constraints'),
+                $this->schemaManager->introspectTableByUnquotedName('sqlsrv_default_constraints'),
                 $newTable,
             );
 
         $this->schemaManager->alterTable($diff);
-        $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
+        [$noDefault, $dfInteger, $dfString2, $dfString3, $dfString4Renamed, $dfBoolean]
+            = $this->schemaManager->introspectTableColumnsByUnquotedName('sqlsrv_default_constraints');
 
-        self::assertNull($columns['no_default']->getDefault());
-        self::assertEquals(0, $columns['df_integer']->getDefault());
-        self::assertNull($columns['df_string_2']->getDefault());
-        self::assertEquals('another default value', $columns['df_string_3']->getDefault());
-        self::assertEquals(0, $columns['df_boolean']->getDefault());
-        self::assertEquals('column to rename', $columns['df_string_4_renamed']->getDefault());
+        self::assertNull($noDefault->getDefault());
+        self::assertEquals(0, $dfInteger->getDefault());
+        self::assertNull($dfString2->getDefault());
+        self::assertEquals('another default value', $dfString3->getDefault());
+        self::assertEquals('column to rename', $dfString4Renamed->getDefault());
+        self::assertEquals(0, $dfBoolean->getDefault());
     }
 
     public function testNvarcharMaxIsLengthMinus1(): void
@@ -154,7 +157,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->connection->executeStatement($sql);
 
-        $table = $this->schemaManager->introspectTable('test_nvarchar_max');
+        $table = $this->schemaManager->introspectTableByUnquotedName('test_nvarchar_max');
 
         self::assertSame(-1, $table->getColumn('col_nvarchar_max')->getLength());
         self::assertSame(128, $table->getColumn('col_nvarchar')->getLength());

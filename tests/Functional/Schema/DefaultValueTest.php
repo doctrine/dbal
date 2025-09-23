@@ -51,7 +51,7 @@ class DefaultValueTest extends FunctionalTestCase
             $expectedDefault,
             $this->connection
                 ->createSchemaManager()
-                ->introspectTable('default_value')
+                ->introspectTableByUnquotedName('default_value')
                 ->getColumn($name)
                 ->getDefault(),
         );

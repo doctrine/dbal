@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
+use Doctrine\DBAL\Platforms\MySQL\MySQLMetadataProvider;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\Index;
@@ -678,6 +679,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getDefaultTransactionIsolationLevel(): TransactionIsolationLevel
     {
         return TransactionIsolationLevel::REPEATABLE_READ;
+    }
+
+    public function createMetadataProvider(Connection $connection): MySQLMetadataProvider
+    {
+        return new MySQLMetadataProvider($connection, $this);
     }
 
     public function createSchemaManager(Connection $connection): MySQLSchemaManager

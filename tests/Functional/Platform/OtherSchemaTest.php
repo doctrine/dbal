@@ -43,7 +43,7 @@ class OtherSchemaTest extends FunctionalTestCase
         $connection  = DriverManager::getConnection(
             $dsnParser->parse('sqlite3:////tmp/test_other_schema.sqlite'),
         );
-        $onlineTable = $connection->createSchemaManager()->introspectTable('test_other_schema');
+        $onlineTable = $connection->createSchemaManager()->introspectTableByUnquotedName('test_other_schema');
         self::assertCount(1, $onlineTable->getIndexes());
     }
 }

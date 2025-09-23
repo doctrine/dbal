@@ -41,10 +41,11 @@ parameters:
                 - src/Schema/*SchemaManager.php
                 - tests/TestUtil.php
 
-        # In some namespaces, we use array<string,mixed>, some elements of which are actually boolean
+        # In some namespaces, we use array<mixed>, some elements of which are actually boolean or boolean-like integers
         -
             message: '~^Only booleans are allowed in .*, mixed given~'
             paths:
+                - src/Platforms/*MetadataProvider.php
                 - src/Platforms/*Platform.php
                 - src/Schema/*SchemaManager.php
 

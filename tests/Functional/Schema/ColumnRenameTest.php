@@ -113,7 +113,7 @@ class ColumnRenameTest extends FunctionalTestCase
 
         self::assertTrue($this->comparator->compareTables(
             $table,
-            $this->schemaManager->introspectTable('rename_column'),
+            $this->schemaManager->introspectTableByUnquotedName('rename_column'),
         )->isEmpty());
     }
 }

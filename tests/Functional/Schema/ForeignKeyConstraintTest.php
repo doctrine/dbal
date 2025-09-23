@@ -105,7 +105,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $sm->createTable($teams);
         $sm->createTable($users);
 
-        $table = $sm->introspectTable('users');
+        $table = $sm->introspectTableByUnquotedName('users');
 
         self::assertCount(2, $table->getForeignKeys());
     }

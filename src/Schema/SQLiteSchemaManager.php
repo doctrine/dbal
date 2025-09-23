@@ -144,6 +144,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
                 $list[$id] = [
                     'name' => $row['constraint_name'],
                     'local' => [],
+                    'localTable' => $row['table_name'],
                     'foreign' => [],
                     'foreignTable' => $row['table'],
                     'onDelete' => $row['on_delete'],
@@ -178,6 +179,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             if (count($foreignTablePrimaryKeyColumnRows) < 1) {
                 throw UnsupportedSchema::sqliteMissingForeignKeyConstraintReferencedColumns(
                     $value['name'],
+                    $value['localTable'],
                     $value['foreignTable'],
                 );
             }

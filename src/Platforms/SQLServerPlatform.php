@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
+use Doctrine\DBAL\Platforms\SQLServer\SQLServerMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
@@ -1200,6 +1201,11 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return true;
+    }
+
+    public function createMetadataProvider(Connection $connection): SQLServerMetadataProvider
+    {
+        return new SQLServerMetadataProvider($connection, $this);
     }
 
     public function createSchemaManager(Connection $connection): SQLServerSchemaManager
