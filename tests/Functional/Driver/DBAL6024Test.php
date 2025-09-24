@@ -43,7 +43,7 @@ class DBAL6024Test extends FunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $table = $schemaManager->introspectTable('mytable');
+        $table = $schemaManager->introspectTableByUnquotedName('mytable');
 
         $newTable = $table->edit()
             ->dropPrimaryKeyConstraint()

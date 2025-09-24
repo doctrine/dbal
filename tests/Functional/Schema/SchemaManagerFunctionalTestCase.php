@@ -235,7 +235,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListTables(): void
     {
         $table  = $this->createTestTable('list_tables_test');
-        $tables = $this->schemaManager->listTables();
+        $tables = $this->schemaManager->introspectTables();
 
         $table = $this->findObjectByName($tables, $table->getObjectName());
         self::assertNotNull($table);
@@ -258,7 +258,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->createView($view);
 
-        $tables = $this->schemaManager->listTables();
+        $tables = $this->schemaManager->introspectTables();
         $view   = $this->findObjectByName($tables, $view->getObjectName());
         self::assertNull($view);
     }
@@ -506,7 +506,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 ->setUnquotedName('test_composite_idx')
                 ->setUnquotedColumnNames('id', 'test')
                 ->create(),
-        ], $this->schemaManager->listTableIndexes('list_table_indexes_test'));
+        ], $this->schemaManager->introspectTableIndexesByUnquotedName('list_table_indexes_test'));
     }
 
     public function testDropAndCreateIndex(): void
@@ -543,7 +543,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 ->setUnquotedColumnNames('test')
                 ->setType(IndexType::UNIQUE)
                 ->create(),
-        ], $this->schemaManager->listTableIndexes('test_create_index'));
+        ], $this->schemaManager->introspectTableIndexesByUnquotedName('test_create_index'));
     }
 
     public function testDropAndCreateUniqueConstraint(): void
@@ -646,7 +646,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->createTestTable('alter_table');
         $this->createTestTable('alter_table_foreign');
 
-        $table = $this->schemaManager->introspectTable('alter_table');
+        $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
         self::assertTrue($table->hasColumn('id'));
         self::assertTrue($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foreign_key_test'));
@@ -669,7 +669,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->introspectTable('alter_table');
+        $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
         self::assertFalse($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foo'));
 
@@ -686,7 +686,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->introspectTable('alter_table');
+        $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
 
@@ -712,7 +712,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->introspectTable('alter_table');
+        $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
 
@@ -732,7 +732,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->introspectTable('alter_table');
+        $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
@@ -754,7 +754,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->introspectTable('alter_table');
+        $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
 
         // don't check for index size here, some platforms automatically add indexes for foreign keys.
         self::assertFalse($table->hasIndex('bar_idx'));
@@ -823,7 +823,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->createView($view);
 
-        $views = $this->schemaManager->listViews();
+        $views = $this->schemaManager->introspectViews();
 
         $found = $this->findObjectByName($views, $view->getObjectName());
         self::assertNotNull($found);
@@ -930,13 +930,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $diff = $this->schemaManager->createComparator()
             ->compareTables(
-                $this->schemaManager->introspectTable($tableFK->getObjectName()->toString()),
+                $this->schemaManager->introspectTable($tableFK->getObjectName()),
                 $tableFKNew,
             );
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->introspectTable('test_fk_rename');
+        $table = $this->schemaManager->introspectTableByUnquotedName('test_fk_rename');
         self::assertTrue($table->hasColumn('rename_fk_id'));
 
         /** @var list<ForeignKeyConstraint> $foreignKeys */
@@ -1672,7 +1672,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $this->createReservedKeywordTables();
 
-        $tables = $this->schemaManager->listTables();
+        $tables = $this->schemaManager->introspectTables();
 
         $user = $this->findObjectByName($tables, OptionallyQualifiedName::unquoted('user'));
         self::assertNotNull($user);
@@ -1951,7 +1951,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diff = $schemaManager->createComparator(
             (new ComparatorConfig())->withDetectRenamedIndexes(false),
         )->compareTables(
-            $schemaManager->introspectTable('child'),
+            $schemaManager->introspectTableByUnquotedName('child'),
             $child,
         );
 
@@ -1999,13 +1999,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
 
         $diff = $schemaManager->createComparator()->compareTables(
-            $schemaManager->introspectTable('test_switch_pk_order'),
+            $schemaManager->introspectTableByUnquotedName('test_switch_pk_order'),
             $table,
         );
         self::assertFalse($diff->isEmpty());
         $schemaManager->alterTable($diff);
 
-        $table = $schemaManager->introspectTable('test_switch_pk_order');
+        $table = $schemaManager->introspectTableByUnquotedName('test_switch_pk_order');
 
         $this->assertPrimaryKeyConstraintEquals($newPrimaryKeyConstraint, $table->getPrimaryKeyConstraint());
     }
@@ -2103,13 +2103,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->createTable($nestedRelatedTable);
         $this->schemaManager->createTable($nestedSchemaTable);
 
-        $tableNames = $this->schemaManager->listTableNames();
-        self::assertContains('nested.schematable', $tableNames);
+        $tableNames = $this->schemaManager->introspectTableNames();
+        $this->assertOptionallyQualifiedNameListContainsUnquotedName('schematable', 'nested', $tableNames);
 
-        $tables = $this->schemaManager->listTables();
+        $tables = $this->schemaManager->introspectTables();
         self::assertNotNull($this->findObjectByName($tables, $nestedSchemaTable->getObjectName()));
 
-        $nestedSchemaTable = $this->schemaManager->introspectTable('nested.schematable');
+        $nestedSchemaTable = $this->schemaManager->introspectTableByUnquotedName('schematable', 'nested');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));
 
         $this->assertPrimaryKeyConstraintEquals($primaryKeyConstraint, $nestedSchemaTable->getPrimaryKeyConstraint());

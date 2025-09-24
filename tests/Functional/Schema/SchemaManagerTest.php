@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -151,7 +150,7 @@ final class SchemaManagerTest extends FunctionalTestCase
         self::assertFalse($diff->isEmpty());
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->introspectTable($tableName->toString());
+        $tableFinal = $this->schemaManager->introspectTable($tableName);
         self::assertEmpty($tableFinal->getIndexes());
     }
 
@@ -263,16 +262,8 @@ final class SchemaManagerTest extends FunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $table = $this->schemaManager->introspectTable('"example.com"');
+        $table = $this->schemaManager->introspectTableByQuotedName('example.com');
 
         self::assertCount(1, $table->getColumns());
-    }
-
-    /** @throws Exception */
-    public function testIntrospectTableWithInvalidName(): void
-    {
-        $this->expectException(InvalidName::class);
-
-        $this->schemaManager->introspectTable('"example');
     }
 }

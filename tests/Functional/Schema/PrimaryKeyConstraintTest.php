@@ -50,7 +50,7 @@ final class PrimaryKeyConstraintTest extends FunctionalTestCase
 
         $sm = $this->connection->createSchemaManager();
 
-        $table = $sm->introspectTable('users');
+        $table = $sm->introspectTableByUnquotedName('users');
 
         $this->assertPrimaryKeyConstraintEquals($primaryKeyConstraint, $table->getPrimaryKeyConstraint());
     }
@@ -89,7 +89,7 @@ final class PrimaryKeyConstraintTest extends FunctionalTestCase
 
         $sm = $this->connection->createSchemaManager();
 
-        $table = $sm->introspectTable('users');
+        $table = $sm->introspectTableByUnquotedName('users');
 
         $this->assertPrimaryKeyConstraintEquals($primaryKeyConstraint, $table->getPrimaryKeyConstraint());
     }

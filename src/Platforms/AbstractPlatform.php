@@ -1786,25 +1786,6 @@ abstract class AbstractPlatform
         };
     }
 
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListDatabasesSQL(): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
-
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListSequencesSQL(string $database): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
-
-    /**
-     * Returns the SQL to list all views of a database or user.
-     *
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
-    abstract public function getListViewsSQL(string $database): string;
-
     public function getCreateViewSQL(string $name, string $sql): string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
@@ -2222,10 +2203,7 @@ abstract class AbstractPlatform
      *
      * @throws Exception
      */
-    public function createMetadataProvider(Connection $connection): MetadataProvider
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function createMetadataProvider(Connection $connection): MetadataProvider;
 
     /**
      * Creates the schema manager that can be used to inspect and change the underlying

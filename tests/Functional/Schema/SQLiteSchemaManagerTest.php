@@ -73,7 +73,7 @@ EOS);
 
         $this->assertForeignKeyConstraintListEquals(
             $expected,
-            array_values($this->schemaManager->listTableForeignKeys('user')),
+            $this->schemaManager->introspectTableForeignKeyConstraintsByUnquotedName('user'),
         );
     }
 
@@ -90,7 +90,7 @@ EOS);
 
         $this->expectException(UnsupportedSchema::class);
 
-        $this->schemaManager->listTableForeignKeys('t1');
+        $this->schemaManager->introspectTableForeignKeyConstraintsByUnquotedName('t1');
     }
 
     public function testColumnCollation(): void
@@ -275,7 +275,7 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $table1 = $schemaManager->introspectTable('nodes');
+        $table1 = $schemaManager->introspectTableByUnquotedName('nodes');
         $table2 = $table1->edit()
             ->addIndex(
                 Index::editor()
@@ -290,7 +290,7 @@ SQL;
 
         $schemaManager->alterTable($diff);
 
-        $table = $schemaManager->introspectTable('nodes');
+        $table = $schemaManager->introspectTableByUnquotedName('nodes');
 
         $this->assertIndexEquals(
             $table2->getIndex('idx_node_name'),
@@ -369,7 +369,7 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $song = $schemaManager->introspectTable('song');
+        $song = $schemaManager->introspectTableByUnquotedName('song');
 
         /** @var list<ForeignKeyConstraint> $foreignKeys */
         $foreignKeys = array_values($song->getForeignKeys());
@@ -416,7 +416,7 @@ SQL;
         DDL;
 
         $this->connection->executeStatement($ddl);
-        $notes = $this->schemaManager->introspectTable('notes');
+        $notes = $this->schemaManager->introspectTableByUnquotedName('notes');
 
         /** @var list<ForeignKeyConstraint> $foreignKeys */
         $foreignKeys = array_values($notes->getForeignKeys());
@@ -461,7 +461,7 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $song = $schemaManager->introspectTable('track');
+        $song = $schemaManager->introspectTableByUnquotedName('track');
 
         /** @var list<ForeignKeyConstraint> $foreignKeys */
         $foreignKeys = array_values($song->getForeignKeys());

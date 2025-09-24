@@ -35,8 +35,8 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
         self::assertTrue($schemaManager->tablesExist([$name1->toString()]));
         self::assertTrue($schemaManager->tablesExist([$name2->toString()]));
 
-        $table1 = $schemaManager->introspectTable('t1');
-        $table2 = $schemaManager->introspectTable('t2');
+        $table1 = $schemaManager->introspectTableByUnquotedName('t1');
+        $table2 = $schemaManager->introspectTableByUnquotedName('t2');
 
         $this->assertForeignKey($table1, $name2);
         $this->assertForeignKey($table2, $name1);

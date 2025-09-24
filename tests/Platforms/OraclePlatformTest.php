@@ -576,14 +576,6 @@ EOD;
         return ['ALTER INDEX "IDX_FOO" RENAME TO "IDX_FOO_RENAMED"'];
     }
 
-    public function testQuotesDatabaseNameInListSequencesSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListSequencesSQL("Foo'Bar\\"),
-        );
-    }
-
     /** @return array<int, array{string, array<string, mixed>}> */
     public static function asciiStringSqlDeclarationDataProvider(): array
     {

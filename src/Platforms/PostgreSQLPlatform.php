@@ -141,35 +141,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListDatabasesSQL(): string
-    {
-        return 'SELECT datname FROM pg_database';
-    }
-
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListSequencesSQL(string $database): string
-    {
-        return 'SELECT sequence_name,
-                       sequence_schema,
-                       minimum_value,
-                       increment
-                FROM   information_schema.sequences
-                WHERE  sequence_catalog = ' . $this->quoteStringLiteral($database) . "
-                AND    sequence_schema NOT LIKE 'pg\_%'
-                AND    sequence_schema != 'information_schema'";
-    }
-
-    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
-    public function getListViewsSQL(string $database): string
-    {
-        return 'SELECT table_name,
-                       table_schema,
-                       view_definition
-                FROM   information_schema.views
-                WHERE  view_definition IS NOT NULL';
-    }
-
     protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
     {
         $this->ensurePrimaryKeyConstraintIsClustered($constraint);
