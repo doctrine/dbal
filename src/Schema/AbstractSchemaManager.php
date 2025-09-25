@@ -939,7 +939,7 @@ abstract class AbstractSchemaManager
         $schemaNames = [];
 
         if ($this->platform->supportsSchemas()) {
-            $schemaNames = $this->listSchemaNames();
+            $schemaNames = $this->filterAssetNames($this->listSchemaNames());
         }
 
         $sequences = [];

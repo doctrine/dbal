@@ -570,6 +570,42 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($schema->hasTable('table_to_create'));
     }
 
+    #[DataProvider('schemaFilterProvider')]
+    public function testIntrospectSchemaWithFilter(string $prefix, int $expectedCount): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsSchemas()) {
+            self::markTestSkipped('Platform does not support schemas.');
+        }
+
+        // Create test schemas
+        $this->createTestSchema('filter_schema_1');
+        $this->createTestSchema('filter_schema_2');
+
+        $this->markConnectionNotReusable();
+
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(
+            static function (string|AbstractAsset $assetName) use ($prefix): bool {
+                if ($assetName instanceof AbstractAsset) {
+                    $assetName = $assetName->getName();
+                }
+
+                return str_starts_with(strtolower($assetName), $prefix);
+            },
+        );
+
+        $schema = $this->schemaManager->introspectSchema();
+
+        // Test that only filtered schemas are included in the introspection
+        self::assertCount($expectedCount, $schema->getNamespaces());
+    }
+
+    /** @return iterable<string, array{string, int}> */
+    public static function schemaFilterProvider(): iterable
+    {
+        yield 'One schema' => ['filter_schema_1', 1];
+        yield 'Two schemas' => ['filter_schema_', 2];
+    }
+
     /** @throws Exception */
     public function testAlterTableScenario(): void
     {
@@ -1018,6 +1054,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         return $table;
+    }
+
+    /** @param non-empty-string $name */
+    protected function createTestSchema(string $name): void
+    {
+        $this->dropAndCreateSchema(UnqualifiedName::unquoted($name));
     }
 
     /**
