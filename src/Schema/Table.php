@@ -37,7 +37,6 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function array_shift;
-use function array_values;
 use function count;
 use function crc32;
 use function dechex;
@@ -62,8 +61,8 @@ final class Table extends AbstractNamedObject
     /** @var array<string, string> keys are new names, values are old names */
     private array $renamedColumns = [];
 
-    /** @var Index[] */
-    private array $indexes = [];
+    /** @var UnqualifiedNamedObjectSet<Index> */
+    private UnqualifiedNamedObjectSet $indexes;
 
     /**
      * The names of the indexes that were implicitly created as backing for foreign key constraints.
@@ -120,6 +119,10 @@ final class Table extends AbstractNamedObject
         /** @var UnqualifiedNamedObjectSet<Column> $columnsSet */
         $columnsSet    = new UnqualifiedNamedObjectSet(...$columns);
         $this->columns = $columnsSet;
+
+        /** @var UnqualifiedNamedObjectSet<Index> $indexSet */
+        $indexSet      = new UnqualifiedNamedObjectSet();
+        $this->indexes = $indexSet;
 
         /** @var OptionallyUnqualifiedNamedObjectSet<UniqueConstraint> $uniqueConstraintSet */
         $uniqueConstraintSet     = new OptionallyUnqualifiedNamedObjectSet();
@@ -208,11 +211,11 @@ final class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        if (! $this->hasIndex($name)) {
-            throw IndexDoesNotExist::new($this->name, $parsedName);
+        try {
+            $this->indexes->remove($parsedName);
+        } catch (ObjectDoesNotExist $e) {
+            throw InvalidTableModification::indexDoesNotExist($this->name, $e);
         }
-
-        unset($this->indexes[$this->getObjectKey($parsedName)]);
     }
 
     /**
@@ -237,21 +240,17 @@ final class Table extends AbstractNamedObject
     {
         $parsedOldName = $this->parseUnqualifiedName($oldName);
 
-        if (! $this->hasIndex($oldName)) {
+        $index = $this->indexes->get($parsedOldName);
+
+        if ($index === null) {
             throw IndexDoesNotExist::new($this->name, $parsedOldName);
         }
-
-        $index = $this->getIndex($oldName);
 
         if ($newName !== null) {
             $parsedNewName = $this->parseUnqualifiedName($newName);
 
             if ($this->getObjectKey($parsedOldName) === $this->getObjectKey($parsedNewName)) {
                 return $this;
-            }
-
-            if ($this->hasIndex($newName)) {
-                throw IndexAlreadyExists::new($this->name, $parsedNewName);
             }
         } else {
             $parsedNewName = UnqualifiedName::unquoted(
@@ -269,9 +268,11 @@ final class Table extends AbstractNamedObject
             ->setName($parsedNewName)
             ->create();
 
-        unset($this->indexes[$this->getObjectKey($parsedOldName)]);
+        $this->_addIndex($index);
 
-        return $this->_addIndex($index);
+        $this->indexes->remove($parsedOldName);
+
+        return $this;
     }
 
     /**
@@ -682,7 +683,7 @@ final class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        return isset($this->indexes[$this->getObjectKey($parsedName)]);
+        return $this->indexes->get($parsedName) !== null;
     }
 
     /**
@@ -692,17 +693,19 @@ final class Table extends AbstractNamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        if (! $this->hasIndex($name)) {
+        $index = $this->indexes->get($parsedName);
+
+        if ($index === null) {
             throw IndexDoesNotExist::new($this->name, $parsedName);
         }
 
-        return $this->indexes[$this->getObjectKey($parsedName)];
+        return $index;
     }
 
     /** @return list<Index> */
     public function getIndexes(): array
     {
-        return array_values($this->indexes);
+        return $this->indexes->toList();
     }
 
     /**
@@ -746,12 +749,8 @@ final class Table extends AbstractNamedObject
      */
     public function __clone()
     {
-        $this->columns = clone $this->columns;
-
-        foreach ($this->indexes as $k => $index) {
-            $this->indexes[$k] = clone $index;
-        }
-
+        $this->columns               = clone $this->columns;
+        $this->indexes               = clone $this->indexes;
         $this->uniqueConstraints     = clone $this->uniqueConstraints;
         $this->foreignKeyConstraints = clone $this->foreignKeyConstraints;
     }
@@ -771,34 +770,33 @@ final class Table extends AbstractNamedObject
     private function _addIndex(Index $index): self
     {
         $indexName = $index->getObjectName();
-        $indexKey  = $this->getObjectKey($indexName);
 
         $replacedImplicitIndexNames = new UnqualifiedNameSet();
 
         foreach ($this->implicitIndexNames as $implicitIndexName) {
-            $implicitIndexKey = $this->getObjectKey($implicitIndexName);
+            $candidate = $this->indexes->get($implicitIndexName);
 
-            if (! isset($this->indexes[$implicitIndexKey])) {
+            if ($candidate === null) {
                 continue;
             }
 
-            if (! $this->indexes[$implicitIndexKey]->isFulfilledBy($index)) {
+            if (! $candidate->isFulfilledBy($index)) {
                 continue;
             }
 
             $replacedImplicitIndexNames->add($implicitIndexName);
         }
 
-        if (isset($this->indexes[$indexKey]) && ! $replacedImplicitIndexNames->contains($indexName)) {
+        if ($this->indexes->get($indexName) !== null && ! $replacedImplicitIndexNames->contains($indexName)) {
             throw IndexAlreadyExists::new($this->name, $indexName);
         }
 
         foreach ($replacedImplicitIndexNames as $replacedImplicitIndexName) {
-            unset($this->indexes[$this->getObjectKey($replacedImplicitIndexName)]);
+            $this->indexes->remove($replacedImplicitIndexName);
             $this->implicitIndexNames->remove($replacedImplicitIndexName);
         }
 
-        $this->indexes[$indexKey] = $index;
+        $this->indexes->add($index);
 
         return $this;
     }
@@ -1124,7 +1122,7 @@ final class Table extends AbstractNamedObject
 
     private function renameColumnInIndexes(string $oldKey, UnqualifiedName $newName): void
     {
-        foreach ($this->indexes as $key => $index) {
+        foreach ($this->indexes as $index) {
             $modified    = false;
             $columnNames = [];
             foreach ($index->getIndexedColumns() as $indexedColumn) {
@@ -1141,9 +1139,11 @@ final class Table extends AbstractNamedObject
                 continue;
             }
 
-            $this->indexes[$key] = $index->edit()
-                ->setColumnNames(...$columnNames)
-                ->create();
+            $this->indexes->modify($index->getObjectName(), static function (Index $index) use ($columnNames): Index {
+                return $index->edit()
+                    ->setColumnNames(...$columnNames)
+                    ->create();
+            });
         }
     }
 
