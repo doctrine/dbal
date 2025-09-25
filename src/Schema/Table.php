@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
 use Doctrine\DBAL\Schema\Collections\OptionallyUnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
+use Doctrine\DBAL\Schema\Collections\UnqualifiedNameSet;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
@@ -32,7 +33,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
 
-use function array_diff_key;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -66,13 +66,9 @@ final class Table extends AbstractNamedObject
     private array $indexes = [];
 
     /**
-     * The keys of this array are the keys of the {@see $indexes} array that correspond to the indexes that were
-     * implicitly created as backing for foreign key constraints. The values are not used but must be non-null for
-     * {@link isset()} to work correctly.
-     *
-     * @var array<string,true>
+     * The names of the indexes that were implicitly created as backing for foreign key constraints.
      */
-    private array $implicitIndexKeys = [];
+    private readonly UnqualifiedNameSet $implicitIndexNames;
 
     /** @var OptionallyUnqualifiedNamedObjectSet<UniqueConstraint> */
     private OptionallyUnqualifiedNamedObjectSet $uniqueConstraints;
@@ -132,6 +128,8 @@ final class Table extends AbstractNamedObject
         /** @var OptionallyUnqualifiedNamedObjectSet<ForeignKeyConstraint> $foreignKeyConstraints */
         $foreignKeyConstraints       = new OptionallyUnqualifiedNamedObjectSet();
         $this->foreignKeyConstraints = $foreignKeyConstraints;
+
+        $this->implicitIndexNames = new UnqualifiedNameSet();
 
         foreach ($indexes as $idx) {
             $this->_addIndex($idx);
@@ -775,9 +773,11 @@ final class Table extends AbstractNamedObject
         $indexName = $index->getObjectName();
         $indexKey  = $this->getObjectKey($indexName);
 
-        $replacedImplicitIndexKeys = [];
+        $replacedImplicitIndexNames = new UnqualifiedNameSet();
 
-        foreach ($this->implicitIndexKeys as $implicitIndexKey => $_) {
+        foreach ($this->implicitIndexNames as $implicitIndexName) {
+            $implicitIndexKey = $this->getObjectKey($implicitIndexName);
+
             if (! isset($this->indexes[$implicitIndexKey])) {
                 continue;
             }
@@ -786,15 +786,16 @@ final class Table extends AbstractNamedObject
                 continue;
             }
 
-            $replacedImplicitIndexKeys[$implicitIndexKey] = true;
+            $replacedImplicitIndexNames->add($implicitIndexName);
         }
 
-        if (isset($this->indexes[$indexKey]) && ! isset($replacedImplicitIndexKeys[$indexKey])) {
-            throw IndexAlreadyExists::new($this->name, $index->getObjectName());
+        if (isset($this->indexes[$indexKey]) && ! $replacedImplicitIndexNames->contains($indexName)) {
+            throw IndexAlreadyExists::new($this->name, $indexName);
         }
 
-        foreach ($replacedImplicitIndexKeys as $key => $_) {
-            unset($this->indexes[$key], $this->implicitIndexKeys[$key]);
+        foreach ($replacedImplicitIndexNames as $replacedImplicitIndexName) {
+            unset($this->indexes[$this->getObjectKey($replacedImplicitIndexName)]);
+            $this->implicitIndexNames->remove($replacedImplicitIndexName);
         }
 
         $this->indexes[$indexKey] = $index;
@@ -831,7 +832,7 @@ final class Table extends AbstractNamedObject
             }
         }
 
-        $this->implicitIndexKeys[$this->getObjectKey($indexName)] = true;
+        $this->implicitIndexNames->add($indexName);
 
         return $this;
     }
@@ -866,7 +867,7 @@ final class Table extends AbstractNamedObject
         }
 
         $this->_addIndex($indexCandidate);
-        $this->implicitIndexKeys[$this->getObjectKey($indexName)] = true;
+        $this->implicitIndexNames->add($indexName);
 
         return $this;
     }
@@ -907,10 +908,20 @@ final class Table extends AbstractNamedObject
      */
     public function edit(): TableEditor
     {
+        $explicitIndexes = [];
+
+        foreach ($this->indexes as $index) {
+            if ($this->implicitIndexNames->contains($index->getObjectName())) {
+                continue;
+            }
+
+            $explicitIndexes[] = $index;
+        }
+
         $editor = self::editor()
             ->setName($this->getObjectName())
             ->setColumns(...$this->columns->toList())
-            ->setIndexes(...array_values(array_diff_key($this->indexes, $this->implicitIndexKeys)))
+            ->setIndexes(...$explicitIndexes)
             ->setPrimaryKeyConstraint($this->primaryKeyConstraint)
             ->setUniqueConstraints(...$this->uniqueConstraints->toList())
             ->setForeignKeyConstraints(...$this->foreignKeyConstraints->toList());
