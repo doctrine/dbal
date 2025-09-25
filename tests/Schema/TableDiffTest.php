@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -35,6 +36,9 @@ class TableDiffTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         // @phpstan-ignore new.resultUnused
-        new TableDiff($table, droppedForeignKeys: [$droppedForeignKeys]);
+        $diff = new TableDiff($table, droppedForeignKeys: [$droppedForeignKeys]);
+
+        $this->expectException(InvalidState::class);
+        $diff->getDroppedForeignKeyConstraintNames();
     }
 }
