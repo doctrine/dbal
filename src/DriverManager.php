@@ -26,7 +26,7 @@ use function is_a;
  * @phpstan-type OverrideParams = array{
  *     application_name?: string,
  *     charset?: string,
- *     dbname?: string,
+ *     dbname?: non-empty-string,
  *     defaultTableOptions?: array<string, mixed>,
  *     driver?: key-of<self::DRIVER_MAP>,
  *     driverClass?: class-string<Driver>,
@@ -39,14 +39,14 @@ use function is_a;
  *     port?: int,
  *     serverVersion?: string,
  *     sessionMode?: int,
- *     user?: string,
+ *     user?: non-empty-string,
  *     unix_socket?: string,
  *     wrapperClass?: class-string<Connection>,
  * }
  * @phpstan-type Params = array{
  *     application_name?: string,
  *     charset?: string,
- *     dbname?: string,
+ *     dbname?: non-empty-string,
  *     defaultTableOptions?: array<string, mixed>,
  *     driver?: key-of<self::DRIVER_MAP>,
  *     driverClass?: class-string<Driver>,
@@ -62,7 +62,7 @@ use function is_a;
  *     replica?: array<OverrideParams>,
  *     serverVersion?: string,
  *     sessionMode?: int,
- *     user?: string,
+ *     user?: non-empty-string,
  *     wrapperClass?: class-string<Connection>,
  *     unix_socket?: string,
  * }

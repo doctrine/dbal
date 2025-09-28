@@ -8,9 +8,12 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Introspection\IntrospectingSchemaProvider;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser;
+use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_filter;
@@ -590,10 +593,10 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function dropDatabase(string $database): void
+    public function dropDatabase(string $databaseName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getDropDatabaseSQL($database),
+            $this->platform->getDropDatabaseSQL($databaseName),
         );
     }
 
@@ -614,10 +617,10 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function dropTable(string $name): void
+    public function dropTable(string $tableName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getDropTableSQL($name),
+            $this->platform->getDropTableSQL($tableName),
         );
     }
 
@@ -626,10 +629,10 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function dropIndex(string $index, string $table): void
+    public function dropIndex(string $indexName, string $tableName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getDropIndexSQL($index, $table),
+            $this->platform->getDropIndexSQL($indexName, $tableName),
         );
     }
 
@@ -638,10 +641,10 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function dropForeignKey(string $name, string $table): void
+    public function dropForeignKey(string $constraintName, string $tableName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getDropForeignKeySQL($name, $table),
+            $this->platform->getDropForeignKeySQL($constraintName, $tableName),
         );
     }
 
@@ -674,10 +677,10 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function dropView(string $name): void
+    public function dropView(string $viewName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getDropViewSQL($name),
+            $this->platform->getDropViewSQL($viewName),
         );
     }
 
@@ -694,10 +697,10 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function createDatabase(string $database): void
+    public function createDatabase(string $databaseName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getCreateDatabaseSQL($database),
+            $this->platform->getCreateDatabaseSQL($databaseName),
         );
     }
 
@@ -726,14 +729,14 @@ abstract class AbstractSchemaManager
     /**
      * Creates a new index on a table.
      *
-     * @param string $table The name of the table on which the index is to be created.
+     * @param string $tableName The name of the table on which the index is to be created.
      *
      * @throws Exception
      */
-    public function createIndex(Index $index, string $table): void
+    public function createIndex(Index $index, string $tableName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getCreateIndexSQL($index, $table),
+            $this->platform->getCreateIndexSQL($index, $tableName),
         );
     }
 
@@ -741,14 +744,14 @@ abstract class AbstractSchemaManager
      * Creates a new foreign key.
      *
      * @param ForeignKeyConstraint $foreignKey The ForeignKey instance.
-     * @param string               $table      The name of the table on which the foreign key is to be created.
+     * @param string               $tableName  The name of the table on which the foreign key is to be created.
      *
      * @throws Exception
      */
-    public function createForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
+    public function createForeignKey(ForeignKeyConstraint $foreignKey, string $tableName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getCreateForeignKeySQL($foreignKey, $table),
+            $this->platform->getCreateForeignKeySQL($foreignKey, $tableName),
         );
     }
 
@@ -772,10 +775,7 @@ abstract class AbstractSchemaManager
     public function createView(View $view): void
     {
         $this->connection->executeStatement(
-            $this->platform->getCreateViewSQL(
-                $view->getObjectName()->toSQL($this->platform),
-                $view->getSQL(),
-            ),
+            $this->platform->getCreateViewSQL($view->getObjectName()->toSQL($this->platform), $view->getSQL()),
         );
     }
 
@@ -825,10 +825,10 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function renameTable(string $name, string $newName): void
+    public function renameTable(string $oldName, string $newName): void
     {
         $this->connection->executeStatement(
-            $this->platform->getRenameTableSQL($name, $newName),
+            $this->platform->getRenameTableSQL($oldName, $newName),
         );
     }
 
@@ -899,5 +899,27 @@ abstract class AbstractSchemaManager
     public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
         return new Comparator($this->platform, $config);
+    }
+
+    protected function parseUnqualifiedName(string $name): UnqualifiedName
+    {
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            return $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+    }
+
+    protected function parseOptionallyQualifiedName(string $name): OptionallyQualifiedName
+    {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            return $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
     }
 }

@@ -8,6 +8,8 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
 
+use function sprintf;
+
 /**
  * Provides the behavior, features and SQL dialect of the Oracle MySQL database platform
  * of the oldest supported version.
@@ -35,9 +37,16 @@ class MySQLPlatform extends AbstractMySQLPlatform
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
+        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
+        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
+
         return [
-            'ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName
-                . ' TO ' . $index->getObjectName()->toSQL($this),
+            sprintf(
+                'ALTER TABLE %s RENAME INDEX %s TO %s',
+                $parsedTableName->toSQL($this),
+                $parsedOldIndexName->toSQL($this),
+                $index->getObjectName()->toSQL($this),
+            ),
         ];
     }
 }

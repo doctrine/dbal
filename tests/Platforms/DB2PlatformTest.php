@@ -26,12 +26,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     protected function getGenerateForeignKeySql(): string
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY ("FK_NAME_ID") REFERENCES "OTHER_TABLE" ("ID")';
+        return 'ALTER TABLE "TEST" ADD FOREIGN KEY ("FK_NAME_ID") REFERENCES "OTHER_TABLE" ("ID")';
     }
 
     public function getGenerateIndexSql(): string
     {
-        return 'CREATE INDEX "MY_IDX" ON mytable ("USER_NAME", "LAST_LOGIN")';
+        return 'CREATE INDEX "MY_IDX" ON "MYTABLE" ("USER_NAME", "LAST_LOGIN")';
     }
 
     public function getGenerateTableSql(): string
@@ -53,7 +53,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateUniqueIndexSql(): string
     {
-        return 'CREATE UNIQUE INDEX "INDEX_NAME" ON test ("TEST", "TEST2")';
+        return 'CREATE UNIQUE INDEX "INDEX_NAME" ON "TEST" ("TEST", "TEST2")';
     }
 
     /**
@@ -287,11 +287,11 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $viewSql = 'SELECT * FROM footable';
 
         self::assertEquals(
-            'CREATE VIEW fooview AS ' . $viewSql,
+            'CREATE VIEW "FOOVIEW" AS ' . $viewSql,
             $this->platform->getCreateViewSQL('fooview', $viewSql),
         );
 
-        self::assertEquals('DROP VIEW fooview', $this->platform->getDropViewSQL('fooview'));
+        self::assertEquals('DROP VIEW "FOOVIEW"', $this->platform->getDropViewSQL('fooview'));
     }
 
     public function testGeneratesSQLSnippets(): void

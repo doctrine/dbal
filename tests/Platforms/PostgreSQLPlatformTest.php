@@ -49,12 +49,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql(): string
     {
-        return 'CREATE INDEX "my_idx" ON mytable ("user_name", "last_login")';
+        return 'CREATE INDEX "my_idx" ON "mytable" ("user_name", "last_login")';
     }
 
     protected function getGenerateForeignKeySql(): string
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY ("fk_name_id") REFERENCES "other_table" ("id")';
+        return 'ALTER TABLE "test" ADD FOREIGN KEY ("fk_name_id") REFERENCES "other_table" ("id")';
     }
 
     public function testGeneratesSqlSnippets(): void
@@ -96,9 +96,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets(): void
     {
-        self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
-        self::assertEquals('DROP DATABASE foobar', $this->platform->getDropDatabaseSQL('foobar'));
-        self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
+        self::assertEquals('CREATE DATABASE "foobar"', $this->platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals('DROP DATABASE "foobar"', $this->platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals('DROP TABLE "foobar"', $this->platform->getDropTableSQL('foobar'));
     }
 
     public function testGenerateTableWithAutoincrement(): void
@@ -210,7 +210,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateUniqueIndexSql(): string
     {
-        return 'CREATE UNIQUE INDEX "index_name" ON test ("test", "test2")';
+        return 'CREATE UNIQUE INDEX "index_name" ON "test" ("test", "test2")';
     }
 
     public function testGeneratesSequenceSqlCommands(): void
@@ -229,7 +229,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             $this->platform->getDropSequenceSQL($sequence->getObjectName()->toSQL($this->platform)),
         );
         self::assertEquals(
-            "SELECT NEXTVAL('myseq')",
+            'SELECT NEXTVAL(\'"myseq"\')',
             $this->platform->getSequenceNextValSQL('myseq'),
         );
     }
@@ -386,9 +386,10 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function testGetCreateSchemaSQL(): void
     {
-        $schemaName = 'schema';
-        $sql        = $this->platform->getCreateSchemaSQL($schemaName);
-        self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
+        self::assertEquals(
+            'CREATE SCHEMA "schema"',
+            $this->platform->getCreateSchemaSQL('schema'),
+        );
     }
 
     public function testDroppingConstraintsBeforeColumns(): void

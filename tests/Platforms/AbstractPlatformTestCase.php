@@ -643,7 +643,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         return [
             'DROP INDEX `idx_foo`',
-            'CREATE INDEX `idx_bar` ON mytable (`id`)',
+            'CREATE INDEX `idx_bar` ON `mytable` (`id`)',
         ];
     }
 

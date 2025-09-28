@@ -10,7 +10,6 @@ use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
-use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
@@ -24,10 +23,8 @@ use Doctrine\DBAL\Types\Types;
 use function array_merge;
 use function count;
 use function current;
-use function explode;
 use function implode;
 use function sprintf;
-use function str_contains;
 
 /**
  * Provides the behavior, features and SQL dialect of the IBM DB2 database platform of the oldest supported version.
@@ -194,9 +191,9 @@ class DB2Platform extends AbstractPlatform
 
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
-        $tableIdentifier = new Identifier($tableName);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
-        return 'TRUNCATE ' . $tableIdentifier->getObjectName()->toSQL($this) . ' IMMEDIATE';
+        return sprintf('TRUNCATE %s IMMEDIATE', $parsedName->toSQL($this));
     }
 
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
@@ -245,7 +242,7 @@ class DB2Platform extends AbstractPlatform
         return $sql;
     }
 
-    public function getCreateIndexSQL(Index $index, string $table): string
+    public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
         $this->ensureIndexIsNotFulltext($index);
@@ -253,7 +250,7 @@ class DB2Platform extends AbstractPlatform
         $this->ensureIndexIsNotClustered($index);
         $this->ensureIndexIsNotPartial($index);
 
-        return parent::getCreateIndexSQL($index, $table);
+        return parent::getCreateIndexSQL($index, $tableName);
     }
 
     /**
@@ -346,7 +343,7 @@ class DB2Platform extends AbstractPlatform
 
         // Some table alteration operations require a table reorganization.
         if ($needsReorg) {
-            $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $tableNameSQL . "')";
+            $sql[] = sprintf("CALL SYSPROC.ADMIN_CMD ('REORG TABLE %s')", $tableNameSQL);
         }
 
         return array_merge(
@@ -359,7 +356,14 @@ class DB2Platform extends AbstractPlatform
 
     public function getRenameTableSQL(string $oldName, string $newName): string
     {
-        return sprintf('RENAME TABLE %s TO %s', $oldName, $newName);
+        $parsedOldName = $this->parseOptionallyQualifiedName($oldName);
+        $parsedNewName = $this->parseUnqualifiedName($newName);
+
+        return sprintf(
+            'RENAME TABLE %s TO %s',
+            $parsedOldName->toSQL($this),
+            $parsedNewName->toSQL($this),
+        );
     }
 
     /**
@@ -464,12 +468,16 @@ class DB2Platform extends AbstractPlatform
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
-        if (str_contains($tableName, '.')) {
-            [$schema]     = explode('.', $tableName);
-            $oldIndexName = $schema . '.' . $oldIndexName;
-        }
+        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
+        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
 
-        return ['RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getObjectName()->toSQL($this)];
+        return [
+            sprintf(
+                'RENAME INDEX %s TO %s',
+                $this->deriveQualifier($parsedOldIndexName, $parsedTableName)->toSQL($this),
+                $index->getObjectName()->toSQL($this),
+            ),
+        ];
     }
 
     /**

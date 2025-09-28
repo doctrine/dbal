@@ -11,7 +11,6 @@ use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
-use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
@@ -24,7 +23,6 @@ use Doctrine\DBAL\Types\Types;
 use UnexpectedValueException;
 
 use function array_merge;
-use function explode;
 use function implode;
 use function in_array;
 use function is_array;
@@ -32,7 +30,6 @@ use function is_bool;
 use function is_numeric;
 use function is_string;
 use function sprintf;
-use function str_contains;
 use function strtolower;
 use function trim;
 
@@ -301,12 +298,16 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
-        if (str_contains($tableName, '.')) {
-            [$schema]     = explode('.', $tableName);
-            $oldIndexName = $schema . '.' . $oldIndexName;
-        }
+        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
+        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
 
-        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getObjectName()->toSQL($this)];
+        return [
+            sprintf(
+                'ALTER INDEX %s RENAME TO %s',
+                $this->deriveQualifier($parsedOldIndexName, $parsedTableName)->toSQL($this),
+                $index->getObjectName()->toSQL($this),
+            ),
+        ];
     }
 
     public function getCreateSequenceSQL(Sequence $sequence): string
@@ -342,19 +343,20 @@ class PostgreSQLPlatform extends AbstractPlatform
         return parent::getDropSequenceSQL($name) . ' CASCADE';
     }
 
-    public function getDropForeignKeySQL(string $foreignKey, string $table): string
+    public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
-        return $this->getDropConstraintSQL($foreignKey, $table);
+        return $this->getDropConstraintSQL($constraintName, $tableName);
     }
 
-    public function getDropIndexSQL(string $name, string $table): string
+    public function getDropIndexSQL(string $indexName, string $tableName): string
     {
-        if (str_contains($table, '.')) {
-            [$schema] = explode('.', $table);
-            $name     = $schema . '.' . $name;
-        }
+        $parsedIndexName = $this->parseUnqualifiedName($indexName);
+        $parsedTableName = $this->parseOptionallyQualifiedName($tableName);
 
-        return parent::getDropIndexSQL($name, $table);
+        return sprintf(
+            'DROP INDEX %s',
+            $this->deriveQualifier($parsedIndexName, $parsedTableName)->toSQL($this),
+        );
     }
 
     /**
@@ -378,29 +380,31 @@ class PostgreSQLPlatform extends AbstractPlatform
 
         $sql = [$query];
 
+        $tableNameSQL = $tableName->toSQL($this);
+
         foreach ($parameters['indexes'] as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $tableName->toSQL($this));
+            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
         foreach ($parameters['uniqueConstraints'] as $uniqueConstraint) {
-            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $tableName->toSQL($this));
+            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $tableNameSQL);
         }
 
         foreach ($parameters['foreignKeys'] as $definition) {
-            $sql[] = $this->getCreateForeignKeySQL($definition, $tableName->toSQL($this));
+            $sql[] = $this->getCreateForeignKeySQL($definition, $tableNameSQL);
         }
 
         return $sql;
     }
 
-    public function getCreateIndexSQL(Index $index, string $table): string
+    public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
         $this->ensureIndexIsNotFulltext($index);
         $this->ensureIndexIsNotSpatial($index);
         $this->ensureIndexIsNotClustered($index);
 
-        return parent::getCreateIndexSQL($index, $table);
+        return parent::getCreateIndexSQL($index, $tableName);
     }
 
     /**
@@ -524,9 +528,11 @@ class PostgreSQLPlatform extends AbstractPlatform
         return parent::convertFromBoolean($item);
     }
 
-    public function getSequenceNextValSQL(string $sequence): string
+    public function getSequenceNextValSQL(string $sequenceName): string
     {
-        return "SELECT NEXTVAL('" . $sequence . "')";
+        $parsedName = $this->parseUnqualifiedName($sequenceName);
+
+        return sprintf('SELECT NEXTVAL(%s)', $this->quoteStringLiteral($parsedName->toSQL($this)));
     }
 
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
@@ -660,8 +666,9 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
-        $tableIdentifier = new Identifier($tableName);
-        $sql             = 'TRUNCATE ' . $tableIdentifier->getObjectName()->toSQL($this);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
+
+        $sql = 'TRUNCATE ' . $parsedName->toSQL($this);
 
         if ($cascade) {
             $sql .= ' CASCADE';

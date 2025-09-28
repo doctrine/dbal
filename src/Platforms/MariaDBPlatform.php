@@ -18,11 +18,18 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, $tableName): array
+    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
+        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
+        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
+
         return [
-            'ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName
-                . ' TO ' . $index->getObjectName()->toSQL($this),
+            sprintf(
+                'ALTER TABLE %s RENAME INDEX %s TO %s',
+                $parsedTableName->toSQL($this),
+                $parsedOldIndexName->toSQL($this),
+                $index->getObjectName()->toSQL($this),
+            ),
         ];
     }
 

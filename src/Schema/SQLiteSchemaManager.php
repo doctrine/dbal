@@ -7,9 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Name\Parser;
-use Doctrine\DBAL\Schema\Name\Parsers;
 
 /**
  * SQLite SchemaManager.
@@ -18,38 +15,26 @@ use Doctrine\DBAL\Schema\Name\Parsers;
  */
 class SQLiteSchemaManager extends AbstractSchemaManager
 {
-    public function createForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
+    public function createForeignKey(ForeignKeyConstraint $foreignKey, string $tableName): void
     {
-        $table = $this->introspectTableByStringName($table);
+        $tableName = $this->introspectTableByStringName($tableName);
 
-        $this->alterTable(new TableDiff($table, addedForeignKeys: [$foreignKey]));
+        $this->alterTable(new TableDiff($tableName, addedForeignKeys: [$foreignKey]));
     }
 
-    public function dropForeignKey(string $name, string $table): void
+    public function dropForeignKey(string $constraintName, string $tableName): void
     {
-        $parser = Parsers::getUnqualifiedNameParser();
+        $parsedConstraintName = $this->parseUnqualifiedName($constraintName);
 
-        try {
-            $parsedName = $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($name, $e);
-        }
+        $tableName = $this->introspectTableByStringName($tableName);
 
-        $table = $this->introspectTableByStringName($table);
-
-        $this->alterTable(new TableDiff($table, droppedForeignKeyConstraintNames: [$parsedName]));
+        $this->alterTable(new TableDiff($tableName, droppedForeignKeyConstraintNames: [$parsedConstraintName]));
     }
 
     /** @throws Exception */
-    private function introspectTableByStringName(string $name): Table
+    private function introspectTableByStringName(string $tableName): Table
     {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
-        try {
-            $parsedName = $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($name, $e);
-        }
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
         return $this->introspectTable($parsedName);
     }

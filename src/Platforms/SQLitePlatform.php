@@ -13,7 +13,6 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
-use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
@@ -30,10 +29,8 @@ use Doctrine\DBAL\Types;
 use function array_merge;
 use function assert;
 use function count;
-use function explode;
 use function implode;
 use function sprintf;
-use function str_contains;
 use function str_replace;
 use function strtolower;
 
@@ -51,12 +48,12 @@ class SQLitePlatform extends AbstractPlatform
         parent::__construct(UnquotedIdentifierFolding::NONE);
     }
 
-    public function getCreateDatabaseSQL(string $name): string
+    public function getCreateDatabaseSQL(string $databaseName): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    public function getDropDatabaseSQL(string $name): string
+    public function getDropDatabaseSQL(string $databaseName): string
     {
         throw NotSupported::new(__METHOD__);
     }
@@ -292,15 +289,22 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         $query = [
-            'CREATE TABLE ' . $tableName->toSQL($this) . ' ' . $tableComment . '(' . implode(', ', $elements) . ')',
+            sprintf(
+                'CREATE TABLE %s %s(%s)',
+                $tableName->toSQL($this),
+                $tableComment,
+                implode(', ', $elements),
+            ),
         ];
 
         if (isset($parameters['alter']) && $parameters['alter'] === true) {
             return $query;
         }
 
+        $tableNameSQL = $tableName->toSQL($this);
+
         foreach ($parameters['indexes'] as $indexDef) {
-            $query[] = $this->getCreateIndexSQL($indexDef, $tableName->toSQL($this));
+            $query[] = $this->getCreateIndexSQL($indexDef, $tableNameSQL);
         }
 
         return $query;
@@ -414,9 +418,9 @@ class SQLitePlatform extends AbstractPlatform
 
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
-        $tableIdentifier = new Identifier($tableName);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
-        return 'DELETE FROM ' . $tableIdentifier->getObjectName()->toSQL($this);
+        return sprintf('DELETE FROM %s', $parsedName->toSQL($this));
     }
 
     protected function getInlineColumnCommentSQL(string $comment): string
@@ -487,10 +491,12 @@ class SQLitePlatform extends AbstractPlatform
     {
         $table = $diff->getOldTable();
 
+        $tableNameSQL = $table->getObjectName()->toSQL($this);
+
         $sql = [];
 
         foreach ($this->getIndexesInAlteredTable($diff) as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $table->getObjectName()->toSQL($this));
+            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
         return $sql;
@@ -535,20 +541,13 @@ class SQLitePlatform extends AbstractPlatform
      *
      * @link https://www.sqlite.org/lang_createindex.html
      */
-    public function getCreateIndexSQL(Index $index, string $table): string
+    public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
         $this->ensureIndexIsNotFulltext($index);
         $this->ensureIndexIsNotSpatial($index);
         $this->ensureIndexIsNotClustered($index);
         $this->ensureIndexIsNotPartial($index);
-
-        $name = $index->getObjectName()->toSQL($this);
-
-        if (str_contains($table, '.')) {
-            [$schema, $table] = explode('.', $table);
-            $name             = $schema . '.' . $name;
-        }
 
         $chunks = ['CREATE'];
         $type   = $index->getType();
@@ -557,10 +556,12 @@ class SQLitePlatform extends AbstractPlatform
             $chunks[] = 'UNIQUE';
         }
 
+        $parsedTableName = $this->parseOptionallyQualifiedName($tableName);
+
         $chunks[] = 'INDEX';
-        $chunks[] = $name;
+        $chunks[] = $this->deriveQualifier($index->getObjectName(), $parsedTableName)->toSQL($this);
         $chunks[] = 'ON';
-        $chunks[] = $table;
+        $chunks[] = $parsedTableName->getUnqualifiedName()->toSQL($this);
         $chunks[] = $this->buildIndexedColumnListSQL($index->getIndexedColumns());
 
         return implode(' ', $chunks);
@@ -589,12 +590,12 @@ class SQLitePlatform extends AbstractPlatform
         return $sql;
     }
 
-    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $table): string
+    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $tableName): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    public function getDropForeignKeySQL(string $foreignKey, string $table): string
+    public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
         throw NotSupported::new(__METHOD__);
     }
@@ -803,7 +804,7 @@ class SQLitePlatform extends AbstractPlatform
         $indexes  = new UnqualifiedNamedObjectSet(...$oldTable->getIndexes());
         $nameMap  = $this->getDiffColumnNameMap($diff);
 
-        foreach ($indexes as $key => $index) {
+        foreach ($indexes as $index) {
             $indexName = $index->getObjectName();
             foreach ($diff->getRenamedIndexes() as $oldIndexName => $renamedIndex) {
                 if (strtolower($indexName->getIdentifier()->getValue()) !== strtolower($oldIndexName)) {

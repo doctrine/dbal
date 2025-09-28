@@ -11,15 +11,11 @@ use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Platforms\SQLServer\SQLServerMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
-use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\Parser;
-use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\Sequence;
@@ -150,19 +146,24 @@ class SQLServerPlatform extends AbstractPlatform
             ' MINVALUE ' . $sequence->getInitialValue();
     }
 
-    public function getSequenceNextValSQL(string $sequence): string
+    public function getSequenceNextValSQL(string $sequenceName): string
     {
-        return 'SELECT NEXT VALUE FOR ' . $sequence;
+        $parsedName = $this->parseUnqualifiedName($sequenceName);
+
+        return sprintf('SELECT NEXT VALUE FOR %s', $parsedName->toSQL($this));
     }
 
-    public function getDropForeignKeySQL(string $foreignKey, string $table): string
+    public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
-        return $this->getDropConstraintSQL($foreignKey, $table);
+        return $this->getDropConstraintSQL($constraintName, $tableName);
     }
 
-    public function getDropIndexSQL(string $name, string $table): string
+    public function getDropIndexSQL(string $indexName, string $tableName): string
     {
-        return 'DROP INDEX ' . $name . ' ON ' . $table;
+        $parsedIndexName = $this->parseUnqualifiedName($indexName);
+        $parsedTableName = $this->parseOptionallyQualifiedName($tableName);
+
+        return 'DROP INDEX ' . $parsedIndexName->toSQL($this) . ' ON ' . $parsedTableName->toSQL($this);
     }
 
     /**
@@ -173,26 +174,26 @@ class SQLServerPlatform extends AbstractPlatform
         $defaultConstraintsSql = [];
         $commentsSql           = [];
 
+        $tableNameSQL = $tableName->toSQL($this);
         $tableComment = $parameters['comment'] ?? null;
         if ($tableComment !== null) {
-            $commentsSql[] = $this->getCommentOnTableSQL($tableName->toSQL($this), $tableComment);
+            $commentsSql[] = $this->getCommentOnTableSQL($tableNameSQL, $tableComment);
         }
 
         foreach ($columns as $column) {
             if (isset($column['default'])) {
-                $defaultConstraintsSql[] = 'ALTER TABLE ' . $tableName->toSQL($this) .
-                    ' ADD' . $this->getDefaultConstraintDeclarationSQL($column);
+                $defaultConstraintsSql[] = sprintf(
+                    'ALTER TABLE %s ADD %s',
+                    $tableNameSQL,
+                    $this->getDefaultConstraintDeclarationSQL($column),
+                );
             }
 
             if ($column['comment'] === '') {
                 continue;
             }
 
-            $commentsSql[] = $this->getCreateColumnCommentSQL(
-                $tableName,
-                $column['name'],
-                $column['comment'],
-            );
+            $commentsSql[] = $this->getCreateColumnCommentSQL($tableName, $column['name'], $column['comment']);
         }
 
         $elements = [];
@@ -216,11 +217,11 @@ class SQLServerPlatform extends AbstractPlatform
         $sql = [$query];
 
         foreach ($parameters['indexes'] as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $tableName->toSQL($this));
+            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
         foreach ($parameters['foreignKeys'] as $definition) {
-            $sql[] = $this->getCreateForeignKeySQL($definition, $tableName->toSQL($this));
+            $sql[] = $this->getCreateForeignKeySQL($definition, $tableNameSQL);
         }
 
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
@@ -240,7 +241,7 @@ class SQLServerPlatform extends AbstractPlatform
      * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql
      *
      * @param OptionallyQualifiedName $tableName  The name of the table to which the column belongs.
-     * @param UnqualifiedName         $columnName The column name to create the comment for.
+     * @param UnqualifiedName         $columnName The name of the column to create the comment for.
      * @param string                  $comment    The column's comment.
      */
     private function getCreateColumnCommentSQL(
@@ -277,7 +278,7 @@ class SQLServerPlatform extends AbstractPlatform
         return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $column['name']->toSQL($this);
     }
 
-    public function getCreateIndexSQL(Index $index, string $table): string
+    public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
         $this->ensureIndexIsNotFulltext($index);
@@ -299,7 +300,7 @@ class SQLServerPlatform extends AbstractPlatform
                 ->create();
         }
 
-        return parent::getCreateIndexSQL($index, $table);
+        return parent::getCreateIndexSQL($index, $tableName);
     }
 
     /**
@@ -311,9 +312,10 @@ class SQLServerPlatform extends AbstractPlatform
         $sql         = [];
         $commentsSql = [];
 
-        $table = $diff->getOldTable();
-
+        $table     = $diff->getOldTable();
         $tableName = $table->getObjectName();
+
+        $tableNameSQL = $tableName->toSQL($this);
 
         $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
 
@@ -324,7 +326,7 @@ class SQLServerPlatform extends AbstractPlatform
                 throw UnspecifiedConstraintName::forPrimaryKeyConstraint();
             }
 
-            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $table->getObjectName()->toSQL($this));
+            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
         }
 
         foreach ($diff->getAddedColumns() as $column) {
@@ -359,35 +361,31 @@ class SQLServerPlatform extends AbstractPlatform
             $queryParts[] = 'DROP COLUMN ' . $column->getObjectName()->toSQL($this);
         }
 
-        $tableNameSQL = $tableName->toSQL($this);
-
         foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn   = $columnDiff->getNewColumn();
             $oldColumn   = $columnDiff->getOldColumn();
             $nameChanged = $columnDiff->hasNameChanged();
 
             if ($nameChanged) {
-                // sp_rename accepts the old name as a qualified name, so it should be represented as SQL.
-                $oldColumnNameSQL = $oldColumn->getObjectName()->toSQL($this);
-
-                // sp_rename accepts the new name as a literal value.
-                $newColumnName = $newColumn->getObjectName()
-                    ->getIdentifier()
-                    ->toNormalizedValue(
-                        $this->getUnquotedIdentifierFolding(),
-                    );
-
                 $sql = array_merge(
                     $sql,
-                    $this->getRenameColumnSQL($tableNameSQL, $oldColumnNameSQL, $newColumnName),
+                    $this->getRenameColumnSQL(
+                        $tableNameSQL,
+                        $oldColumn->getObjectName()->toSQL($this),
+                        $newColumn->getObjectName()
+                            ->getIdentifier()
+                            ->toNormalizedValue(
+                                $this->getUnquotedIdentifierFolding(),
+                            ),
+                    ),
                 );
             }
 
             $newComment    = $newColumn->getComment();
             $hasNewComment = $newComment !== '';
 
-                $oldComment    = $oldColumn->getComment();
-                $hasOldComment = $oldComment !== '';
+            $oldComment    = $oldColumn->getComment();
+            $hasOldComment = $oldComment !== '';
 
             if ($hasOldComment && $hasNewComment && $oldComment !== $newComment) {
                 $commentsSql[] = $this->getAlterColumnCommentSQL(
@@ -445,7 +443,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($queryParts as $query) {
-            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
+            $sql[] = sprintf('ALTER TABLE %s %s', $tableName->toSQL($this), $query);
         }
 
         return array_merge(
@@ -458,7 +456,9 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function getRenameTableSQL(string $oldName, string $newName): string
     {
-        return $this->getRenameSQL($oldName, $newName);
+        $parsedOldName = $this->parseOptionallyQualifiedName($oldName);
+
+        return $this->getRenameSQL($parsedOldName->toSQL($this), $newName);
     }
 
     /**
@@ -595,9 +595,12 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
+        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
+        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
+
         return [
             $this->getRenameSQL(
-                $tableName . '.' . $oldIndexName,
+                $parsedTableName->toSQL($this) . '.' . $parsedOldIndexName->toSQL($this),
                 $index->getObjectName()
                     ->getIdentifier()
                     ->toNormalizedValue(
@@ -609,17 +612,19 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Returns the SQL for renaming a column
-     *
-     * @param string $tableName     The table to rename the column on.
-     * @param string $oldColumnName The name of the column we want to rename.
-     * @param string $newColumnName The name we should rename it to.
-     *
-     * @return list<string> The sequence of SQL statements for renaming the given column.
+     * {@inheritDoc}
      */
     protected function getRenameColumnSQL(string $tableName, string $oldColumnName, string $newColumnName): array
     {
-        return [$this->getRenameSQL($tableName . '.' . $oldColumnName, $newColumnName)];
+        $parsedTableName     = $this->parseOptionallyQualifiedName($tableName);
+        $parsedOldColumnName = $this->parseUnqualifiedName($oldColumnName);
+
+        return [
+            $this->getRenameSQL(
+                $parsedTableName->toSQL($this) . '.' . $parsedOldColumnName->toSQL($this),
+                $newColumnName,
+            ),
+        ];
     }
 
     /**
@@ -1063,9 +1068,9 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
-        $tableIdentifier = new Identifier($tableName);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
-        return 'TRUNCATE TABLE ' . $tableIdentifier->getObjectName()->toSQL($this);
+        return sprintf('TRUNCATE TABLE %s', $parsedName->toSQL($this));
     }
 
     /**
@@ -1127,13 +1132,7 @@ class SQLServerPlatform extends AbstractPlatform
     /** @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql */
     protected function getCommentOnTableSQL(string $tableName, string $comment): string
     {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
-        try {
-            $parsedName = $parser->parse($tableName);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($tableName, $e);
-        }
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
         return $this->getExecSQL(
             'sp_addextendedproperty',

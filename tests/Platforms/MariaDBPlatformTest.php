@@ -69,7 +69,7 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
 
     protected function getGenerateForeignKeySql(): string
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY (`fk_name_id`) REFERENCES `other_table` (`id`)'
+        return 'ALTER TABLE `test` ADD FOREIGN KEY (`fk_name_id`) REFERENCES `other_table` (`id`)'
             . ' ON UPDATE NO ACTION ON DELETE NO ACTION';
     }
 
