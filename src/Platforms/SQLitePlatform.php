@@ -719,7 +719,7 @@ class SQLitePlatform extends AbstractPlatform
             || count($diff->getDroppedIndexes()) > 0
             || count($diff->getRenamedIndexes()) > 0
             || count($diff->getAddedForeignKeys()) > 0
-            || count($diff->getDroppedForeignKeys()) > 0
+            || count($diff->getDroppedForeignKeyConstraintNames()) > 0
             || $diff->getDroppedPrimaryKeyConstraint() !== null
             || $diff->getAddedPrimaryKeyConstraint() !== null
         ) {
@@ -901,13 +901,7 @@ class SQLitePlatform extends AbstractPlatform
                 ->create();
         }
 
-        foreach ($diff->getDroppedForeignKeys() as $constraint) {
-            $constraintName = $constraint->getObjectName();
-
-            if ($constraintName === null) {
-                continue;
-            }
-
+        foreach ($diff->getDroppedForeignKeyConstraintNames() as $constraintName) {
             $constraintKey = strtolower(
                 $constraintName->getIdentifier()
                     ->getValue(),

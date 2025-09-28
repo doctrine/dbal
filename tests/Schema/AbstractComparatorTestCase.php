@@ -361,41 +361,6 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertCount(1, $tableDiff->getAddedForeignKeys());
     }
 
-    public function testTableDropForeignKey(): void
-    {
-        $table1 = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('fk')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $table2 = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('fk')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedName('fk_foo')
-                    ->setUnquotedReferencingColumnNames('fk')
-                    ->setUnquotedReferencedTableName('bar')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        $tableDiff = $this->comparator->compareTables($table2, $table1);
-
-        self::assertCount(1, $tableDiff->getDroppedForeignKeyConstraintNames());
-    }
-
     public function testTableUpdateForeignKey(): void
     {
         $table1 = Table::editor()

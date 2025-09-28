@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
 use function count;
@@ -127,16 +128,16 @@ class Comparator
      */
     public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
-        $addedColumns                = [];
-        $modifiedColumns             = [];
-        $droppedColumns              = [];
-        $addedIndexes                = [];
-        $droppedIndexes              = [];
-        $renamedIndexes              = [];
-        $addedForeignKeys            = [];
-        $droppedForeignKeys          = [];
-        $addedPrimaryKeyConstraint   = null;
-        $droppedPrimaryKeyConstraint = null;
+        $addedColumns                     = [];
+        $modifiedColumns                  = [];
+        $droppedColumns                   = [];
+        $addedIndexes                     = [];
+        $droppedIndexes                   = [];
+        $renamedIndexes                   = [];
+        $addedForeignKeys                 = [];
+        $droppedForeignKeyConstraintNames = [];
+        $addedPrimaryKeyConstraint        = null;
+        $droppedPrimaryKeyConstraint      = null;
 
         $oldColumns = $oldTable->getColumns();
         $newColumns = $newTable->getColumns();
@@ -279,8 +280,8 @@ class Comparator
                         && strtolower($oldForeignKeyName->getIdentifier()->getValue())
                         === strtolower($newForeignKeyName->getIdentifier()->getValue())
                     ) {
-                        $droppedForeignKeys[$oldKey] = $oldForeignKey;
-                        $addedForeignKeys[$newKey]   = $newForeignKey;
+                        $droppedForeignKeyConstraintNames[$oldKey] = $oldForeignKeyName;
+                        $addedForeignKeys[$newKey]                 = $newForeignKey;
 
                         unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                     }
@@ -289,7 +290,12 @@ class Comparator
         }
 
         foreach ($oldForeignKeys as $oldForeignKey) {
-            $droppedForeignKeys[] = $oldForeignKey;
+            $constraintName = $oldForeignKey->getObjectName();
+            if ($constraintName === null) {
+                throw UnspecifiedConstraintName::forForeignKeyConstraint();
+            }
+
+            $droppedForeignKeyConstraintNames[] = $constraintName;
         }
 
         foreach ($newForeignKeys as $newForeignKey) {
@@ -305,7 +311,7 @@ class Comparator
             droppedIndexes: $droppedIndexes,
             renamedIndexes: $renamedIndexes,
             addedForeignKeys: $addedForeignKeys,
-            droppedForeignKeys: $droppedForeignKeys,
+            droppedForeignKeyConstraintNames: $droppedForeignKeyConstraintNames,
             addedPrimaryKeyConstraint: $addedPrimaryKeyConstraint,
             droppedPrimaryKeyConstraint: $droppedPrimaryKeyConstraint,
         );
