@@ -1272,13 +1272,7 @@ abstract class AbstractPlatform
      *
      * @return list<string> The sequence of SQL statements for renaming the given index.
      */
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
-    {
-        return [
-            $this->getDropIndexSQL($oldIndexName, $tableName),
-            $this->getCreateIndexSQL($index, $tableName),
-        ];
-    }
+    abstract protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array;
 
     /**
      * Returns the SQL for renaming a column
