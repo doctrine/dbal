@@ -510,7 +510,7 @@ SQL,
             $constraintName = $droppedPrimaryKeyConstraint->getObjectName();
 
             if ($constraintName === null) {
-                throw UnspecifiedConstraintName::new();
+                throw UnspecifiedConstraintName::forPrimaryKeyConstraint();
             }
 
             $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);

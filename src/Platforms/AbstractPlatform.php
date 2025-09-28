@@ -947,8 +947,14 @@ abstract class AbstractPlatform
 
         foreach ($tables as $table) {
             foreach ($table->getForeignKeys() as $foreignKey) {
+                $constraintName = $foreignKey->getObjectName();
+
+                if ($constraintName === null) {
+                    throw UnspecifiedConstraintName::forForeignKeyConstraint();
+                }
+
                 $sql[] = $this->getDropForeignKeySQL(
-                    $this->getConstraintName($foreignKey)->toSQL($this),
+                    $constraintName->toSQL($this),
                     $table->getObjectName()->toSQL($this),
                 );
             }
@@ -2210,15 +2216,4 @@ abstract class AbstractPlatform
      * database schema according to the dialect of the platform.
      */
     abstract public function createSchemaManager(Connection $connection): AbstractSchemaManager;
-
-    private function getConstraintName(ForeignKeyConstraint $constraint): UnqualifiedName
-    {
-        $name = $constraint->getObjectName();
-
-        if ($name === null) {
-            throw UnspecifiedConstraintName::new();
-        }
-
-        return $name;
-    }
 }
