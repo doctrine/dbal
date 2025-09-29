@@ -175,12 +175,12 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql(): string
     {
-        return 'CREATE INDEX "my_idx" ON mytable ("user_name", "last_login")';
+        return 'CREATE INDEX "my_idx" ON "mytable" ("user_name", "last_login")';
     }
 
     public function getGenerateUniqueIndexSql(): string
     {
-        return 'CREATE UNIQUE INDEX "index_name" ON test ("test", "test2")';
+        return 'CREATE UNIQUE INDEX "index_name" ON "test" ("test", "test2")';
     }
 
     public function testGeneratesIndexCreationSqlWithSchema(): void
@@ -191,7 +191,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             ->create();
 
         self::assertSame(
-            'CREATE INDEX main."i" ON mytable ("a", "b")',
+            'CREATE INDEX "main"."i" ON "mytable" ("a", "b")',
             $this->platform->getCreateIndexSQL($index, 'main.mytable'),
         );
     }

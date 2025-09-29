@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
-use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
@@ -29,10 +28,8 @@ use InvalidArgumentException;
 
 use function array_merge;
 use function count;
-use function explode;
 use function implode;
 use function sprintf;
-use function str_contains;
 use function strlen;
 use function substr;
 
@@ -172,9 +169,11 @@ class OraclePlatform extends AbstractPlatform
         return '';
     }
 
-    public function getSequenceNextValSQL(string $sequence): string
+    public function getSequenceNextValSQL(string $sequenceName): string
     {
-        return 'SELECT ' . $sequence . '.nextval FROM DUAL';
+        $parsedName = $this->parseUnqualifiedName($sequenceName);
+
+        return sprintf('SELECT %s.nextval FROM DUAL', $parsedName->toSQL($this));
     }
 
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
@@ -323,7 +322,7 @@ class OraclePlatform extends AbstractPlatform
         return $sql;
     }
 
-    public function getCreateIndexSQL(Index $index, string $table): string
+    public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
         $this->ensureIndexIsNotFulltext($index);
@@ -331,7 +330,7 @@ class OraclePlatform extends AbstractPlatform
         $this->ensureIndexIsNotClustered($index);
         $this->ensureIndexIsNotPartial($index);
 
-        return parent::getCreateIndexSQL($index, $table);
+        return parent::getCreateIndexSQL($index, $tableName);
     }
 
     /** @return list<string> */
@@ -442,9 +441,9 @@ SQL,
         return new UnqualifiedName($this->addSuffix($tableName, '_AI_PK'));
     }
 
-    public function getDropForeignKeySQL(string $foreignKey, string $table): string
+    public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
-        return $this->getDropConstraintSQL($foreignKey, $table);
+        return $this->getDropConstraintSQL($constraintName, $tableName);
     }
 
     protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
@@ -482,14 +481,18 @@ SQL,
         };
     }
 
-    public function getCreateDatabaseSQL(string $name): string
+    public function getCreateDatabaseSQL(string $databaseName): string
     {
-        return 'CREATE USER ' . $name;
+        $parsedName = $this->parseUnqualifiedName($databaseName);
+
+        return sprintf('CREATE USER %s', $parsedName->toSQL($this));
     }
 
-    public function getDropDatabaseSQL(string $name): string
+    public function getDropDatabaseSQL(string $databaseName): string
     {
-        return 'DROP USER ' . $name . ' CASCADE';
+        $parsedName = $this->parseUnqualifiedName($databaseName);
+
+        return sprintf('DROP USER %s CASCADE', $parsedName->toSQL($this));
     }
 
     /**
@@ -652,12 +655,16 @@ SQL,
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
-        if (str_contains($tableName, '.')) {
-            [$schema]     = explode('.', $tableName);
-            $oldIndexName = $schema . '.' . $oldIndexName;
-        }
+        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
+        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
 
-        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getObjectName()->toSQL($this)];
+        return [
+            sprintf(
+                'ALTER INDEX %s RENAME TO %s',
+                $this->deriveQualifier($parsedOldIndexName, $parsedTableName)->toSQL($this),
+                $index->getObjectName()->toSQL($this),
+            ),
+        ];
     }
 
     private function generateAutoincrementSequenceName(OptionallyQualifiedName $tableName): OptionallyQualifiedName
@@ -723,9 +730,9 @@ SQL,
 
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
-        $tableIdentifier = new Identifier($tableName);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
-        return 'TRUNCATE TABLE ' . $tableIdentifier->getObjectName()->toSQL($this);
+        return sprintf('TRUNCATE TABLE %s', $parsedName->toSQL($this));
     }
 
     public function getDummySelectSQL(string $expression = '1'): string

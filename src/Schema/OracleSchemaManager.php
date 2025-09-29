@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\Parser;
-use Doctrine\DBAL\Schema\Name\Parsers;
 
 /**
  * Oracle Schema Manager.
@@ -19,9 +14,11 @@ use Doctrine\DBAL\Schema\Name\Parsers;
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
-    public function createDatabase(string $database): void
+    public function createDatabase(string $databaseName): void
     {
-        $statement = $this->platform->getCreateDatabaseSQL($database);
+        $parsedName = $this->parseUnqualifiedName($databaseName);
+
+        $statement = $this->platform->getCreateDatabaseSQL($databaseName);
 
         $params = $this->connection->getParams();
 
@@ -31,34 +28,22 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         $this->connection->executeStatement($statement);
 
-        $statement = 'GRANT DBA TO ' . $database;
+        $statement = 'GRANT DBA TO ' . $parsedName->toSQL($this->platform);
         $this->connection->executeStatement($statement);
     }
 
-    /** @throws Exception */
-    private function dropAutoincrement(OptionallyQualifiedName $table): void
+    public function dropTable(string $tableName): void
     {
-        $sql = $this->platform->getDropAutoincrementSql($table);
-        foreach ($sql as $query) {
-            $this->connection->executeStatement($query);
-        }
-    }
-
-    public function dropTable(string $name): void
-    {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
         try {
-            $tableName = $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($name, $e);
-        }
-
-        try {
-            $this->dropAutoincrement($tableName);
+            $sql = $this->platform->getDropAutoincrementSql($parsedName);
+            foreach ($sql as $query) {
+                $this->connection->executeStatement($query);
+            }
         } catch (DatabaseObjectNotFoundException) {
         }
 
-        parent::dropTable($name);
+        parent::dropTable($tableName);
     }
 }

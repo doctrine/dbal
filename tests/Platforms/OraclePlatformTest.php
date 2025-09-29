@@ -82,17 +82,17 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateDatabaseSQL(): void
     {
-        self::assertEquals('CREATE USER foobar', $this->platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals('CREATE USER "FOOBAR"', $this->platform->getCreateDatabaseSQL('foobar'));
     }
 
     public function testDropDatabaseSQL(): void
     {
-        self::assertEquals('DROP USER foobar CASCADE', $this->platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals('DROP USER "FOOBAR" CASCADE', $this->platform->getDropDatabaseSQL('foobar'));
     }
 
     public function testDropTable(): void
     {
-        self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
+        self::assertEquals('DROP TABLE "FOOBAR"', $this->platform->getDropTableSQL('foobar'));
     }
 
     public function testGeneratesTypeDeclarationForIntegers(): void
@@ -125,17 +125,17 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql(): string
     {
-        return 'CREATE INDEX "MY_IDX" ON mytable ("USER_NAME", "LAST_LOGIN")';
+        return 'CREATE INDEX "MY_IDX" ON "MYTABLE" ("USER_NAME", "LAST_LOGIN")';
     }
 
     public function getGenerateUniqueIndexSql(): string
     {
-        return 'CREATE UNIQUE INDEX "INDEX_NAME" ON test ("TEST", "TEST2")';
+        return 'CREATE UNIQUE INDEX "INDEX_NAME" ON "TEST" ("TEST", "TEST2")';
     }
 
     protected function getGenerateForeignKeySql(): string
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY ("FK_NAME_ID") REFERENCES "OTHER_TABLE" ("ID")';
+        return 'ALTER TABLE "TEST" ADD FOREIGN KEY ("FK_NAME_ID") REFERENCES "OTHER_TABLE" ("ID")';
     }
 
     /**

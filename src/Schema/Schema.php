@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
@@ -59,7 +58,7 @@ final class Schema
     /**
      * The namespaces in this schema.
      *
-     * @var array<string, string>
+     * @var array<string, non-empty-string>
      */
     private array $namespaces = [];
 
@@ -87,9 +86,9 @@ final class Schema
     private bool $usesUnqualifiedNames = false;
 
     /**
-     * @param array<Table>    $tables
-     * @param array<Sequence> $sequences
-     * @param array<string>   $namespaces
+     * @param array<Table>            $tables
+     * @param array<Sequence>         $sequences
+     * @param array<non-empty-string> $namespaces
      */
     public function __construct(
         array $tables = [],
@@ -170,7 +169,7 @@ final class Schema
     /**
      * Returns the namespaces of this schema.
      *
-     * @return list<string> A list of namespace names.
+     * @return list<non-empty-string> A list of namespace names.
      */
     public function getNamespaces(): array
     {
@@ -302,6 +301,8 @@ final class Schema
     /**
      * Creates a new namespace.
      *
+     * @param non-empty-string $name
+     *
      * @return $this
      */
     public function createNamespace(string $name): self
@@ -422,8 +423,6 @@ final class Schema
      * Returns an array of necessary SQL queries to create the schema on the given platform.
      *
      * @return list<string>
-     *
-     * @throws Exception
      */
     public function toSql(AbstractPlatform $platform): array
     {

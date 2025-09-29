@@ -20,15 +20,17 @@ use Doctrine\DBAL\Platforms\Exception\UnsupportedIndexDefinition;
 use Doctrine\DBAL\Platforms\Exception\UnsupportedPrimaryKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
-use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
+use Doctrine\DBAL\Schema\Name;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -775,49 +777,67 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to drop an existing table.
      */
-    public function getDropTableSQL(string $table): string
+    public function getDropTableSQL(string $tableName): string
     {
-        return 'DROP TABLE ' . $table;
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
+
+        return sprintf('DROP TABLE %s', $parsedName->toSQL($this));
     }
 
     /**
      * Returns the SQL to safely drop a temporary table WITHOUT implicitly committing an open transaction.
      */
-    public function getDropTemporaryTableSQL(string $table): string
+    public function getDropTemporaryTableSQL(string $tableName): string
     {
-        return $this->getDropTableSQL($table);
+        return $this->getDropTableSQL($tableName);
     }
 
     /**
      * Returns the SQL to drop an index from a table.
      */
-    public function getDropIndexSQL(string $name, string $table): string
+    public function getDropIndexSQL(string $indexName, string $tableName): string
     {
-        return 'DROP INDEX ' . $name;
+        $parsedName = $this->parseUnqualifiedName($indexName);
+
+        return sprintf('DROP INDEX %s', $parsedName->toSQL($this));
     }
 
     /**
      * Returns the SQL to drop a constraint.
      */
-    protected function getDropConstraintSQL(string $name, string $table): string
+    protected function getDropConstraintSQL(string $constraintName, string $tableName): string
     {
-        return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $name;
+        $parsedConstraintName = $this->parseUnqualifiedName($constraintName);
+        $parsedTableName      = $this->parseOptionallyQualifiedName($tableName);
+
+        return sprintf(
+            'ALTER TABLE %s DROP CONSTRAINT %s',
+            $parsedTableName->toSQL($this),
+            $parsedConstraintName->toSQL($this),
+        );
     }
 
     /**
      * Returns the SQL to drop a foreign key.
      */
-    public function getDropForeignKeySQL(string $foreignKey, string $table): string
+    public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
-        return 'ALTER TABLE ' . $table . ' DROP FOREIGN KEY ' . $foreignKey;
+        $parsedConstraintName = $this->parseUnqualifiedName($constraintName);
+        $parsedTableName      = $this->parseOptionallyQualifiedName($tableName);
+
+        return sprintf(
+            'ALTER TABLE %s DROP FOREIGN KEY %s',
+            $parsedTableName->toSQL($this),
+            $parsedConstraintName->toSQL($this),
+        );
     }
 
     /**
      * Returns the SQL to drop a unique constraint.
      */
-    public function getDropUniqueConstraintSQL(string $name, string $tableName): string
+    public function getDropUniqueConstraintSQL(string $constraintName, string $tableName): string
     {
-        return $this->getDropConstraintSQL($name, $tableName);
+        return $this->getDropConstraintSQL($constraintName, $tableName);
     }
 
     /**
@@ -888,6 +908,8 @@ abstract class AbstractPlatform
 
         $sql = $this->_getCreateTableSQL($tableName, $columns, $parameters);
 
+        $tableNameSQL = $tableName->toSQL($this);
+
         if ($this->supportsCommentOnStatement()) {
             if ($table->hasOption('comment')) {
                 $sql[] = $this->getCommentOnTableSQL($tableName->toSQL($this), $table->getOption('comment'));
@@ -901,7 +923,7 @@ abstract class AbstractPlatform
                 }
 
                 $sql[] = $this->getCommentOnColumnSQL(
-                    $tableName->toSQL($this),
+                    $tableNameSQL,
                     $column->getObjectName()->toSQL($this),
                     $comment,
                 );
@@ -925,11 +947,10 @@ abstract class AbstractPlatform
         }
 
         foreach ($tables as $table) {
+            $tableNameSQL = $table->getObjectName()->toSQL($this);
+
             foreach ($table->getForeignKeys() as $foreignKey) {
-                $sql[] = $this->getCreateForeignKeySQL(
-                    $foreignKey,
-                    $table->getObjectName()->toSQL($this),
-                );
+                $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
             }
         }
 
@@ -946,6 +967,8 @@ abstract class AbstractPlatform
         $sql = [];
 
         foreach ($tables as $table) {
+            $tableNameSQL = $table->getObjectName()->toSQL($this);
+
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $constraintName = $foreignKey->getObjectName();
 
@@ -955,7 +978,7 @@ abstract class AbstractPlatform
 
                 $sql[] = $this->getDropForeignKeySQL(
                     $constraintName->toSQL($this),
-                    $table->getObjectName()->toSQL($this),
+                    $tableNameSQL,
                 );
             }
         }
@@ -969,24 +992,24 @@ abstract class AbstractPlatform
 
     protected function getCommentOnTableSQL(string $tableName, string $comment): string
     {
-        $tableName = new Identifier($tableName);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
         return sprintf(
             'COMMENT ON TABLE %s IS %s',
-            $tableName->getObjectName()->toSQL($this),
+            $parsedName->toSQL($this),
             $this->quoteStringLiteral($comment),
         );
     }
 
     protected function getCommentOnColumnSQL(string $tableName, string $columnName, string $comment): string
     {
-        $tableName  = new Identifier($tableName);
-        $columnName = new Identifier($columnName);
+        $parsedTableName  = $this->parseOptionallyQualifiedName($tableName);
+        $parsedColumnName = $this->parseUnqualifiedName($columnName);
 
         return sprintf(
             'COMMENT ON COLUMN %s.%s IS %s',
-            $tableName->getObjectName()->toSQL($this),
-            $columnName->getObjectName()->toSQL($this),
+            $parsedTableName->toSQL($this),
+            $parsedColumnName->toSQL($this),
             $this->quoteStringLiteral($comment),
         );
     }
@@ -1116,14 +1139,18 @@ abstract class AbstractPlatform
             throw NotSupported::new(__METHOD__);
         }
 
-        return 'DROP SEQUENCE ' . $name;
+        $parsedName = $this->parseOptionallyQualifiedName($name);
+
+        return sprintf('DROP SEQUENCE %s', $parsedName->toSQL($this));
     }
 
     /**
      * Returns the SQL to create an index on a table on this platform.
      */
-    public function getCreateIndexSQL(Index $index, string $table): string
+    public function getCreateIndexSQL(Index $index, string $tableName): string
     {
+        $parsedTableName = $this->parseOptionallyQualifiedName($tableName);
+
         $chunks = ['CREATE'];
         $type   = $index->getType();
 
@@ -1142,7 +1169,7 @@ abstract class AbstractPlatform
         $chunks[] = 'INDEX';
         $chunks[] = $index->getObjectName()->toSQL($this);
         $chunks[] = 'ON';
-        $chunks[] = $table;
+        $chunks[] = $parsedTableName->toSQL($this);
         $chunks[] = $this->buildIndexedColumnListSQL($index->getIndexedColumns());
 
         $predicate = $index->getPredicate();
@@ -1163,7 +1190,9 @@ abstract class AbstractPlatform
             throw NotSupported::new(__METHOD__);
         }
 
-        return 'CREATE SCHEMA ' . $schemaName;
+        $parsedName = $this->parseUnqualifiedName($schemaName);
+
+        return sprintf('CREATE SCHEMA %s', $parsedName->toSQL($this));
     }
 
     /**
@@ -1171,7 +1200,13 @@ abstract class AbstractPlatform
      */
     public function getCreateUniqueConstraintSQL(UniqueConstraint $constraint, string $tableName): string
     {
-        return 'ALTER TABLE ' . $tableName . ' ADD ' . $this->getUniqueConstraintDeclarationSQL($constraint);
+        $parsedName = $this->parseUnqualifiedName($tableName);
+
+        return sprintf(
+            'ALTER TABLE %s ADD %s',
+            $parsedName->toSQL($this),
+            $this->getUniqueConstraintDeclarationSQL($constraint),
+        );
     }
 
     /**
@@ -1183,7 +1218,9 @@ abstract class AbstractPlatform
             throw NotSupported::new(__METHOD__);
         }
 
-        return 'DROP SCHEMA ' . $schemaName;
+        $parsedName = $this->parseUnqualifiedName($schemaName);
+
+        return sprintf('DROP SCHEMA %s', $parsedName->toSQL($this));
     }
 
     /**
@@ -1198,11 +1235,17 @@ abstract class AbstractPlatform
      * Returns the SQL to create a new foreign key.
      *
      * @param ForeignKeyConstraint $foreignKey The foreign key constraint.
-     * @param string               $table      The name of the table on which the foreign key is to be created.
+     * @param string               $tableName  The name of the table on which the foreign key is to be created.
      */
-    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $table): string
+    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $tableName): string
     {
-        return 'ALTER TABLE ' . $table . ' ADD ' . $this->getForeignKeyDeclarationSQL($foreignKey);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
+
+        return sprintf(
+            'ALTER TABLE %s ADD %s',
+            $parsedName->toSQL($this),
+            $this->getForeignKeyDeclarationSQL($foreignKey),
+        );
     }
 
     /**
@@ -1216,7 +1259,14 @@ abstract class AbstractPlatform
 
     public function getRenameTableSQL(string $oldName, string $newName): string
     {
-        return sprintf('ALTER TABLE %s RENAME TO %s', $oldName, $newName);
+        $parsedOldName = $this->parseOptionallyQualifiedName($oldName);
+        $parsedNewName = $this->parseUnqualifiedName($newName);
+
+        return sprintf(
+            'ALTER TABLE %s RENAME TO %s',
+            $parsedOldName->toSQL($this),
+            $parsedNewName->toSQL($this),
+        );
     }
 
     /** @return list<string> */
@@ -1253,10 +1303,9 @@ abstract class AbstractPlatform
         }
 
         foreach ($diff->getRenamedIndexes() as $oldIndexName => $index) {
-            $oldIndexName = new Identifier($oldIndexName);
-            $sql          = array_merge(
+            $sql = array_merge(
                 $sql,
-                $this->getRenameIndexSQL($oldIndexName->getObjectName()->toSQL($this), $index, $tableNameSQL),
+                $this->getRenameIndexSQL($oldIndexName, $index, $tableNameSQL),
             );
         }
 
@@ -1285,7 +1334,18 @@ abstract class AbstractPlatform
      */
     protected function getRenameColumnSQL(string $tableName, string $oldColumnName, string $newColumnName): array
     {
-        return [sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s', $tableName, $oldColumnName, $newColumnName)];
+        $parsedTableName     = $this->parseOptionallyQualifiedName($tableName);
+        $parsedOldColumnName = $this->parseUnqualifiedName($oldColumnName);
+        $parsedNewColumnName = $this->parseUnqualifiedName($newColumnName);
+
+        return [
+            sprintf(
+                'ALTER TABLE %s RENAME COLUMN %s TO %s',
+                $parsedTableName->toSQL($this),
+                $parsedOldColumnName->toSQL($this),
+                $parsedNewColumnName->toSQL($this),
+            ),
+        ];
     }
 
     /**
@@ -1786,17 +1846,21 @@ abstract class AbstractPlatform
         };
     }
 
-    public function getCreateViewSQL(string $name, string $sql): string
+    public function getCreateViewSQL(string $viewName, string $sql): string
     {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
+        $parsedName = $this->parseOptionallyQualifiedName($viewName);
+
+        return sprintf('CREATE VIEW %s AS %s', $parsedName->toSQL($this), $sql);
     }
 
-    public function getDropViewSQL(string $name): string
+    public function getDropViewSQL(string $viewName): string
     {
-        return 'DROP VIEW ' . $name;
+        $parsedName = $this->parseOptionallyQualifiedName($viewName);
+
+        return sprintf('DROP VIEW %s', $parsedName->toSQL($this));
     }
 
-    public function getSequenceNextValSQL(string $sequence): string
+    public function getSequenceNextValSQL(string $sequenceName): string
     {
         throw NotSupported::new(__METHOD__);
     }
@@ -1804,21 +1868,25 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to create a new database.
      *
-     * @param string $name The name of the database that should be created.
+     * @param string $databaseName The name of the database that should be created.
      */
-    public function getCreateDatabaseSQL(string $name): string
+    public function getCreateDatabaseSQL(string $databaseName): string
     {
-        return 'CREATE DATABASE ' . $name;
+        $parsedName = $this->parseUnqualifiedName($databaseName);
+
+        return sprintf('CREATE DATABASE %s', $parsedName->toSQL($this));
     }
 
     /**
      * Returns the SQL snippet to drop an existing database.
      *
-     * @param string $name The name of the database that should be dropped.
+     * @param string $databaseName The name of the database that should be dropped.
      */
-    public function getDropDatabaseSQL(string $name): string
+    public function getDropDatabaseSQL(string $databaseName): string
     {
-        return 'DROP DATABASE ' . $name;
+        $parsedName = $this->parseUnqualifiedName($databaseName);
+
+        return sprintf('DROP DATABASE %s', $parsedName->toSQL($this));
     }
 
     /**
@@ -2052,9 +2120,9 @@ abstract class AbstractPlatform
      */
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
-        $tableIdentifier = new Identifier($tableName);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
-        return 'TRUNCATE ' . $tableIdentifier->getObjectName()->toSQL($this);
+        return sprintf('TRUNCATE %s', $parsedName->toSQL($this));
     }
 
     /**
@@ -2210,4 +2278,40 @@ abstract class AbstractPlatform
      * database schema according to the dialect of the platform.
      */
     abstract public function createSchemaManager(Connection $connection): AbstractSchemaManager;
+
+    /**
+     * Builds an optionally qualified name from an unqualified one by using the qualifier from another optionally
+     * qualified name.
+     */
+    protected function deriveQualifier(
+        UnqualifiedName $unqualifiedName,
+        OptionallyQualifiedName $optionallyQualifiedName,
+    ): OptionallyQualifiedName {
+        return new OptionallyQualifiedName(
+            $unqualifiedName->getIdentifier(),
+            $optionallyQualifiedName->getQualifier(),
+        );
+    }
+
+    protected function parseUnqualifiedName(string $name): UnqualifiedName
+    {
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            return $parser->parse($name);
+        } catch (Name\Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+    }
+
+    protected function parseOptionallyQualifiedName(string $name): OptionallyQualifiedName
+    {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            return $parser->parse($name);
+        } catch (Name\Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+    }
 }

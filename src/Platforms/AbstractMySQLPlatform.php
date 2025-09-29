@@ -243,7 +243,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $sql[] = 'TEMPORARY';
         }
 
-        $sql[] = 'TABLE ' . $tableName->toSQL($this) . ' (' . implode(', ', $elements) . ')';
+        $tableNameSQL = $tableName->toSQL($this);
+
+        $sql[] = sprintf('TABLE %s (%s)', $tableNameSQL, implode(', ', $elements));
 
         $tableOptions = $this->buildTableOptions($parameters);
 
@@ -259,19 +261,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         if (isset($parameters['foreignKeys'])) {
             foreach ($parameters['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName->toSQL($this));
+                $sql[] = $this->getCreateForeignKeySQL($definition, $tableNameSQL);
             }
         }
 
         return $sql;
     }
 
-    public function getCreateIndexSQL(Index $index, string $table): string
+    public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexIsNotClustered($index);
         $this->ensureIndexIsNotPartial($index);
 
-        return parent::getCreateIndexSQL($index, $table);
+        return parent::getCreateIndexSQL($index, $tableName);
     }
 
     /**
@@ -557,9 +559,12 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $query;
     }
 
-    public function getDropIndexSQL(string $name, string $table): string
+    public function getDropIndexSQL(string $indexName, string $tableName): string
     {
-        return 'DROP INDEX ' . $name . ' ON ' . $table;
+        $parsedIndexName = $this->parseUnqualifiedName($indexName);
+        $parsedTableName = $this->parseOptionallyQualifiedName($tableName);
+
+        return sprintf('DROP INDEX %s ON %s', $parsedIndexName->toSQL($this), $parsedTableName->toSQL($this));
     }
 
     /**
@@ -567,9 +572,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *
      * @link https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
      */
-    public function getDropUniqueConstraintSQL(string $name, string $tableName): string
+    public function getDropUniqueConstraintSQL(string $constraintName, string $tableName): string
     {
-        return $this->getDropIndexSQL($name, $tableName);
+        return $this->getDropIndexSQL($constraintName, $tableName);
     }
 
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
@@ -621,9 +626,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      * MySQL commits a transaction implicitly when DROP TABLE is executed, however not
      * if DROP TEMPORARY TABLE is executed.
      */
-    public function getDropTemporaryTableSQL(string $table): string
+    public function getDropTemporaryTableSQL(string $tableName): string
     {
-        return 'DROP TEMPORARY TABLE ' . $table;
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
+
+        return sprintf('DROP TEMPORARY TABLE %s', $parsedName->toSQL($this));
     }
 
     /**

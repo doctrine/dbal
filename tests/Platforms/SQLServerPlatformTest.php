@@ -93,11 +93,9 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets(): void
     {
-        $dropDatabaseExpectation = 'DROP DATABASE foobar';
-
-        self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
-        self::assertEquals($dropDatabaseExpectation, $this->platform->getDropDatabaseSQL('foobar'));
-        self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
+        self::assertEquals('CREATE DATABASE [foobar]', $this->platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals('DROP DATABASE [foobar]', $this->platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals('DROP TABLE [foobar]', $this->platform->getDropTableSQL('foobar'));
     }
 
     public function testGeneratesTypeDeclarationForIntegers(): void
@@ -164,18 +162,18 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql(): string
     {
-        return 'CREATE INDEX [my_idx] ON mytable ([user_name], [last_login])';
+        return 'CREATE INDEX [my_idx] ON [mytable] ([user_name], [last_login])';
     }
 
     public function getGenerateUniqueIndexSql(): string
     {
-        return 'CREATE UNIQUE INDEX [index_name] ON test ([test], [test2]) WHERE [test] IS NOT NULL'
+        return 'CREATE UNIQUE INDEX [index_name] ON [test] ([test], [test2]) WHERE [test] IS NOT NULL'
             . ' AND [test2] IS NOT NULL';
     }
 
     protected function getGenerateForeignKeySql(): string
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY ([fk_name_id]) REFERENCES [other_table] ([id])';
+        return 'ALTER TABLE [test] ADD FOREIGN KEY ([fk_name_id]) REFERENCES [other_table] ([id])';
     }
 
     public function testModifyLimitQuery(): void
@@ -562,7 +560,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             ->create();
 
         self::assertEquals(
-            'CREATE CLUSTERED INDEX [idx] ON tbl ([id])',
+            'CREATE CLUSTERED INDEX [idx] ON [tbl] ([id])',
             $this->platform->getCreateIndexSQL($index, 'tbl'),
         );
     }
@@ -641,9 +639,10 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function testGetCreateSchemaSQL(): void
     {
-        $schemaName = 'schema';
-        $sql        = $this->platform->getCreateSchemaSQL($schemaName);
-        self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
+        self::assertEquals(
+            'CREATE SCHEMA [schema]',
+            $this->platform->getCreateSchemaSQL('schema'),
+        );
     }
 
     public function testCreateTableWithSchemaColumnComments(): void
@@ -1121,7 +1120,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             $this->platform->getDropSequenceSQL($sequence->getObjectName()->toSQL($this->platform)),
         );
         self::assertEquals(
-            'SELECT NEXT VALUE FOR myseq',
+            'SELECT NEXT VALUE FOR [myseq]',
             $this->platform->getSequenceNextValSQL('myseq'),
         );
     }

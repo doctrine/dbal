@@ -28,7 +28,7 @@ final readonly class CreateSchemaObjectsSQLBuilder
     }
 
     /**
-     * @param string[] $namespaces
+     * @param array<non-empty-string> $namespaces
      *
      * @return list<string>
      */

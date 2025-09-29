@@ -389,7 +389,7 @@ class Comparator
      * @param array<Index> $addedIndexes
      * @param array<Index> $removedIndexes
      *
-     * @return array<string,Index>
+     * @return array<non-empty-string, Index>
      */
     private function detectRenamedIndexes(
         array &$addedIndexes,

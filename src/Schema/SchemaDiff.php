@@ -20,14 +20,14 @@ final readonly class SchemaDiff
      *
      * @internal The diff can be only instantiated by a {@see Comparator}.
      *
-     * @param array<string>    $createdSchemas
-     * @param array<string>    $droppedSchemas
-     * @param array<Table>     $createdTables
-     * @param array<TableDiff> $alteredTables
-     * @param array<Table>     $droppedTables
-     * @param array<Sequence>  $createdSequences
-     * @param array<Sequence>  $alteredSequences
-     * @param array<Sequence>  $droppedSequences
+     * @param array<non-empty-string> $createdSchemas
+     * @param array<non-empty-string> $droppedSchemas
+     * @param array<Table>            $createdTables
+     * @param array<TableDiff>        $alteredTables
+     * @param array<Table>            $droppedTables
+     * @param array<Sequence>         $createdSequences
+     * @param array<Sequence>         $alteredSequences
+     * @param array<Sequence>         $droppedSequences
      */
     public function __construct(
         private array $createdSchemas,
@@ -44,13 +44,13 @@ final readonly class SchemaDiff
         });
     }
 
-    /** @return array<string> */
+    /** @return array<non-empty-string> */
     public function getCreatedSchemas(): array
     {
         return $this->createdSchemas;
     }
 
-    /** @return array<string> */
+    /** @return array<non-empty-string> */
     public function getDroppedSchemas(): array
     {
         return $this->droppedSchemas;

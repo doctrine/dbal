@@ -118,6 +118,7 @@ class DriverManagerTest extends TestCase
             if (in_array($key, ['driver', 'driverClass'], true)) {
                 self::assertInstanceOf($value, $conn->getDriver());
             } else {
+                // @phpstan-ignore offsetAccess.notFound
                 self::assertEquals($value, $params[$key]);
             }
         }

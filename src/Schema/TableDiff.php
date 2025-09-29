@@ -21,14 +21,14 @@ final class TableDiff
      *
      * @internal The diff can be only instantiated by a {@see Comparator}.
      *
-     * @param array<Column>               $addedColumns
-     * @param array<string, ColumnDiff>   $changedColumns
-     * @param array<Column>               $droppedColumns
-     * @param array<Index>                $addedIndexes
-     * @param array<Index>                $droppedIndexes
-     * @param array<string, Index>        $renamedIndexes
-     * @param array<ForeignKeyConstraint> $addedForeignKeys
-     * @param array<UnqualifiedName>      $droppedForeignKeyConstraintNames
+     * @param array<Column>                  $addedColumns
+     * @param array<string, ColumnDiff>      $changedColumns
+     * @param array<Column>                  $droppedColumns
+     * @param array<Index>                   $addedIndexes
+     * @param array<Index>                   $droppedIndexes
+     * @param array<non-empty-string, Index> $renamedIndexes
+     * @param array<ForeignKeyConstraint>    $addedForeignKeys
+     * @param array<UnqualifiedName>         $droppedForeignKeyConstraintNames
      */
     public function __construct(
         private readonly Table $oldTable,
@@ -158,7 +158,7 @@ final class TableDiff
         );
     }
 
-    /** @return array<string,Index> */
+    /** @return array<non-empty-string,Index> */
     public function getRenamedIndexes(): array
     {
         return $this->renamedIndexes;

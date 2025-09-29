@@ -99,9 +99,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets(): void
     {
-        self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
-        self::assertEquals('DROP DATABASE foobar', $this->platform->getDropDatabaseSQL('foobar'));
-        self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
+        self::assertEquals('CREATE DATABASE `foobar`', $this->platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals('DROP DATABASE `foobar`', $this->platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals('DROP TABLE `foobar`', $this->platform->getDropTableSQL('foobar'));
     }
 
     public function testGeneratesTypeDeclarationForIntegers(): void
@@ -134,17 +134,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql(): string
     {
-        return 'CREATE INDEX `my_idx` ON mytable (`user_name`, `last_login`)';
+        return 'CREATE INDEX `my_idx` ON `mytable` (`user_name`, `last_login`)';
     }
 
     public function getGenerateUniqueIndexSql(): string
     {
-        return 'CREATE UNIQUE INDEX `index_name` ON test (`test`, `test2`)';
+        return 'CREATE UNIQUE INDEX `index_name` ON `test` (`test`, `test2`)';
     }
 
     protected function getGenerateForeignKeySql(): string
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY (`fk_name_id`) REFERENCES `other_table` (`id`)';
+        return 'ALTER TABLE `test` ADD FOREIGN KEY (`fk_name_id`) REFERENCES `other_table` (`id`)';
     }
 
     public function testUniquePrimaryKey(): void

@@ -187,7 +187,7 @@ abstract class FunctionalTestCase extends TestCase
         }
 
         $schemaManager  = $this->connection->createSchemaManager();
-        $schemaToCreate = new Schema([], [], null, [$schemaName->toString()]);
+        $schemaToCreate = new Schema([], [], null, [$schemaName->getIdentifier()->getValue()]);
 
         $this->dropSchemaIfExists($schemaName);
         $schemaManager->createSchemaObjects($schemaToCreate);
