@@ -8,11 +8,11 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Exception\ForeignKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
@@ -32,8 +32,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use ValueError;
-
-use function array_values;
 
 class TableTest extends TestCase
 {
@@ -748,7 +746,7 @@ class TableTest extends TestCase
             )
             ->create();
 
-        $indexes = array_values($table->getIndexes());
+        $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
         $index = $indexes[0];
 
@@ -865,7 +863,7 @@ class TableTest extends TestCase
 
         $table->addIndex(['baz']);
 
-        $indexes = array_values($table->getIndexes());
+        $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
         $index = $indexes[0];
 
@@ -1548,8 +1546,6 @@ class TableTest extends TestCase
 
     public function testDropUniqueConstraintUnknownNameThrowsException(): void
     {
-        $this->expectException(SchemaException::class);
-
         $table = Table::editor()
             ->setUnquotedName('foo')
             ->setColumns(
@@ -1559,6 +1555,8 @@ class TableTest extends TestCase
                     ->create(),
             )
             ->create();
+
+        $this->expectException(InvalidTableModification::class);
 
         $table->dropUniqueConstraint('unique_constraint');
     }
@@ -1798,7 +1796,7 @@ class TableTest extends TestCase
 
         $table->addForeignKeyConstraint('bar', ['id'], ['id']);
 
-        $this->expectException(ForeignKeyAlreadyExists::class);
+        $this->expectException(InvalidTableModification::class);
         $table->addForeignKeyConstraint('baz', ['id'], ['id']);
     }
 }

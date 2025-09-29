@@ -23,7 +23,6 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-use function array_values;
 use function sprintf;
 
 final class ForeignKeyConstraintTest extends FunctionalTestCase
@@ -213,7 +212,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
 
         $table = $sm->introspectTableByUnquotedName('users');
 
-        $this->assertForeignKeyConstraintListEquals($foreignKeyConstraints, array_values($table->getForeignKeys()));
+        $this->assertForeignKeyConstraintListEquals($foreignKeyConstraints, $table->getForeignKeys());
     }
 
     /** @throws Exception */
@@ -460,7 +459,7 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $table = $sm->introspectTableByUnquotedName('users');
 
         /** @var list<ForeignKeyConstraint> $constraints */
-        $constraints = array_values($table->getForeignKeys());
+        $constraints = $table->getForeignKeys();
         self::assertCount(1, $constraints);
         $constraint = $constraints[0];
 

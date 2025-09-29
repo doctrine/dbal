@@ -18,8 +18,6 @@ use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
-use function array_values;
-
 class TableEditorTest extends TestCase
 {
     public function testSetUnquotedName(): void
@@ -181,7 +179,7 @@ class TableEditorTest extends TestCase
             UniqueConstraint::editor()
                 ->setUnquotedColumnNames('id', 'user_name')
                 ->create(),
-        ], array_values($table->getUniqueConstraints()));
+        ], $table->getUniqueConstraints());
 
         self::assertEquals([
             ForeignKeyConstraint::editor()
@@ -189,7 +187,7 @@ class TableEditorTest extends TestCase
                 ->setUnquotedReferencedTableName('users')
                 ->setUnquotedReferencedColumnNames('id', 'username')
                 ->create(),
-        ], array_values($table->getForeignKeys()));
+        ], $table->getForeignKeys());
 
         self::assertEquals(
             PrimaryKeyConstraint::editor()
@@ -251,7 +249,7 @@ class TableEditorTest extends TestCase
             ->setIndexes($index)
             ->create();
 
-        self::assertSame([$index], array_values($table->getIndexes()));
+        self::assertSame([$index], $table->getIndexes());
     }
 
     public function testAddExistingIndex(): void
@@ -290,7 +288,7 @@ class TableEditorTest extends TestCase
                 ->setUnquotedName('idx_account_id')
                 ->setUnquotedColumnNames('id')
                 ->create(),
-        ], array_values($table->getIndexes()));
+        ], $table->getIndexes());
     }
 
     public function testRenameNonExistingIndex(): void
@@ -434,7 +432,7 @@ class TableEditorTest extends TestCase
             ->setUniqueConstraints($uniqueConstraint)
             ->create();
 
-        self::assertSame([$uniqueConstraint], array_values($table->getUniqueConstraints()));
+        self::assertSame([$uniqueConstraint], $table->getUniqueConstraints());
     }
 
     public function testAddExistingUniqueConstraint(): void
@@ -500,7 +498,7 @@ class TableEditorTest extends TestCase
             ->setForeignKeyConstraints($foreignKeyConstraint)
             ->create();
 
-        self::assertSame([$foreignKeyConstraint], array_values($table->getForeignKeys()));
+        self::assertSame([$foreignKeyConstraint], $table->getForeignKeys());
     }
 
     public function testAddExistingForeignKeyConstraint(): void

@@ -14,8 +14,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 
-use function array_values;
-
 class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
 {
     /** @throws Exception */
@@ -83,7 +81,7 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
     /** @throws Exception */
     private function assertForeignKey(Table $table, OptionallyQualifiedName $expectedReferencedTableName): void
     {
-        $foreignKeys = array_values($table->getForeignKeys());
+        $foreignKeys = $table->getForeignKeys();
         self::assertCount(1, $foreignKeys);
         $this->assertOptionallyQualifiedNameEquals(
             $expectedReferencedTableName,
