@@ -571,6 +571,15 @@ class SQLitePlatform extends AbstractPlatform
         return implode(' ', $chunks);
     }
 
+    /** {@inheritDoc} */
+    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
+    {
+        return [
+            $this->getDropIndexSQL($oldIndexName, $tableName),
+            $this->getCreateIndexSQL($index, $tableName),
+        ];
+    }
+
     /**
      * {@inheritDoc}
      */
