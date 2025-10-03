@@ -652,4 +652,68 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'multiple values and lower length' => [['foo', 'bar1'], 2, "ENUM('foo', 'bar1')"],
         ];
     }
+
+    public function testGeometryTypeDeclarationSQL(): void
+    {
+        self::assertEquals(
+            'GEOMETRY',
+            $this->platform->getGeometryTypeDeclarationSQL([]),
+        );
+    }
+
+    public function testGeometryTypeDeclarationWithGeometryTypeSQL(): void
+    {
+        self::assertEquals(
+            'POINT',
+            $this->platform->getGeometryTypeDeclarationSQL(['geometryType' => 'POINT']),
+        );
+
+        self::assertEquals(
+            'LINESTRING',
+            $this->platform->getGeometryTypeDeclarationSQL(['geometryType' => 'linestring']),
+        );
+    }
+
+    public function testGeometryFromGeoJSONSQL(): void
+    {
+        self::assertEquals(
+            'ST_GeomFromGeoJSON(?)',
+            $this->platform->getGeometryFromGeoJSONSQL('?'),
+        );
+    }
+
+    public function testGeometryAsGeoJSONSQL(): void
+    {
+        self::assertEquals(
+            'ST_AsGeoJSON(location, 15, 2)',
+            $this->platform->getGeometryAsGeoJSONSQL('location'),
+        );
+    }
+
+    public function testGeometryTypeMappings(): void
+    {
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('geometry'));
+        self::assertSame(Types::GEOMETRY, $this->platform->getDoctrineTypeMapping('geometry'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('point'));
+        self::assertSame(Types::GEOMETRY, $this->platform->getDoctrineTypeMapping('point'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('linestring'));
+        self::assertSame(Types::GEOMETRY, $this->platform->getDoctrineTypeMapping('linestring'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('polygon'));
+        self::assertSame(Types::GEOMETRY, $this->platform->getDoctrineTypeMapping('polygon'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('multipoint'));
+        self::assertSame(Types::GEOMETRY, $this->platform->getDoctrineTypeMapping('multipoint'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('multilinestring'));
+        self::assertSame(Types::GEOMETRY, $this->platform->getDoctrineTypeMapping('multilinestring'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('multipolygon'));
+        self::assertSame(Types::GEOMETRY, $this->platform->getDoctrineTypeMapping('multipolygon'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('geometrycollection'));
+        self::assertSame(Types::GEOMETRY, $this->platform->getDoctrineTypeMapping('geometrycollection'));
+    }
 }

@@ -121,12 +121,14 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $dbType    = $tableColumn['type'];
-        $length    = null;
-        $scale     = 0;
-        $precision = null;
-        $fixed     = false;
-        $values    = [];
+        $dbType       = $tableColumn['type'];
+        $length       = null;
+        $scale        = 0;
+        $precision    = null;
+        $fixed        = false;
+        $values       = [];
+        $geometryType = null;
+        $srid         = null;
 
         $type = $this->platform->getDoctrineTypeMapping($dbType);
 
@@ -177,6 +179,30 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 }
 
                 break;
+
+            case 'geometry':
+            case 'point':
+            case 'linestring':
+            case 'polygon':
+            case 'multipoint':
+            case 'multilinestring':
+            case 'multipolygon':
+            case 'geomcollection':
+            case 'geometrycollection':
+                // For MySQL, the dbType directly represents the geometry subtype
+                $geometryType = $dbType;
+
+                // Normalize MySQL's abbreviated "geomcollection" to "geometrycollection"
+                if ($geometryType === 'geomcollection') {
+                    $geometryType = 'geometrycollection';
+                }
+
+                // MySQL 8.0.3+ stores SRID in information_schema.COLUMNS.SRS_ID
+                if (isset($tableColumn['srs_id'])) {
+                    $srid = (int) $tableColumn['srs_id'];
+                }
+
+                break;
         }
 
         switch ($dbType) {
@@ -217,6 +243,14 @@ class MySQLSchemaManager extends AbstractSchemaManager
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
         $column->setPlatformOption('charset', $tableColumn['characterset']);
         $column->setPlatformOption('collation', $tableColumn['collation']);
+
+        if ($geometryType !== null) {
+            $column->setPlatformOption('geometryType', $geometryType);
+        }
+
+        if ($srid !== null) {
+            $column->setPlatformOption('srid', $srid);
+        }
 
         return $column;
     }
@@ -390,7 +424,8 @@ SELECT
        c.EXTRA,
        c.COLUMN_COMMENT     AS comment,
        c.CHARACTER_SET_NAME AS characterset,
-       c.COLLATION_NAME     AS collation
+       c.COLLATION_NAME     AS collation,
+       %s
 FROM information_schema.COLUMNS c
     INNER JOIN information_schema.TABLES t
         ON t.TABLE_NAME = c.TABLE_NAME
@@ -400,6 +435,7 @@ ORDER BY c.TABLE_NAME,
          c.ORDINAL_POSITION
 SQL,
             $this->platform->getColumnTypeSQLSnippet('c', $databaseName),
+            $this->platform->getSridColumnSQL(),
             implode(' AND ', $conditions),
         );
 

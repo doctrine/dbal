@@ -10,6 +10,9 @@ use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
 use Doctrine\Deprecations\Deprecation;
 
+use function sprintf;
+use function strtoupper;
+
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 8.0 database platform.
  *
@@ -37,5 +40,27 @@ class MySQL80Platform extends MySQLPlatform
     public function createWithSQLBuilder(): WithSQLBuilder
     {
         return AbstractPlatform::createWithSQLBuilder();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        $geometryType = $column['geometryType'] ?? 'GEOMETRY';
+        $srid         = $column['srid'] ?? null;
+
+        $sql = strtoupper($geometryType);
+
+        if ($srid !== null) {
+            $sql .= sprintf(' SRID %d', $srid);
+        }
+
+        return $sql;
+    }
+
+    public function getSridColumnSQL(): string
+    {
+        return 'c.SRS_ID AS srs_id';
     }
 }

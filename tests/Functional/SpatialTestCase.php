@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 /**
- * Base class for spatial tests that require PostGIS extension.
+ * Base class for spatial tests.
+ *
+ * Supports both PostgreSQL (with PostGIS extension) and MySQL (native spatial support).
  */
 abstract class SpatialTestCase extends FunctionalTestCase
 {
@@ -16,11 +19,19 @@ abstract class SpatialTestCase extends FunctionalTestCase
     {
         parent::setUp();
 
-        if (! $this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
-            self::markTestSkipped('PostGIS is only available as an extension in PostgreSQL.');
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof PostgreSQLPlatform) {
+            $this->requiresPostGIS();
+
+            return;
         }
 
-        $this->requiresPostGIS();
+        if ($platform instanceof AbstractMySQLPlatform) {
+            return;
+        }
+
+        self::markTestSkipped('Spatial types are only supported on PostgreSQL (PostGIS) and MySQL platforms.');
     }
 
     private function requiresPostGIS(): void

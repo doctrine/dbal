@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
 
-class MySQL84PlatformTest extends MySQLPlatformTest
+class MySQL84PlatformTest extends MySQL80PlatformTest
 {
     public function createPlatform(): AbstractPlatform
     {

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -33,6 +35,13 @@ class GeometryTest extends SpatialTestCase
 
     public function testGeometryDataConversion(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
+        // MySQL < 8.0 and MariaDB do not support SRID in column definitions
+        if ($platform instanceof AbstractMySQLPlatform && ! $platform instanceof MySQL80Platform) {
+            self::markTestSkipped('This test requires MySQL 8.0+ for SRID support in column definitions.');
+        }
+
         $table = Table::editor()
             ->setUnquotedName(self::TABLE_NAME)
             ->setColumns(
@@ -98,6 +107,13 @@ class GeometryTest extends SpatialTestCase
 
     public function testGeometryWithDifferentSRIDs(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
+        // MySQL < 8.0 and MariaDB do not support SRID in column definitions
+        if ($platform instanceof AbstractMySQLPlatform && ! $platform instanceof MySQL80Platform) {
+            self::markTestSkipped('This test requires MySQL 8.0+ for SRID support in column definitions.');
+        }
+
         $table = Table::editor()
             ->setUnquotedName(self::TABLE_NAME)
             ->setColumns(
@@ -157,6 +173,13 @@ class GeometryTest extends SpatialTestCase
 
     public function testGeometryWithInvalidSRID(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
+        // MySQL < 8.0 and MariaDB do not support SRID in column definitions
+        if ($platform instanceof AbstractMySQLPlatform && ! $platform instanceof MySQL80Platform) {
+            self::markTestSkipped('This test requires MySQL 8.0+ for SRID support in column definitions.');
+        }
+
         $table = Table::editor()
             ->setUnquotedName(self::TABLE_NAME)
             ->setColumns(
@@ -183,7 +206,7 @@ class GeometryTest extends SpatialTestCase
         $schemaManager->createTable($table);
 
         $this->expectException(Throwable::class);
-        $this->expectExceptionMessage('Geometry SRID (32633) does not match column SRID (4326)');
+        $this->expectExceptionMessageMatches('/SRID.*does not match/i');
 
         // Wrong SRID (UTM 33N instead of WGS84) - should fail
         $wrongSridGeoJSON = '{"type":"Point","coordinates":[551490,5181640],'

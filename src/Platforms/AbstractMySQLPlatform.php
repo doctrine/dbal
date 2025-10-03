@@ -35,6 +35,7 @@ use function is_numeric;
 use function sprintf;
 use function str_replace;
 use function strtolower;
+use function strtoupper;
 
 /**
  * Provides the base implementation for the lowest versions of supported MySQL-like database platforms.
@@ -225,17 +226,20 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function getGeometryTypeDeclarationSQL(array $column): string
     {
-        throw NotSupported::new(__METHOD__);
+        $geometryType = $column['geometryType'] ?? 'GEOMETRY';
+
+        return strtoupper($geometryType);
     }
 
     public function getGeometryFromGeoJSONSQL(string $sqlExpr): string
     {
-        throw NotSupported::new(__METHOD__);
+        return sprintf('ST_GeomFromGeoJSON(%s)', $sqlExpr);
     }
 
     public function getGeometryAsGeoJSONSQL(string $sqlExpr): string
     {
-        throw NotSupported::new(__METHOD__);
+        // MySQL 5.7.5+ / MariaDB 10.2.4+ - maxdecimaldigits=15 (full precision), options=2 (include SRID in CRS)
+        return sprintf('ST_AsGeoJSON(%s, 15, 2)', $sqlExpr);
     }
 
     /**
@@ -288,6 +292,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getColumnTypeSQLSnippet(string $tableAlias, string $databaseName): string
     {
         return $tableAlias . '.DATA_TYPE';
+    }
+
+    /**
+     * Returns the SQL snippet for selecting SRID from information_schema.COLUMNS.
+     *
+     * MySQL 8.0+ supports SRS_ID column, while MariaDB does not.
+     *
+     * @internal The method should be only used from
+     * within the {@see MySQLSchemaManager, @see MySQLMetadataProvider} class hierarchy.
+     */
+    public function getSridColumnSQL(): string
+    {
+        return 'NULL AS srs_id';
     }
 
     /**
@@ -794,38 +811,47 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
-            'bigint'     => Types::BIGINT,
-            'binary'     => Types::BINARY,
-            'blob'       => Types::BLOB,
-            'char'       => Types::STRING,
-            'date'       => Types::DATE_MUTABLE,
-            'datetime'   => Types::DATETIME_MUTABLE,
-            'decimal'    => Types::DECIMAL,
-            'double'     => Types::FLOAT,
-            'enum'       => Types::ENUM,
-            'float'      => Types::SMALLFLOAT,
-            'int'        => Types::INTEGER,
-            'integer'    => Types::INTEGER,
-            'json'       => Types::JSON,
-            'longblob'   => Types::BLOB,
-            'longtext'   => Types::TEXT,
-            'mediumblob' => Types::BLOB,
-            'mediumint'  => Types::INTEGER,
-            'mediumtext' => Types::TEXT,
-            'numeric'    => Types::DECIMAL,
-            'real'       => Types::FLOAT,
-            'set'        => Types::SIMPLE_ARRAY,
-            'smallint'   => Types::SMALLINT,
-            'string'     => Types::STRING,
-            'text'       => Types::TEXT,
-            'time'       => Types::TIME_MUTABLE,
-            'timestamp'  => Types::DATETIME_MUTABLE,
-            'tinyblob'   => Types::BLOB,
-            'tinyint'    => Types::BOOLEAN,
-            'tinytext'   => Types::TEXT,
-            'varbinary'  => Types::BINARY,
-            'varchar'    => Types::STRING,
-            'year'       => Types::DATE_MUTABLE,
+            'bigint'             => Types::BIGINT,
+            'binary'             => Types::BINARY,
+            'blob'               => Types::BLOB,
+            'char'               => Types::STRING,
+            'date'               => Types::DATE_MUTABLE,
+            'datetime'           => Types::DATETIME_MUTABLE,
+            'decimal'            => Types::DECIMAL,
+            'double'             => Types::FLOAT,
+            'enum'               => Types::ENUM,
+            'float'              => Types::SMALLFLOAT,
+            'geomcollection'     => Types::GEOMETRY,
+            'geometry'           => Types::GEOMETRY,
+            'geometrycollection' => Types::GEOMETRY,
+            'int'                => Types::INTEGER,
+            'integer'            => Types::INTEGER,
+            'json'               => Types::JSON,
+            'linestring'         => Types::GEOMETRY,
+            'longblob'           => Types::BLOB,
+            'longtext'           => Types::TEXT,
+            'mediumblob'         => Types::BLOB,
+            'mediumint'          => Types::INTEGER,
+            'mediumtext'         => Types::TEXT,
+            'multilinestring'    => Types::GEOMETRY,
+            'multipoint'         => Types::GEOMETRY,
+            'multipolygon'       => Types::GEOMETRY,
+            'numeric'            => Types::DECIMAL,
+            'point'              => Types::GEOMETRY,
+            'polygon'            => Types::GEOMETRY,
+            'real'               => Types::FLOAT,
+            'set'                => Types::SIMPLE_ARRAY,
+            'smallint'           => Types::SMALLINT,
+            'string'             => Types::STRING,
+            'text'               => Types::TEXT,
+            'time'               => Types::TIME_MUTABLE,
+            'timestamp'          => Types::DATETIME_MUTABLE,
+            'tinyblob'           => Types::BLOB,
+            'tinyint'            => Types::BOOLEAN,
+            'tinytext'           => Types::TEXT,
+            'varbinary'          => Types::BINARY,
+            'varchar'            => Types::STRING,
+            'year'               => Types::DATE_MUTABLE,
         ];
     }
 
