@@ -218,8 +218,9 @@ abstract class FunctionalTestCase extends TestCase
     /** @throws Exception */
     protected function assertUnqualifiedNameEquals(
         UnqualifiedName $expected,
-        UnqualifiedName $actual,
+        ?UnqualifiedName $actual,
     ): void {
+        self::assertNotNull($actual);
         self::assertEquals(
             $this->toQuotedUnqualifiedName($expected),
             $this->toQuotedUnqualifiedName($actual),
