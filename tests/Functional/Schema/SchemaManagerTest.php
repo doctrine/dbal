@@ -270,7 +270,7 @@ final class SchemaManagerTest extends FunctionalTestCase
     public function testIntrospectTableWithDotInIndexNames(): void
     {
         $table = Table::editor()
-            ->setQuotedName('test_user')
+            ->setUnquotedName('test_user')
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('id')
@@ -308,21 +308,30 @@ final class SchemaManagerTest extends FunctionalTestCase
                     ->setUnquotedReferencingColumnNames('user_id')
                     ->setUnquotedReferencedTableName('test_user')
                     ->setUnquotedReferencedColumnNames('id')
-                    ->setQuotedName('fk.example.user_id')
+                    ->setUnquotedName('fk.example.user_id')
                     ->create(),
             )
             ->setIndexes(
                 Index::editor()
-                    ->setQuotedName('idx.example.id')
+                    ->setUnquotedName('idx.example.id')
                     ->setUnquotedColumnNames('id', 'user_id')
                     ->create(),
             )
             ->create();
         $this->dropAndCreateTable($tableTo);
 
-        $table = $this->schemaManager->introspectTable('example');
+        $table = $this->schemaManager->introspectTableByUnquotedName('example');
+
         self::assertCount(2, $table->getColumns());
-        self::assertSame('fk.example.user_id', $table->getForeignKey('fk.example.user_id')->getName());
-        self::assertSame('idx.example.id', $table->getIndex('idx.example.id')->getName());
+
+        self::assertUnqualifiedNameEquals(
+            UnqualifiedName::unquoted('fk.example.user_id'),
+            $table->getForeignKey('"fk.example.user_id"')->getObjectName(),
+        );
+
+        self::assertUnqualifiedNameEquals(
+            UnqualifiedName::unquoted('idx.example.id'),
+            $table->getIndex('"idx.example.id"')->getObjectName(),
+        );
     }
 }
