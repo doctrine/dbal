@@ -19,6 +19,7 @@
          failOnWarning="true"
          failOnNotice="true"
          failOnPhpunitDeprecation="true"
+         failOnDeprecation="true"
          displayDetailsOnTestsThatTriggerErrors="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
 >
@@ -38,7 +39,12 @@
         </testsuite>
     </testsuites>
 
-    <source>
+    <source ignoreSuppressionOfDeprecations="true">
+        <deprecationTrigger>
+            <function>trigger_deprecation</function>
+            <method>Doctrine\Deprecations\Deprecation::trigger</method>
+            <method>Doctrine\Deprecations\Deprecation::triggerIfCalledFromOutside</method>
+        </deprecationTrigger>
         <include>
             <directory>src</directory>
         </include>
