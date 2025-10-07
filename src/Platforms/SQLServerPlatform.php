@@ -1130,7 +1130,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /** @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql */
-    protected function getCommentOnTableSQL(string $tableName, string $comment): string
+    private function getCommentOnTableSQL(string $tableName, string $comment): string
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);
 

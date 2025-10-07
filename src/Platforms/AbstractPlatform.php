@@ -990,7 +990,7 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    protected function getCommentOnTableSQL(string $tableName, string $comment): string
+    private function getCommentOnTableSQL(string $tableName, string $comment): string
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
