@@ -851,15 +851,6 @@ abstract class AbstractSchemaManager
      */
     public function introspectSchema(): Schema
     {
-        if ($this->platform->supportsSchemas()) {
-            $schemaNames = array_map(
-                static fn (UnqualifiedName $name): string => $name->getIdentifier()->getValue(),
-                $this->introspectSchemaNames(),
-            );
-        } else {
-            $schemaNames = [];
-        }
-
         $sequences = [];
 
         if ($this->platform->supportsSequences()) {
@@ -868,7 +859,7 @@ abstract class AbstractSchemaManager
 
         $tables = $this->introspectTables();
 
-        return new Schema($tables, $sequences, $this->createSchemaConfig(), $schemaNames);
+        return new Schema($tables, $sequences, $this->createSchemaConfig());
     }
 
     /**

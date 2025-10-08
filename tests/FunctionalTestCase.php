@@ -186,11 +186,11 @@ abstract class FunctionalTestCase extends TestCase
             throw NotSupported::new(__METHOD__);
         }
 
-        $schemaManager  = $this->connection->createSchemaManager();
-        $schemaToCreate = new Schema([], [], null, [$schemaName->getIdentifier()->getValue()]);
-
         $this->dropSchemaIfExists($schemaName);
-        $schemaManager->createSchemaObjects($schemaToCreate);
+
+        $this->connection->executeStatement(
+            $platform->getCreateSchemaSQL($schemaName->toSQL($platform)),
+        );
     }
 
     /** @throws Exception */

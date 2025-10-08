@@ -309,40 +309,6 @@ class SchemaTest extends TestCase
         self::assertTrue($schema->hasNamespace('tab'));
     }
 
-    public function testCreatesNamespace(): void
-    {
-        $schema = new Schema();
-
-        self::assertFalse($schema->hasNamespace('foo'));
-
-        $schema->createNamespace('foo');
-
-        self::assertTrue($schema->hasNamespace('foo'));
-        self::assertTrue($schema->hasNamespace('FOO'));
-        self::assertTrue($schema->hasNamespace('`foo`'));
-        self::assertTrue($schema->hasNamespace('`FOO`'));
-
-        $schema->createNamespace('`bar`');
-
-        self::assertTrue($schema->hasNamespace('bar'));
-        self::assertTrue($schema->hasNamespace('BAR'));
-        self::assertTrue($schema->hasNamespace('`bar`'));
-        self::assertTrue($schema->hasNamespace('`BAR`'));
-
-        self::assertSame(['foo', '`bar`'], $schema->getNamespaces());
-    }
-
-    public function testThrowsExceptionOnCreatingNamespaceTwice(): void
-    {
-        $schema = new Schema();
-
-        $schema->createNamespace('foo');
-
-        $this->expectException(SchemaException::class);
-
-        $schema->createNamespace('foo');
-    }
-
     public function testCreatesNamespaceThroughAddingTableImplicitly(): void
     {
         $schemaConfig = new SchemaConfig();
@@ -477,6 +443,26 @@ class SchemaTest extends TestCase
 
         self::assertFalse($schema->hasTable('s'));
         self::assertFalse($schema->hasTable('public.s'));
+    }
+
+    public function testGetNamespaces(): void
+    {
+        $schema = new Schema();
+
+        $schema->createTable('public.t');
+        self::assertEquals(['public'], $schema->getNamespaces());
+
+        $schema->createSequence('public.s');
+        self::assertEquals(['public'], $schema->getNamespaces());
+
+        $schema->dropTable('public.t');
+        self::assertEquals(['public'], $schema->getNamespaces());
+
+        $schema->dropSequence('public.s');
+        self::assertEmpty(
+            $schema->getNamespaces(),
+            'Dropping all objects inside a schema should result in the schema being dropped as well.',
+        );
     }
 
     /**
