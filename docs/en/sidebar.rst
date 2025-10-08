@@ -14,6 +14,7 @@
    /reference/types
    /reference/schema-manager
    /reference/schema-representation
+   /reference/object-names
    /reference/security
    /reference/supporting-other-databases
    /reference/portability
@@ -33,4 +34,5 @@
    :caption: How To
    :depth: 3
 
+   /how-to/quoting-identifiers
    /how-to/postgresql-identity-migration

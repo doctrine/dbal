@@ -285,7 +285,7 @@ class SQLitePlatform extends AbstractPlatform
 
         $tableComment = '';
         if (isset($parameters['comment'])) {
-            $tableComment = $this->getInlineTableCommentSQL($parameters['comment']);
+            $tableComment = $this->getInlineCommentSQL($parameters['comment']);
         }
 
         $query = [
@@ -425,16 +425,16 @@ class SQLitePlatform extends AbstractPlatform
 
     protected function getInlineColumnCommentSQL(string $comment): string
     {
+        return $this->getInlineCommentSQL($comment);
+    }
+
+    private function getInlineCommentSQL(string $comment): string
+    {
         if ($comment === '') {
             return '';
         }
 
         return '--' . str_replace("\n", "\n--", $comment) . "\n";
-    }
-
-    private function getInlineTableCommentSQL(string $comment): string
-    {
-        return $this->getInlineColumnCommentSQL($comment);
     }
 
     protected function initializeDoctrineTypeMappings(): void

@@ -225,7 +225,7 @@ jobs:
           fail-fast: true
 
       - name: "Lower minimum stability"
-        run: | 
+        run: |
           composer config minimum-stability dev
           composer require --no-update --dev symfony/console:^8 symfony/cache:^8
 
@@ -240,6 +240,7 @@ jobs:
   upload_coverage:
     name: "Upload coverage to Codecov"
     runs-on: "ubuntu-24.04"
+    if: "github.event.pull_request.head.repo.full_name != github.repository || !contains(github.event.pull_request.head.ref, '.x')"
     needs:
       - "phpunit-smoke-check"
       - "phpunit-oracle"

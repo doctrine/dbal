@@ -8,12 +8,12 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
-use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTestCase;
+use Doctrine\DBAL\Tests\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
 use function array_merge;
 
-class DriverTest extends AbstractPostgreSQLDriverTestCase
+class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void
     {

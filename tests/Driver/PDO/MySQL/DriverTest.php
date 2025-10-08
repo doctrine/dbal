@@ -6,9 +6,9 @@ namespace Doctrine\DBAL\Tests\Driver\PDO\MySQL;
 
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
-use Doctrine\DBAL\Tests\Driver\AbstractMySQLDriverTestCase;
+use Doctrine\DBAL\Tests\Driver\AbstractDriverTestCase;
 
-class DriverTest extends AbstractMySQLDriverTestCase
+class DriverTest extends AbstractDriverTestCase
 {
     public function testUserIsFalse(): void
     {

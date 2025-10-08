@@ -6,12 +6,12 @@ namespace Doctrine\DBAL\Tests\Driver\PgSQL;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PgSQL\Driver;
-use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTestCase;
+use Doctrine\DBAL\Tests\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
 use function in_array;
 
-class DriverTest extends AbstractPostgreSQLDriverTestCase
+class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void
     {
