@@ -160,8 +160,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertSame($commented, $this->platform->isCommentedDoctrineType($type));
     }
 
-    /** @return mixed[] */
-    public function getIsCommentedDoctrineType(): iterable
+    /** @return array<string, array{Type, bool}> */
+    public function getIsCommentedDoctrineType(): array
     {
         $this->setUp();
 

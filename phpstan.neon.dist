@@ -7,6 +7,7 @@ parameters:
         - tests
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
+    checkStrictPrintfPlaceholderTypes: false
     ignoreErrors:
         - identifier: missingType.generics
 

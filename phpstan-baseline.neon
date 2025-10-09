@@ -1,829 +1,799 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^@readonly property cannot have a default value\.$#'
-			identifier: property.readOnlyByPhpDocDefaultValue
-			count: 1
-			path: src/Driver/AbstractException.php
-
-		-
-			message: '#^Method Doctrine\\DBAL\\Driver\\OCI8\\Result\:\:fetchAllAssociative\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Driver\OCI8\Result::fetchAllAssociative() should return list<array<string, mixed>> but returns array<mixed>.'
 			identifier: return.type
 			count: 1
 			path: src/Driver/OCI8/Result.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Driver\\OCI8\\Result\:\:fetchAllNumeric\(\) should return list\<list\<mixed\>\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Driver\OCI8\Result::fetchAllNumeric() should return list<list<mixed>> but returns array<mixed>.'
 			identifier: return.type
 			count: 1
 			path: src/Driver/OCI8/Result.php
 
 		-
-			message: '#^@readonly property Doctrine\\DBAL\\Driver\\PDO\\PDOException\:\:\$sqlState is assigned outside of the constructor\.$#'
-			identifier: property.readOnlyByPhpDocAssignNotInConstructor
-			count: 1
-			path: src/Driver/PDO/PDOException.php
-
-		-
-			message: '#^@readonly property cannot have a default value\.$#'
-			identifier: property.readOnlyByPhpDocDefaultValue
-			count: 1
-			path: src/Driver/PDO/PDOException.php
-
-		-
-			message: '#^Method Doctrine\\DBAL\\Driver\\PDO\\Result\:\:fetchAll\(\) should return list\<mixed\> but returns array\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Driver\PDO\Result::fetchAll() should return list<mixed> but returns array.'
 			identifier: return.type
 			count: 1
 			path: src/Driver/PDO/Result.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchAllAssociative\(\) should return list\<array\<string, mixed\>\> but returns array\<int, array\<string, mixed\>\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Driver\PgSQL\Result::fetchAllAssociative() should return list<array<string, mixed>> but returns array<int, array<string, mixed>>.'
 			identifier: return.type
 			count: 1
 			path: src/Driver/PgSQL/Result.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchAllNumeric\(\) should return list\<list\<mixed\>\> but returns array\<int, list\<mixed\>\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Driver\PgSQL\Result::fetchAllNumeric() should return list<list<mixed>> but returns array<int, list<mixed>>.'
 			identifier: return.type
 			count: 1
 			path: src/Driver/PgSQL/Result.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchFirstColumn\(\) should return list\<mixed\> but returns array\<int, bool\|float\|int\|string\|null\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Driver\PgSQL\Result::fetchFirstColumn() should return list<mixed> but returns array<int, bool|float|int|string|null>.'
 			identifier: return.type
 			count: 1
 			path: src/Driver/PgSQL/Result.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Driver\\SQLite3\\Result\:\:fetchNumeric\(\) should return list\<mixed\>\|false but returns array\|false\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Driver\SQLite3\Result::fetchNumeric() should return list<mixed>|false but returns array|false.'
 			identifier: return.type
 			count: 1
 			path: src/Driver/SQLite3/Result.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Platforms\\AbstractMySQLPlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Parameter #1 $driver of static method Doctrine\DBAL\DriverManager::createDriver() expects string|null, array|bool|Doctrine\DBAL\Platforms\AbstractPlatform|int|string|null given.'
+			identifier: argument.type
+			count: 1
+			path: src/DriverManager.php
+
+		-
+			rawMessage: 'Parameter #2 $driverClass of static method Doctrine\DBAL\DriverManager::createDriver() expects string|null, array|bool|Doctrine\DBAL\Platforms\AbstractPlatform|int|string|null given.'
+			identifier: argument.type
+			count: 1
+			path: src/DriverManager.php
+
+		-
+			rawMessage: 'Method Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getAlterTableSQL() should return list<string> but returns array<mixed>.'
 			identifier: return.type
 			count: 1
 			path: src/Platforms/AbstractMySQLPlatform.php
 
 		-
-			message: '#^Parameter \#1 \$assets of method Doctrine\\DBAL\\Platforms\\AbstractMySQLPlatform\:\:indexAssetsByLowerCaseName\(\) expects list\<Doctrine\\DBAL\\Schema\\Index\>, array\<Doctrine\\DBAL\\Schema\\Index\> given\.$#'
+			rawMessage: 'Parameter #1 $assets of method Doctrine\DBAL\Platforms\AbstractMySQLPlatform::indexAssetsByLowerCaseName() expects list<Doctrine\DBAL\Schema\Index>, array<Doctrine\DBAL\Schema\Index> given.'
 			identifier: argument.type
 			count: 1
 			path: src/Platforms/AbstractMySQLPlatform.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:buildCreateTableSQL\(\) should return list\<string\> but returns array\<string\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Platforms\AbstractPlatform::buildCreateTableSQL() should return list<string> but returns array<string>.'
 			identifier: return.type
 			count: 2
 			path: src/Platforms/AbstractPlatform.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Platforms\\DB2Platform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Platforms\DB2Platform::getAlterTableSQL() should return list<string> but returns array<mixed>.'
 			identifier: return.type
 			count: 1
 			path: src/Platforms/DB2Platform.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Platforms\\OraclePlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Platforms\OraclePlatform::getAlterTableSQL() should return list<string> but returns array<mixed>.'
 			identifier: return.type
 			count: 1
 			path: src/Platforms/OraclePlatform.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Platforms\\PostgreSQLPlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Platforms\PostgreSQLPlatform::getAlterTableSQL() should return list<string> but returns array<mixed>.'
 			identifier: return.type
 			count: 1
 			path: src/Platforms/PostgreSQLPlatform.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Platforms\\SQLServerPlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Platforms\SQLServerPlatform::getAlterTableSQL() should return list<string> but returns array<mixed>.'
 			identifier: return.type
 			count: 2
 			path: src/Platforms/SQLServerPlatform.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Platforms\\SqlitePlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Platforms\SqlitePlatform::getAlterTableSQL() should return list<string> but returns array<mixed>.'
 			identifier: return.type
 			count: 1
 			path: src/Platforms/SqlitePlatform.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Platforms\\SqlitePlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<string\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Platforms\SqlitePlatform::getAlterTableSQL() should return list<string> but returns array<string>.'
 			identifier: return.type
 			count: 1
 			path: src/Platforms/SqlitePlatform.php
 
 		-
-			message: '#^Parameter &\$knownAliases by\-ref type of method Doctrine\\DBAL\\Query\\QueryBuilder\:\:getSQLForJoins\(\) expects array\<string, true\>, non\-empty\-array\<true\> given\.$#'
+			rawMessage: 'Parameter &$knownAliases by-ref type of method Doctrine\DBAL\Query\QueryBuilder::getSQLForJoins() expects array<string, true>, non-empty-array<true> given.'
 			identifier: parameterByRef.type
 			count: 1
 			path: src/Query/QueryBuilder.php
 
 		-
-			message: '#^Property Doctrine\\DBAL\\Query\\QueryBuilder\:\:\$params \(array\<int\<0, max\>\|string, mixed\>\) does not accept non\-empty\-array\<int\|string, mixed\>\.$#'
+			rawMessage: 'Property Doctrine\DBAL\Query\QueryBuilder::$params (array<int<0, max>|string, mixed>) does not accept non-empty-array<int|string, mixed>.'
 			identifier: assign.propertyType
 			count: 1
 			path: src/Query/QueryBuilder.php
 
 		-
-			message: '#^Parameter \#1 \$sequences of method Doctrine\\DBAL\\SQL\\Builder\\DropSchemaObjectsSQLBuilder\:\:buildSequenceStatements\(\) expects list\<Doctrine\\DBAL\\Schema\\Sequence\>, array\<Doctrine\\DBAL\\Schema\\Sequence\> given\.$#'
+			rawMessage: 'Parameter #1 $sequences of method Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder::buildSequenceStatements() expects list<Doctrine\DBAL\Schema\Sequence>, array<Doctrine\DBAL\Schema\Sequence> given.'
 			identifier: argument.type
 			count: 1
 			path: src/SQL/Builder/DropSchemaObjectsSQLBuilder.php
 
 		-
-			message: '#^Parameter \#1 \$tables of method Doctrine\\DBAL\\SQL\\Builder\\DropSchemaObjectsSQLBuilder\:\:buildTableStatements\(\) expects list\<Doctrine\\DBAL\\Schema\\Table\>, array\<Doctrine\\DBAL\\Schema\\Table\> given\.$#'
+			rawMessage: 'Parameter #1 $tables of method Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder::buildTableStatements() expects list<Doctrine\DBAL\Schema\Table>, array<Doctrine\DBAL\Schema\Table> given.'
 			identifier: argument.type
 			count: 1
 			path: src/SQL/Builder/DropSchemaObjectsSQLBuilder.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Schema\\AbstractSchemaManager\:\:doListTableNames\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Schema\AbstractSchemaManager::doListTableNames() should return list<string> but returns array<mixed>.'
 			identifier: return.type
 			count: 1
 			path: src/Schema/AbstractSchemaManager.php
 
 		-
-			message: '#^Template type T is declared as covariant, but occurs in invariant position in property Doctrine\\DBAL\\Schema\\AbstractSchemaManager\:\:\$_platform\.$#'
+			rawMessage: 'Template type T is declared as covariant, but occurs in invariant position in property Doctrine\DBAL\Schema\AbstractSchemaManager::$_platform.'
 			identifier: generics.variance
 			count: 1
 			path: src/Schema/AbstractSchemaManager.php
 
 		-
-			message: '#^Parameter \#1 \$tables of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:getDropTablesSQL\(\) expects list\<Doctrine\\DBAL\\Schema\\Table\>, array\<Doctrine\\DBAL\\Schema\\Table\> given\.$#'
+			rawMessage: 'Parameter #1 $tables of method Doctrine\DBAL\Platforms\AbstractPlatform::getDropTablesSQL() expects list<Doctrine\DBAL\Schema\Table>, array<Doctrine\DBAL\Schema\Table> given.'
 			identifier: argument.type
 			count: 1
 			path: src/Schema/SchemaDiff.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Schema\\SqliteSchemaManager\:\:addDetailsToTableForeignKeyColumns\(\) should return list\<array\<string, mixed\>\> but returns array\<int\<0, max\>, array\<string, mixed\>\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Schema/SqliteSchemaManager.php
-
-		-
-			message: '#^Method Doctrine\\DBAL\\Schema\\TableDiff\:\:getAddedForeignKeys\(\) should return list\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\> but returns array\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Schema\TableDiff::getAddedForeignKeys() should return list<Doctrine\DBAL\Schema\ForeignKeyConstraint> but returns array<Doctrine\DBAL\Schema\ForeignKeyConstraint>.'
 			identifier: return.type
 			count: 1
 			path: src/Schema/TableDiff.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Schema\\TableDiff\:\:getDroppedForeignKeys\(\) should return list\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|string\> but returns array\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|string\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Schema\TableDiff::getDroppedForeignKeys() should return list<Doctrine\DBAL\Schema\ForeignKeyConstraint|string> but returns array<Doctrine\DBAL\Schema\ForeignKeyConstraint|string>.'
 			identifier: return.type
 			count: 1
 			path: src/Schema/TableDiff.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Schema\\TableDiff\:\:getModifiedForeignKeys\(\) should return list\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\> but returns array\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\>\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Schema\TableDiff::getModifiedForeignKeys() should return list<Doctrine\DBAL\Schema\ForeignKeyConstraint> but returns array<Doctrine\DBAL\Schema\ForeignKeyConstraint>.'
 			identifier: return.type
 			count: 1
 			path: src/Schema/TableDiff.php
 
 		-
-			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertStringNotContainsString\(\) expects string, array\<mixed\>\|string given\.$#'
+			rawMessage: 'Parameter #2 $haystack of static method PHPUnit\Framework\Assert::assertStringNotContainsString() expects string, array<mixed>|string given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Cache/QueryCacheProfileTest.php
 
 		-
-			message: '#^Parameter \#1 \$cache of method Doctrine\\DBAL\\Tests\\Connection\\CachedQueryTest\:\:assertCachedQueryIsExecutedOnceAndYieldsTheSameResult\(\) expects Doctrine\\Common\\Cache\\Cache\|Psr\\Cache\\CacheItemPoolInterface, Doctrine\\Common\\Cache\\ArrayCache given\.$#'
+			rawMessage: 'Parameter #1 $cache of method Doctrine\DBAL\Tests\Connection\CachedQueryTest::assertCachedQueryIsExecutedOnceAndYieldsTheSameResult() expects Doctrine\Common\Cache\Cache|Psr\Cache\CacheItemPoolInterface, Doctrine\Common\Cache\ArrayCache given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Connection/CachedQueryTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:equalTo\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::equalTo().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Connection/LoggingTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:once\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\TestCase::once().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Connection/LoggingTest.php
 
 		-
-			message: '#^Dead catch \- RuntimeException is never thrown in the try block\.$#'
+			rawMessage: Dead catch - RuntimeException is never thrown in the try block.
 			identifier: catch.neverThrown
 			count: 1
 			path: tests/ConnectionTest.php
 
 		-
-			message: '#^Parameter \#1 \$params of class Doctrine\\DBAL\\Connection constructor expects array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}, array\{driver\: ''pdo_mysql'', host\: ''localhost'', user\: ''root'', password\: ''password'', port\: 1234, platform\: stdClass\} given\.$#'
+			rawMessage: 'Parameter #1 $params of class Doctrine\DBAL\Connection constructor expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{driver: ''pdo_mysql'', host: ''localhost'', user: ''root'', password: ''password'', port: 1234, platform: stdClass} given.'
 			identifier: argument.type
 			count: 1
 			path: tests/ConnectionTest.php
 
 		-
-			message: '#^Return type \(void\) of method Doctrine\\DBAL\\Connection@anonymous/tests/ConnectionTest\.php\:1079\:\:rollBack\(\) should be compatible with return type \(bool\) of method Doctrine\\DBAL\\Connection\:\:rollBack\(\)$#'
+			rawMessage: 'Return type (void) of method Doctrine\DBAL\Connection@anonymous/tests/ConnectionTest.php:1079::rollBack() should be compatible with return type (bool) of method Doctrine\DBAL\Connection::rollBack()'
 			identifier: method.childReturnType
 			count: 1
 			path: tests/ConnectionTest.php
 
 		-
-			message: '#^Return type \(void\) of method Doctrine\\DBAL\\Connection@anonymous/tests/ConnectionTest\.php\:1103\:\:commit\(\) should be compatible with return type \(bool\) of method Doctrine\\DBAL\\Connection\:\:commit\(\)$#'
+			rawMessage: 'Return type (void) of method Doctrine\DBAL\Connection@anonymous/tests/ConnectionTest.php:1103::commit() should be compatible with return type (bool) of method Doctrine\DBAL\Connection::commit()'
 			identifier: method.childReturnType
 			count: 1
 			path: tests/ConnectionTest.php
 
 		-
-			message: '#^Return type \(void\) of method Doctrine\\DBAL\\Connection@anonymous/tests/ConnectionTest\.php\:1103\:\:rollBack\(\) should be compatible with return type \(bool\) of method Doctrine\\DBAL\\Connection\:\:rollBack\(\)$#'
+			rawMessage: 'Return type (void) of method Doctrine\DBAL\Connection@anonymous/tests/ConnectionTest.php:1103::rollBack() should be compatible with return type (bool) of method Doctrine\DBAL\Connection::rollBack()'
 			identifier: method.childReturnType
 			count: 1
 			path: tests/ConnectionTest.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
+			rawMessage: Unreachable statement - code above always terminates.
 			identifier: deadCode.unreachable
 			count: 1
 			path: tests/ConnectionTest.php
 
 		-
-			message: '#^Call to an undefined method Doctrine\\DBAL\\Driver\:\:createDatabasePlatformForVersion\(\)\.$#'
+			rawMessage: 'Call to an undefined method Doctrine\DBAL\Driver::createDatabasePlatformForVersion().'
 			identifier: method.notFound
 			count: 1
 			path: tests/Driver/AbstractDriverTestCase.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertSame().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Driver/IBMDB2/DataSourceNameTest.php
 
 		-
-			message: '#^Parameter \#1 \$params of method Doctrine\\DBAL\\Driver\\Mysqli\\Driver\:\:connect\(\) expects array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}, array\{persistent\: ''true''\} given\.$#'
+			rawMessage: 'Parameter #1 $params of method Doctrine\DBAL\Driver\Mysqli\Driver::connect() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{persistent: ''true''} given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Driver/Mysqli/ConnectionTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:markTestSkipped\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::markTestSkipped().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Driver/PDO/PgSQL/DriverTest.php
 
 		-
-			message: '#^Offset string might not exist on array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}\.$#'
+			rawMessage: 'Offset string might not exist on array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}.'
 			identifier: offsetAccess.notFound
 			count: 2
 			path: tests/DriverManagerTest.php
 
 		-
-			message: '#^Parameter \#1 \$params of static method Doctrine\\DBAL\\DriverManager\:\:getConnection\(\) expects array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}, array\{driver\: ''invalid_driver''\} given\.$#'
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{driver: ''invalid_driver''} given.'
 			identifier: argument.type
 			count: 1
 			path: tests/DriverManagerTest.php
 
 		-
-			message: '#^Parameter \#1 \$params of static method Doctrine\\DBAL\\DriverManager\:\:getConnection\(\) expects array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}, array\{driver\: ''pdo_sqlite'', memory\: true, wrapperClass\: ''stdClass''\} given\.$#'
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{driver: ''pdo_sqlite'', memory: true, wrapperClass: ''stdClass''} given.'
 			identifier: argument.type
 			count: 1
 			path: tests/DriverManagerTest.php
 
 		-
-			message: '#^Parameter \#1 \$params of static method Doctrine\\DBAL\\DriverManager\:\:getConnection\(\) expects array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}, array\{driverClass\: ''stdClass''\} given\.$#'
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{driverClass: ''stdClass''} given.'
 			identifier: argument.type
 			count: 1
 			path: tests/DriverManagerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:markTestSkipped\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::markTestSkipped().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/Connection/ConnectionLostTest.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
+			rawMessage: Unreachable statement - code above always terminates.
 			identifier: deadCode.unreachable
 			count: 1
 			path: tests/Functional/ConnectionTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertNull\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertNull().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/Driver/DBAL6024Test.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertEquals().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Functional/Driver/DBAL6044Test.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertFalse\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertFalse().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/Driver/DBAL6044Test.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertTrue().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/Driver/DBAL6044Test.php
 
 		-
-			message: '#^Cannot access property \$affected_rows on mysqli_stmt\|false\.$#'
+			rawMessage: Cannot access property $affected_rows on mysqli_stmt|false.
 			identifier: property.nonObject
 			count: 1
 			path: tests/Functional/Driver/Mysqli/ResultTest.php
 
 		-
-			message: '#^Cannot call method execute\(\) on mysqli_stmt\|false\.$#'
+			rawMessage: 'Cannot call method execute() on mysqli_stmt|false.'
 			identifier: method.nonObject
 			count: 2
 			path: tests/Functional/Driver/Mysqli/ResultTest.php
 
 		-
-			message: '#^Parameter \#1 \$statement of class Doctrine\\DBAL\\Driver\\Mysqli\\Result constructor expects mysqli_stmt, mysqli_stmt\|false given\.$#'
+			rawMessage: 'Parameter #1 $statement of class Doctrine\DBAL\Driver\Mysqli\Result constructor expects mysqli_stmt, mysqli_stmt|false given.'
 			identifier: argument.type
 			count: 2
 			path: tests/Functional/Driver/Mysqli/ResultTest.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
+			rawMessage: Unreachable statement - code above always terminates.
 			identifier: deadCode.unreachable
 			count: 1
 			path: tests/Functional/Driver/Mysqli/ResultTest.php
 
 		-
-			message: '#^Call to sprintf contains 0 placeholders, 1 value given\.$#'
+			rawMessage: 'Call to sprintf contains 0 placeholders, 1 value given.'
 			identifier: argument.sprintf
 			count: 2
 			path: tests/Functional/Driver/OCI8/ResultTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertEquals().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/Driver/OCI8/ResultTest.php
 
 		-
-			message: '#^Cannot access offset ''name'' on array\{name\: string, passwd\: string, uid\: int, gid\: int, gecos\: string, dir\: string, shell\: string\}\|false\.$#'
+			rawMessage: 'Cannot access offset ''name'' on array{name: string, passwd: string, uid: int, gid: int, gecos: string, dir: string, shell: string}|false.'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: tests/Functional/ExceptionTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertEquals().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Functional/LegacyAPITest.php
 
 		-
-			message: '#^Parameter \#1 \$mode of method Doctrine\\DBAL\\Result\:\:fetch\(\) expects 2\|3\|7, 1 given\.$#'
+			rawMessage: 'Parameter #1 $mode of method Doctrine\DBAL\Result::fetch() expects 2|3|7, 1 given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Functional/LegacyAPITest.php
 
 		-
-			message: '#^Parameter \#1 \$mode of method Doctrine\\DBAL\\Result\:\:fetchAll\(\) expects 2\|3\|7, 1 given\.$#'
+			rawMessage: 'Parameter #1 $mode of method Doctrine\DBAL\Result::fetchAll() expects 2|3|7, 1 given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Functional/LegacyAPITest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:markTestSkipped\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::markTestSkipped().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/ModifyLimitQueryTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertTrue().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Functional/Platform/PlatformRestrictionsTest.php
 
 		-
-			message: '#^Offset ''replica'' might not exist on array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}\.$#'
+			rawMessage: 'Offset ''replica'' might not exist on array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}.'
 			identifier: offsetAccess.notFound
 			count: 1
 			path: tests/Functional/PrimaryReadReplicaConnectionTest.php
 
 		-
-			message: '#^Instanceof between Doctrine\\DBAL\\Platforms\\MariaDBPlatform and Doctrine\\DBAL\\Platforms\\MariaDb1010Platform will always evaluate to false\.$#'
+			rawMessage: Instanceof between Doctrine\DBAL\Platforms\MariaDBPlatform and Doctrine\DBAL\Platforms\MariaDb1010Platform will always evaluate to false.
 			identifier: instanceof.alwaysFalse
 			count: 1
 			path: tests/Functional/Query/QueryBuilderTest.php
 
 		-
-			message: '#^PHPDoc tag @param for parameter \$expectedDefault with type mixed is not subtype of native type string\|null\.$#'
+			rawMessage: PHPDoc tag @param for parameter $expectedDefault with type mixed is not subtype of native type string|null.
 			identifier: parameter.phpDocType
 			count: 2
 			path: tests/Functional/Schema/DefaultValueTest.php
 
 		-
-			message: '#^Only numeric types are allowed in \+, int\|null given on the left side\.$#'
+			rawMessage: 'Only numeric types are allowed in +, int|null given on the left side.'
 			identifier: plus.leftNonNumeric
 			count: 1
 			path: tests/Functional/Schema/MySQL/ComparatorTest.php
 
 		-
-			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			rawMessage: 'Call to function array_filter() requires parameter #2 to be passed to avoid loose comparison semantics.'
 			identifier: arrayFilter.strict
 			count: 1
 			path: tests/Functional/Schema/MySQL/JsonCollationTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertTrue().'
 			identifier: staticMethod.dynamicCall
 			count: 3
 			path: tests/Functional/Schema/MySQL/JsonCollationTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertEquals().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/Schema/PostgreSQL/SchemaTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertNotFalse\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertNotFalse().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/Schema/PostgreSQL/SchemaTest.php
 
 		-
-			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true and mixed will always evaluate to true\.$#'
+			rawMessage: 'Call to static method PHPUnit\Framework\Assert::assertTrue() with true and mixed will always evaluate to true.'
 			identifier: staticMethod.alreadyNarrowedType
 			count: 2
 			path: tests/Functional/Schema/PostgreSQLSchemaManagerTest.php
 
 		-
-			message: '#^Cannot call method getForeignTableName\(\) on Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: tests/Functional/Schema/PostgreSQLSchemaManagerTest.php
-
-		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertArrayHasKey().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Functional/Schema/PostgreSQLSchemaManagerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertCount\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertCount().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Functional/Schema/PostgreSQLSchemaManagerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertInstanceOf().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Functional/Schema/PostgreSQLSchemaManagerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertTrue().'
 			identifier: staticMethod.dynamicCall
 			count: 4
 			path: tests/Functional/Schema/PostgreSQLSchemaManagerTest.php
 
 		-
-			message: '#^Cannot call method getColumns\(\) on Doctrine\\DBAL\\Schema\\Index\|false\.$#'
+			rawMessage: 'Cannot call method getColumns() on Doctrine\DBAL\Schema\Index|false.'
 			identifier: method.nonObject
 			count: 1
 			path: tests/Functional/Schema/SQLServerSchemaManagerTest.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\AbstractAsset\:\:getName\(\) with incorrect case\: getname$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\AbstractAsset::getName() with incorrect case: getname'
 			identifier: method.nameCase
 			count: 6
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\Column\:\:getDefault\(\) with incorrect case\: getdefault$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\Column::getDefault() with incorrect case: getdefault'
 			identifier: method.nameCase
 			count: 6
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\Column\:\:getFixed\(\) with incorrect case\: getfixed$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\Column::getFixed() with incorrect case: getfixed'
 			identifier: method.nameCase
 			count: 3
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\Column\:\:getLength\(\) with incorrect case\: getlength$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\Column::getLength() with incorrect case: getlength'
 			identifier: method.nameCase
 			count: 2
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\Column\:\:getNotnull\(\) with incorrect case\: getnotnull$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\Column::getNotnull() with incorrect case: getnotnull'
 			identifier: method.nameCase
 			count: 6
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\Column\:\:getPrecision\(\) with incorrect case\: getprecision$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\Column::getPrecision() with incorrect case: getprecision'
 			identifier: method.nameCase
 			count: 1
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\Column\:\:getScale\(\) with incorrect case\: getscale$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\Column::getScale() with incorrect case: getscale'
 			identifier: method.nameCase
 			count: 1
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\Column\:\:getType\(\) with incorrect case\: gettype$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\Column::getType() with incorrect case: gettype'
 			identifier: method.nameCase
 			count: 6
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Call to method Doctrine\\DBAL\\Schema\\Column\:\:getUnsigned\(\) with incorrect case\: getunsigned$#'
+			rawMessage: 'Call to method Doctrine\DBAL\Schema\Column::getUnsigned() with incorrect case: getunsigned'
 			identifier: method.nameCase
 			count: 2
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Cannot call method getColumns\(\) on Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|false\.$#'
+			rawMessage: 'Cannot call method getColumns() on Doctrine\DBAL\Schema\ForeignKeyConstraint|false.'
 			identifier: method.nonObject
 			count: 2
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Cannot call method getForeignColumns\(\) on Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|false\.$#'
+			rawMessage: 'Cannot call method getForeignColumns() on Doctrine\DBAL\Schema\ForeignKeyConstraint|false.'
 			identifier: method.nonObject
 			count: 1
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Cannot call method getForeignTableName\(\) on Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|false\.$#'
+			rawMessage: 'Cannot call method getForeignTableName() on Doctrine\DBAL\Schema\ForeignKeyConstraint|false.'
 			identifier: method.nonObject
 			count: 1
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Cannot call method getName\(\) on Doctrine\\DBAL\\Schema\\Index\|false\.$#'
+			rawMessage: 'Cannot call method getName() on Doctrine\DBAL\Schema\Index|false.'
 			identifier: method.nonObject
 			count: 1
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Cannot call method isUnique\(\) on Doctrine\\DBAL\\Schema\\Index\|false\.$#'
+			rawMessage: 'Cannot call method isUnique() on Doctrine\DBAL\Schema\Index|false.'
 			identifier: method.nonObject
 			count: 1
 			path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 		-
-			message: '#^Cannot call method getForeignColumns\(\) on Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|null\.$#'
+			rawMessage: 'Cannot call method getForeignColumns() on Doctrine\DBAL\Schema\ForeignKeyConstraint|null.'
 			identifier: method.nonObject
 			count: 5
 			path: tests/Functional/Schema/SqliteSchemaManagerTest.php
 
 		-
-			message: '#^Cannot call method getForeignTableName\(\) on Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|null\.$#'
+			rawMessage: 'Cannot call method getForeignTableName() on Doctrine\DBAL\Schema\ForeignKeyConstraint|null.'
 			identifier: method.nonObject
 			count: 1
 			path: tests/Functional/Schema/SqliteSchemaManagerTest.php
 
 		-
-			message: '#^Cannot call method getLocalColumns\(\) on Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|null\.$#'
+			rawMessage: 'Cannot call method getLocalColumns() on Doctrine\DBAL\Schema\ForeignKeyConstraint|null.'
 			identifier: method.nonObject
 			count: 5
 			path: tests/Functional/Schema/SqliteSchemaManagerTest.php
 
 		-
-			message: '#^Cannot call method getName\(\) on Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|null\.$#'
+			rawMessage: 'Cannot call method getName() on Doctrine\DBAL\Schema\ForeignKeyConstraint|null.'
 			identifier: method.nonObject
 			count: 4
 			path: tests/Functional/Schema/SqliteSchemaManagerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertEquals().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Functional/StatementTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:markTestSkipped\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::markTestSkipped().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Functional/TransactionTest.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Tests\\Functional\\Types\\JsonTest\:\:insert\(\) has parameter \$value with no value type specified in iterable type array\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Tests\Functional\Types\JsonTest::insert() has parameter $value with no value type specified in iterable type array.'
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Functional/Types/JsonTest.php
 
 		-
-			message: '#^Method Doctrine\\DBAL\\Tests\\Functional\\Types\\JsonTest\:\:select\(\) return type has no value type specified in iterable type array\.$#'
+			rawMessage: 'Method Doctrine\DBAL\Tests\Functional\Types\JsonTest::select() return type has no value type specified in iterable type array.'
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Functional/Types/JsonTest.php
 
 		-
-			message: '#^Method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:with\(\) invoked with unpacked array with possibly string key, but it''s not allowed because of @no\-named\-arguments\.$#'
+			rawMessage: 'Method PHPUnit\Framework\MockObject\Builder\InvocationMocker::with() invoked with unpacked array with possibly string key, but it''s not allowed because of @no-named-arguments.'
 			identifier: argument.named
 			count: 1
 			path: tests/Logging/LoggerChainTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertStringEndsNotWith\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertStringEndsNotWith().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:markTestSkipped\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::markTestSkipped().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#1 \$value1 of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:getBitAndComparisonExpression\(\) expects string, int given\.$#'
+			rawMessage: 'Parameter #1 $value1 of method Doctrine\DBAL\Platforms\AbstractPlatform::getBitAndComparisonExpression() expects string, int given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#1 \$value1 of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:getBitOrComparisonExpression\(\) expects string, int given\.$#'
+			rawMessage: 'Parameter #1 $value1 of method Doctrine\DBAL\Platforms\AbstractPlatform::getBitOrComparisonExpression() expects string, int given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#1 \$value1 of method Doctrine\\DBAL\\Tests\\Platforms\\AbstractPlatformTestCase\<T of Doctrine\\DBAL\\Platforms\\AbstractPlatform\>\:\:getBitAndComparisonExpressionSql\(\) expects string, int given\.$#'
+			rawMessage: 'Parameter #1 $value1 of method Doctrine\DBAL\Tests\Platforms\AbstractPlatformTestCase<T of Doctrine\DBAL\Platforms\AbstractPlatform>::getBitAndComparisonExpressionSql() expects string, int given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#1 \$value1 of method Doctrine\\DBAL\\Tests\\Platforms\\AbstractPlatformTestCase\<T of Doctrine\\DBAL\\Platforms\\AbstractPlatform\>\:\:getBitOrComparisonExpressionSql\(\) expects string, int given\.$#'
+			rawMessage: 'Parameter #1 $value1 of method Doctrine\DBAL\Tests\Platforms\AbstractPlatformTestCase<T of Doctrine\DBAL\Platforms\AbstractPlatform>::getBitOrComparisonExpressionSql() expects string, int given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#2 \$limit of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:modifyLimitQuery\(\) expects int\|null, string given\.$#'
+			rawMessage: 'Parameter #2 $limit of method Doctrine\DBAL\Platforms\AbstractPlatform::modifyLimitQuery() expects int|null, string given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#2 \$lockMode of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:appendLockHint\(\) expects 0\|1\|2\|4, 128 given\.$#'
+			rawMessage: 'Parameter #2 $lockMode of method Doctrine\DBAL\Platforms\AbstractPlatform::appendLockHint() expects 0|1|2|4, 128 given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#2 \$value2 of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:getBitAndComparisonExpression\(\) expects string, int given\.$#'
+			rawMessage: 'Parameter #2 $value2 of method Doctrine\DBAL\Platforms\AbstractPlatform::getBitAndComparisonExpression() expects string, int given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#2 \$value2 of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:getBitOrComparisonExpression\(\) expects string, int given\.$#'
+			rawMessage: 'Parameter #2 $value2 of method Doctrine\DBAL\Platforms\AbstractPlatform::getBitOrComparisonExpression() expects string, int given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#2 \$value2 of method Doctrine\\DBAL\\Tests\\Platforms\\AbstractPlatformTestCase\<T of Doctrine\\DBAL\\Platforms\\AbstractPlatform\>\:\:getBitAndComparisonExpressionSql\(\) expects string, int given\.$#'
+			rawMessage: 'Parameter #2 $value2 of method Doctrine\DBAL\Tests\Platforms\AbstractPlatformTestCase<T of Doctrine\DBAL\Platforms\AbstractPlatform>::getBitAndComparisonExpressionSql() expects string, int given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#2 \$value2 of method Doctrine\\DBAL\\Tests\\Platforms\\AbstractPlatformTestCase\<T of Doctrine\\DBAL\\Platforms\\AbstractPlatform\>\:\:getBitOrComparisonExpressionSql\(\) expects string, int given\.$#'
+			rawMessage: 'Parameter #2 $value2 of method Doctrine\DBAL\Tests\Platforms\AbstractPlatformTestCase<T of Doctrine\DBAL\Platforms\AbstractPlatform>::getBitOrComparisonExpressionSql() expects string, int given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Parameter \#3 \$offset of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:modifyLimitQuery\(\) expects int, string given\.$#'
+			rawMessage: 'Parameter #3 $offset of method Doctrine\DBAL\Platforms\AbstractPlatform::modifyLimitQuery() expects int, string given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/AbstractPlatformTestCase.php
 
 		-
-			message: '#^Cannot access offset ''boolean'' on iterable\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Platforms/DB2PlatformTest.php
-
-		-
-			message: '#^Method Doctrine\\DBAL\\Tests\\Platforms\\DB2PlatformTest\:\:getIsCommentedDoctrineType\(\) should return array\<mixed\> but returns array\<mixed\>\|\(ArrayAccess&iterable\)\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Platforms/DB2PlatformTest.php
-
-		-
-			message: '#^Parameter \#3 \$message of static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\) expects string, true given\.$#'
+			rawMessage: 'Parameter #3 $message of static method PHPUnit\Framework\Assert::assertEquals() expects string, true given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Platforms/DB2PlatformTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::assertTrue().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Platforms/MySQL/MariaDbJsonComparatorTest.php
 
 		-
-			message: '#^Dynamic call to static method Doctrine\\DBAL\\Platforms\\OraclePlatform\:\:assertValidIdentifier\(\)\.$#'
+			rawMessage: 'Dynamic call to static method Doctrine\DBAL\Platforms\OraclePlatform::assertValidIdentifier().'
 			identifier: staticMethod.dynamicCall
 			count: 2
 			path: tests/Platforms/OraclePlatformTest.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
+			rawMessage: Unreachable statement - code above always terminates.
 			identifier: deadCode.unreachable
 			count: 1
 			path: tests/Platforms/PostgreSQLPlatformTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:markTestSkipped\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\Assert::markTestSkipped().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Platforms/SqlitePlatformTest.php
 
 		-
-			message: '#^PHPDoc tag @return contains unresolvable type\.$#'
+			rawMessage: PHPDoc tag @return contains unresolvable type.
 			identifier: return.unresolvableType
 			count: 1
 			path: tests/Portability/StatementTest.php
 
 		-
-			message: '#^Return type of call to method PHPUnit\\Framework\\MockObject\\MockBuilder\<Doctrine\\DBAL\\Portability\\Connection\>\:\:getMock\(\) contains unresolvable type\.$#'
+			rawMessage: 'Return type of call to method PHPUnit\Framework\MockObject\MockBuilder<Doctrine\DBAL\Portability\Connection>::getMock() contains unresolvable type.'
 			identifier: method.unresolvableReturnType
 			count: 1
 			path: tests/Portability/StatementTest.php
 
 		-
-			message: '#^Parameter \#2 \$y of method Doctrine\\DBAL\\Query\\Expression\\ExpressionBuilder\:\:in\(\) expects array\<string\>\|string, array\<int, int\> given\.$#'
+			rawMessage: 'Parameter #2 $y of method Doctrine\DBAL\Query\Expression\ExpressionBuilder::in() expects array<string>|string, array<int, int> given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Query/Expression/ExpressionBuilderTest.php
 
 		-
-			message: '#^Parameter \#2 \$y of method Doctrine\\DBAL\\Query\\Expression\\ExpressionBuilder\:\:notIn\(\) expects array\<string\>\|string, array\<int, int\> given\.$#'
+			rawMessage: 'Parameter #2 $y of method Doctrine\DBAL\Query\Expression\ExpressionBuilder::notIn() expects array<string>|string, array<int, int> given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Query/Expression/ExpressionBuilderTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:any\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\TestCase::any().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Query/QueryBuilderTest.php
 
 		-
-			message: '#^Parameter \#1 \$precision of method Doctrine\\DBAL\\Schema\\Column\:\:setPrecision\(\) expects int, null given\.$#'
+			rawMessage: 'Parameter #1 $precision of method Doctrine\DBAL\Schema\Column::setPrecision() expects int, null given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Schema/AbstractComparatorTestCase.php
 
 		-
-			message: '#^Static call to instance method Doctrine\\DBAL\\Schema\\Comparator\:\:compareSchemas\(\)\.$#'
+			rawMessage: 'Static call to instance method Doctrine\DBAL\Schema\Comparator::compareSchemas().'
 			identifier: method.staticCall
 			count: 1
 			path: tests/Schema/AbstractComparatorTestCase.php
 
 		-
-			message: '#^Cannot call method getName\(\) on Doctrine\\DBAL\\Schema\\Index\|false\.$#'
+			rawMessage: 'Cannot call method getName() on Doctrine\DBAL\Schema\Index|false.'
 			identifier: method.nonObject
 			count: 1
 			path: tests/Schema/SchemaTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:exactly\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\TestCase::exactly().'
 			identifier: staticMethod.dynamicCall
 			count: 3
 			path: tests/Schema/SchemaTest.php
 
 		-
-			message: '#^Parameter \#1 \$class of class ReflectionProperty constructor expects object\|string, Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|false given\.$#'
+			rawMessage: 'Parameter #1 $class of class ReflectionProperty constructor expects object|string, Doctrine\DBAL\Schema\ForeignKeyConstraint|false given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Schema/SchemaTest.php
 
 		-
-			message: '#^Parameter \#1 \$object of method ReflectionProperty\:\:getValue\(\) expects object\|null, Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|false given\.$#'
+			rawMessage: 'Parameter #1 $object of method ReflectionProperty::getValue() expects object|null, Doctrine\DBAL\Schema\ForeignKeyConstraint|false given.'
 			identifier: argument.type
 			count: 1
 			path: tests/Schema/SchemaTest.php
 
 		-
-			message: '#^Cannot call method getColumns\(\) on Doctrine\\DBAL\\Schema\\Index\|false\.$#'
+			rawMessage: 'Cannot call method getColumns() on Doctrine\DBAL\Schema\Index|false.'
 			identifier: method.nonObject
 			count: 1
 			path: tests/Schema/TableTest.php
 
 		-
-			message: '#^Cannot call method getName\(\) on Doctrine\\DBAL\\Schema\\Index\|false\.$#'
+			rawMessage: 'Cannot call method getName() on Doctrine\DBAL\Schema\Index|false.'
 			identifier: method.nonObject
 			count: 2
 			path: tests/Schema/TableTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:any\(\)\.$#'
+			rawMessage: 'Dynamic call to static method PHPUnit\Framework\TestCase::any().'
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Schema/Visitor/CreateSchemaSqlCollectorTest.php
