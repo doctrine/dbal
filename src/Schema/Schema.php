@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_values;
 use function count;
@@ -96,6 +97,14 @@ final class Schema
         ?SchemaConfig $schemaConfig = null,
         array $namespaces = [],
     ) {
+        if (count($namespaces) > 0) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7186',
+                'Passing the $namespaces argument to the Schema constructor is deprecated.',
+            );
+        }
+
         $schemaConfig ??= new SchemaConfig();
 
         $this->schemaConfig = $schemaConfig;
@@ -301,12 +310,23 @@ final class Schema
     /**
      * Creates a new namespace.
      *
+     * @deprecated The schema automatically derives namespaces from the names of its tables and sequences.
+     *             Creating empty namespaces is deprecated.
+     *
      * @param non-empty-string $name
      *
      * @return $this
      */
     public function createNamespace(string $name): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7186',
+            '%s is deprecated. The schema automatically derives namespaces from the names of its tables and'
+                . ' sequences. Creating empty namespaces is deprecated.',
+            __METHOD__,
+        );
+
         $key = $this->getNamespaceKey($name);
 
         if (isset($this->namespaces[$key])) {
