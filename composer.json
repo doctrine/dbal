@@ -43,7 +43,7 @@
         "phpstan/phpstan": "2.1.30",
         "phpstan/phpstan-phpunit": "2.0.7",
         "phpstan/phpstan-strict-rules": "^2",
-        "phpunit/phpunit": "11.5.23",
+        "phpunit/phpunit": "11.5.48",
         "slevomat/coding-standard": "8.24.0",
         "squizlabs/php_codesniffer": "4.0.0",
         "symfony/cache": "^6.3.8|^7.0|^8.0",
