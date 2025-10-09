@@ -410,6 +410,12 @@ all drivers and middleware.
 
 # Upgrade to 4.4
 
+## Deprecated `Schema::createNamespace()` and the `$namespaces` constructor parameter
+
+The `Schema::createNamespace()` method and the `$namespaces` constructor parameter have been deprecated. The schema
+automatically derives namespace names from the names of its tables and sequences. Creating empty namespaces is
+deprecated.
+
 ## Deprecated `TableDiff::getDroppedForeignKeys()`
 
 The `TableDiff::getDroppedForeignKeys()` method has been deprecated. Use
