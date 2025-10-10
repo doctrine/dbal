@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
@@ -1387,6 +1388,20 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertSame(
             'ST_AsGeoJSON(geog_col, 15, 2)',
             $this->platform->getGeographyAsGeoJSONSQL('geog_col'),
+        );
+    }
+
+    public function testCreateSpatialIndexSQL(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('spatial_idx')
+            ->setType(Index\IndexType::SPATIAL)
+            ->setUnquotedColumnNames('location')
+            ->create();
+
+        self::assertSame(
+            'CREATE INDEX spatial_idx ON spatial_table USING GIST (location)',
+            $this->platform->getCreateIndexSQL($index, 'spatial_table'),
         );
     }
 }

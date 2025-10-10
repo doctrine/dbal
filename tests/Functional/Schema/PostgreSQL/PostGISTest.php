@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Tests\Functional\Schema\PostgreSQL;
 
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\SpatialTestCase;
@@ -338,5 +340,56 @@ final class PostGISTest extends SpatialTestCase
         self::assertSame(Type::getType(Types::GEOGRAPHY), $geog->getType());
         self::assertSame('Polygon', $geog->getGeometryType());
         self::assertSame(SpatialReferenceSystems::SRID_NAD27, $geog->getSrid());
+    }
+
+    public function testSpatialIndex(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('spatial_idx')
+            ->setType(IndexType::SPATIAL)
+            ->setUnquotedColumnNames('location')
+            ->create();
+
+        $table = Table::editor()
+            ->setUnquotedName(self::TABLE_NAME)
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::GEOMETRY)
+                    ->setGeometryType('POINT')
+                    ->setSrid(4326)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setIndexes($index)
+            ->create();
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createTable($table);
+
+        $onlineTable = $schemaManager->introspectTableByUnquotedName(self::TABLE_NAME);
+
+        // Verify the table structure is maintained
+        self::assertTrue(
+            $schemaManager->createComparator()
+                ->compareTables($table, $onlineTable)
+                ->isEmpty(),
+        );
+
+        // Verify the spatial index exists
+        self::assertTrue($onlineTable->hasIndex('spatial_idx'));
+
+        // Verify the index type is SPATIAL
+        $spatialIndex = $onlineTable->getIndex('spatial_idx');
+        self::assertSame(IndexType::SPATIAL, $spatialIndex->getType());
     }
 }

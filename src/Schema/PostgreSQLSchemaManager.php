@@ -179,12 +179,20 @@ SQL,
         return parent::_getPortableTableIndexesList(array_map(
             /** @param array<string, mixed> $row */
             static function (array $row): array {
+                $flags = [];
+
+                // GIST indexes are used for spatial data in PostGIS
+                if (isset($row['index_method']) && $row['index_method'] === 'gist') {
+                    $flags = ['SPATIAL'];
+                }
+
                 return [
                     'key_name' => $row['relname'],
                     'non_unique' => ! $row['indisunique'],
                     'primary' => (bool) $row['indisprimary'],
                     'where' => $row['where'],
                     'column_name' => $row['attname'],
+                    'flags' => $flags,
                 ];
             },
             $rows,
@@ -469,11 +477,13 @@ SQL;
                    i.indkey,
                    i.indrelid,
                    pg_get_expr(indpred, indrelid) AS "where",
-                   quote_ident(attname) AS attname
+                   quote_ident(attname) AS attname,
+                   am.amname AS index_method
               FROM pg_index i
                    JOIN pg_class AS c ON c.oid = i.indrelid
                    JOIN pg_namespace n ON n.oid = c.relnamespace
                    JOIN pg_class AS ic ON ic.oid = i.indexrelid
+                   JOIN pg_am am ON am.oid = ic.relam
                    JOIN LATERAL UNNEST(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                         ON TRUE
                    JOIN pg_attribute a

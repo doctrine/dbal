@@ -392,11 +392,13 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                    ic.relname,
                    i.indisunique,
                    pg_get_expr(indpred, indrelid),
-                   attname
+                   attname,
+                   am.amname
             FROM pg_index i
                      JOIN pg_class AS c ON c.oid = i.indrelid
                      JOIN pg_namespace n ON n.oid = c.relnamespace
                      JOIN pg_class AS ic ON ic.oid = i.indexrelid
+                     JOIN pg_am am ON am.oid = ic.relam
                      JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                           ON TRUE
                      JOIN pg_attribute a
@@ -413,11 +415,21 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            // Determine index type based on access method and uniqueness
+            // GIST indexes are used for spatial data in PostGIS
+            if ($row[6] === 'gist') {
+                $type = IndexType::SPATIAL;
+            } elseif ($row[3]) {
+                $type = IndexType::UNIQUE;
+            } else {
+                $type = IndexType::REGULAR;
+            }
+
             yield new IndexColumnMetadataRow(
                 schemaName: $row[0],
                 tableName: $row[1],
                 indexName: $row[2],
-                type: $row[3] ? IndexType::UNIQUE : IndexType::REGULAR,
+                type: $type,
                 isClustered: false,
                 predicate: $row[4],
                 columnName: $row[5],

@@ -1251,9 +1251,20 @@ abstract class AbstractPlatform
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
+        $query .= $this->getIndexMethodSQL($index);
         $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
+    }
+
+    /**
+     * Returns the index method clause for platforms that support it.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     */
+    protected function getIndexMethodSQL(Index $index): string
+    {
+        return '';
     }
 
     /**

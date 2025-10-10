@@ -899,6 +899,20 @@ class PostgreSQLPlatform extends AbstractPlatform
         return new PostgreSQLMetadataProvider($connection, $this);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * For spatial indexes on PostgreSQL/PostGIS, we need to use GIST index method.
+     */
+    protected function getIndexMethodSQL(Index $index): string
+    {
+        if ($index->getType() === Index\IndexType::SPATIAL) {
+            return ' USING GIST';
+        }
+
+        return '';
+    }
+
     public function createSchemaManager(Connection $connection): PostgreSQLSchemaManager
     {
         return new PostgreSQLSchemaManager($connection, $this);
