@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Tests\SpatialReferenceSystems;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\GeographyType;
+use Doctrine\DBAL\Types\Geometry;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -48,16 +49,24 @@ class GeographyTypeTest extends TestCase
 
     public function testConvertToPHPValue(): void
     {
-        self::assertIsString($this->type->convertToPHPValue(
-            '{"type":"Point","coordinates":[-122.4194,37.7749]}',
-            $this->platform,
-        ));
+        $geoJson = '{"type":"Point","coordinates":[-122.4194,37.7749]}';
+        $result  = $this->type->convertToPHPValue($geoJson, $this->platform);
+        self::assertInstanceOf(Geometry::class, $result);
+        self::assertSame($geoJson, $result->toGeoJSON());
     }
 
     public function testNullConversion(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
         self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
+    }
+
+    public function testConvertToDatabaseValueWithGeometryObject(): void
+    {
+        $geoJson  = '{"type":"Point","coordinates":[-122.4194,37.7749]}';
+        $geometry = Geometry::fromGeoJSON($geoJson);
+        $result   = $this->type->convertToDatabaseValue($geometry, $this->platform);
+        self::assertSame($geoJson, $result);
     }
 
     public function testConvertToPHPValueFailsOnInvalidValue(): void

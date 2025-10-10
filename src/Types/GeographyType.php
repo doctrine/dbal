@@ -11,7 +11,7 @@ use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function is_string;
 
 /**
- * Type that maps a database GEOGRAPHY column to a PHP string containing GeoJSON data.
+ * Type that maps a database GEOGRAPHY column to a PHP Geometry value object.
  *
  * Geography types handle spherical coordinate systems and are typically used for
  * earth-based geographic data with latitude/longitude coordinates.
@@ -38,21 +38,21 @@ class GeographyType extends Type
             return null;
         }
 
-        if (is_string($value)) {
-            return $value;
+        if ($value instanceof Geometry) {
+            return $value->toGeoJSON();
         }
 
         throw ValueNotConvertible::new($value, Types::GEOGRAPHY);
     }
 
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): Geometry|null
     {
         if ($value === null) {
             return null;
         }
 
         if (is_string($value)) {
-            return $value;
+            return Geometry::fromGeoJSON($value);
         }
 
         throw ValueNotConvertible::new($value, Types::GEOGRAPHY);

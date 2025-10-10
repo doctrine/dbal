@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\SpatialTestCase;
 use Doctrine\DBAL\Tests\SpatialReferenceSystems;
+use Doctrine\DBAL\Types\Geometry;
 use Doctrine\DBAL\Types\Types;
 use Throwable;
 
@@ -78,9 +79,18 @@ class GeographyTest extends SpatialTestCase
         $schemaManager->createTable($table);
 
         $locations = [
-            ['name' => 'London', 'location' => '{"type":"Point","coordinates":[-0.1276,51.5074]}'],
-            ['name' => 'Paris', 'location' => '{"type":"Point","coordinates":[2.3522,48.8566]}'],
-            ['name' => 'Berlin', 'location' => '{"type":"Point","coordinates":[13.4050,52.5200]}'],
+            [
+                'name' => 'London',
+                'location' => Geometry::fromGeoJSON('{"type":"Point","coordinates":[-0.1276,51.5074]}'),
+            ],
+            [
+                'name' => 'Paris',
+                'location' => Geometry::fromGeoJSON('{"type":"Point","coordinates":[2.3522,48.8566]}'),
+            ],
+            [
+                'name' => 'Berlin',
+                'location' => Geometry::fromGeoJSON('{"type":"Point","coordinates":[13.4050,52.5200]}'),
+            ],
         ];
 
         foreach ($locations as $location) {
@@ -143,7 +153,7 @@ class GeographyTest extends SpatialTestCase
 
         $this->connection->insert(
             self::TABLE_NAME,
-            ['location' => $utmGeoJSON], // UTM Zone 33N - should fail
+            ['location' => Geometry::fromGeoJSON($utmGeoJSON)], // UTM Zone 33N - should fail
             ['location' => Types::GEOGRAPHY],
         );
     }

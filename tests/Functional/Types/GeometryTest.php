@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\SpatialTestCase;
 use Doctrine\DBAL\Tests\SpatialReferenceSystems;
+use Doctrine\DBAL\Types\Geometry;
 use Doctrine\DBAL\Types\Types;
 use Throwable;
 
@@ -73,9 +74,18 @@ class GeometryTest extends SpatialTestCase
         $schemaManager->createTable($table);
 
         $locations = [
-            ['name' => 'San Francisco', 'location' => '{"type":"Point","coordinates":[-122.4194,37.7749]}'],
-            ['name' => 'Los Angeles', 'location' => '{"type":"Point","coordinates":[-118.2437,34.0522]}'],
-            ['name' => 'New York', 'location' => '{"type":"Point","coordinates":[-74.0060,40.7128]}'],
+            [
+                'name' => 'San Francisco',
+                'location' => Geometry::fromGeoJSON('{"type":"Point","coordinates":[-122.4194,37.7749]}'),
+            ],
+            [
+                'name' => 'Los Angeles',
+                'location' => Geometry::fromGeoJSON('{"type":"Point","coordinates":[-118.2437,34.0522]}'),
+            ],
+            [
+                'name' => 'New York',
+                'location' => Geometry::fromGeoJSON('{"type":"Point","coordinates":[-74.0060,40.7128]}'),
+            ],
         ];
 
         foreach ($locations as $location) {
@@ -152,8 +162,8 @@ class GeometryTest extends SpatialTestCase
             . '"crs":{"type":"name","properties":{"name":"EPSG:' . SpatialReferenceSystems::SRID_UTM_33N . '"}}}';
 
         $this->connection->insert(self::TABLE_NAME, [
-            'wgs84_point' => $wgs84GeoJSON,
-            'utm_point' => $utmGeoJSON,
+            'wgs84_point' => Geometry::fromGeoJSON($wgs84GeoJSON),
+            'utm_point' => Geometry::fromGeoJSON($utmGeoJSON),
         ], [
             'wgs84_point' => Types::GEOMETRY,
             'utm_point' => Types::GEOMETRY,
@@ -214,7 +224,7 @@ class GeometryTest extends SpatialTestCase
 
         $this->connection->insert(
             self::TABLE_NAME,
-            ['location' => $wrongSridGeoJSON], // Wrong SRID - should fail
+            ['location' => Geometry::fromGeoJSON($wrongSridGeoJSON)], // Wrong SRID - should fail
             ['location' => Types::GEOMETRY],
         );
     }

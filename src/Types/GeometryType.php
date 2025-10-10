@@ -11,10 +11,10 @@ use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function is_string;
 
 /**
- * Type that maps a database GEOMETRY column to a PHP string containing GeoJSON data.
+ * Type that maps a database GEOMETRY column to a PHP Geometry value object.
  *
  * This type handles geometric data stored in various database formats and converts
- * it to/from GeoJSON format for PHP processing.
+ * it to/from a Geometry value object that encapsulates GeoJSON.
  */
 class GeometryType extends Type
 {
@@ -37,21 +37,21 @@ class GeometryType extends Type
             return null;
         }
 
-        if (is_string($value)) {
-            return $value;
+        if ($value instanceof Geometry) {
+            return $value->toGeoJSON();
         }
 
         throw ValueNotConvertible::new($value, Types::GEOMETRY);
     }
 
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): Geometry|null
     {
         if ($value === null) {
             return null;
         }
 
         if (is_string($value)) {
-            return $value;
+            return Geometry::fromGeoJSON($value);
         }
 
         throw ValueNotConvertible::new($value, Types::GEOMETRY);
