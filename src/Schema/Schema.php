@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\NamespaceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\TableAlreadyExists;
@@ -18,8 +17,8 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
-use Doctrine\Deprecations\Deprecation;
 
+use function array_column;
 use function array_values;
 use function count;
 use function strtolower;
@@ -59,7 +58,10 @@ final class Schema
     /**
      * The namespaces in this schema.
      *
-     * @var array<string, non-empty-string>
+     * The array key is the lower-cased namespace name. The value is a tuple of the original namespace name and the
+     * number that indicates how many objects in the schema are located in this namespace.
+     *
+     * @var array<string, array{non-empty-string, int}>
      */
     private array $namespaces = [];
 
@@ -87,33 +89,19 @@ final class Schema
     private bool $usesUnqualifiedNames = false;
 
     /**
-     * @param array<Table>            $tables
-     * @param array<Sequence>         $sequences
-     * @param array<non-empty-string> $namespaces
+     * @param array<Table>    $tables
+     * @param array<Sequence> $sequences
      */
     public function __construct(
         array $tables = [],
         array $sequences = [],
         ?SchemaConfig $schemaConfig = null,
-        array $namespaces = [],
     ) {
-        if (count($namespaces) > 0) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/7186',
-                'Passing the $namespaces argument to the Schema constructor is deprecated.',
-            );
-        }
-
         $schemaConfig ??= new SchemaConfig();
 
         $this->schemaConfig = $schemaConfig;
 
         $this->defaultNamespaceName = $schemaConfig->getName();
-
-        foreach ($namespaces as $namespace) {
-            $this->createNamespace($namespace);
-        }
 
         foreach ($tables as $table) {
             $this->addTable($table);
@@ -168,11 +156,13 @@ final class Schema
             return;
         }
 
-        if ($this->hasNamespace($namespaceName)) {
-            return;
-        }
+        $key = $this->getNamespaceKey($namespaceName);
 
-        $this->createNamespace($namespaceName);
+        if (! isset($this->namespaces[$key])) {
+            $this->namespaces[$key] = [$namespaceName, 1];
+        } else {
+            $this->namespaces[$key][1]++;
+        }
     }
 
     /**
@@ -182,7 +172,7 @@ final class Schema
      */
     public function getNamespaces(): array
     {
-        return array_values($this->namespaces);
+        return array_column(array_values($this->namespaces), 0);
     }
 
     /**
@@ -308,37 +298,6 @@ final class Schema
     }
 
     /**
-     * Creates a new namespace.
-     *
-     * @deprecated The schema automatically derives namespaces from the names of its tables and sequences.
-     *             Creating empty namespaces is deprecated.
-     *
-     * @param non-empty-string $name
-     *
-     * @return $this
-     */
-    public function createNamespace(string $name): self
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7186',
-            '%s is deprecated. The schema automatically derives namespaces from the names of its tables and'
-                . ' sequences. Creating empty namespaces is deprecated.',
-            __METHOD__,
-        );
-
-        $key = $this->getNamespaceKey($name);
-
-        if (isset($this->namespaces[$key])) {
-            throw NamespaceAlreadyExists::new($name);
-        }
-
-        $this->namespaces[$key] = $name;
-
-        return $this;
-    }
-
-    /**
      * Returns the key that will be used to store the given namespace name in the collection of namespaces.
      */
     private function getNamespaceKey(string $name): string
@@ -401,6 +360,10 @@ final class Schema
             throw TableDoesNotExist::new($name);
         }
 
+        $parsedName = $this->parseOptionallyQualifiedName($name);
+
+        $this->unregisterQualifier($parsedName->getQualifier());
+
         unset($this->tables[$key]);
 
         return $this;
@@ -436,7 +399,30 @@ final class Schema
         $key = $this->getKeyFromName($name);
         unset($this->sequences[$key]);
 
+        $parsedName = $this->parseOptionallyQualifiedName($name);
+
+        $this->unregisterQualifier($parsedName->getQualifier());
+
         return $this;
+    }
+
+    private function unregisterQualifier(?Identifier $qualifier): void
+    {
+        if ($qualifier === null) {
+            return;
+        }
+
+        $namespaceName = $qualifier->getValue();
+
+        $key = $this->getNamespaceKey($namespaceName);
+
+        $this->namespaces[$key][1]--;
+
+        if ($this->namespaces[$key][1] !== 0) {
+            return;
+        }
+
+        unset($this->namespaces[$key]);
     }
 
     /**

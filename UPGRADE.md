@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `Schema::createNamespace()` and the `$namespaces` constructor parameter
+
+The `Schema::createNamespace()` method and the `$namespaces` constructor parameter have been removed.
+
 ## BC BREAK: Removed `TableDiff::getDroppedForeignKeys()`
 
 The `TableDiff::getDroppedForeignKeys()` method has been removed.

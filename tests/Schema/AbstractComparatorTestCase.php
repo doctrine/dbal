@@ -999,8 +999,13 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     public function testComparesNamespaces(): void
     {
-        $oldSchema = new Schema([], [], null, ['foo', 'bar']);
-        $newSchema = new Schema([], [], null, ['bar', 'baz']);
+        $oldSchema = new Schema();
+        $oldSchema->createTable('foo.users');
+        $oldSchema->createSequence('bar.users');
+
+        $newSchema = new Schema();
+        $newSchema->createTable('bar.users');
+        $newSchema->createSequence('baz.users');
 
         $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
 
