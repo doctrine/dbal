@@ -11,6 +11,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentTime;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
@@ -540,10 +542,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testColumnDefaultCurrentTimestamp(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        $currentTimeStamp    = new CurrentTimestamp();
-        $currentTimeStampSQL = $currentTimeStamp->toSQL($platform);
+        $currentTimeStamp = new CurrentTimestamp();
 
         $table = Table::editor()
             ->setUnquotedName('test_column_defaults_current_timestamp')
@@ -564,8 +563,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $onlineTable = $this->schemaManager->introspectTableByUnquotedName('test_column_defaults_current_timestamp');
-        self::assertSame($currentTimeStampSQL, $onlineTable->getColumn('col_datetime')->getDefault());
-        self::assertSame($currentTimeStampSQL, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
+        self::assertEquals($currentTimeStamp, $onlineTable->getColumn('col_datetime')->getDefault());
+        self::assertEquals($currentTimeStamp, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
 
         self::assertTrue(
             $this->schemaManager
@@ -649,11 +648,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             self::markTestSkipped('Only relevant for MariaDB.');
         }
 
-        $platform = $this->connection->getDatabasePlatform();
-
-        $currentTimestampSql = $platform->getCurrentTimestampSQL();
-        $currentTimeSql      = $platform->getCurrentTimeSQL();
-        $currentDateSql      = $platform->getCurrentDateSQL();
+        $currentTimestamp = new CurrentTimestamp();
+        $currentTime      = new CurrentTime();
+        $currentDate      = new CurrentDate();
 
         $table = Table::editor()
             ->setUnquotedName('test_column_defaults_current_time_and_date')
@@ -661,17 +658,17 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 Column::editor()
                     ->setUnquotedName('col_datetime')
                     ->setTypeName(Types::DATETIME_MUTABLE)
-                    ->setDefaultValue($currentTimestampSql)
+                    ->setDefaultValue($currentTimestamp)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('col_date')
                     ->setTypeName(Types::DATE_MUTABLE)
-                    ->setDefaultValue($currentDateSql)
+                    ->setDefaultValue($currentDate)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('col_time')
                     ->setTypeName(Types::TIME_MUTABLE)
-                    ->setDefaultValue($currentTimeSql)
+                    ->setDefaultValue($currentTime)
                     ->create(),
             )
             ->create();
@@ -682,9 +679,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'test_column_defaults_current_time_and_date',
         );
 
-        self::assertSame($currentTimestampSql, $onlineTable->getColumn('col_datetime')->getDefault());
-        self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
-        self::assertSame($currentTimeSql, $onlineTable->getColumn('col_time')->getDefault());
+        self::assertEquals($currentTimestamp, $onlineTable->getColumn('col_datetime')->getDefault());
+        self::assertEquals($currentDate, $onlineTable->getColumn('col_date')->getDefault());
+        self::assertEquals($currentTime, $onlineTable->getColumn('col_time')->getDefault());
 
         self::assertTrue(
             $this->schemaManager

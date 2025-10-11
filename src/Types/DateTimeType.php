@@ -13,7 +13,7 @@ use Exception;
 /**
  * Type that maps an SQL DATETIME/TIMESTAMP to a PHP DateTime object.
  */
-class DateTimeType extends Type implements PhpDateTimeMappingType
+class DateTimeType extends Type
 {
     /**
      * {@inheritDoc}
