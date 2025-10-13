@@ -8,6 +8,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
@@ -258,7 +260,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         return new TableColumnMetadataRow($schemaName, $tableName, $editor->create());
     }
 
-    private function parseDefaultExpression(string $value): ?string
+    private function parseDefaultExpression(string $value): string|DefaultExpression|null
     {
         while (preg_match('/^\((.*)\)$/s', $value, $matches) === 1) {
             $value = $matches[1];
@@ -273,7 +275,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         }
 
         if ($value === 'getdate()') {
-            return $this->platform->getCurrentTimestampSQL();
+            return new CurrentTimestamp();
         }
 
         return $value;

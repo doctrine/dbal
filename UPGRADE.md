@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed support for the current date, time and timestamp SQL expressions as default values
+
+Using SQL expressions for the current date, time, or timestamp as column default values is no longer supported. The
+corresponding defaults are now introspected as `CurrentDate`, `CurrentTime`, and `CurrentTimestamp`, respectively.
+
 ## BC BREAK: Removed `Schema::createNamespace()` and the `$namespaces` constructor parameter
 
 The `Schema::createNamespace()` method and the `$namespaces` constructor parameter have been removed.

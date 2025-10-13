@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
-use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\DefaultExpression;
@@ -23,8 +25,8 @@ class DefaultExpressionTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if ($platform instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('Not supported on MySQL');
+        if (! $this->platformSupportsCurrentDate($platform)) {
+            $this->expectException(NotSupported::class);
         }
 
         $this->assertDefaultExpression(Types::DATE_MUTABLE, new CurrentDate());
@@ -34,12 +36,8 @@ class DefaultExpressionTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if ($platform instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('Not supported on MySQL');
-        }
-
-        if ($platform instanceof OraclePlatform) {
-            self::markTestSkipped('Not supported on Oracle');
+        if (! $this->platformSupportsCurrentTime($platform)) {
+            $this->expectException(NotSupported::class);
         }
 
         $this->assertDefaultExpression(Types::TIME_MUTABLE, new CurrentTime());
@@ -82,5 +80,16 @@ class DefaultExpressionTest extends FunctionalTestCase
         self::assertNotFalse($row);
 
         self::assertEquals(...$row);
+    }
+
+    private function platformSupportsCurrentDate(AbstractPlatform $platform): bool
+    {
+        return ! $platform instanceof MySQLPlatform;
+    }
+
+    private function platformSupportsCurrentTime(AbstractPlatform $platform): bool
+    {
+        return ! $platform instanceof MySQLPlatform
+            && ! $platform instanceof OraclePlatform;
     }
 }

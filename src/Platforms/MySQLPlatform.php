@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
@@ -30,6 +31,16 @@ class MySQLPlatform extends AbstractMySQLPlatform
         }
 
         return parent::getDefaultValueDeclarationSQL($column);
+    }
+
+    public function getCurrentDateSQL(): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getCurrentTimeSQL(): string
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

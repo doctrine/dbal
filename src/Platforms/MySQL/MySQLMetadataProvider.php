@@ -11,6 +11,10 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentTime;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
@@ -282,10 +286,12 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                 break;
         }
 
-        if ($this->platform instanceof MariaDBPlatform) {
-            $default = $this->parseMariaDBColumnDefault($this->platform, $columnDefault);
+        if ($columnDefault === null) {
+            $default = null;
+        } elseif ($this->platform instanceof MariaDBPlatform) {
+            $default = $this->parseMariaDBColumnDefault($columnDefault);
         } else {
-            $default = $columnDefault;
+            $default = $this->parseMySQLColumnDefault($dbType, $columnDefault);
         }
 
         $editor
@@ -314,6 +320,19 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         );
     }
 
+    /** @link https://dev.mysql.com/doc/refman/8.4/en/timestamp-initialization.html */
+    private function parseMySQLColumnDefault(string $type, string $default): string|DefaultExpression
+    {
+        // There is no way to tell whether the "CURRENT_TIMESTAMP" value represents a string or an expression in MySQL
+        // schema introspection results. We rely on the fact that the "CURRENT_TIMESTAMP" expression is only supported
+        // for the "DATETIME" and "TIMESTAMP" data types and represent this value as an expression only in these cases.
+        if (($type === 'datetime' || $type === 'timestamp') && $default === 'CURRENT_TIMESTAMP') {
+            return new CurrentTimestamp();
+        }
+
+        return $default;
+    }
+
     /**
      * Return Doctrine/Mysql-compatible column default values for MariaDB 10.2.7+ servers.
      *
@@ -329,11 +348,11 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
      * @link https://jira.mariadb.org/browse/MDEV-13132
      * @link https://jira.mariadb.org/browse/MDEV-14053
      *
-     * @param string|null $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
+     * @param string $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
-    private function parseMariaDBColumnDefault(MariaDBPlatform $platform, ?string $columnDefault): ?string
+    private function parseMariaDBColumnDefault(string $columnDefault): string|DefaultExpression|null
     {
-        if ($columnDefault === 'NULL' || $columnDefault === null) {
+        if ($columnDefault === 'NULL') {
             return null;
         }
 
@@ -342,9 +361,9 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         }
 
         return match ($columnDefault) {
-            'current_timestamp()' => $platform->getCurrentTimestampSQL(),
-            'curdate()' => $platform->getCurrentDateSQL(),
-            'curtime()' => $platform->getCurrentTimeSQL(),
+            'current_timestamp()' => new CurrentTimestamp(),
+            'curdate()' => new CurrentDate(),
+            'curtime()' => new CurrentTime(),
             default => $columnDefault,
         };
     }

@@ -13,7 +13,7 @@ use Exception;
 /**
  * Immutable type of {@see DateTimeType}.
  */
-class DateTimeImmutableType extends Type implements PhpDateTimeMappingType
+class DateTimeImmutableType extends Type
 {
     /**
      * {@inheritDoc}

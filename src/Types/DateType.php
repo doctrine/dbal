@@ -12,7 +12,7 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 /**
  * Type that maps an SQL DATE to a PHP Date object.
  */
-class DateType extends Type implements PhpDateMappingType
+class DateType extends Type
 {
     /**
      * {@inheritDoc}

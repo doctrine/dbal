@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Oracle\OracleMetadataProvider;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
@@ -292,6 +293,11 @@ class OraclePlatform extends AbstractPlatform
     public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'CLOB';
+    }
+
+    public function getCurrentTimeSQL(): string
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**
