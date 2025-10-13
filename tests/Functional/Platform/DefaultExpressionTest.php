@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentTime;
+use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -24,9 +27,7 @@ class DefaultExpressionTest extends FunctionalTestCase
             self::markTestSkipped('Not supported on MySQL');
         }
 
-        $this->assertDefaultExpression(Types::DATE_MUTABLE, static function (AbstractPlatform $platform): string {
-            return $platform->getCurrentDateSQL();
-        });
+        $this->assertDefaultExpression(Types::DATE_MUTABLE, new CurrentDate());
     }
 
     public function testCurrentTime(): void
@@ -41,23 +42,16 @@ class DefaultExpressionTest extends FunctionalTestCase
             self::markTestSkipped('Not supported on Oracle');
         }
 
-        $this->assertDefaultExpression(Types::TIME_MUTABLE, static function (AbstractPlatform $platform): string {
-            return $platform->getCurrentTimeSQL();
-        });
+        $this->assertDefaultExpression(Types::TIME_MUTABLE, new CurrentTime());
     }
 
     public function testCurrentTimestamp(): void
     {
-        $this->assertDefaultExpression(Types::DATETIME_MUTABLE, static function (AbstractPlatform $platform): string {
-            return $platform->getCurrentTimestampSQL();
-        });
+        $this->assertDefaultExpression(Types::DATETIME_MUTABLE, new CurrentTimestamp());
     }
 
-    private function assertDefaultExpression(string $typeName, callable $expression): void
+    private function assertDefaultExpression(string $typeName, DefaultExpression $expression): void
     {
-        $platform   = $this->connection->getDatabasePlatform();
-        $defaultSql = $expression($platform, $this);
-
         $table = Table::editor()
             ->setUnquotedName('default_expr_test')
             ->setColumns(
@@ -68,17 +62,19 @@ class DefaultExpressionTest extends FunctionalTestCase
                 Column::editor()
                     ->setUnquotedName('default_value')
                     ->setTypeName($typeName)
-                    ->setDefaultValue($defaultSql)
+                    ->setDefaultValue($expression)
                     ->create(),
             )
             ->create();
 
         $this->dropAndCreateTable($table);
 
+        $platform = $this->connection->getDatabasePlatform();
+
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO default_expr_test (actual_value) VALUES (%s)',
-                $defaultSql,
+                $expression->toSQL($platform),
             ),
         );
 

@@ -414,6 +414,11 @@ all drivers and middleware.
 
 # Upgrade to 4.4
 
+## Deprecated using current date, time and timestamp SQL expressions as default values
+
+Using SQL expressions for the current date, time, or timestamp as column default values is deprecated. Instead, use an
+instance of the `CurrentDate`, `CurrentTime`, or `CurrentTimestamp` class, respectively.
+
 ## Deprecated `Schema::createNamespace()` and the `$namespaces` constructor parameter
 
 The `Schema::createNamespace()` method and the `$namespaces` constructor parameter have been deprecated. The schema
