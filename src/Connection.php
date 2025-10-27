@@ -294,6 +294,8 @@ class Connection implements ServerVersionProvider
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function fetchAssociative(string $query, array $params = [], array $types = []): array|false
     {
@@ -310,6 +312,8 @@ class Connection implements ServerVersionProvider
      * @return list<mixed>|false False is returned if no rows are found.
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function fetchNumeric(string $query, array $params = [], array $types = []): array|false
     {
@@ -326,6 +330,8 @@ class Connection implements ServerVersionProvider
      * @return mixed|false False is returned if no rows are found.
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function fetchOne(string $query, array $params = [], array $types = []): mixed
     {
@@ -388,6 +394,8 @@ class Connection implements ServerVersionProvider
      * @return int|numeric-string The number of affected rows.
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function delete(string $table, array $criteria = [], array $types = []): int|string
     {
@@ -453,6 +461,8 @@ class Connection implements ServerVersionProvider
      * @return int|numeric-string The number of affected rows.
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function update(string $table, array $data, array $criteria = [], array $types = []): int|string
     {
@@ -494,6 +504,8 @@ class Connection implements ServerVersionProvider
      * @return int|numeric-string The number of affected rows.
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function insert(string $table, array $data, array $types = []): int|string
     {
@@ -601,6 +613,8 @@ class Connection implements ServerVersionProvider
      * @return list<list<mixed>>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function fetchAllNumeric(string $query, array $params = [], array $types = []): array
     {
@@ -616,6 +630,8 @@ class Connection implements ServerVersionProvider
      * @return list<array<string,mixed>>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function fetchAllAssociative(string $query, array $params = [], array $types = []): array
     {
@@ -632,6 +648,8 @@ class Connection implements ServerVersionProvider
      * @return array<mixed,mixed>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function fetchAllKeyValue(string $query, array $params = [], array $types = []): array
     {
@@ -649,6 +667,8 @@ class Connection implements ServerVersionProvider
      * @return array<mixed,array<string,mixed>>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function fetchAllAssociativeIndexed(string $query, array $params = [], array $types = []): array
     {
@@ -664,6 +684,8 @@ class Connection implements ServerVersionProvider
      * @return list<mixed>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function fetchFirstColumn(string $query, array $params = [], array $types = []): array
     {
@@ -679,6 +701,8 @@ class Connection implements ServerVersionProvider
      * @return Traversable<int,list<mixed>>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable
     {
@@ -695,6 +719,8 @@ class Connection implements ServerVersionProvider
      * @return Traversable<int,array<string,mixed>>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable
     {
@@ -711,6 +737,8 @@ class Connection implements ServerVersionProvider
      * @return Traversable<mixed,mixed>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable
     {
@@ -728,6 +756,8 @@ class Connection implements ServerVersionProvider
      * @return Traversable<mixed,array<string,mixed>>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function iterateAssociativeIndexed(string $query, array $params = [], array $types = []): Traversable
     {
@@ -743,6 +773,8 @@ class Connection implements ServerVersionProvider
      * @return Traversable<int,mixed>
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function iterateColumn(string $query, array $params = [], array $types = []): Traversable
     {
@@ -778,6 +810,8 @@ class Connection implements ServerVersionProvider
      * @phpstan-param WrapperParameterTypeArray $types
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function executeQuery(
         string $sql,
@@ -818,6 +852,8 @@ class Connection implements ServerVersionProvider
      *
      * @throws CacheException
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function executeCacheQuery(string $sql, array $params, array $types, QueryCacheProfile $qcp): Result
     {
@@ -889,6 +925,8 @@ class Connection implements ServerVersionProvider
      * @return int|numeric-string
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {
@@ -928,6 +966,8 @@ class Connection implements ServerVersionProvider
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
      * @throws Exception
+     *
+     * @phpstan-impure
      */
     public function lastInsertId(): int|string
     {
@@ -953,6 +993,8 @@ class Connection implements ServerVersionProvider
      * @throws Throwable
      *
      * @template T
+     *
+     * @phpstan-impure
      */
     public function transactional(Closure $func): mixed
     {
