@@ -1560,7 +1560,11 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $default;
         }
 
-        return ' DEFAULT ' . $this->quoteStringLiteral($default);
+        if ($default) {
+            return ' DEFAULT ' . $this->quoteStringLiteral($default);
+        } else {
+            return '';
+        }
     }
 
     /**
