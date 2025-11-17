@@ -14,6 +14,7 @@ trait PDOConnect
 {
     /** @param array<int, mixed> $options */
     private function doConnect(
+        #[SensitiveParameter]
         string $dsn,
         string $username,
         #[SensitiveParameter]
