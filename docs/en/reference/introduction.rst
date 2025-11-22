@@ -13,7 +13,7 @@ the oci8 extension under the hood.
 
 The following database vendors are currently supported:
 
-- DB2 (IBM)
+- Db2 (IBM)
 - MariaDB
 - MySQL (Oracle)
 - Oracle

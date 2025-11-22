@@ -37,15 +37,15 @@
         "psr/log": "^1|^2|^3"
     },
     "require-dev": {
-        "doctrine/coding-standard": "13.0.1",
+        "doctrine/coding-standard": "14.0.0",
         "fig/log-test": "^1",
         "jetbrains/phpstorm-stubs": "2023.2",
-        "phpstan/phpstan": "2.1.22",
-        "phpstan/phpstan-phpunit": "2.0.6",
+        "phpstan/phpstan": "2.1.30",
+        "phpstan/phpstan-phpunit": "2.0.7",
         "phpstan/phpstan-strict-rules": "^2",
         "phpunit/phpunit": "12.3.0",
-        "slevomat/coding-standard": "8.16.2",
-        "squizlabs/php_codesniffer": "3.13.1",
+        "slevomat/coding-standard": "8.24.0",
+        "squizlabs/php_codesniffer": "4.0.0",
         "symfony/cache": "^6.4|^7.3",
         "symfony/console": "^6.4|^7.3"
     },
@@ -64,5 +64,8 @@
     },
     "autoload-dev": {
         "psr-4": { "Doctrine\\DBAL\\Tests\\": "tests" }
+    },
+    "scripts": {
+        "docs": "composer --working-dir docs update && ./docs/vendor/bin/build-docs.sh @additional_args"
     }
 }

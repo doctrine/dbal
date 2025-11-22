@@ -30,9 +30,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Install IBM DB2 CLI driver
+      - name: Install Db2 CLI driver
         working-directory: /tmp
         run: |
           wget https://github.com/ibmdb/db2drivers/raw/refs/heads/main/clidriver/v11.5.9/linuxx64_odbc_cli.tar.gz
@@ -62,7 +62,7 @@ jobs:
         run: vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml
 
       - name: Upload coverage file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ github.job }}-php-${{ inputs.php-version }}.coverage
           path: coverage.xml

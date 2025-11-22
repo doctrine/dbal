@@ -2447,6 +2447,22 @@ The following classes and constants have been deprecated:
 
 Use JSON for storing unstructured data.
 
+You can keep the old type behavior by copying (and adapting) the old type
+classes
+([Array](https://github.com/doctrine/dbal/blob/2.13.9/lib/Doctrine/DBAL/Types/ArrayType.php)
+and
+[Object](https://github.com/doctrine/dbal/blob/2.13.9/lib/Doctrine/DBAL/Types/ObjectType.php))
+into your own code- base and re-register them in the TypeRegistry:
+
+```php
+use Doctrine\DBAL\Types\TypeFactory;
+use MyApp\Doctrine\Types\ArrayType;
+use MyApp\Doctrine\Types\ObjectType;
+
+TypeRegistry::register('array', new ArrayType());
+TypeRegistry::register('object', new ObjectType());
+```
+
 ## Deprecated `Driver::getSchemaManager()`.
 
 The `Driver::getSchemaManager()` method has been deprecated. Use `AbstractPlatform::createSchemaManager()` instead.
@@ -2653,9 +2669,9 @@ following methods are deprecated:
 The protected property `AbstractPlatform::$doctrineTypeComments` is deprecated
 as well.
 
-## Deprecated support for IBM DB2 10.5 and older
+## Deprecated support for Db2 10.5 and older
 
-IBM DB2 10.5 and older won't be supported in DBAL 4. Consider upgrading to IBM DB2 11.1 or later.
+Db2 10.5 and older won't be supported in DBAL 4. Consider upgrading to Db2 11.1 or later.
 
 ## Deprecated support for Oracle 12c (12.2.0.1) and older
 
@@ -3203,9 +3219,49 @@ Please generate UUIDs on the application side (e.g. using [ramsey/uuid](https://
 
 The `Doctrine\DBAL\Driver::getName()` has been removed.
 
+## BC Break: `json_array` type removed
+
+Removed `json_array` type and all associated hacks.
+
+It is recommened to migrate to the `json` type while still being on the ORM 2
+branch. You then need to migrate the database (using migrations or SchemaTool)
+to update both the type and especially remove the `(Dc2Type:json_array)` column
+comment, before you ugprade to DBAL 3.
+
+If you cannot migrate the database or  rely on this type, especially its
+behavior with regard to NULL and empty values, you can copy (adapt) the
+[JsonArrayType
+class](https://github.com/doctrine/dbal/blob/2.13.9/lib/Doctrine/DBAL/Types/JsonArrayType.php)
+into your own codebase and re-regsiter under the name:
+
+```php
+use Doctrine\DBAL\Types\TypeFactory;
+use MyApp\Doctrine\Types\JsonArrayType;
+
+TypeRegistry::register('json_array', new JsonArrayType());
+```
+
+Or if you want to opt into the newer type instead, with its slightly changed null behavior, you can
+register that with:
+
+```php
+use Doctrine\DBAL\Types\TypeFactory;
+use Doctrine\DBAL\Types\JsonType;
+
+TypeRegistry::register('json_array', new JsonType());
+```
+
+In Symfony you can register this type with:
+
+```yml
+doctrine:
+   dbal:
+      types:
+         json_array: "Doctrine\\DBAL\\Types\\JsonType"
+```
+
 ## BC BREAK Removed previously deprecated features
 
- * Removed `json_array` type and all associated hacks.
  * Removed `Connection::TRANSACTION_*` constants.
  * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
  * Removed `AbstractPlatform::getSQLResultCasing()`, `::prefersSequences()` and `::supportsForeignKeyOnUpdate()` methods.
@@ -3321,9 +3377,9 @@ All implementations of the `VersionAwarePlatformDriver` interface have to implem
 The `Doctrine\DBAL\Platforms\MsSQLKeywords` class has been removed.
 Please use `Doctrine\DBAL\Platforms\SQLServerPlatform` instead.
 
-## BC BREAK: Removed PDO DB2 driver
+## BC BREAK: Removed PDO Db2 driver
 
-This PDO-based IBM DB2 driver (built on top of `pdo_ibm` extension) has already been unsupported as of 2.5, it has been now removed.
+This PDO-based Db2 driver (built on top of `pdo_ibm` extension) has already been unsupported as of 2.5, it has been now removed.
 
 The following class has been removed:
 

@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\DB2Platform;
 
 /**
- * IBM Db2 Schema Manager.
+ * Db2 Schema Manager.
  *
  * @extends AbstractSchemaManager<DB2Platform>
  */

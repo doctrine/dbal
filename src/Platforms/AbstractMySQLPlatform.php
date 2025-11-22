@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 
@@ -711,5 +712,10 @@ SQL;
         $conditions[] = "t.TABLE_TYPE = 'BASE TABLE'";
 
         return $sql . ' WHERE ' . implode(' AND ', $conditions);
+    }
+
+    public function createSQLParser(): Parser
+    {
+        return new Parser(true);
     }
 }

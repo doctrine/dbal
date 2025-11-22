@@ -11,7 +11,7 @@ use function sprintf;
 use function str_contains;
 
 /**
- * IBM DB2 DSN
+ * Db2 DSN
  */
 final readonly class DataSourceName
 {

@@ -31,12 +31,10 @@ class StatementTest extends FunctionalTestCase
         $statement = $this->connection->prepare('SELECT 1');
 
         $property = new ReflectionProperty(WrapperStatement::class, 'stmt');
-        $property->setAccessible(true);
 
         $driverStatement = $property->getValue($statement);
 
         $property = new ReflectionProperty(Statement::class, 'name');
-        $property->setAccessible(true);
 
         $name = $property->getValue($driverStatement);
 
