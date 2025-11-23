@@ -26,12 +26,12 @@ class DriverTest extends AbstractDriverTestCase
 
     public function testConnectsWithoutDatabaseNameParameter(): void
     {
-        self::markTestSkipped('IBM DB2 does not support connecting without database name.');
+        self::markTestSkipped('Db2 does not support connecting without database name.');
     }
 
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter(): void
     {
-        self::markTestSkipped('IBM DB2 does not support connecting without database name.');
+        self::markTestSkipped('Db2 does not support connecting without database name.');
     }
 
     protected function createDriver(): DriverInterface

@@ -127,13 +127,13 @@ columns in the table is not the same as the order in the primary key. Tables
 created with Doctrine use the order of the columns as defined in the primary
 key.
 
-IBM DB2
--------
+Db2
+---
 
 DateTimeTz
 ~~~~~~~~~~
 
-DB2 does not support saving timezone offsets. The DateTimeTz type therefore behaves like the DateTime
+Db2 does not support saving timezone offsets. The DateTimeTz type therefore behaves like the DateTime
 type.
 
 Oracle

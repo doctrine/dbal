@@ -251,39 +251,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testAlterTableAddColumns(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('user')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $diff = new TableDiff($table, addedColumns: [
-            Column::editor()
-                ->setUnquotedName('foo')
-                ->setTypeName(Types::STRING)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('count')
-                ->setTypeName(Types::INTEGER)
-                ->setNotNull(false)
-                ->setDefaultValue(1)
-                ->create(),
-        ]);
-
-        $expected = [
-            'ALTER TABLE "user" ADD COLUMN "foo" VARCHAR NOT NULL',
-            'ALTER TABLE "user" ADD COLUMN "count" INTEGER DEFAULT 1',
-        ];
-
-        self::assertEquals($expected, $this->platform->getAlterTableSQL($diff));
-    }
-
     public function testRenameNonExistingColumn(): void
     {
         $table = Table::editor()

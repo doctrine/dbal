@@ -172,7 +172,7 @@ interfaces to use. It can be configured in one of two ways:
    -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo_sqlsrv PDO
    -  ``sqlsrv``: A Microsoft SQL Server driver that uses the sqlsrv PHP extension.
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
-   -  ``ibm_db2``: An IBM DB2 driver that uses the ibm_db2 PHP extension.
+   -  ``ibm_db2``: A Db2 driver that uses the ibm_db2 PHP extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no
    'driver' is specified. This allows the use of custom drivers that

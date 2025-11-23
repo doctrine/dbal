@@ -27,7 +27,7 @@ use function implode;
 use function sprintf;
 
 /**
- * Provides the behavior, features and SQL dialect of the IBM DB2 database platform of the oldest supported version.
+ * Provides the behavior, features and SQL dialect of the Db2 database platform of the oldest supported version.
  */
 class DB2Platform extends AbstractPlatform
 {
@@ -566,9 +566,9 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * DB2 supports savepoints, but they work semantically different than on other vendor platforms.
+     * Db2 supports savepoints, but they work semantically different than on other vendor platforms.
      *
-     * TODO: We have to investigate how to get DB2 up and running with savepoints.
+     * TODO: We have to investigate how to get Db2 up and running with savepoints.
      */
     public function supportsSavepoints(): bool
     {

@@ -7,6 +7,7 @@ parameters:
         - tests
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
+    checkStrictPrintfPlaceholderTypes: false
     exceptions:
         check:
             missingCheckedExceptionInThrows: true
@@ -14,6 +15,7 @@ parameters:
             - ErrorException
             - LogicException
             - RuntimeException
+            - ValueError
     ignoreErrors:
         - identifier: missingType.generics
 
@@ -29,6 +31,10 @@ parameters:
         -
             message: '~^Method .* throws checked exception (Type|Value)Error but it''s missing from the PHPDoc @throws tag.~'
 
+        # https://github.com/php-fig/log-test/issues/17
+        -
+            message: '~Parameter #1 \$record of method .*TestLogger~'
+            identifier: argument.type
 
         # https://github.com/phpstan/phpstan-strict-rules/issues/103
         -

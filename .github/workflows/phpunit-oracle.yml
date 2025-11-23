@@ -32,7 +32,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -53,7 +53,7 @@ jobs:
         run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}${{ inputs.oracle-version < 23 && '-21' || '' }}.xml --coverage-clover=coverage.xml
 
       - name: Upload coverage file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ github.job }}-${{ inputs.oracle-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}.coverage
           path: coverage.xml

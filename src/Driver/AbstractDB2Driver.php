@@ -11,7 +11,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\ServerVersionProvider;
 
 /**
- * Abstract base implementation of the {@see Driver} interface for IBM DB2 based drivers.
+ * Abstract base implementation of the {@see Driver} interface for Db2 based drivers.
  */
 abstract class AbstractDB2Driver implements Driver
 {

@@ -192,8 +192,8 @@ jobs:
           - "Latin1_General_100_CI_AS_SC_UTF8"
           - "Latin1_General_100_CS_AS_SC_UTF8"
 
-  phpunit-ibm-db2:
-    name: "PHPUnit with IBM DB2"
+  phpunit-db2:
+    name: "PHPUnit with Db2"
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-db2.yml
     with:
@@ -215,7 +215,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v5"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
@@ -248,16 +248,16 @@ jobs:
       - "phpunit-mariadb"
       - "phpunit-mysql"
       - "phpunit-mssql"
-#      - "phpunit-ibm-db2"
+      - "phpunit-db2"
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v5"
         with:
           fetch-depth: 2
 
       - name: "Download coverage files"
-        uses: "actions/download-artifact@v4"
+        uses: "actions/download-artifact@v6"
         with:
           path: "reports"
 
