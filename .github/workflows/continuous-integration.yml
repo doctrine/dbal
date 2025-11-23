@@ -42,7 +42,7 @@ jobs:
           - "ubuntu-24.04"
         php-version:
           - "7.4"
-          - "8.4"
+          - "8.5"
         dependency-versions:
           - "highest"
         extension:
@@ -54,7 +54,7 @@ jobs:
             dependency-versions: "lowest"
             extension: "pdo_sqlite"
           - os: "ubuntu-24.04"
-            php-version: "8.4"
+            php-version: "8.5"
             dependency-versions: "minimal"
             extension: "sqlite3"
 
@@ -68,8 +68,11 @@ jobs:
       extension: ${{ matrix.extension }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
+          # TODO: Switch to PHP 8.5
+          # see https://github.com/shivammathur/setup-php/issues/1028
           - "8.4"
         oracle-version:
           - "21"
@@ -84,6 +87,9 @@ jobs:
           - php-version: "7.4"
             oracle-version: "23"
             extension: pdo_oci
+          - php-version: "8.5"
+            oracle-version: "23"
+            extension: oci8
 
   phpunit-postgres:
     name: "PHPUnit with PostgreSQL"
@@ -97,7 +103,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
+          - "8.5"
         postgres-version:
           - "9.4"
           - "11" # We have code specific to 10.0-12.0
@@ -125,7 +131,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
+          - "8.5"
         mariadb-version:
           # keep in sync with https://mariadb.org/about/#maintenance-policy
           - "10.0"  # Oldest version supported by DBAL
@@ -160,7 +166,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
+          - "8.5"
         mysql-version:
           - "5.7"
           - "8.0" # We have code specific to ^8.0
@@ -194,7 +200,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.4"
+          - "8.5"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -219,6 +225,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
+          # TODO: Running the tests on PHP 8.5 causes a seqfault. Switch as soon as this is fixed.
           - "8.4"
 
   development-deps:
@@ -228,7 +235,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
+          - "8.5"
 
     steps:
       - name: "Checkout"
