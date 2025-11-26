@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Async;
 
 use Doctrine\DBAL\Async\AsyncQuery;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Query\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 
 class AsyncQueryTest extends TestCase
@@ -66,6 +68,66 @@ class AsyncQueryTest extends TestCase
 
         self::assertSame([1, 'test'], $query->getParams());
         self::assertSame([ParameterType::INTEGER, ParameterType::STRING], $query->getTypes());
+    }
+
+    public function testFromQueryBuilder(): void
+    {
+        $connection = $this->createConnectionMock();
+
+        $qb = new QueryBuilder($connection);
+        $qb->select('id', 'name')
+           ->from('users', 'u')
+           ->where('u.id = :id')
+           ->andWhere('u.status = :status')
+           ->setParameter('id', 42, ParameterType::INTEGER)
+           ->setParameter('status', 'active', ParameterType::STRING);
+
+        $asyncQuery = AsyncQuery::fromQueryBuilder($qb);
+
+        self::assertSame($qb->getSQL(), $asyncQuery->getSQL());
+        self::assertSame($qb->getParameters(), $asyncQuery->getParams());
+        self::assertSame($qb->getParameterTypes(), $asyncQuery->getTypes());
+    }
+
+    public function testFromQueryBuilderWithPositionalParams(): void
+    {
+        $connection = $this->createConnectionMock();
+
+        $qb = new QueryBuilder($connection);
+        $qb->select('*')
+           ->from('products')
+           ->where('price > ?')
+           ->setParameter(0, 100, ParameterType::INTEGER);
+
+        $asyncQuery = AsyncQuery::fromQueryBuilder($qb);
+
+        self::assertSame([0 => 100], $asyncQuery->getParams());
+        self::assertSame([0 => ParameterType::INTEGER], $asyncQuery->getTypes());
+    }
+
+    public function testFromQueryBuilderWithNoParams(): void
+    {
+        $connection = $this->createConnectionMock();
+
+        $qb = new QueryBuilder($connection);
+        $qb->select('COUNT(*)')
+           ->from('users');
+
+        $asyncQuery = AsyncQuery::fromQueryBuilder($qb);
+
+        self::assertStringContainsString('SELECT', $asyncQuery->getSQL());
+        self::assertSame([], $asyncQuery->getParams());
+        self::assertSame([], $asyncQuery->getTypes());
+    }
+
+    private function createConnectionMock(): Connection
+    {
+        $platform = new \Doctrine\DBAL\Platforms\MySQLPlatform();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn($platform);
+
+        return $connection;
     }
 }
 

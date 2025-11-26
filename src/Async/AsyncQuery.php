@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Async;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Types\Type;
 
 /**
@@ -13,6 +14,30 @@ use Doctrine\DBAL\Types\Type;
  */
 final class AsyncQuery
 {
+    /**
+     * Creates an AsyncQuery from a QueryBuilder instance.
+     *
+     * This is a convenience factory method that extracts the SQL, parameters,
+     * and parameter types from a QueryBuilder.
+     *
+     * Example:
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('*')
+     *         ->from('users')
+     *         ->where('id = :id')
+     *         ->setParameter('id', 1);
+     *
+     *     $asyncQuery = AsyncQuery::fromQueryBuilder($qb);
+     */
+    public static function fromQueryBuilder(QueryBuilder $queryBuilder): self
+    {
+        return new self(
+            $queryBuilder->getSQL(),
+            $queryBuilder->getParameters(),
+            $queryBuilder->getParameterTypes()
+        );
+    }
+
     /** @var string */
     private string $sql;
 

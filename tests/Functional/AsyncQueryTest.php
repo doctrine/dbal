@@ -307,5 +307,69 @@ class AsyncQueryTest extends FunctionalTestCase
             );
         }
     }
+
+    public function testAsyncQueryFromQueryBuilder(): void
+    {
+        $this->skipIfNotAsyncCapable();
+        $this->createTestTable();
+
+        // Insert test data
+        $this->connection->insert(self::TABLE, ['name' => 'QueryBuilder Test', 'value' => 999]);
+
+        // Create queries using QueryBuilder
+        $qb1 = $this->connection->createQueryBuilder()
+            ->select('name')
+            ->from(self::TABLE)
+            ->where('value = 999');
+
+        $qb2 = $this->connection->createQueryBuilder()
+            ->select('COUNT(*) as cnt')
+            ->from(self::TABLE);
+
+        // Execute using fromQueryBuilder helper
+        $results = $this->connection->executeQueriesAsync([
+            AsyncQuery::fromQueryBuilder($qb1),
+            AsyncQuery::fromQueryBuilder($qb2),
+        ]);
+
+        self::assertCount(2, $results);
+
+        $row1 = $results[0]->fetchAssociative();
+        self::assertIsArray($row1);
+        self::assertEquals('QueryBuilder Test', $row1['name']);
+
+        $row2 = $results[1]->fetchAssociative();
+        self::assertIsArray($row2);
+        self::assertGreaterThanOrEqual(1, $row2['cnt']);
+    }
+
+    public function testAsyncQueryFromMultipleQueryBuilders(): void
+    {
+        $this->skipIfNotAsyncCapable();
+        $this->createTestTable();
+
+        // Insert test data
+        $this->connection->insert(self::TABLE, ['name' => 'Alice', 'value' => 10]);
+        $this->connection->insert(self::TABLE, ['name' => 'Bob', 'value' => 20]);
+        $this->connection->insert(self::TABLE, ['name' => 'Charlie', 'value' => 30]);
+
+        // Create multiple QueryBuilder instances
+        $queries = [];
+        foreach ([10, 20, 30] as $value) {
+            $qb = $this->connection->createQueryBuilder()
+                ->select('name')
+                ->from(self::TABLE)
+                ->where('value = ' . $value);
+
+            $queries[] = AsyncQuery::fromQueryBuilder($qb);
+        }
+
+        $results = $this->connection->executeQueriesAsync($queries);
+
+        self::assertCount(3, $results);
+        self::assertEquals('Alice', $results[0]->fetchAssociative()['name']);
+        self::assertEquals('Bob', $results[1]->fetchAssociative()['name']);
+        self::assertEquals('Charlie', $results[2]->fetchAssociative()['name']);
+    }
 }
 
