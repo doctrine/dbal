@@ -4,6 +4,9 @@ namespace Doctrine\DBAL;
 
 use Closure;
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Async\AsyncQuery;
+use Doctrine\DBAL\Async\AsyncQueryBatch;
+use Doctrine\DBAL\Async\Exception\AsyncNotSupported;
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
@@ -1114,6 +1117,46 @@ class Connection
                 $logger->stopQuery();
             }
         }
+    }
+
+    /**
+     * Executes multiple queries in parallel using async execution.
+     *
+     * This method enables running multiple independent queries concurrently,
+     * reducing total execution time from N*T to approximately max(T1, T2, ..., Tn).
+     *
+     * Requirements:
+     * - PHP 8.1 or higher
+     * - Driver must support async queries (pgsql or mysqli only, not PDO)
+     * - Cannot be used inside a transaction (each query runs on a separate connection)
+     *
+     * Example:
+     *     $results = $connection->executeQueriesAsync([
+     *         new AsyncQuery('SELECT * FROM users WHERE id = ?', [1]),
+     *         new AsyncQuery('SELECT * FROM orders WHERE user_id = ?', [1]),
+     *         new AsyncQuery('SELECT COUNT(*) FROM products'),
+     *     ]);
+     *
+     * @param AsyncQuery[] $queries The queries to execute in parallel
+     *
+     * @return Result[] The results in the same order as the input queries
+     *
+     * @throws AsyncNotSupported If async queries are not supported
+     * @throws Exception         If query execution fails
+     */
+    public function executeQueriesAsync(array $queries): array
+    {
+        if (PHP_VERSION_ID < 80100) {
+            throw AsyncNotSupported::phpVersionTooOld();
+        }
+
+        if ($this->transactionNestingLevel > 0) {
+            throw AsyncNotSupported::notAllowedInTransaction();
+        }
+
+        $batch = new AsyncQueryBatch($this);
+
+        return $batch->execute($queries);
     }
 
     /**

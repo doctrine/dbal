@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\PgSQL;
 
+use Doctrine\DBAL\Driver\API\AsyncConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\SQL\Parser;
@@ -15,6 +16,7 @@ use function gettype;
 use function is_object;
 use function is_resource;
 use function pg_close;
+use function pg_connection_busy;
 use function pg_escape_bytea;
 use function pg_escape_literal;
 use function pg_get_result;
@@ -22,11 +24,12 @@ use function pg_last_error;
 use function pg_result_error;
 use function pg_send_prepare;
 use function pg_send_query;
+use function pg_send_query_params;
 use function pg_version;
 use function sprintf;
 use function uniqid;
 
-final class Connection implements ServerInfoAwareConnection
+final class Connection implements ServerInfoAwareConnection, AsyncConnection
 {
     /** @var PgSqlConnection|resource */
     private $connection;
@@ -157,5 +160,54 @@ final class Connection implements ServerInfoAwareConnection
     public function getNativeConnection()
     {
         return $this->connection;
+    }
+
+    /**
+     * Sends a query asynchronously without waiting for results.
+     *
+     * @param string      $sql    The SQL query to execute
+     * @param list<mixed> $params Query parameters (positional only for async)
+     *
+     * @throws Exception If sending the query fails
+     */
+    public function sendQueryAsync(string $sql, array $params = []): bool
+    {
+        if (count($params) > 0) {
+            // Use pg_send_query_params for parameterized queries
+            $result = @pg_send_query_params($this->connection, $sql, $params);
+        } else {
+            $result = @pg_send_query($this->connection, $sql);
+        }
+
+        if ($result !== true) {
+            throw new Exception(pg_last_error($this->connection));
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if the connection is busy processing an async query.
+     */
+    public function isBusy(): bool
+    {
+        return pg_connection_busy($this->connection);
+    }
+
+    /**
+     * Retrieves the result of the last async query.
+     *
+     * @throws Exception If retrieving the result fails
+     */
+    public function getAsyncResult(): Result
+    {
+        $result = @pg_get_result($this->connection);
+        assert($result !== false);
+
+        if ((bool) pg_result_error($result)) {
+            throw Exception::fromResult($result);
+        }
+
+        return new Result($result);
     }
 }
