@@ -27,10 +27,11 @@ class RunSqlCommandTest extends TestCase
         $this->connectionMock = $this->createMock(Connection::class);
         $this->command        = new RunSqlCommand(new SingleConnectionProvider($this->connectionMock));
 
+        // @phpstan-ignore function.alreadyNarrowedType (This method does not exist before Symfony 7.4)
         if (method_exists(Application::class, 'addCommand')) {
-            // @phpstan-ignore method.notFound (This method will be added in Symfony 7.4)
             (new Application())->addCommand($this->command);
         } else {
+            // @phpstan-ignore method.notFound
             (new Application())->add($this->command);
         }
 

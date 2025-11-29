@@ -250,7 +250,6 @@ jobs:
       - name: "Lower minimum stability"
         run: |
           composer config minimum-stability dev
-          composer require --no-update --dev symfony/console:^8
 
       - name: "Install development dependencies with Composer"
         uses: "ramsey/composer-install@v3"

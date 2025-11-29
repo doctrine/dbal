@@ -48,8 +48,8 @@
         "phpunit/phpunit": "9.6.29",
         "slevomat/coding-standard": "8.24.0",
         "squizlabs/php_codesniffer": "4.0.0",
-        "symfony/cache": "^5.4|^6.0|^7.0",
-        "symfony/console": "^4.4|^5.4|^6.0|^7.0"
+        "symfony/cache": "^5.4|^6.0|^7.0|^8.0",
+        "symfony/console": "^4.4|^5.4|^6.0|^7.0|^8.0"
     },
     "conflict": {
         "doctrine/cache": "< 1.11"
