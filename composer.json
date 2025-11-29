@@ -46,8 +46,8 @@
         "phpunit/phpunit": "12.3.0",
         "slevomat/coding-standard": "8.24.0",
         "squizlabs/php_codesniffer": "4.0.0",
-        "symfony/cache": "^6.4|^7.3|^8.0",
-        "symfony/console": "^6.4|^7.3|^8.0"
+        "symfony/cache": "^7.4|^8.0",
+        "symfony/console": "^7.4|^8.0"
     },
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
