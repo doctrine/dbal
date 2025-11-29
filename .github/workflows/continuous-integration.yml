@@ -44,6 +44,7 @@ jobs:
           - "ubuntu-24.04"
         php-version:
           - "8.4"
+          - "8.5"
         dependency-versions:
           - "highest"
         extension:
@@ -51,7 +52,7 @@ jobs:
           - "pdo_sqlite"
         include:
           - os: "ubuntu-24.04"
-            php-version: "8.4"
+            php-version: "8.5"
             dependency-versions: "highest"
             extension: "pdo_sqlite"
             config-file-suffix: "-stringify_fetches"
@@ -68,6 +69,8 @@ jobs:
     strategy:
       matrix:
         php-version:
+          # TODO: Switch to PHP 8.5
+          # see https://github.com/shivammathur/setup-php/issues/1028
           - "8.4"
         oracle-version:
           - "18"
@@ -76,6 +79,10 @@ jobs:
         extension:
           - oci8
           - pdo_oci
+        include:
+          - php-version: "8.5"
+            oracle-version: "23"
+            extension: oci8
 
   phpunit-postgres:
     name: "PHPUnit with PostgreSQL"
@@ -92,6 +99,7 @@ jobs:
       matrix:
         php-version:
           - "8.4"
+          - "8.5"
         postgres-locale-provider:
             - "libc"
         postgres-version:
@@ -125,6 +133,7 @@ jobs:
       matrix:
         php-version:
           - "8.4"
+          - "8.5"
         mariadb-version:
           # keep in sync with https://mariadb.org/about/#maintenance-policy
           - "10.6"  # Oldest version supported by DBAL, LTS (Jul 2026) We have code specific to 10.6.0-10.10.0
@@ -155,6 +164,7 @@ jobs:
       matrix:
         php-version:
           - "8.4"
+          - "8.5"
         mysql-version:
           - "8.0"
           - "8.4" # LTS
@@ -185,6 +195,7 @@ jobs:
       matrix:
         php-version:
           - "8.4"
+          - "8.5"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -202,6 +213,7 @@ jobs:
     strategy:
       matrix:
         php-version:
+          # TODO: Running the tests on PHP 8.5 causes a seqfault. Switch as soon as this is fixed.
           - "8.4"
 
   development-deps:
@@ -211,11 +223,11 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
+          - "8.5"
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
@@ -227,7 +239,6 @@ jobs:
       - name: "Lower minimum stability"
         run: |
           composer config minimum-stability dev
-          composer require --no-update --dev symfony/console:^8 symfony/cache:^8
 
       - name: "Install development dependencies with Composer"
         uses: "ramsey/composer-install@v3"
@@ -252,7 +263,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
         with:
           fetch-depth: 2
 
