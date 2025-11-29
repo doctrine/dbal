@@ -871,6 +871,29 @@ SQL;
         );
     }
 
+    public function testMigrateOldBoolean(): void
+    {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS table_with_old_boolean');
+        $this->connection->executeStatement(
+            'CREATE TABLE table_with_old_boolean (val TINYINT(1) NOT NULL)',
+        );
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('table_with_old_boolean');
+        $targetTable = Table::editor()
+            ->setUnquotedName('table_with_old_boolean')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::BOOLEAN)
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()->compareTables($onlineTable, $targetTable);
+
+        self::assertTrue($diff->isEmpty(), 'Tables should be identical.');
+    }
+
     public function getExpectedDefaultSchemaName(): ?string
     {
         return null;
