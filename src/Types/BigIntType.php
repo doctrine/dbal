@@ -39,7 +39,7 @@ class BigIntType extends Type implements PhpIntegerMappingType
      *
      * @param T $value
      *
-     * @return (T is null ? null : string)
+     * @return (T is null ? null : numeric-string)
      *
      * @template T
      */

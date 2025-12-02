@@ -19,6 +19,20 @@ class StringType extends Type
 
     /**
      * {@inheritDoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
+     */
+    public function convertToPHPValue($value, AbstractPlatform $platform)
+    {
+        return $value === null ? null : (string) $value;
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function getName()
     {

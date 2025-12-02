@@ -20,6 +20,20 @@ class GuidType extends StringType
 
     /**
      * {@inheritDoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : non-empty-string)
+     *
+     * @template T
+     */
+    public function convertToPHPValue($value, AbstractPlatform $platform)
+    {
+        return parent::convertToPHPValue($value, $platform);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function getName()
     {

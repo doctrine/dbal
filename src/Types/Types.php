@@ -33,12 +33,13 @@ final class Types
     /** @deprecated Use {@link Types::JSON} instead. */
     public const OBJECT = 'object';
 
-    public const SIMPLE_ARRAY   = 'simple_array';
-    public const SMALLINT       = 'smallint';
-    public const STRING         = 'string';
-    public const TEXT           = 'text';
-    public const TIME_MUTABLE   = 'time';
-    public const TIME_IMMUTABLE = 'time_immutable';
+    public const SIMPLE_ARRAY     = 'simple_array';
+    public const SMALLINT         = 'smallint';
+    public const STRING           = 'string';
+    public const NON_EMPTY_STRING = 'non_empty_string';
+    public const TEXT             = 'text';
+    public const TIME_MUTABLE     = 'time';
+    public const TIME_IMMUTABLE   = 'time_immutable';
 
     /** @codeCoverageIgnore */
     private function __construct()

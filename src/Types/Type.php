@@ -43,6 +43,7 @@ abstract class Type
         Types::SIMPLE_ARRAY         => SimpleArrayType::class,
         Types::SMALLINT             => SmallIntType::class,
         Types::STRING               => StringType::class,
+        Types::NON_EMPTY_STRING     => NonEmptyStringType::class,
         Types::TEXT                 => TextType::class,
         Types::TIME_MUTABLE         => TimeType::class,
         Types::TIME_IMMUTABLE       => TimeImmutableType::class,
