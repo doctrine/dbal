@@ -190,7 +190,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
         if ($this->platform instanceof MariaDBPlatform) {
             $columnDefault = $this->getMariaDBColumnDefault($this->platform, $tableColumn['default']);
         } else {
-            $columnDefault = $tableColumn['default'];
+            $columnDefault = match ($tableColumn['type']) {
+                'double' => $tableColumn['default'] === null ? null : (float) $tableColumn['default'],
+                default => $tableColumn['default']
+            };
         }
 
         $options = [
