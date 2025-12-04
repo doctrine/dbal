@@ -56,6 +56,8 @@ final class Driver extends AbstractOracleDriver
      * Constructs the Oracle PDO DSN.
      *
      * @param mixed[] $params
+     *
+     * @throws \Doctrine\DBAL\Driver\Exception
      */
     private function constructPdoDsn(array $params): string
     {

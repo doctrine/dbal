@@ -303,7 +303,6 @@ pdo_oci / oci8
 -  ``host`` (string): Hostname of the database to connect to. The hostname needs to be specified unless
    ``connectstring`` is specified.
 -  ``port`` (integer): Port of the database to connect to.
--  ``dbname`` (string): Name of the database/schema to connect to. Using this parameter is deprecated.
 -  ``servicename`` (string): Optional name by which clients can
    connect to the database instance. Will be used as Oracle's
    ``SERVICE_NAME`` connection parameter if given.

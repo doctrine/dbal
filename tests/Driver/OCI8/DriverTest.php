@@ -18,6 +18,7 @@ class DriverTest extends AbstractOracleDriverTestCase
         $this->expectException(InvalidConfiguration::class);
 
         (new Driver())->connect([
+            'host' => 'localhost',
             'persistent' => true,
             'driverOptions' => ['exclusive' => true],
         ]);

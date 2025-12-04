@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\AbstractOracleDriver;
 
-use Doctrine\Deprecations\Deprecation;
+use Doctrine\DBAL\Driver\AbstractOracleDriver\Exception\InvalidConfiguration;
+use Doctrine\DBAL\Driver\Exception;
 
 use function implode;
 use function is_array;
@@ -40,6 +41,8 @@ final readonly class EasyConnectString
      * Creates the object from the given DBAL connection parameters.
      *
      * @param mixed[] $params
+     *
+     * @throws Exception
      */
     public static function fromConnectionParameters(array $params): self
     {
@@ -48,27 +51,10 @@ final readonly class EasyConnectString
         }
 
         if (! isset($params['host'])) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/7244',
-                'Not specifying either of the "host" and "connectstring" parameters is deprecated.',
-            );
-
-            return new self($params['dbname'] ?? '');
+            throw InvalidConfiguration::fromMissingHostAndConnectString();
         }
 
         $connectData = [];
-
-        if (isset($params['dbname'])) {
-            $connectData['SID'] = $params['dbname'];
-
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/7239',
-                'Using the "dbname" parameter is deprecated. Use "servicename", "sid" or "connectstring"'
-                    . ' instead.',
-            );
-        }
 
         if (isset($params['servicename'])) {
             $connectData['SERVICE_NAME'] = $params['servicename'];

@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Either of the `host` and `connectstring` parameters must be specified for `oci8` and `pdo_oci` connections.
+
+Not specifying either of the `host` and `connectstring` parameters for `oci8` and `pdo_oci` connections is no longer
+supported.
+
 ## BC BREAK: Removed support for the current date, time and timestamp SQL expressions as default values
 
 Using SQL expressions for the current date, time, or timestamp as column default values is no longer supported. The
@@ -72,9 +77,9 @@ The `AbstractAsset` class has been removed.
 
 The `AbstractAsset::isQuoted()` and `AbstractAsset::getName()` method has been removed.
 
-## BC BREAK: Removed support for the `service` connection parameter.
+## BC BREAK: Removed support for the `dbname` and `service` connection parameters in `oci8` and `pdo_oci` configuration.
 
-The `service` parameter of the `oci8` and `pdo_oci` connections is no longer supported.
+The `dbname` and `service` connection parameters are no longer supported in `oci8` and `pdo_oci` configuration.
 
 ## BC BREAK: Removed `Column` methods
 
