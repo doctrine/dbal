@@ -302,10 +302,11 @@ pdo_oci / oci8
    database.
 -  ``host`` (string): Hostname of the database to connect to.
 -  ``port`` (integer): Port of the database to connect to.
--  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``dbname`` (string): Name of the database/schema to connect to. Using this parameter is deprecated.
 -  ``servicename`` (string): Optional name by which clients can
    connect to the database instance. Will be used as Oracle's
    ``SERVICE_NAME`` connection parameter if given.
+-  ``sid`` (string): Optional identifier of the database instance to connect to.
 -  ``pooled`` (boolean): Whether to enable database resident
    connection pooling.
 -  ``charset`` (string): The charset used when connecting to the

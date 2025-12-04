@@ -417,6 +417,13 @@ all drivers and middleware.
 * Upgrade to MySQL 8.0 or later.
 * Upgrade to Postgres 12 or later.
 
+# Upgrade to 4.5
+
+## Deprecated `dbname` connection parameter for `oci8` and `pdo_oci` connections.
+
+Using the `dbname` connection parameter for `oci8` and `pdo_oci` connections has been deprecated. Use `servicename` or
+`sid` instead.
+
 # Upgrade to 4.4
 
 ## Deprecated using current date, time and timestamp SQL expressions as default values

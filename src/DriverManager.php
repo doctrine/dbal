@@ -62,6 +62,7 @@ use function is_a;
  *     replica?: array<OverrideParams>,
  *     serverVersion?: string,
  *     sessionMode?: int,
+ *     sid?: string,
  *     user?: non-empty-string,
  *     wrapperClass?: class-string<Connection>,
  *     unix_socket?: string,

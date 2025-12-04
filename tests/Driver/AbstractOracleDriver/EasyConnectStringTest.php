@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver\AbstractOracleDriver;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class EasyConnectStringTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @param mixed[] $params */
     #[DataProvider('connectionParametersProvider')]
     public function testFromConnectionParameters(array $params, string $expected): void
@@ -68,6 +71,51 @@ class EasyConnectStringTest extends TestCase
                 '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST=localhost)(PORT=41521))'
                 . '(CONNECT_DATA=(SID=XE)(INSTANCE_NAME=SALES)(SERVER=POOLED)))',
             ],
+        ];
+    }
+
+    /** @param array<string, mixed> $parameters */
+    #[DataProvider('getConnectionParameters')]
+    public function testParameterDeprecation(
+        array $parameters,
+        string $expectedConnectString,
+        bool $expectDeprecation,
+    ): void {
+        if ($expectDeprecation) {
+            $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7239');
+        } else {
+            $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7239');
+        }
+
+        $string = EasyConnectString::fromConnectionParameters($parameters);
+
+        self::assertSame($expectedConnectString, (string) $string);
+    }
+
+    /** @return iterable<string, array{array<string, mixed>, string, bool}> */
+    public static function getConnectionParameters(): iterable
+    {
+        $sidString = '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))'
+            . '(CONNECT_DATA=(SID=BILLING)))';
+
+        yield 'dbname' => [
+            [
+                'host' => 'localhost',
+                'port' => 1521,
+                'dbname' => 'BILLING',
+            ],
+            $sidString,
+            true,
+        ];
+
+        yield 'sid' => [
+            [
+                'host' => 'localhost',
+                'port' => 1521,
+                'sid' => 'BILLING',
+            ],
+            $sidString,
+            false,
         ];
     }
 }
