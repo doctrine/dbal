@@ -419,10 +419,15 @@ all drivers and middleware.
 
 # Upgrade to 4.5
 
+## Deprecated not specifying either of the `host` and `connectstring` parameters for `oci8` and `pdo_oci` connections.
+
+Not specifying either of the `host` and `connectstring` parameters for `oci8` and `pdo_oci` connections has been
+deprecated. One of them must be specified.
+
 ## Deprecated `dbname` connection parameter for `oci8` and `pdo_oci` connections.
 
-Using the `dbname` connection parameter for `oci8` and `pdo_oci` connections has been deprecated. Use `servicename` or
-`sid` instead.
+Using the `dbname` connection parameter for `oci8` and `pdo_oci` connections has been deprecated. Use `servicename`,
+`sid` or `connectstring` instead.
 
 # Upgrade to 4.4
 

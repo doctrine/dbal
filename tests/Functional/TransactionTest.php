@@ -48,6 +48,27 @@ class TransactionTest extends FunctionalTestCase
         });
     }
 
+    public function testTransactionalFailureDuringCallback(): void
+    {
+        $this->connection->transactional(
+            function (): void {
+                $this->expectConnectionLoss(static function (Connection $connection): void {
+                    $connection->executeQuery($connection->getDatabasePlatform()->getDummySelectSQL());
+                });
+            },
+        );
+    }
+
+    public function testTransactionalFailureDuringCommit(): void
+    {
+        $this->connection->transactional(
+            function (): void {
+                $this->expectConnectionLoss(static function (Connection $connection): void {
+                });
+            },
+        );
+    }
+
     private function expectConnectionLoss(callable $scenario): void
     {
         $this->killCurrentSession();

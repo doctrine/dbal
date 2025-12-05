@@ -35,6 +35,7 @@ use function method_exists;
  *     charset?: ?non-empty-string,
  *     collation?: ?non-empty-string,
  *     default_constraint_name?: non-empty-string,
+ *     enumType?: class-string,
  * }
  */
 class Column extends AbstractNamedObject
@@ -263,6 +264,16 @@ class Column extends AbstractNamedObject
     }
 
     /**
+     * Returns the enum type used by the column.
+     *
+     * @return ?class-string
+     */
+    public function getEnumType(): ?string
+    {
+        return $this->_platformOptions['enumType'] ?? null;
+    }
+
+    /**
      * @internal Should be used only from within the {@see AbstractSchemaManager} class hierarchy.
      *
      * Returns the name of the DEFAULT constraint that implements the default value for the column on SQL Server.
@@ -366,6 +377,7 @@ class Column extends AbstractNamedObject
             ->setCollation($this->getCollation())
             ->setMinimumValue($this->getMinimumValue())
             ->setMaximumValue($this->getMaximumValue())
+            ->setEnumType($this->getEnumType())
             ->setDefaultConstraintName($this->getDefaultConstraintName());
     }
 }

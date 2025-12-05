@@ -300,7 +300,8 @@ pdo_oci / oci8
    database.
 -  ``password`` (string): Password to use when connecting to the
    database.
--  ``host`` (string): Hostname of the database to connect to.
+-  ``host`` (string): Hostname of the database to connect to. The hostname needs to be specified unless
+   ``connectstring`` is specified.
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to. Using this parameter is deprecated.
 -  ``servicename`` (string): Optional name by which clients can
@@ -317,8 +318,7 @@ pdo_oci / oci8
 -  ``connectstring`` (string): Complete Easy Connect connection descriptor,
    see `docs.oracle.com/en/database/oracle/oracle-database/23/netag/configuring-naming-methods.html <https://docs.oracle.com/en/database/oracle/oracle-database/23/netag/configuring-naming-methods.html>`_. When using this option,
    you will still need to provide the ``user`` and ``password`` parameters, but the other
-   parameters will no longer be used. Note that when using this parameter, the ``getHost``
-   and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
+   parameters will no longer be used.
 -  ``persistent`` (boolean): Whether to establish a persistent connection.
 -  ``driverOptions`` (array):
     -  ``exclusive`` (boolean): Once specified for an ``oci8`` connection, forces the driver to always establish

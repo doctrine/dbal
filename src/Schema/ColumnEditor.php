@@ -34,6 +34,9 @@ final class ColumnEditor
 
     private mixed $maximumValue = null;
 
+    /** @var ?class-string  */
+    private ?string $enumType = null;
+
     private bool $autoincrement = false;
 
     private string $comment = '';
@@ -159,6 +162,14 @@ final class ColumnEditor
         return $this;
     }
 
+    /** @param ?class-string $enumType */
+    public function setEnumType(?string $enumType): self
+    {
+        $this->enumType = $enumType;
+
+        return $this;
+    }
+
     public function setAutoincrement(bool $flag): self
     {
         $this->autoincrement = $flag;
@@ -243,6 +254,10 @@ final class ColumnEditor
 
         if ($this->maximumValue !== null) {
             $platformOptions['max'] = $this->maximumValue;
+        }
+
+        if ($this->enumType !== null) {
+            $platformOptions['enumType'] = $this->enumType;
         }
 
         if ($this->defaultConstraintName !== null) {

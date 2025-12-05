@@ -35,6 +35,7 @@ class ColumnTest extends TestCase
         self::assertEquals('baz', $column->getDefault());
 
         self::assertEquals('utf8', $column->getCharset());
+        self::assertEquals(self::class, $column->getEnumType());
         self::assertNull($column->getCollation());
     }
 
@@ -55,6 +56,7 @@ class ColumnTest extends TestCase
             'comment' => '',
             'values' => [],
             'charset' => 'utf8',
+            'enumType' => self::class,
         ];
 
         self::assertEquals($expected, $this->createColumn()->toArray());
@@ -93,6 +95,7 @@ class ColumnTest extends TestCase
             ->setFixed(true)
             ->setDefaultValue('baz')
             ->setCharset('utf8')
+            ->setEnumType(self::class)
             ->create();
     }
 
