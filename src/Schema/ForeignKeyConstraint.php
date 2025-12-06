@@ -129,6 +129,7 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
      * @param non-empty-list<string> $foreignColumnNames Names of the referenced table columns.
      * @param string                 $name               Name of the foreign key constraint.
      * @param array<string, mixed>   $options            Options associated with the foreign key constraint.
+     * @throws \TypeError
      */
     public function __construct(
         array $localColumnNames,
@@ -643,10 +644,13 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
         }
     }
 
-    /** @param array<string, mixed> $options */
+    /** @param array<string, mixed> $options
+     * @throws \TypeError */
     private function parseMatchType(array $options): ?MatchType
     {
         if (isset($options['match'])) {
+            assert(is_string($options['match']));
+
             try {
                 /**
                  * This looks like a PHPStan bug.
@@ -669,10 +673,13 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
         return MatchType::SIMPLE;
     }
 
-    /** @param array<string, mixed> $options */
+    /** @param array<string, mixed> $options
+     * @throws \TypeError */
     private function parseReferentialAction(array $options, string $option): ?ReferentialAction
     {
         if (isset($options[$option])) {
+            assert(is_string($options[$option]));
+
             try {
                 /**
                  * This looks like a PHPStan bug.
@@ -733,6 +740,8 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
     private function onEvent(string $event): ?string
     {
         if (isset($this->options[$event])) {
+            assert(is_string($this->options[$event]));
+
             $onEvent = strtoupper($this->options[$event]);
 
             if ($onEvent !== 'NO ACTION' && $onEvent !== 'RESTRICT') {
