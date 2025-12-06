@@ -64,15 +64,18 @@ final class Driver extends AbstractMySQLDriver
     {
         $dsn = 'mysql:';
         if (isset($params['host']) && $params['host'] !== '') {
-            $dsn .= 'host=' . $params['host'] . ';';
+            assert(is_scalar($params['host']));
+            $dsn .= 'host=' . (string) $params['host'] . ';';
         }
 
         if (isset($params['port'])) {
-            $dsn .= 'port=' . $params['port'] . ';';
+            assert(is_scalar($params['port']));
+            $dsn .= 'port=' . (string) $params['port'] . ';';
         }
 
         if (isset($params['dbname'])) {
-            $dsn .= 'dbname=' . $params['dbname'] . ';';
+            assert(is_scalar($params['dbname']));
+            $dsn .= 'dbname=' . (string) $params['dbname'] . ';';
         }
 
         if (isset($params['unix_socket'])) {

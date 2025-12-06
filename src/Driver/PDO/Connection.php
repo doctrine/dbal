@@ -36,7 +36,9 @@ final class Connection implements ConnectionInterface
 
     public function getServerVersion(): string
     {
-        return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+        $version = $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+        assert(is_scalar($version));
+        return (string) $version;
     }
 
     public function prepare(string $sql): Statement

@@ -65,7 +65,8 @@ final class Driver extends AbstractOracleDriver
         $dsn = 'oci:dbname=' . $this->getEasyConnectString($params);
 
         if (isset($params['charset'])) {
-            $dsn .= ';charset=' . $params['charset'];
+            assert(is_scalar($params['charset']));
+            $dsn .= ';charset=' . (string) $params['charset'];
         }
 
         return $dsn;

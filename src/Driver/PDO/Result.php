@@ -20,12 +20,16 @@ final class Result implements ResultInterface
 
     public function fetchNumeric(): array|false
     {
-        return $this->fetch(PDO::FETCH_NUM);
+        $result = $this->fetch(PDO::FETCH_NUM); // Intermediate variable to help phpstan level 9 infer the type
+        /** @var list<mixed>|false $result */
+        return $result;
     }
 
     public function fetchAssociative(): array|false
     {
-        return $this->fetch(PDO::FETCH_ASSOC);
+        $result = $this->fetch(PDO::FETCH_ASSOC); // Intermediate variable to help phpstan level 9 infer the type
+        /** @var array<string, mixed>|false $result */
+        return $result;
     }
 
     public function fetchOne(): mixed
@@ -38,7 +42,9 @@ final class Result implements ResultInterface
      */
     public function fetchAllNumeric(): array
     {
-        return $this->fetchAll(PDO::FETCH_NUM);
+        $result = $this->fetchAll(PDO::FETCH_NUM);  // Intermediate variable to help phpstan level 9 infer the type
+        /** @var list<list<mixed>> $result */
+        return $result;
     }
 
     /**
@@ -46,7 +52,9 @@ final class Result implements ResultInterface
      */
     public function fetchAllAssociative(): array
     {
-        return $this->fetchAll(PDO::FETCH_ASSOC);
+        $result = $this->fetchAll(PDO::FETCH_ASSOC); // Intermediate variable to help phpstan level 9 infer the type
+        /** @var list<array<string, mixed>> $result */
+        return $result;
     }
 
     /**
