@@ -189,7 +189,30 @@ class Column extends AbstractNamedObject
             );
         }
 
-        $this->_platformOptions[$name] = $value;
+        switch ($name) {
+            case 'charset':
+            case 'collation':
+                assert($value === null || is_string($value));
+                $castedValue = $value;
+                if ($castedValue !== null && $castedValue === '') {
+                    $castedValue = null;
+                }
+                $this->_platformOptions[$name] = $castedValue;
+                break;
+            case 'default_constraint_name':
+                assert(is_string($value) && $value !== '');
+                $this->_platformOptions[$name] = $value;
+                break;
+            case 'enumType':
+                assert(is_string($value));
+                /** @var class-string $value */
+                $this->_platformOptions[$name] = $value;
+                break;
+            case 'jsonb':
+            case 'version':
+                $this->_platformOptions[$name] = (bool) $value;
+                break;
+        }
 
         return $this;
     }
