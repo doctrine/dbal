@@ -14,13 +14,17 @@ final class ConnectionError extends AbstractException
 {
     public static function new(mysqli $connection): self
     {
-        return new self($connection->error, $connection->sqlstate, $connection->errno);
+        /** @var string $sqlstate */ 
+        $sqlstate = $connection->sqlstate; // We need a intermediate variable, so phpstan could infer the type returned
+        return new self($connection->error, $sqlstate, $connection->errno);
     }
 
     public static function upcast(mysqli_sql_exception $exception): self
     {
         $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
+        /** @var string $sqlstate */
+        $sqlstate = $p->getValue($exception); // Intermediate variable for phpstan type inference
 
-        return new self($exception->getMessage(), $p->getValue($exception), $exception->getCode(), $exception);
+        return new self($exception->getMessage(), $sqlstate, $exception->getCode(), $exception);
     }
 }
