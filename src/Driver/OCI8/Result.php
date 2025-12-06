@@ -38,12 +38,16 @@ final class Result implements ResultInterface
 
     public function fetchNumeric(): array|false
     {
-        return $this->fetch(OCI_NUM);
+        $result = $this->fetch(OCI_NUM); // Intermediate variable to help phpstan level 9 infer the type
+        /** @var list<mixed>|false $result */
+        return $result;
     }
 
     public function fetchAssociative(): array|false
     {
-        return $this->fetch(OCI_ASSOC);
+        $result = $this->fetch(OCI_ASSOC); // Intermediate variable to help phpstan level 9 infer the type
+        /** @var array<string, mixed>|false $result */
+        return $result;
     }
 
     public function fetchOne(): mixed
@@ -72,7 +76,9 @@ final class Result implements ResultInterface
      */
     public function fetchFirstColumn(): array
     {
-        return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
+        $result = $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0]; // Intermediate variable to help phpstan level 9 infer the type
+        /** @var list<mixed> $result */
+        return $result;
     }
 
     public function rowCount(): int

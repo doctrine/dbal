@@ -44,11 +44,14 @@ final class EasyConnectString
     public static function fromConnectionParameters(array $params): self
     {
         if (isset($params['connectstring'])) {
+            assert(is_string($params['connectstring']));
             return new self($params['connectstring']);
         }
 
         if (! isset($params['host'])) {
-            return new self($params['dbname'] ?? '');
+            $dbname = $params['dbname'] ?? '';
+            assert(is_string($dbname));
+            return new self($dbname);
         }
 
         $connectData = [];
@@ -118,6 +121,7 @@ final class EasyConnectString
             return self::renderParams($value);
         }
 
+        assert(is_scalar($value));
         return (string) $value;
     }
 }

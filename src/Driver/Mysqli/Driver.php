@@ -41,6 +41,8 @@ final class Driver extends AbstractMySQLDriver
         }
 
         try {
+            $flags = $params['driverOptions'][Connection::OPTION_FLAGS] ?? 0; // Intermediate variable to help phpstan level 9 infer the type
+            assert(is_int($flags));
             $success = @$connection->real_connect(
                 $host,
                 $params['user'] ?? '',
@@ -48,7 +50,7 @@ final class Driver extends AbstractMySQLDriver
                 $params['dbname'] ?? '',
                 $params['port'] ?? 0,
                 $params['unix_socket'] ?? '',
-                $params['driverOptions'][Connection::OPTION_FLAGS] ?? 0,
+                $flags,
             );
         } catch (mysqli_sql_exception $e) {
             throw ConnectionFailed::upcast($e);
@@ -74,10 +76,15 @@ final class Driver extends AbstractMySQLDriver
         #[SensitiveParameter]
         array $params,
     ): Generator {
-        unset($params['driverOptions'][Connection::OPTION_FLAGS]);
+        if (isset($params['driverOptions'])) {
+            assert(is_array($params['driverOptions']));
+            $driverOptions = $params['driverOptions'];
+            unset($driverOptions[Connection::OPTION_FLAGS]);
 
-        if (isset($params['driverOptions']) && $params['driverOptions'] !== []) {
-            yield new Options($params['driverOptions']);
+            /** @var array<int, mixed> $driverOptions */
+            if ($driverOptions !== []) {
+                yield new Options($driverOptions);
+            }
         }
 
         if (
@@ -89,13 +96,43 @@ final class Driver extends AbstractMySQLDriver
         ) {
             return;
         }
+        // Create intermediate variables for phpstan level 9 type inference
+        $ssl_key = '';
+        if (isset($params['ssl_key'])) {
+            assert(is_scalar($params['ssl_key']));
+            $ssl_key = (string) $params['ssl_key'];
+        }
+
+        $ssl_cert = '';
+        if (isset($params['ssl_cert'])) {
+            assert(is_scalar($params['ssl_cert']));
+            $ssl_cert = (string) $params['ssl_cert'];
+        }
+
+        $ssl_ca = '';
+        if (isset($params['ssl_ca'])) {
+            assert(is_scalar($params['ssl_ca']));
+            $ssl_ca = (string) $params['ssl_ca'];
+        }
+
+        $ssl_capath = '';
+        if (isset($params['ssl_capath'])) {
+            assert(is_scalar($params['ssl_capath']));
+            $ssl_capath = (string) $params['ssl_capath'];
+        }
+
+        $ssl_cipher = '';
+        if (isset($params['ssl_cipher'])) {
+            assert(is_scalar($params['ssl_cipher']));
+            $ssl_cipher = (string) $params['ssl_cipher'];
+        }
 
         yield new Secure(
-            $params['ssl_key']    ?? '',
-            $params['ssl_cert']   ?? '',
-            $params['ssl_ca']     ?? '',
-            $params['ssl_capath'] ?? '',
-            $params['ssl_cipher'] ?? '',
+            $ssl_key,
+            $ssl_cert,
+            $ssl_ca,
+            $ssl_capath,
+            $ssl_cipher,
         );
     }
 
@@ -112,6 +149,7 @@ final class Driver extends AbstractMySQLDriver
             return;
         }
 
+        assert(is_string($params['charset']));
         yield new Charset($params['charset']);
     }
 }
