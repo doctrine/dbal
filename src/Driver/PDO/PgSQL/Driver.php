@@ -87,43 +87,53 @@ final class Driver extends AbstractPostgreSQLDriver
         $dsn = 'pgsql:';
 
         if (isset($params['host']) && $params['host'] !== '') {
-            $dsn .= 'host=' . $params['host'] . ';';
+            assert(is_scalar($params['host']));
+            $dsn .= 'host=' . (string) $params['host'] . ';';
         }
 
         if (isset($params['port']) && $params['port'] !== '') {
-            $dsn .= 'port=' . $params['port'] . ';';
+            assert(is_scalar($params['port']));
+            $dsn .= 'port=' . (string) $params['port'] . ';';
         }
 
         if (isset($params['dbname'])) {
-            $dsn .= 'dbname=' . $params['dbname'] . ';';
+            assert(is_scalar($params['dbname']));
+            $dsn .= 'dbname=' . (string) $params['dbname'] . ';';
         }
 
         if (isset($params['sslmode'])) {
-            $dsn .= 'sslmode=' . $params['sslmode'] . ';';
+            assert(is_scalar($params['sslmode']));
+            $dsn .= 'sslmode=' . (string) $params['sslmode'] . ';';
         }
 
         if (isset($params['sslrootcert'])) {
-            $dsn .= 'sslrootcert=' . $params['sslrootcert'] . ';';
+            assert(is_scalar($params['sslrootcert']));
+            $dsn .= 'sslrootcert=' . (string) $params['sslrootcert'] . ';';
         }
 
         if (isset($params['sslcert'])) {
-            $dsn .= 'sslcert=' . $params['sslcert'] . ';';
+            assert(is_scalar($params['sslcert']));
+            $dsn .= 'sslcert=' . (string) $params['sslcert'] . ';';
         }
 
         if (isset($params['sslkey'])) {
-            $dsn .= 'sslkey=' . $params['sslkey'] . ';';
+            assert(is_scalar($params['sslkey']));
+            $dsn .= 'sslkey=' . (string) $params['sslkey'] . ';';
         }
 
         if (isset($params['sslcrl'])) {
-            $dsn .= 'sslcrl=' . $params['sslcrl'] . ';';
+            assert(is_scalar($params['sslcrl']));
+            $dsn .= 'sslcrl=' . (string) $params['sslcrl'] . ';';
         }
 
         if (isset($params['application_name'])) {
-            $dsn .= 'application_name=' . $params['application_name'] . ';';
+            assert(is_scalar($params['application_name']));
+            $dsn .= 'application_name=' . (string) $params['application_name'] . ';';
         }
 
         if (isset($params['gssencmode'])) {
-            $dsn .= 'gssencmode=' . $params['gssencmode'] . ';';
+            assert(is_scalar($params['gssencmode']));
+            $dsn .= 'gssencmode=' . (string) $params['gssencmode'] . ';';
         }
 
         return $dsn;
