@@ -20,6 +20,8 @@ final class Options implements Initializer
     public function initialize(mysqli $connection): void
     {
         foreach ($this->options as $option => $value) {
+            assert(is_int($value) || is_string($value));
+            /** @var int|string $value */
             if (! mysqli_options($connection, $option, $value)) {
                 throw InvalidOption::fromOption($option, $value);
             }
