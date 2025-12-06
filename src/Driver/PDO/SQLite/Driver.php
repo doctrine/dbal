@@ -55,7 +55,8 @@ final class Driver extends AbstractSQLiteDriver
     {
         $dsn = 'sqlite:';
         if (isset($params['path'])) {
-            $dsn .= $params['path'];
+            assert(is_scalar($params['path']));
+            $dsn .= (string) $params['path'];
         } elseif (isset($params['memory'])) {
             $dsn .= ':memory:';
         }

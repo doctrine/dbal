@@ -72,7 +72,7 @@ final class Driver extends AbstractSQLServerDriver
      * Constructs the Sqlsrv PDO DSN.
      *
      * @param mixed[]  $params
-     * @param string[] $connectionOptions
+     * @param array<string, mixed> $connectionOptions
      *
      * @throws Exception
      */
@@ -81,17 +81,20 @@ final class Driver extends AbstractSQLServerDriver
         $dsn = 'sqlsrv:server=';
 
         if (isset($params['host'])) {
-            $dsn .= $params['host'];
+            assert(is_scalar($params['host']));
+            $dsn .= (string) $params['host'];
 
             if (isset($params['port'])) {
-                $dsn .= ',' . $params['port'];
+                assert(is_scalar($params['port']));
+                $dsn .= ',' . (string) $params['port'];
             }
         } elseif (isset($params['port'])) {
             throw PortWithoutHost::new();
         }
 
         if (isset($params['dbname'])) {
-            $connectionOptions['Database'] = $params['dbname'];
+            assert(is_scalar($params['dbname']));
+            $connectionOptions['Database'] = (string) $params['dbname'];
         }
 
         if (isset($params['MultipleActiveResultSets'])) {
@@ -104,14 +107,15 @@ final class Driver extends AbstractSQLServerDriver
     /**
      * Converts a connection options array to the DSN
      *
-     * @param string[] $connectionOptions
+     * @param array<string, mixed> $connectionOptions
      */
     private function getConnectionOptionsDsn(array $connectionOptions): string
     {
         $connectionOptionsDsn = '';
 
         foreach ($connectionOptions as $paramName => $paramValue) {
-            $connectionOptionsDsn .= sprintf(';%s=%s', $paramName, $paramValue);
+            assert(is_scalar($paramValue));
+            $connectionOptionsDsn .= sprintf(';%s=%s', $paramName, (string) $paramValue);
         }
 
         return $connectionOptionsDsn;

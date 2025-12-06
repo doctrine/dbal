@@ -95,7 +95,9 @@ final class Connection implements ConnectionInterface
     public function lastInsertId(): int|string
     {
         try {
-            return $this->query('SELECT LASTVAL()')->fetchOne();
+            $result = $this->query('SELECT LASTVAL()')->fetchOne();
+            assert(is_int($result) || is_string($result));
+            return $result;
         } catch (Exception $exception) {
             if ($exception->getSQLState() === '55000') {
                 throw NoIdentityValue::new($exception);
