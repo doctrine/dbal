@@ -45,10 +45,14 @@ final class NumberType extends Type
             $value = (string) $value;
         }
 
+        if (!is_int($value) && !is_string($value)) {
+            throw InvalidType::new($value, 'int|string', ['int', 'string']);
+        }
+
         try {
             return new Number($value);
         } catch (TypeError | ValueError $e) {
-            throw ValueNotConvertible::new($value, static::class, previous: $e);
+            throw ValueNotConvertible::new(value: $value, toType: static::class, message: null, previous: $e);
         }
     }
 }

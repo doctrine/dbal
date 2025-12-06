@@ -30,6 +30,10 @@ final class ValueNotConvertible extends ConversionException implements TypesExce
                 $message,
             );
         } else {
+            if (!is_scalar($value) && $value !== null) {
+                $value = gettype($value);
+            }
+
             $message = sprintf(
                 'Could not convert database value "%s" to Doctrine Type "%s".',
                 is_string($value) && strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value,

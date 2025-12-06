@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 /**
  * Type that maps an SQL INT to a PHP integer.
@@ -29,7 +30,15 @@ class IntegerType extends Type implements PhpIntegerMappingType
      */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?int
     {
-        return $value === null ? null : (int) $value;
+        if ($value === null) {
+            return null;
+        }
+
+        if (!is_scalar($value)) {
+            throw InvalidType::new($value, 'int', ['scalar']);
+        }
+
+        return (int) $value;
     }
 
     public function getBindingType(): ParameterType

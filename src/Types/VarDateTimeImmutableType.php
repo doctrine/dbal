@@ -52,6 +52,10 @@ class VarDateTimeImmutableType extends DateTimeImmutableType
             return $value;
         }
 
+        if (!is_string($value)) {
+            throw InvalidType::new($value, 'DateTimeImmutable', ['string']);
+        }
+
         try {
             $dateTime = new DateTimeImmutable($value);
         } catch (Exception $e) {

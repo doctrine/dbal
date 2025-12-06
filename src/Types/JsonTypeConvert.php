@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\SerializationFailed;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use JsonException;
@@ -48,6 +49,10 @@ trait JsonTypeConvert
 
         if (is_resource($value)) {
             $value = stream_get_contents($value);
+        }
+
+        if (!is_string($value)) {
+            throw InvalidType::new($value, 'string', ['string']);
         }
 
         try {

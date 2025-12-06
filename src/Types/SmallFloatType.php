@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 class SmallFloatType extends Type
 {
@@ -25,6 +26,14 @@ class SmallFloatType extends Type
      */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?float
     {
-        return $value === null ? null : (float) $value;
+        if ($value === null) {
+            return null;
+        }
+
+        if (!is_scalar($value)) {
+            throw InvalidType::new($value, 'float', ['scalar']);
+        }
+
+        return (float) $value;
     }
 }

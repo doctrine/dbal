@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 use function is_float;
 use function is_int;
@@ -24,10 +25,18 @@ class DecimalType extends Type
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
     {
+        if ($value === null) {
+            return null;
+        }
+
         // Some drivers can represent decimals as float/int
         // See also: https://github.com/doctrine/dbal/pull/4818
         if (is_float($value) || is_int($value)) {
             return (string) $value;
+        }
+
+        if (!is_string($value)) {
+            throw InvalidType::new($value, 'string', ['string']);
         }
 
         return $value;

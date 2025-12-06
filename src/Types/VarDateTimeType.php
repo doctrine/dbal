@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use Exception;
 
@@ -29,6 +30,10 @@ class VarDateTimeType extends DateTimeType
     {
         if ($value === null || $value instanceof DateTime) {
             return $value;
+        }
+
+        if (!is_string($value)) {
+            throw InvalidType::new($value, 'DateTime', ['string']);
         }
 
         try {

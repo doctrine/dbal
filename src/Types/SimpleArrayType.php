@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 use function count;
 use function explode;
@@ -45,6 +46,10 @@ class SimpleArrayType extends Type
         }
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
+
+        if (!is_string($value)) {
+            throw InvalidType::new($value, 'string', ['string']);
+        }
 
         return explode(',', $value);
     }

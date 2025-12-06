@@ -55,6 +55,10 @@ class TimeType extends Type implements PhpTimeMappingType
             return $value;
         }
 
+        if (!is_string($value)) {
+            throw InvalidType::new($value, 'DateTime', ['string']);
+        }
+
         $dateTime = DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
         if ($dateTime !== false) {
             return $dateTime;
