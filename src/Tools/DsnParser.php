@@ -87,6 +87,7 @@ final class DsnParser
         $params = $this->parseDatabaseUrlPath($url, $params);
         $params = $this->parseDatabaseUrlQuery($url, $params);
 
+        /** @var Params $params */
         return $params;
     }
 
@@ -112,7 +113,9 @@ final class DsnParser
         if (isset($params['host'])) {
             // Only normalize the path if a host is also available. Otherwise we might trim leading slashes
             // from a pure dbname.
-            $url['path'] = $this->normalizeDatabaseUrlPath($url['path']);
+            if (is_string($url['path'])) {
+                $url['path'] = $this->normalizeDatabaseUrlPath($url['path']);
+            }
         }
 
         // If we do not have a known DBAL driver, we do not know any connection URL path semantics to evaluate
@@ -157,7 +160,9 @@ final class DsnParser
 
         $query = [];
 
-        parse_str($url['query'], $query); // simply ingest query as extra params, e.g. charset or sslmode
+        if (is_string($url['query'])) {
+            parse_str($url['query'], $query); // simply ingest query as extra params, e.g. charset or sslmode
+        }
 
         return array_merge($params, $query); // parse_str wipes existing array elements
     }

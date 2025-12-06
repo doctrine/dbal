@@ -996,7 +996,7 @@ class Table extends AbstractNamedObject
 
     public function getComment(): ?string
     {
-        return $this->_options['comment'] ?? null;
+        return isset($this->_options['comment']) && is_string($this->_options['comment']) ? $this->_options['comment'] : null;
     }
 
     /**
@@ -1022,7 +1022,7 @@ class Table extends AbstractNamedObject
 
         $options = $this->_options;
 
-        if (isset($options['comment'])) {
+        if (isset($options['comment']) && is_string($options['comment'])) {
             $editor->setComment($options['comment']);
             unset($options['comment']);
         }

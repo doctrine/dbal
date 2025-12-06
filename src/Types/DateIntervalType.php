@@ -62,6 +62,10 @@ class DateIntervalType extends Type
             return $value;
         }
 
+        if (!is_string($value)) {
+            throw InvalidType::new($value, 'DateInterval', ['string']);
+        }
+
         $negative = false;
 
         if (isset($value[0]) && ($value[0] === '+' || $value[0] === '-')) {
