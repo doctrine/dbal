@@ -77,7 +77,11 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         return $schemaNames;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     * @throws \TypeError
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function getAllTables(): array
     {
         $tableColumnsByTable          = $this->getColumnsForAllTables();
@@ -292,7 +296,11 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         );
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     * @throws \TypeError
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function getForeignKeyConstraintsForTable(?string $schemaName, string $tableName): array
     {
         $editors   = [];
@@ -322,6 +330,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
      * @return array<string, array<non-empty-string, list<ForeignKeyConstraint>>>
      *
      * @throws Exception
+     * @throws \TypeError
      */
     private function getForeignKeyConstraintsForAllTables(): array
     {

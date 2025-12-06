@@ -222,6 +222,7 @@ SQL,
 
     /**
      * {@inheritDoc}
+     * @throws \TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {

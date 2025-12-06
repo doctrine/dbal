@@ -404,6 +404,7 @@ class Table extends AbstractNamedObject
      * @param non-empty-string $newName
      *
      * @throws LogicException
+     * @throws \TypeError
      */
     final public function renameColumn(string $oldName, string $newName): Column
     {
@@ -495,6 +496,7 @@ class Table extends AbstractNamedObject
      * @param non-empty-list<string> $localColumnNames
      * @param non-empty-list<string> $foreignColumnNames
      * @param array<string, mixed>   $options
+     * @throws \TypeError
      */
     public function addForeignKeyConstraint(
         string $foreignTableName,
@@ -1117,6 +1119,7 @@ class Table extends AbstractNamedObject
     /**
      * @param non-empty-string $oldName
      * @param non-empty-string $newName
+     * @throws \TypeError
      */
     private function renameColumnInForeignKeyConstraints(string $oldName, string $newName): void
     {

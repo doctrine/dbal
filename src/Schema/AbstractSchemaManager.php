@@ -612,6 +612,7 @@ abstract class AbstractSchemaManager
      * @return list<Table>
      *
      * @throws Exception
+     * @throws \TypeError
      */
     public function introspectTables(): array
     {

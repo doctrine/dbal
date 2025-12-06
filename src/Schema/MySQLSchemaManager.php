@@ -298,6 +298,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
+     * @throws \TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {

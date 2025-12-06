@@ -128,6 +128,7 @@ class DB2SchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
+     * @throws \TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
