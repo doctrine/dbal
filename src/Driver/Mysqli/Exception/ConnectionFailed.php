@@ -25,7 +25,9 @@ final class ConnectionFailed extends AbstractException
     public static function upcast(mysqli_sql_exception $exception): self
     {
         $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
+        /** @var string $sqlstate */
+        $sqlstate = $p->getValue($exception);
 
-        return new self($exception->getMessage(), $p->getValue($exception), $exception->getCode(), $exception);
+        return new self($exception->getMessage(), $sqlstate, $exception->getCode(), $exception);
     }
 }

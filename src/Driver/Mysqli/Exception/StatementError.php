@@ -14,13 +14,17 @@ final class StatementError extends AbstractException
 {
     public static function new(mysqli_stmt $statement): self
     {
-        return new self($statement->error, $statement->sqlstate, $statement->errno);
+        /** @var non-empty-string $sqlstate */
+        $sqlstate = $statement->sqlstate;
+        return new self($statement->error, $sqlstate, $statement->errno);
     }
 
     public static function upcast(mysqli_sql_exception $exception): self
     {
         $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
+        /** @var non-empty-string $sqlstate */
+        $sqlstate = $p->getValue($exception);
 
-        return new self($exception->getMessage(), $p->getValue($exception), $exception->getCode(), $exception);
+        return new self($exception->getMessage(), $sqlstate, $exception->getCode(), $exception);
     }
 }
