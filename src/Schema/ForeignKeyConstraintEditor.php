@@ -226,6 +226,9 @@ final class ForeignKeyConstraintEditor
         return $this;
     }
 
+    /**
+     * @throws \TypeError
+     */
     public function create(): ForeignKeyConstraint
     {
         if (count($this->referencingColumnNames) < 1) {
