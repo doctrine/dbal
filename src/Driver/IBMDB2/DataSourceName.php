@@ -38,7 +38,8 @@ final class DataSourceName
         $chunks = [];
 
         foreach ($params as $key => $value) {
-            $chunks[] = sprintf('%s=%s', $key, $value);
+            assert(is_scalar($value)); // Since value is mixed, ensure it's scalar for string conversion
+            $chunks[] = sprintf('%s=%s', $key, (string) $value);
         }
 
         return new self(implode(';', $chunks));
@@ -52,8 +53,11 @@ final class DataSourceName
     public static function fromConnectionParameters(#[SensitiveParameter]
     array $params,): self
     {
-        if (isset($params['dbname']) && str_contains($params['dbname'], '=')) {
-            return new self($params['dbname']);
+        if (isset($params['dbname'])) {
+            assert(is_string($params['dbname'])); // Check type to help phpstan infer the type before using str_contains
+            if (str_contains($params['dbname'], '=')) {
+                return new self($params['dbname']);
+            }
         }
 
         $dsnParams = [];

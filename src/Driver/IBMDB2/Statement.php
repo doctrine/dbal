@@ -60,6 +60,8 @@ final class Statement implements StatementInterface
                 break;
 
             case ParameterType::LARGE_OBJECT:
+                // Ensure that the value is either a string, a resource, or null (the assert is needed to help to phpstan to infer the type at level 9)
+                assert(is_string($value) || is_resource($value) || $value === null);
                 $this->lobs[$param] = &$value;
                 break;
 
