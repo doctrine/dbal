@@ -33,8 +33,13 @@ class StatementTest extends FunctionalTestCase
         $property        = new ReflectionProperty(WrapperStatement::class, 'stmt');
         $driverStatement = $property->getValue($statement);
 
+        self::assertIsObject($driverStatement);
+
         $mysqliProperty  = new ReflectionProperty(Statement::class, 'stmt');
         $mysqliStatement = $mysqliProperty->getValue($driverStatement);
+
+        self::assertIsObject($mysqliStatement);
+        /** @var \mysqli_stmt $mysqliStatement */
 
         unset($statement, $driverStatement);
 

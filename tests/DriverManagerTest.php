@@ -119,6 +119,8 @@ class DriverManagerTest extends TestCase
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
             if (in_array($key, ['driver', 'driverClass'], true)) {
+                self::assertIsString($value);
+                /** @var class-string<object> $value */
                 self::assertInstanceOf($value, $conn->getDriver());
             } else {
                 self::assertEquals($value, $params[$key]);

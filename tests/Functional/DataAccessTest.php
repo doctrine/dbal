@@ -624,7 +624,9 @@ class DataAccessTest extends FunctionalTestCase
         self::assertNotFalse($date);
         self::assertIsString($date);
 
-        self::assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
+        $timestamp = strtotime($date);
+        self::assertIsInt($timestamp);
+        self::assertEquals($expected, date('Y-m-d H:i:s', $timestamp));
     }
 
     /** @return mixed[][] */

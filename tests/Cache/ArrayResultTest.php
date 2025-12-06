@@ -116,6 +116,8 @@ class ArrayResultTest extends TestCase
     {
         $result = unserialize(serialize($this->result));
 
+        self::assertInstanceOf(ArrayResult::class, $result);
+
         self::assertSame([
             [
                 'username' => 'jwage',
@@ -135,6 +137,8 @@ class ArrayResultTest extends TestCase
     {
         $this->result->fetchAssociative();
         $result = unserialize(serialize($this->result));
+
+        self::assertInstanceOf(ArrayResult::class, $result);
 
         self::assertSame([
             'username' => 'jwage',

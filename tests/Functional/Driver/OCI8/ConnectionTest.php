@@ -51,6 +51,9 @@ SQL,
         self::assertNotNull($sid, 'SID is missing.');
         self::assertNotNull($serialNumber, 'Serial number is missing.');
 
+        self::assertIsString($sid);
+        self::assertIsString($serialNumber);
+
         $params                               = TestUtil::getConnectionParams();
         $params['driverOptions']['exclusive'] = true;
         $secondConnection                     = DriverManager::getConnection($params);
