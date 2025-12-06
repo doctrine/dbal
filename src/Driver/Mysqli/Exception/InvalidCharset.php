@@ -26,10 +26,12 @@ final class InvalidCharset extends AbstractException
     public static function upcast(mysqli_sql_exception $exception, string $charset): self
     {
         $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
+        /** @var string $sqlstate */
+        $sqlstate = $p->getValue($exception);
 
         return new self(
             sprintf('Failed to set charset "%s": %s', $charset, $exception->getMessage()),
-            $p->getValue($exception),
+            $sqlstate,
             $exception->getCode(),
             $exception,
         );
