@@ -178,6 +178,7 @@ EOF
                 $this->connection->getDatabasePlatform(),
             );
 
+        self::assertIsResource($stream);
         self::assertSame($contents, stream_get_contents($stream));
     }
 

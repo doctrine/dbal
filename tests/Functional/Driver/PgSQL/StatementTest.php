@@ -34,9 +34,12 @@ class StatementTest extends FunctionalTestCase
 
         $driverStatement = $property->getValue($statement);
 
+        self::assertIsObject($driverStatement);
+
         $property = new ReflectionProperty(Statement::class, 'name');
 
         $name = $property->getValue($driverStatement);
+        self::assertIsString($name);
 
         unset($statement, $driverStatement);
 

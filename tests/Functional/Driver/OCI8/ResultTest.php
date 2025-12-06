@@ -72,6 +72,7 @@ class ResultTest extends FunctionalTestCase
         // This must be a different user with permissions to change the given function
         $separateConnection = TestUtil::getPrivilegedConnection();
 
+        self::assertIsString($this->connectionParams['user']);
         // Query the pipelined function to get initial dataset
         $statement = $separateConnection->prepare(sprintf(
             'SELECT * FROM TABLE(%s.test_oracle_fetch_failure())',

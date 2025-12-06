@@ -32,7 +32,8 @@ class ParserTest extends TestCase implements Visitor
     {
         foreach (self::getModes() as $mode => $mySQLStringEscaping) {
             foreach (self::getStatementsWithParameters() as $item => $arguments) {
-                yield sprintf('%s: %s', $mode, $item) => array_merge([$mySQLStringEscaping], $arguments);
+                self::assertIsInt($item);
+                yield sprintf('%s: %d', $mode, $item) => array_merge([$mySQLStringEscaping], $arguments);
             }
         }
     }
