@@ -77,7 +77,7 @@ class MySQLInheritCharsetTest extends TestCase
      * @param array<string,mixed> $params
      * @phpstan-param Params $params
      *
-     * @return string[]
+     * @return array<string, mixed>
      */
     private function getTableOptionsForOverride(array $params = []): array
     {
