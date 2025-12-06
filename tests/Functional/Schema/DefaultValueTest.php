@@ -26,6 +26,8 @@ class DefaultValueTest extends FunctionalTestCase
             );
 
         foreach (self::columnProvider() as [$name, $default]) {
+            self::assertIsString($name);
+            self::assertNotEmpty($name);
             $editor->addColumn(
                 Column::editor()
                     ->setUnquotedName($name)
