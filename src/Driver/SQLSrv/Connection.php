@@ -76,6 +76,8 @@ final class Connection implements ConnectionInterface
             throw NoIdentityValue::new();
         }
 
+        assert(is_int($lastInsertId) || is_string($lastInsertId));
+
         return $lastInsertId;
     }
 

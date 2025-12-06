@@ -96,6 +96,8 @@ final class ExpandArrayParameters implements Visitor
             return;
         }
 
+        assert(is_array($value));
+
         if (count($value) === 0) {
             $this->convertedSQL[] = 'NULL';
 
@@ -111,7 +113,7 @@ final class ExpandArrayParameters implements Visitor
         return $this->convertedTypes;
     }
 
-    /** @param list<mixed> $values */
+    /** @param array<mixed> $values */
     private function appendTypedParameter(array $values, string|ParameterType|Type $type): void
     {
         $this->convertedSQL[] = implode(', ', array_fill(0, count($values), '?'));

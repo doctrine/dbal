@@ -80,7 +80,7 @@ final class Statement implements StatementInterface
             $escapedParameters[] = match ($this->parameterTypes[$parameter]) {
                 ParameterType::BINARY, ParameterType::LARGE_OBJECT => $value === null
                     ? null
-                    : pg_escape_bytea($this->connection, is_resource($value) ? stream_get_contents($value) : $value),
+                    : pg_escape_bytea($this->connection, $this->escapeBinaryValue($value)),
                 default => $value,
             };
         }
@@ -97,5 +97,20 @@ final class Statement implements StatementInterface
         }
 
         return new Result($result);
+    }
+
+    private function escapeBinaryValue(mixed $value): string
+    {
+        if (is_resource($value)) {
+            return stream_get_contents($value);
+        }
+
+        if (is_string($value)) {
+            return $value;
+        }
+
+        assert(is_scalar($value));
+
+        return (string) $value;
     }
 }

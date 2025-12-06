@@ -28,14 +28,31 @@ final class Result implements ResultInterface
     {
     }
 
+    /**
+     * @return list<mixed>|false
+     */
     public function fetchNumeric(): array|false
     {
-        return $this->fetch(SQLSRV_FETCH_NUMERIC);
+        $result = $this->fetch(SQLSRV_FETCH_NUMERIC);
+        if ($result === false || $result === null) {
+            return false;
+        }
+
+        assert(array_is_list($result));
+        return $result;
     }
 
+    /**
+     * @return array<string, mixed>|false
+     */
     public function fetchAssociative(): array|false
     {
-        return $this->fetch(SQLSRV_FETCH_ASSOC);
+        $result = $this->fetch(SQLSRV_FETCH_ASSOC);
+        if ($result === false || $result === null) {
+            return false;
+        }
+
+        return $result;
     }
 
     public function fetchOne(): mixed
@@ -110,8 +127,11 @@ final class Result implements ResultInterface
         }
     }
 
-    private function fetch(int $fetchType): mixed
+    /**
+     * @return array<mixed>|false|null
+     */
+    private function fetch(int $fetchType)
     {
-        return sqlsrv_fetch_array($this->statement, $fetchType) ?? false;
+        return sqlsrv_fetch_array($this->statement, $fetchType);
     }
 }
