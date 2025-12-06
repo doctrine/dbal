@@ -118,6 +118,7 @@ class Result
         foreach ($this->fetchAllNumeric() as $row) {
             assert(count($row) >= 2);
             [$key, $value] = $row;
+            assert(is_string($key) || is_int($key));
             $data[$key]    = $value;
         }
 
@@ -137,7 +138,9 @@ class Result
         $data = [];
 
         foreach ($this->fetchAllAssociative() as $row) {
-            $data[array_shift($row)] = $row;
+            $key = array_shift($row);
+            assert(is_string($key) || is_int($key));
+            $data[$key] = $row;
         }
 
         return $data;
