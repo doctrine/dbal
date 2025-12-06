@@ -107,7 +107,7 @@ final class ArrayResult implements Result
         return [$this->columnNames, $this->rows];
     }
 
-    /** @param mixed[] $data */
+    /** @param array{0: list<string>, 1: list<list<mixed>>} $data */
     public function __unserialize(array $data): void
     {
         // Handle objects serialized with DBAL 4.1 and earlier.
