@@ -35,6 +35,7 @@ class DateTest extends BaseDateTypeTestCase
     {
         $date = $this->type->convertToPHPValue('1985-09-01', $this->platform);
 
+        self::assertInstanceOf(DateTime::class, $date);
         self::assertEquals('00:00:00', $date->format('H:i:s'));
     }
 
@@ -43,10 +44,12 @@ class DateTest extends BaseDateTypeTestCase
         date_default_timezone_set('Europe/Berlin');
 
         $date = $this->type->convertToPHPValue('2009-08-01', $this->platform);
+        self::assertInstanceOf(DateTime::class, $date);
         self::assertEquals('00:00:00', $date->format('H:i:s'));
         self::assertEquals('2009-08-01', $date->format('Y-m-d'));
 
         $date = $this->type->convertToPHPValue('2009-11-01', $this->platform);
+        self::assertInstanceOf(DateTime::class, $date);
         self::assertEquals('00:00:00', $date->format('H:i:s'));
         self::assertEquals('2009-11-01', $date->format('Y-m-d'));
     }

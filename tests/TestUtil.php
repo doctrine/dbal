@@ -194,7 +194,7 @@ class TestUtil
     /**
      * @param array<string,mixed> $configuration
      *
-     * @return Params
+     * @return array<string, mixed>
      */
     private static function mapConnectionParameters(array $configuration, string $prefix): array
     {
@@ -209,8 +209,11 @@ class TestUtil
         }
 
         if (isset($parameters['port'])) {
+            assert(is_numeric($parameters['port']));
             $parameters['port'] = (int) $parameters['port'];
         }
+
+        $parameters['driverOptions'] = [];
 
         foreach ($configuration as $param => $value) {
             if (! str_starts_with($param, $prefix . 'driver_option_')) {
@@ -220,6 +223,7 @@ class TestUtil
             $option = substr($param, strlen($prefix . 'driver_option_'));
 
             if ($option === Mysqli\Connection::OPTION_FLAGS) {
+                assert(is_numeric($value));
                 $value = (int) $value;
             }
 
@@ -261,6 +265,8 @@ class TestUtil
                 implode(', ', array_map(static function (string $column, $value) use ($platform): string {
                     if (is_string($value)) {
                         $value = $platform->quoteStringLiteral($value);
+                    } else {
+                        $value = (string) $value;
                     }
 
                     return $value . ' ' . $platform->quoteSingleIdentifier($column);

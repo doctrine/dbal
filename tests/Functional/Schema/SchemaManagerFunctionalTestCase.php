@@ -1096,6 +1096,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     protected function createTestTable(string $name, array $data = []): Table
     {
         $options = $data['options'] ?? [];
+        self::assertIsArray($options);
 
         $table = $this->getTestTable($name, $options);
 
@@ -1559,17 +1560,21 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
-        $lastUsedIdBeforeDelete = (int) $this->connection->fetchOne(
+        $lastUsedIdBeforeValue = $this->connection->fetchOne(
             "SELECT id FROM test_pk_auto_increment WHERE text = '1'",
         );
+        self::assertIsNumeric($lastUsedIdBeforeValue);
+        $lastUsedIdBeforeDelete = (int) $lastUsedIdBeforeValue;
 
         $this->connection->executeStatement('DELETE FROM test_pk_auto_increment');
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
-        $lastUsedIdAfterDelete = (int) $this->connection->fetchOne(
+        $lastUsedIdAfterValue = $this->connection->fetchOne(
             "SELECT id FROM test_pk_auto_increment WHERE text = '2'",
         );
+        self::assertIsNumeric($lastUsedIdAfterValue);
+        $lastUsedIdAfterDelete = (int) $lastUsedIdAfterValue;
 
         self::assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
     }

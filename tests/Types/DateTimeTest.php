@@ -50,6 +50,7 @@ class DateTimeTest extends BaseDateTypeTestCase
 
         $actual = $this->type->convertToPHPValue($date, $this->platform);
 
+        self::assertInstanceOf(DateTime::class, $actual);
         self::assertEquals('1985-09-01 10:10:10', $actual->format('Y-m-d H:i:s'));
     }
 }

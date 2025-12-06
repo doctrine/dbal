@@ -29,6 +29,7 @@ class TimeTest extends BaseDateTypeTestCase
     {
         $time = $this->type->convertToPHPValue('01:23:34', $this->platform);
 
+        self::assertInstanceOf(DateTime::class, $time);
         self::assertEquals('01:23:34', $time->format('H:i:s'));
         self::assertEquals('1970-01-01', $time->format('Y-m-d'));
     }

@@ -141,7 +141,9 @@ class TransactionTest extends FunctionalTestCase
 
         $query = 'SELECT count(test_int) FROM storage';
 
-        self::assertSame('0', (string) $this->connection->fetchOne($query));
+        $count = $this->connection->fetchOne($query);
+        self::assertIsString($count);
+        self::assertSame('0', $count);
 
         $result = $this->connection->transactional(
             static fn (Connection $connection) => $connection->transactional(
@@ -153,7 +155,11 @@ class TransactionTest extends FunctionalTestCase
             ),
         );
 
-        self::assertSame('1', (string) $result);
-        self::assertSame('1', (string) $this->connection->fetchOne($query));
+        self::assertIsString($result);
+        self::assertSame('1', $result);
+
+        $finalCount = $this->connection->fetchOne($query);
+        self::assertIsString($finalCount);
+        self::assertSame('1', $finalCount);
     }
 }
