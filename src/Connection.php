@@ -158,7 +158,14 @@ class Connection implements ServerVersionProvider
         $platform = $this->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL($platform->getCurrentDatabaseExpression());
 
-        return $this->fetchOne($query);
+        $database = $this->fetchOne($query);
+
+        if ($database === false) {
+            return null;
+        }
+
+        assert(is_string($database) && $database !== '');
+        return $database;
     }
 
     /**
