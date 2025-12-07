@@ -37,6 +37,17 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
+        assert(is_string($tableColumn['typename']));
+        assert(is_int($tableColumn['codepage']));
+        assert(is_int($tableColumn['length']));
+        assert(is_string($tableColumn['colname']));
+        assert($tableColumn['default'] === null || is_string($tableColumn['default']));
+        assert(is_int($tableColumn['scale']));
+        assert(is_int($tableColumn['precision']));
+        assert(is_bool($tableColumn['autoincrement']));
+        assert(is_string($tableColumn['nulls']));
+        assert($tableColumn['comment'] === null || is_string($tableColumn['comment']));
+
         $length = $precision = $default = null;
         $scale  = 0;
         $fixed  = false;
@@ -85,7 +96,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             'length'          => $length,
             'fixed'           => $fixed,
             'default'         => $default,
-            'autoincrement'   => (bool) $tableColumn['autoincrement'],
+            'autoincrement'   => $tableColumn['autoincrement'],
             'notnull'         => $tableColumn['nulls'] === 'N',
         ];
 
@@ -93,7 +104,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             $options['comment'] = $tableColumn['comment'];
         }
 
-        if ($scale !== null && $precision !== null) {
+        if ($precision !== null) {
             $options['scale']     = $scale;
             $options['precision'] = $precision;
         }
@@ -109,6 +120,8 @@ class DB2SchemaManager extends AbstractSchemaManager
     protected function _getPortableTableDefinition(array $table): string
     {
         $table = array_change_key_case($table, CASE_LOWER);
+
+        assert(is_string($table['name']) && $table['name'] !== '');
 
         return $table['name'];
     }
@@ -132,12 +145,21 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
+        assert(is_array($tableForeignKey['local_columns']) && array_is_list($tableForeignKey['local_columns']) && count($tableForeignKey['local_columns']) > 0 && array_all($tableForeignKey['local_columns'], 'is_string'));
+        assert(is_string($tableForeignKey['foreign_table']));
+        assert(is_array($tableForeignKey['foreign_columns']) && array_is_list($tableForeignKey['foreign_columns']) && count($tableForeignKey['foreign_columns']) > 0 && array_all($tableForeignKey['foreign_columns'], 'is_string'));
+        assert(is_string($tableForeignKey['name']));
+        assert(is_array($tableForeignKey['options']));
+
+        $options = $tableForeignKey['options'];
+        /** @var array<string, mixed> $options */
+
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
             $tableForeignKey['foreign_table'],
             $tableForeignKey['foreign_columns'],
             $tableForeignKey['name'],
-            $tableForeignKey['options'],
+            $options,
         );
     }
 
@@ -150,6 +172,13 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         foreach ($rows as $tableForeignKey) {
             $tableForeignKey = array_change_key_case($tableForeignKey, CASE_LOWER);
+
+            assert(is_string($tableForeignKey['index_name']));
+            assert(is_string($tableForeignKey['local_column']));
+            assert(is_string($tableForeignKey['foreign_table']));
+            assert(is_string($tableForeignKey['foreign_column']));
+            assert(is_string($tableForeignKey['on_update']));
+            assert(is_string($tableForeignKey['on_delete']));
 
             if (! isset($foreignKeys[$tableForeignKey['index_name']])) {
                 $foreignKeys[$tableForeignKey['index_name']] = [
@@ -177,6 +206,8 @@ class DB2SchemaManager extends AbstractSchemaManager
     protected function _getPortableViewDefinition(array $view): View
     {
         $view = array_change_key_case($view, CASE_LOWER);
+
+        assert(is_string($view['text']) && is_string($view['name']));
 
         $sql = '';
         $pos = strpos($view['text'], ' AS ');
@@ -367,6 +398,7 @@ SQL,
 
         $tableOptions = [];
         foreach ($this->connection->iterateKeyValue($sql, $params) as $table => $remarks) {
+            assert(is_string($table) && $table !== '' && is_string($remarks));
             $tableOptions[$table] = ['comment' => $remarks];
         }
 

@@ -65,6 +65,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition(array $table): string
     {
+        assert(is_string($table['TABLE_NAME']) && $table['TABLE_NAME'] !== '');
+
         return $table['TABLE_NAME'];
     }
 
@@ -73,6 +75,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableViewDefinition(array $view): View
     {
+        assert(is_string($view['TABLE_NAME']) && is_string($view['VIEW_DEFINITION']));
+
         return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);
     }
 
@@ -83,6 +87,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         foreach ($rows as $i => $row) {
             $row = array_change_key_case($row, CASE_LOWER);
+
+            assert(is_string($row['key_name']));
+            assert(is_string($row['index_type']));
+            assert(is_int($row['sub_part']) || $row['sub_part'] === null);
 
             $row['primary'] = $row['key_name'] === 'PRIMARY';
 
@@ -105,10 +113,16 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
+     *
+     * @param array<string, mixed> $database
      */
     protected function _getPortableDatabaseDefinition(array $database): string
     {
-        return $database['Database'];
+        /** @var mixed $dbName */
+        $dbName = $database['Database'];
+        assert(is_string($dbName) && $dbName !== '');
+
+        return $dbName;
     }
 
     /**
@@ -117,6 +131,12 @@ class MySQLSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
+
+        assert(is_string($tableColumn['field']));
+        assert(is_string($tableColumn['null']));
+        assert($tableColumn['characterset'] === null || is_string($tableColumn['characterset']));
+        assert($tableColumn['collation'] === null || is_string($tableColumn['collation']));
+        assert(is_string($tableColumn['type']));
 
         $dbType    = $tableColumn['type'];
         $length    = null;
@@ -130,12 +150,12 @@ class MySQLSchemaManager extends AbstractSchemaManager
         switch ($dbType) {
             case 'char':
             case 'varchar':
-                $length = (int) $tableColumn['character_maximum_length'];
+                $length = is_numeric($tableColumn['character_maximum_length']) ? (int) $tableColumn['character_maximum_length'] : null;
                 break;
 
             case 'binary':
             case 'varbinary':
-                $length = (int) $tableColumn['character_octet_length'];
+                $length = is_numeric($tableColumn['character_octet_length']) ? (int) $tableColumn['character_octet_length'] : null;
                 break;
 
             case 'tinytext':
@@ -167,9 +187,9 @@ class MySQLSchemaManager extends AbstractSchemaManager
             case 'real':
             case 'numeric':
             case 'decimal':
-                $precision = (int) $tableColumn['numeric_precision'];
+                $precision = is_numeric($tableColumn['numeric_precision']) ? (int) $tableColumn['numeric_precision'] : null;
 
-                if (isset($tableColumn['numeric_scale'])) {
+                if (isset($tableColumn['numeric_scale']) && is_numeric($tableColumn['numeric_scale'])) {
                     $scale = (int) $tableColumn['numeric_scale'];
                 }
 
@@ -183,25 +203,31 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 break;
 
             case 'enum':
-                $values = $this->parseEnumExpression($tableColumn['column_type']);
+                if (is_string($tableColumn['column_type'])) {
+                    $values = $this->parseEnumExpression($tableColumn['column_type']);
+                }
                 break;
         }
 
         if ($this->platform instanceof MariaDBPlatform) {
-            $columnDefault = $this->getMariaDBColumnDefault($this->platform, $tableColumn['default']);
+            if (is_string($tableColumn['default']) || $tableColumn['default'] === null) {
+                $columnDefault = $this->getMariaDBColumnDefault($this->platform, $tableColumn['default']);
+            } else {
+                $columnDefault = $tableColumn['default'];
+            }
         } else {
             $columnDefault = $tableColumn['default'];
         }
 
         $options = [
             'length'        => $length,
-            'unsigned'      => str_contains($tableColumn['column_type'], 'unsigned'),
+            'unsigned'      => is_string($tableColumn['column_type']) && str_contains($tableColumn['column_type'], 'unsigned'),
             'fixed'         => $fixed,
             'default'       => $columnDefault,
             'notnull'       => $tableColumn['null'] !== 'YES',
             'scale'         => $scale,
             'precision'     => $precision,
-            'autoincrement' => str_contains($tableColumn['extra'], 'auto_increment'),
+            'autoincrement' => is_string($tableColumn['extra']) && str_contains($tableColumn['extra'], 'auto_increment'),
             'values'        => $values,
         ];
 
@@ -270,6 +296,15 @@ class MySQLSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($rows as $row) {
             $row = array_change_key_case($row, CASE_LOWER);
+
+            assert(is_string($row['constraint_name']));
+            assert($row['delete_rule'] === null || is_string($row['delete_rule']));
+            assert($row['update_rule'] === null || is_string($row['update_rule']));
+            assert(is_string($row['table_name']));
+            assert(is_string($row['column_name']));
+            assert(is_string($row['referenced_table_name']));
+            assert(is_string($row['referenced_column_name']));
+
             if (! isset($list[$row['constraint_name']])) {
                 if (! isset($row['delete_rule']) || $row['delete_rule'] === 'RESTRICT') {
                     $row['delete_rule'] = null;
@@ -302,6 +337,13 @@ class MySQLSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
+        assert(is_array($tableForeignKey['local']) && array_is_list($tableForeignKey['local']) && count($tableForeignKey['local']) > 0 && array_all($tableForeignKey['local'], 'is_string'));
+        assert(is_string($tableForeignKey['foreignTable']));
+        assert(is_array($tableForeignKey['foreign']) && array_is_list($tableForeignKey['foreign']) && count($tableForeignKey['foreign']) > 0 && array_all($tableForeignKey['foreign'], 'is_string'));
+        assert(is_string($tableForeignKey['name']));
+        assert($tableForeignKey['onDelete'] === null || is_string($tableForeignKey['onDelete']));
+        assert($tableForeignKey['onUpdate'] === null || is_string($tableForeignKey['onUpdate']));
+
         return new ForeignKeyConstraint(
             $tableForeignKey['local'],
             $tableForeignKey['foreignTable'],
@@ -317,6 +359,9 @@ class MySQLSchemaManager extends AbstractSchemaManager
     /** @throws Exception */
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
+        $config = func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig();
+        assert($config instanceof ComparatorConfig);
+
         return new MySQL\Comparator(
             $this->platform,
             new CachingCharsetMetadataProvider(
@@ -326,7 +371,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 new ConnectionCollationMetadataProvider($this->connection),
             ),
             $this->getDefaultTableOptions(),
-            func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig(),
+            $config,
         );
     }
 
@@ -477,7 +522,15 @@ SQL,
 
         $tableOptions = [];
         foreach ($metadata as $table => $data) {
+            assert(is_string($table) && $table !== '');
             $data = array_change_key_case($data, CASE_LOWER);
+
+            assert($data['engine'] === null || is_string($data['engine']));
+            assert($data['table_collation'] === null || is_string($data['table_collation']));
+            assert($data['character_set_name'] === null || is_string($data['character_set_name']));
+            assert($data['auto_increment'] === null || is_string($data['auto_increment']));
+            assert($data['table_comment'] === null || is_string($data['table_comment']));
+            assert($data['create_options'] === null || is_string($data['create_options']));
 
             $tableOptions[$table] = [
                 'engine'         => $data['engine'],
@@ -520,7 +573,9 @@ SQL,
 
             assert($row !== false);
 
-            $this->defaultTableOptions = new DefaultTableOptions(...$row);
+            assert(is_string($row[0]) && is_string($row[1]));
+
+            $this->defaultTableOptions = new DefaultTableOptions($row[0], $row[1]);
         }
 
         return $this->defaultTableOptions;

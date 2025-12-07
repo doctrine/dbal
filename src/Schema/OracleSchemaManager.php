@@ -40,6 +40,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $view = array_change_key_case($view, CASE_LOWER);
 
+        assert(is_string($view['view_name']) && is_string($view['text']));
         return new View($this->getQuotedIdentifierName($view['view_name']), $view['text']);
     }
 
@@ -52,6 +53,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $table = array_change_key_case($table, CASE_LOWER);
 
+        assert(is_string($table['table_name']));
         /** @phpstan-ignore return.type */
         return $this->getQuotedIdentifierName($table['table_name']);
     }
@@ -72,11 +74,13 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
             } else {
+                assert(is_string($row['name']));
                 $buffer['key_name']   = strtolower($row['name']);
                 $buffer['primary']    = false;
                 $buffer['non_unique'] = ! $row['is_unique'];
             }
 
+            assert(is_string($row['column_name']));
             $buffer['column_name'] = $this->getQuotedIdentifierName($row['column_name']);
             $indexBuffer[]         = $buffer;
         }
@@ -91,6 +95,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
+        assert(is_string($tableColumn['data_type']));
         $dbType = strtolower($tableColumn['data_type']);
         if (str_starts_with($dbType, 'timestamp(')) {
             if (str_contains($dbType, 'with time zone')) {
@@ -117,16 +122,19 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         if ($tableColumn['data_default'] !== null) {
             // Default values returned from database are represented as literal expressions
+            assert(is_string($tableColumn['data_default']));
             if (preg_match('/^\'(.*)\'$/s', $tableColumn['data_default'], $matches) === 1) {
                 $tableColumn['data_default'] = str_replace("''", "'", $matches[1]);
             }
         }
 
         if ($tableColumn['data_precision'] !== null) {
+            assert(is_numeric($tableColumn['data_precision']));
             $precision = (int) $tableColumn['data_precision'];
         }
 
         if ($tableColumn['data_scale'] !== null) {
+            assert(is_numeric($tableColumn['data_scale']));
             $scale = (int) $tableColumn['data_scale'];
         }
 
@@ -156,16 +164,19 @@ class OracleSchemaManager extends AbstractSchemaManager
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
+                assert(is_numeric($tableColumn['char_length']));
                 $length = (int) $tableColumn['char_length'];
                 break;
 
             case 'raw':
+                assert(is_numeric($tableColumn['data_length']));
                 $length = (int) $tableColumn['data_length'];
                 $fixed  = true;
                 break;
 
             case 'char':
             case 'nchar':
+                assert(is_numeric($tableColumn['char_length']));
                 $length = (int) $tableColumn['char_length'];
                 $fixed  = true;
                 break;
@@ -184,6 +195,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $options['comment'] = $tableColumn['comments'];
         }
 
+        assert(is_string($tableColumn['column_name']));
         return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
     }
 
@@ -195,11 +207,13 @@ class OracleSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($rows as $row) {
             $row = array_change_key_case($row, CASE_LOWER);
+            assert(is_string($row['constraint_name']));
             if (! isset($list[$row['constraint_name']])) {
                 if ($row['delete_rule'] === 'NO ACTION') {
                     $row['delete_rule'] = null;
                 }
 
+                assert(is_string($row['references_table']));
                 $list[$row['constraint_name']] = [
                     'name' => $this->getQuotedIdentifierName($row['constraint_name']),
                     'local' => [],
@@ -211,6 +225,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 ];
             }
 
+            assert(is_string($row['local_column']) && is_string($row['foreign_column']));
             $localColumn   = $this->getQuotedIdentifierName($row['local_column']);
             $foreignColumn = $this->getQuotedIdentifierName($row['foreign_column']);
 
@@ -227,10 +242,16 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
+        assert(is_array($tableForeignKey['local']) && is_string($tableForeignKey['foreignTable']) && is_array($tableForeignKey['foreign']) && is_string($tableForeignKey['name']));
+        /** @var list<string> $local */
+        $local = $tableForeignKey['local'];
+        /** @var list<string> $foreign */
+        $foreign = $tableForeignKey['foreign'];
+        assert($local !== [] && $foreign !== []);
         return new ForeignKeyConstraint(
-            $tableForeignKey['local'],
+            $local,
             $this->getQuotedIdentifierName($tableForeignKey['foreignTable']),
-            $tableForeignKey['foreign'],
+            $foreign,
             $this->getQuotedIdentifierName($tableForeignKey['name']),
             [
                 'onDelete' => $tableForeignKey['onDelete'],
@@ -247,6 +268,8 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $sequence = array_change_key_case($sequence, CASE_LOWER);
 
+        assert(is_string($sequence['sequence_name']));
+        assert(is_numeric($sequence['increment_by']) && is_numeric($sequence['min_value']));
         return new Sequence(
             $this->getQuotedIdentifierName($sequence['sequence_name']),
             (int) $sequence['increment_by'],
@@ -260,6 +283,8 @@ class OracleSchemaManager extends AbstractSchemaManager
     protected function _getPortableDatabaseDefinition(array $database): string
     {
         $database = array_change_key_case($database, CASE_LOWER);
+
+        assert(is_string($database['username']) && $database['username'] !== '');
 
         return $database['username'];
     }
@@ -474,6 +499,7 @@ SQL,
 
         $tableOptions = [];
         foreach ($this->connection->iterateKeyValue($sql, $params) as $table => $comments) {
+            assert(is_string($table) && $table !== '' && is_string($comments));
             $tableOptions[$table] = ['comment' => $comments];
         }
 

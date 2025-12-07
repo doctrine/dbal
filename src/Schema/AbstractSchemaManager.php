@@ -73,6 +73,7 @@ abstract class AbstractSchemaManager
     public function listDatabases(): array
     {
         return array_map(function (array $row): string {
+            /** @var array<string, mixed> $row */
             return $this->_getPortableDatabaseDefinition($row);
         }, $this->connection->fetchAllAssociative(
             $this->platform->getListDatabasesSQL(),
@@ -1256,7 +1257,7 @@ abstract class AbstractSchemaManager
      * the native DBMS data definition to a portable Doctrine definition
      */
 
-    /** @param array<string, string> $database */
+    /** @param array<string, mixed> $database */
     protected function _getPortableDatabaseDefinition(array $database): string
     {
         throw NotSupported::new(__METHOD__);
@@ -1312,6 +1313,14 @@ abstract class AbstractSchemaManager
     {
         $result = [];
         foreach ($rows as $row) {
+            assert(is_string($row['key_name']));
+            assert(is_bool($row['primary']));
+            assert(is_bool($row['non_unique']));
+            assert(is_string($row['column_name']));
+            assert(is_int($row['length']) || $row['length'] === null);
+            assert(!isset($row['where']) || is_string($row['where']));
+            assert(!isset($row['flags']) || is_array($row['flags']));
+
             $indexName = $keyName = $row['key_name'];
             if ($row['primary']) {
                 $keyName = 'primary';
@@ -1344,12 +1353,15 @@ abstract class AbstractSchemaManager
 
         $indexes = [];
         foreach ($result as $indexKey => $data) {
+            /** @var array<int, string> $flags */
+            $flags = $data['flags'];
+
             $indexes[$indexKey] = new Index(
                 $data['name'],
                 $data['columns'],
                 $data['unique'],
                 $data['primary'],
-                $data['flags'],
+                $flags,
                 $data['options'],
             );
         }
@@ -1467,7 +1479,10 @@ abstract class AbstractSchemaManager
 
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
-        return new Comparator($this->platform, func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig());
+        $config = func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig();
+        assert($config instanceof ComparatorConfig);
+
+        return new Comparator($this->platform, $config);
     }
 
     /**

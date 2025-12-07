@@ -192,6 +192,8 @@ SQL,
      */
     protected function _getPortableDatabaseDefinition(array $database): string
     {
+        assert(is_string($database['datname']) && $database['datname'] !== '');
+
         return $database['datname'];
     }
 
