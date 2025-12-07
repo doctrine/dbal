@@ -323,31 +323,37 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     private function buildTableOptions(array $options): string
     {
         if (isset($options['table_options'])) {
+            assert(is_string($options['table_options']));
             return $options['table_options'];
         }
 
         $tableOptions = [];
 
         if (isset($options['charset'])) {
-            $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', $options['charset']);
+            assert(is_scalar($options['charset']));
+            $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', (string) $options['charset']);
         }
 
         if (isset($options['collation'])) {
-            $tableOptions[] = $this->getColumnCollationDeclarationSQL($options['collation']);
+            assert(is_scalar($options['collation']));
+            $tableOptions[] = $this->getColumnCollationDeclarationSQL((string) $options['collation']);
         }
 
         if (isset($options['engine'])) {
-            $tableOptions[] = sprintf('ENGINE = %s', $options['engine']);
+            assert(is_scalar($options['engine']));
+            $tableOptions[] = sprintf('ENGINE = %s', (string) $options['engine']);
         }
 
         // Auto increment
         if (isset($options['auto_increment'])) {
-            $tableOptions[] = sprintf('AUTO_INCREMENT = %s', $options['auto_increment']);
+            assert(is_scalar($options['auto_increment']));
+            $tableOptions[] = sprintf('AUTO_INCREMENT = %s', (string) $options['auto_increment']);
         }
 
         // Comment
         if (isset($options['comment'])) {
-            $tableOptions[] = sprintf('COMMENT = %s ', $this->quoteStringLiteral($options['comment']));
+            assert(is_scalar($options['comment']));
+            $tableOptions[] = sprintf('COMMENT = %s ', $this->quoteStringLiteral((string) $options['comment']));
         }
 
         // Row format
@@ -689,7 +695,10 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         }
 
         return sprintf('ENUM(%s)', implode(', ', array_map(
-            $this->quoteStringLiteral(...),
+            function ($value) {
+                assert(is_scalar($value));
+                return $this->quoteStringLiteral((string) $value);
+            },
             $column['values'],
         )));
     }
@@ -729,7 +738,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     {
         $query = '';
         if ($foreignKey->hasOption('match')) {
-            $query .= ' MATCH ' . $foreignKey->getOption('match');
+            $match = $foreignKey->getOption('match');
+            assert(is_scalar($match));
+            $query .= ' MATCH ' . (string) $match;
         }
 
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
