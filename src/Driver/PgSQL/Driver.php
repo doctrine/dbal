@@ -33,7 +33,10 @@ final class Driver extends AbstractPostgreSQLDriver
     ): Connection {
         set_error_handler(
             static function (int $severity, string $message): never {
-                throw new ErrorException($message, 0, $severity, ...array_slice(func_get_args(), 2, 2));
+                $args = func_get_args();
+                $filename = isset($args[2]) && is_string($args[2]) ? $args[2] : null;
+                $line = isset($args[3]) && is_int($args[3]) ? $args[3] : null;
+                throw new ErrorException($message, 0, $severity, $filename, $line);
             },
         );
 
@@ -70,29 +73,35 @@ final class Driver extends AbstractPostgreSQLDriver
         // pg_connect used by Doctrine DBAL does not support [...] notation,
         // but requires the host address in plain form like `aa:bb:99...`
         $matches = [];
-        if (isset($params['host']) && preg_match('/^\[(.+)\]$/', $params['host'], $matches) === 1) {
-            $params['hostaddr'] = $matches[1];
-            unset($params['host']);
+        if (isset($params['host']) && is_string($params['host'])) {
+            if (preg_match('/^\[(.+)\]$/', $params['host'], $matches) === 1) {
+                $params['hostaddr'] = $matches[1];
+                unset($params['host']);
+            }
         }
 
-        $components = array_filter(
-            [
-                'host' => $params['host'] ?? null,
-                'hostaddr' => $params['hostaddr'] ?? null,
-                'port' => $params['port'] ?? null,
-                'dbname' => $params['dbname'] ?? 'postgres',
-                'user' => $params['user'] ?? null,
-                'password' => $params['password'] ?? null,
-                'sslmode' => $params['sslmode'] ?? null,
-                'gssencmode' => $params['gssencmode'] ?? null,
-            ],
-            static fn (int|string|null $value) => $value !== '' && $value !== null,
-        );
+        $components = [];
+        foreach ([
+            'host' => $params['host'] ?? null,
+            'hostaddr' => $params['hostaddr'] ?? null,
+            'port' => $params['port'] ?? null,
+            'dbname' => $params['dbname'] ?? 'postgres',
+            'user' => $params['user'] ?? null,
+            'password' => $params['password'] ?? null,
+            'sslmode' => $params['sslmode'] ?? null,
+            'gssencmode' => $params['gssencmode'] ?? null
+        ] as $key => $value) {
+            if ($value !== '' && $value !== null) {
+                $components[$key] = $value;
+            }
+        }
 
-        return implode(' ', array_map(
-            static fn (int|string $value, string $key) => sprintf("%s='%s'", $key, addslashes((string) $value)),
-            array_values($components),
-            array_keys($components),
-        ));
+        $parts = [];
+        foreach ($components as $key => $value) {
+            assert(is_scalar($value));
+            $parts[] = sprintf("%s='%s'", $key, addslashes((string) $value));
+        }
+
+        return implode(' ', $parts);
     }
 }
