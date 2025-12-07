@@ -65,6 +65,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition(array $table): string
     {
+        assert(is_string($table['table_name']) && $table['table_name'] !== '');
         return $table['table_name'];
     }
 
@@ -73,6 +74,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
+        assert(is_string($tableColumn['type']));
         $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $tableColumn['type'], $matches);
         assert($matchResult === 1);
 
@@ -104,6 +106,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
         if ($default !== null) {
             // SQLite returns the default value as a literal expression, so we need to parse it
+            assert(is_string($default));
             if (preg_match('/^\'(.*)\'$/s', $default, $matches) === 1) {
                 $default = str_replace("''", "'", $matches[1]);
             }
@@ -127,6 +130,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             'scale'     => $scale,
         ];
 
+        assert(is_string($tableColumn['name']));
         $column = new Column($tableColumn['name'], Type::getType($type), $options);
 
         if ($type === Types::STRING || $type === Types::TEXT) {
@@ -141,11 +145,13 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableViewDefinition(array $view): View
     {
+        assert(is_string($view['name']) && is_string($view['sql']));
         return new View($view['name'], $view['sql']);
     }
 
     /**
      * {@inheritDoc}
+     * @throws \Doctrine\DBAL\Exception
      */
     protected function _getPortableTableForeignKeysList(array $rows): array
     {
@@ -153,6 +159,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         foreach ($rows as $row) {
             $row = array_change_key_case($row, CASE_LOWER);
             $id  = $row['id'];
+            assert(is_scalar($id));
+            $id = (string) $id;
             if (! isset($list[$id])) {
                 if (! isset($row['on_delete']) || $row['on_delete'] === 'RESTRICT') {
                     $row['on_delete'] = null;
@@ -174,12 +182,14 @@ class SQLiteSchemaManager extends AbstractSchemaManager
                 ];
             }
 
+            assert(is_string($row['from']));
             $list[$id]['local'][] = $row['from'];
 
             if ($row['to'] === null) {
                 continue;
             }
 
+            assert(is_string($row['to']));
             $list[$id]['foreign'][] = $row['to'];
         }
 
@@ -191,6 +201,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             // Inferring a shorthand form for the foreign key constraint, where the "to" field is empty.
             // @see https://www.sqlite.org/foreignkeys.html#fk_indexes.
             // @phpstan-ignore missingType.checkedException
+            assert(is_string($value['foreignTable']) || $value['foreignTable'] === null);
             $foreignTablePrimaryKeyColumnRows = $this->fetchPrimaryKeyColumns($value['foreignTable']);
 
             if (count($foreignTablePrimaryKeyColumnRows) < 1) {
@@ -216,10 +227,16 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
+        assert(is_array($tableForeignKey['local']) && is_string($tableForeignKey['foreignTable']) && is_array($tableForeignKey['foreign']) && is_string($tableForeignKey['name']));
+        /** @var list<string> $local */
+        $local = $tableForeignKey['local'];
+        /** @var list<string> $foreign */
+        $foreign = $tableForeignKey['foreign'];
+        assert($local !== [] && $foreign !== []);
         return new ForeignKeyConstraint(
-            $tableForeignKey['local'],
+            $local,
             $tableForeignKey['foreignTable'],
-            $tableForeignKey['foreign'],
+            $foreign,
             $tableForeignKey['name'],
             [
                 'onDelete' => $tableForeignKey['onDelete'],
@@ -311,6 +328,7 @@ SQL
         );
 
         if ($sql !== false) {
+            assert(is_string($sql));
             return $sql;
         }
 
@@ -362,7 +380,9 @@ SQL
 
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
-        return new SQLite\Comparator($this->platform, func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig());
+        $config = func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig();
+        assert($config instanceof ComparatorConfig);
+        return new SQLite\Comparator($this->platform, $config);
     }
 
     protected function selectTableNames(string $databaseName): Result
@@ -464,6 +484,7 @@ SQL,
         $sqlByTable = $pkColumnNamesByTable = $result = [];
 
         foreach ($rows as $row) {
+            assert(is_string($row['table_name']));
             $tableName = $row['table_name'];
 
             $sqlByTable[$tableName] ??= $this->getCreateTableSQL($tableName);
@@ -476,7 +497,9 @@ SQL,
         }
 
         foreach ($rows as $row) {
+            assert(is_string($row['table_name']));
             $tableName  = $row['table_name'];
+            assert(is_string($row['name']));
             $columnName = $row['name'];
             $tableSQL   = $sqlByTable[$row['table_name']];
 
@@ -562,6 +585,7 @@ SQL,
     {
         $columnsByTable = [];
         foreach (parent::fetchForeignKeyColumns($databaseName, $tableName) as $column) {
+            assert(is_string($column['table_name']));
             $columnsByTable[$column['table_name']][] = $column;
         }
 
@@ -571,6 +595,7 @@ SQL,
             $foreignKeyCount   = count($foreignKeyDetails);
 
             foreach ($tableColumns as $column) {
+                assert(is_int($column['id']));
                 // SQLite identifies foreign keys in reverse order of appearance in SQL
                 $columns[] = array_merge($column, $foreignKeyDetails[$foreignKeyCount - $column['id'] - 1]);
             }
