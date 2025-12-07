@@ -55,6 +55,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateColumn($sql) as $databaseName) {
+            assert(is_string($databaseName) && $databaseName !== '');
             yield new DatabaseMetadataRow($databaseName);
         }
     }
@@ -79,7 +80,10 @@ final readonly class OracleMetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new TableMetadataRow(null, $row[0], []);
+            [$tableName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            yield new TableMetadataRow(null, $tableName, []);
         }
     }
 
@@ -162,6 +166,17 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             $comments,
         ] = $row;
 
+        assert(is_string($tableName) && $tableName !== '');
+        assert(is_string($columnName) && $columnName !== '');
+        assert(is_string($dataType));
+        assert($dataDefault === null || is_string($dataDefault));
+        assert($dataPrecision === null || is_int($dataPrecision));
+        assert($dataScale === null || is_int($dataScale));
+        assert($characterLength === null || is_int($characterLength));
+        assert($dataLength === null || is_int($dataLength));
+        assert(is_string($nullable));
+        assert($comments === null || is_string($comments));
+
         $dbType = strtolower($dataType);
         if (str_starts_with($dbType, 'timestamp(')) {
             if (str_contains($dbType, 'with time zone')) {
@@ -178,11 +193,11 @@ final readonly class OracleMetadataProvider implements MetadataProvider
         $scale     = 0;
 
         if ($dataPrecision !== null) {
-            $precision = (int) $dataPrecision;
+            $precision = $dataPrecision;
         }
 
         if ($dataScale !== null) {
-            $scale = (int) $dataScale;
+            $scale = $dataScale;
         }
 
         $type = $this->platform->getDoctrineTypeMapping($dbType);
@@ -211,19 +226,19 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
-                $editor->setLength((int) $characterLength);
+                $editor->setLength($characterLength);
                 break;
 
             case 'raw':
                 $editor
-                    ->setLength((int) $dataLength)
+                    ->setLength($dataLength)
                     ->setFixed(true);
                 break;
 
             case 'char':
             case 'nchar':
                 $editor
-                    ->setLength((int) $characterLength)
+                    ->setLength($characterLength)
                     ->setFixed(true);
                 break;
         }
@@ -311,14 +326,20 @@ final readonly class OracleMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [$tableName, $indexName, $uniqueness, $columnName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($indexName) && $indexName !== '');
+            assert(is_string($uniqueness));
+            assert(is_string($columnName) && $columnName !== '');
             yield new IndexColumnMetadataRow(
                 schemaName: null,
-                tableName: $row[0],
-                indexName: $row[1],
-                type: $row[2] === 'UNIQUE' ? IndexType::UNIQUE : IndexType::REGULAR,
+                tableName: $tableName,
+                indexName: $indexName,
+                type: $uniqueness === 'UNIQUE' ? IndexType::UNIQUE : IndexType::REGULAR,
                 isClustered: false,
                 predicate: null,
-                columnName: $row[3],
+                columnName: $columnName,
                 columnLength: null,
             );
         }
@@ -371,12 +392,17 @@ final readonly class OracleMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [$tableName, $constraintName, $columnName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($constraintName) && $constraintName !== '');
+            assert(is_string($columnName) && $columnName !== '');
             yield new PrimaryKeyConstraintColumnRow(
                 schemaName: null,
-                tableName: $row[0],
-                constraintName: $row[1],
+                tableName: $tableName,
+                constraintName: $constraintName,
                 isClustered: true,
-                columnName: $row[2],
+                columnName: $columnName,
             );
         }
     }
@@ -437,20 +463,39 @@ SQL,
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $referencingTableName,
+                $constraintName,
+                $referencedTableName,
+                $deleteRule,
+                $deferrable,
+                $deferred,
+                $referencingColumnName,
+                $referencedColumnName,
+            ] = $row;
+
+            assert(is_string($referencingTableName) && $referencingTableName !== '');
+            assert(is_string($constraintName) && $constraintName !== '');
+            assert(is_string($referencedTableName) && $referencedTableName !== '');
+            assert(is_string($deleteRule));
+            assert(is_string($deferrable));
+            assert(is_string($deferred));
+            assert(is_string($referencingColumnName) && $referencingColumnName !== '');
+            assert(is_string($referencedColumnName) && $referencedColumnName !== '');
             yield new ForeignKeyConstraintColumnMetadataRow(
                 referencingSchemaName: null,
-                referencingTableName: $row[0],
+                referencingTableName: $referencingTableName,
                 id: null,
-                name: $row[1],
+                name: $constraintName,
                 referencedSchemaName: null,
-                referencedTableName: $row[2],
+                referencedTableName: $referencedTableName,
                 matchType: MatchType::SIMPLE,
                 onUpdateAction: ReferentialAction::NO_ACTION,
-                onDeleteAction: $this->createReferentialAction($row[3]),
-                isDeferrable: $row[4] === 'DEFERRABLE',
-                isDeferred: $row[5] === 'DEFERRED',
-                referencingColumnName: $row[6],
-                referencedColumnName: $row[7],
+                onDeleteAction: $this->createReferentialAction($deleteRule),
+                isDeferrable: $deferrable === 'DEFERRABLE',
+                isDeferred: $deferred === 'DEFERRED',
+                referencingColumnName: $referencingColumnName,
+                referencedColumnName: $referencedColumnName,
             );
         }
     }
@@ -502,8 +547,12 @@ SQL,
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
-            yield new TableMetadataRow(null, $row[0], [
-                'comment' => $row[1],
+            [$tableName, $comment] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert($comment === null || is_string($comment));
+            yield new TableMetadataRow(null, $tableName, [
+                'comment' => $comment,
             ]);
         }
     }
@@ -545,7 +594,15 @@ SQL,
         SQL;
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new ViewMetadataRow(null, ...$row);
+            [$viewName, $definition] = $row;
+
+            assert(is_string($viewName) && $viewName !== '');
+            assert(is_string($definition));
+            yield new ViewMetadataRow(
+                schemaName: null,
+                viewName: $viewName,
+                definition: $definition,
+            );
         }
     }
 
@@ -566,14 +623,19 @@ SQL,
         SQL;
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            $cacheSize = (int) $row[3];
+            [$sequenceName, $incrementBy, $minValue, $cacheSize] = $row;
+
+            assert(is_string($sequenceName) && $sequenceName !== '');
+            assert(is_int($incrementBy));
+            assert(is_int($minValue));
+            assert(is_int($cacheSize));
             assert($cacheSize > 0);
 
             yield new SequenceMetadataRow(
                 schemaName: null,
-                sequenceName: $row[0],
-                allocationSize: (int) $row[1],
-                initialValue: (int) $row[2],
+                sequenceName: $sequenceName,
+                allocationSize: $incrementBy,
+                initialValue: $minValue,
                 cacheSize: $cacheSize,
             );
         }
