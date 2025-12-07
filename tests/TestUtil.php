@@ -194,7 +194,7 @@ class TestUtil
     /**
      * @param array<string,mixed> $configuration
      *
-     * @return array<string, mixed>
+     * @return Params
      */
     private static function mapConnectionParameters(array $configuration, string $prefix): array
     {
@@ -230,6 +230,7 @@ class TestUtil
             $parameters['driverOptions'][$option] = $value;
         }
 
+        /** @phpstan-var Params $parameters */
         return $parameters;
     }
 
@@ -266,6 +267,7 @@ class TestUtil
                     if (is_string($value)) {
                         $value = $platform->quoteStringLiteral($value);
                     } else {
+                        assert(is_scalar($value) || $value === null);
                         $value = (string) $value;
                     }
 
