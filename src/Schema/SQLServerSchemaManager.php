@@ -38,13 +38,15 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     public function listSchemaNames(): array
     {
-        return $this->connection->fetchFirstColumn(
+        $schemas = $this->connection->fetchFirstColumn(
             <<<'SQL'
 SELECT name
 FROM   sys.schemas
 WHERE  name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')
 SQL,
         );
+        /** @var list<string> $schemas */
+        return $schemas;
     }
 
     /**
@@ -52,6 +54,9 @@ SQL,
      */
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
+        assert(is_string($sequence['name']));
+        assert(is_numeric($sequence['increment']));
+        assert(is_numeric($sequence['start_value']));
         return new Sequence($sequence['name'], (int) $sequence['increment'], (int) $sequence['start_value']);
     }
 
@@ -60,8 +65,10 @@ SQL,
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
+        assert(is_string($tableColumn['type']));
         $dbType = $tableColumn['type'];
 
+        assert(is_numeric($tableColumn['length']));
         $length = (int) $tableColumn['length'];
 
         $precision = null;
@@ -70,10 +77,12 @@ SQL,
         $fixed = false;
 
         if ($tableColumn['scale'] !== null) {
+            assert(is_numeric($tableColumn['scale']));
             $scale = (int) $tableColumn['scale'];
         }
 
         if ($tableColumn['precision'] !== null) {
+            assert(is_numeric($tableColumn['precision']));
             $precision = (int) $tableColumn['precision'];
         }
 
@@ -131,9 +140,11 @@ SQL,
             $options['length'] = $length;
         }
 
+        assert(is_string($tableColumn['name']));
         $column = new Column($tableColumn['name'], Type::getType($type), $options);
 
         if ($tableColumn['default'] !== null) {
+            assert(is_string($tableColumn['default']));
             $default = $this->parseDefaultExpression($tableColumn['default']);
 
             $column->setDefault($default);
@@ -177,16 +188,21 @@ SQL,
         $foreignKeys = [];
 
         foreach ($rows as $row) {
+            assert(is_string($row['ForeignKey']));
             $name = $row['ForeignKey'];
 
             if (! isset($foreignKeys[$name])) {
+                assert(is_string($row['ReferenceTableName']));
                 $referencedTableName = $row['ReferenceTableName'];
 
                 // @phpstan-ignore missingType.checkedException
                 if ($row['ReferenceSchemaName'] !== $this->getCurrentSchemaName()) {
+                    assert(is_string($row['ReferenceSchemaName']));
                     $referencedTableName = $row['ReferenceSchemaName'] . '.' . $referencedTableName;
                 }
 
+                assert(is_string($row['ColumnName']) && is_string($row['ReferenceColumnName']));
+                assert(is_string($row['update_referential_action_desc']) && is_string($row['delete_referential_action_desc']));
                 $foreignKeys[$name] = [
                     'local_columns' => [$row['ColumnName']],
                     'foreign_table' => $referencedTableName,
@@ -198,6 +214,7 @@ SQL,
                     ],
                 ];
             } else {
+                assert(is_string($row['ColumnName']) && is_string($row['ReferenceColumnName']));
                 $foreignKeys[$name]['local_columns'][]   = $row['ColumnName'];
                 $foreignKeys[$name]['foreign_columns'][] = $row['ReferenceColumnName'];
             }
@@ -226,12 +243,20 @@ SQL,
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
+        assert(is_array($tableForeignKey['local_columns']) && is_string($tableForeignKey['foreign_table']) && is_array($tableForeignKey['foreign_columns']) && is_string($tableForeignKey['name']) && is_array($tableForeignKey['options']));
+        /** @var list<string> $local */
+        $local = $tableForeignKey['local_columns'];
+        /** @var list<string> $foreign */
+        $foreign = $tableForeignKey['foreign_columns'];
+        /** @var array<string, mixed> $options */
+        $options = $tableForeignKey['options'];
+        assert($local !== [] && $foreign !== []);
         return new ForeignKeyConstraint(
-            $tableForeignKey['local_columns'],
+            $local,
             $tableForeignKey['foreign_table'],
-            $tableForeignKey['foreign_columns'],
+            $foreign,
             $tableForeignKey['name'],
-            $tableForeignKey['options'],
+            $options,
         );
     }
 
@@ -244,9 +269,11 @@ SQL,
     {
         // @phpstan-ignore missingType.checkedException
         if ($table['schema_name'] !== $this->getCurrentSchemaName()) {
+            assert(is_string($table['schema_name']) && $table['schema_name'] !== '' && is_string($table['table_name']) && $table['table_name'] !== '');
             return $table['schema_name'] . '.' . $table['table_name'];
         }
 
+        assert(is_string($table['table_name']) && $table['table_name'] !== '');
         return $table['table_name'];
     }
 
@@ -263,16 +290,19 @@ SQL,
      */
     protected function _getPortableViewDefinition(array $view): View
     {
+        assert(is_string($view['name']) && is_string($view['definition']));
         return new View($view['name'], $view['definition']);
     }
 
     /** @throws Exception */
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
+        $config = func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig();
+        assert($config instanceof ComparatorConfig);
         return new SQLServer\Comparator(
             $this->platform,
             $this->getDatabaseCollation(),
-            func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig(),
+            $config,
         );
     }
 
@@ -298,7 +328,10 @@ SQL,
     {
         $schemaName = $this->connection->fetchOne('SELECT SCHEMA_NAME()');
         assert($schemaName !== false);
-
+        assert(is_string($schemaName) || $schemaName === null);
+        if ($schemaName !== null) {
+            assert($schemaName !== '');
+        }
         return $schemaName;
     }
 
