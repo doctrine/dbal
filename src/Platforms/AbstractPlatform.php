@@ -198,11 +198,13 @@ abstract class AbstractPlatform
     public function getStringTypeDeclarationSQL(array $column): string
     {
         $length = $column['length'] ?? null;
+        assert(is_int($length) || $length === null);
 
         if (empty($column['fixed'])) {
             try {
                 return $this->getVarcharTypeDeclarationSQLSnippet($length);
             } catch (InvalidColumnType $e) {
+                assert(is_string($column['name']));
                 throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
             }
         }
@@ -218,6 +220,7 @@ abstract class AbstractPlatform
     public function getBinaryTypeDeclarationSQL(array $column): string
     {
         $length = $column['length'] ?? null;
+        assert(is_int($length) || $length === null);
 
         try {
             if (empty($column['fixed'])) {
@@ -226,6 +229,7 @@ abstract class AbstractPlatform
 
             return $this->getBinaryTypeDeclarationSQLSnippet($length);
         } catch (InvalidColumnType $e) {
+            assert(is_string($column['name']));
             throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
         }
     }
@@ -246,11 +250,18 @@ abstract class AbstractPlatform
             throw ColumnValuesRequired::new($this, 'ENUM');
         }
 
-        $length = count($column['values']) > 1
-            ? max(...array_map(mb_strlen(...), $column['values']))
-            : mb_strlen($column['values'][key($column['values'])]);
+        assert(is_array($column['values']));
+        $values = [];
+        foreach ($column['values'] as $v) {
+            assert(is_scalar($v) || $v === null);
+            $values[] = strval($v);
+        }
+        $length = count($values) > 1
+            ? max(...array_map(mb_strlen(...), $values))
+            : mb_strlen($values[key($values)]);
 
         if (isset($column['length'])) {
+            assert(is_int($column['length']));
             if ($length > $column['length']) {
                 throw new InvalidArgumentException(sprintf(
                     'Specified column length (%d) is less than the maximum length of provided values (%d).',
@@ -930,11 +941,14 @@ abstract class AbstractPlatform
             $columns[] = $this->columnToArray($column);
         }
 
+        /** @phpstan-var CreateTableParameters $options */
         $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
 
         if ($this->supportsCommentOnStatement()) {
             if ($table->hasOption('comment')) {
-                $sql[] = $this->getCommentOnTableSQL($tableName, $table->getOption('comment'));
+                $comment = $table->getOption('comment');
+                assert(is_string($comment));
+                $sql[] = $this->getCommentOnTableSQL($tableName, $comment);
             }
 
             foreach ($table->getColumns() as $column) {
@@ -1055,16 +1069,19 @@ abstract class AbstractPlatform
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (! empty($options['uniqueConstraints'])) {
+            assert(is_array($options['uniqueConstraints']));
             foreach ($options['uniqueConstraints'] as $definition) {
                 $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
             }
         }
 
         if (! empty($options['primary'])) {
+            assert(is_array($options['primary']));
             $columnListSql .= ', PRIMARY KEY (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
         if (! empty($options['indexes'])) {
+            assert(is_array($options['indexes']));
             foreach ($options['indexes'] as $definition) {
                 $columnListSql .= ', ' . $this->getIndexDeclarationSQL($definition);
             }
@@ -1082,6 +1099,7 @@ abstract class AbstractPlatform
         $sql = [$query];
 
         if (isset($options['foreignKeys'])) {
+            assert(is_array($options['foreignKeys']));
             foreach ($options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
@@ -1228,7 +1246,9 @@ abstract class AbstractPlatform
     protected function getPartialIndexSQL(Index $index): string
     {
         if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
-            return ' WHERE ' . $index->getOption('where');
+            $where = $index->getOption('where');
+            assert(is_string($where));
+            return ' WHERE ' . $where;
         }
 
         return '';
@@ -1515,6 +1535,8 @@ abstract class AbstractPlatform
      */
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
+        assert(is_string($column['name']));
+
         if (! isset($column['precision'])) {
             throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], ColumnPrecisionRequired::new());
         }
@@ -1522,6 +1544,9 @@ abstract class AbstractPlatform
         if (! isset($column['scale'])) {
             throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], ColumnScaleRequired::new());
         }
+
+        assert(is_int($column['precision']));
+        assert(is_int($column['scale']));
 
         return 'NUMERIC(' . $column['precision'] . ', ' . $column['scale'] . ')';
     }
@@ -1549,13 +1574,17 @@ abstract class AbstractPlatform
         }
 
         if (! isset($column['type'])) {
-            return " DEFAULT '" . $default . "'";
+            assert(is_scalar($default));
+            $defaultStr = (string) $default;
+            $defaultDeclaration = sprintf(" DEFAULT '%s'", $defaultStr);
+            return $defaultDeclaration;
         }
 
         $type = $column['type'];
 
         if ($type instanceof Types\PhpIntegerMappingType) {
-            return ' DEFAULT ' . $default;
+            assert(is_int($default));
+            return ' DEFAULT ' . (string) $default;
         }
 
         if ($type instanceof Types\PhpDateTimeMappingType && $default === $this->getCurrentTimestampSQL()) {
@@ -1592,14 +1621,21 @@ abstract class AbstractPlatform
         }
 
         if ($type instanceof Types\BooleanType) {
-            return ' DEFAULT ' . $this->convertBooleans($default);
+            assert(is_bool($default));
+            $converted = $this->convertBooleans($default);
+            assert(is_string($converted));
+            return ' DEFAULT ' . $converted;
         }
 
         if (is_int($default) || is_float($default)) {
             return ' DEFAULT ' . $default;
         }
 
-        return ' DEFAULT ' . $this->quoteStringLiteral($default);
+        assert(is_scalar($default));
+        $defaultStr = (string) $default;
+        $quoted = $this->quoteStringLiteral($defaultStr);
+        $defaultDeclaration = sprintf(' DEFAULT %s', $quoted);
+        return $defaultDeclaration;
     }
 
     /**
@@ -1737,11 +1773,15 @@ abstract class AbstractPlatform
     {
         $query = '';
         if ($foreignKey->hasOption('onUpdate')) {
-            $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onUpdate'));
+            $action = $foreignKey->getOption('onUpdate');
+            assert(is_string($action));
+            $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialActionSQL($action);
         }
 
         if ($foreignKey->hasOption('onDelete')) {
-            $query .= ' ON DELETE ' . $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onDelete'));
+            $action = $foreignKey->getOption('onDelete');
+            assert(is_string($action));
+            $query .= ' ON DELETE ' . $this->getForeignKeyReferentialActionSQL($action);
         }
 
         return $query;
