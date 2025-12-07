@@ -38,7 +38,7 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
      */
     public function listSchemaNames(): array
     {
-        return $this->connection->fetchFirstColumn(
+        $schemas = $this->connection->fetchFirstColumn(
             <<<'SQL'
 SELECT schema_name
 FROM   information_schema.schemata
@@ -46,6 +46,8 @@ WHERE  schema_name NOT LIKE 'pg\_%'
 AND    schema_name != 'information_schema'
 SQL,
         );
+        /** @var list<string> $schemas */
+        return $schemas;
     }
 
     /**
@@ -89,6 +91,7 @@ SQL,
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
+        assert(is_string($tableForeignKey['condef']));
         $onUpdate = null;
         $onDelete = null;
 
@@ -121,6 +124,7 @@ SQL,
         $foreignColumns = array_map('trim', explode(',', $values[3]));
         $foreignTable   = $values[2];
 
+        assert(is_string($tableForeignKey['conname']));
         return new ForeignKeyConstraint(
             $localColumns,
             $foreignTable,
@@ -140,6 +144,7 @@ SQL,
      */
     protected function _getPortableViewDefinition(array $view): View
     {
+        assert(is_string($view['schemaname']) && is_string($view['viewname']) && is_string($view['definition']));
         return new View($view['schemaname'] . '.' . $view['viewname'], $view['definition']);
     }
 
@@ -154,9 +159,11 @@ SQL,
         $currentSchema = $this->getCurrentSchema();
 
         if ($table['schema_name'] === $currentSchema) {
+            assert(is_string($table['table_name']) && $table['table_name'] !== '');
             return $table['table_name'];
         }
 
+        assert(is_string($table['schema_name']) && $table['schema_name'] !== '' && is_string($table['table_name']) && $table['table_name'] !== '');
         return $table['schema_name'] . '.' . $table['table_name'];
     }
 
@@ -194,11 +201,14 @@ SQL,
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
         if ($sequence['schemaname'] !== 'public') {
+            assert(is_string($sequence['schemaname']) && is_string($sequence['relname']));
             $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
         } else {
+            assert(is_string($sequence['relname']));
             $sequenceName = $sequence['relname'];
         }
 
+        assert(is_numeric($sequence['increment_by']) && is_numeric($sequence['min_value']));
         return new Sequence($sequenceName, (int) $sequence['increment_by'], (int) $sequence['min_value']);
     }
 
@@ -215,15 +225,18 @@ SQL,
         $fixed     = false;
         $jsonb     = false;
 
+        assert(is_string($tableColumn['type']));
         $dbType = $tableColumn['type'];
 
         if (
             $tableColumn['domain_type'] !== null
                 && ! $this->platform->hasDoctrineTypeMappingFor($dbType)
         ) {
+            assert(is_string($tableColumn['domain_type']) && is_string($tableColumn['domain_complete_type']));
             $dbType       = $tableColumn['domain_type'];
             $completeType = $tableColumn['domain_complete_type'];
         } else {
+            assert(is_string($tableColumn['complete_type']));
             $completeType = $tableColumn['complete_type'];
         }
 
@@ -261,6 +274,7 @@ SQL,
             $jsonb = true;
         }
 
+        assert(is_string($tableColumn['default']) || $tableColumn['default'] === null);
         $options = [
             'length'        => $length,
             'notnull'       => (bool) $tableColumn['isnotnull'],
@@ -275,6 +289,7 @@ SQL,
             $options['comment'] = $tableColumn['comment'];
         }
 
+        assert(is_string($tableColumn['field']));
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
         if (! empty($tableColumn['collation'])) {
