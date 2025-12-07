@@ -62,6 +62,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateColumn($sql) as $databaseName) {
+            assert(is_string($databaseName) && $databaseName !== '');
             yield new DatabaseMetadataRow($databaseName);
         }
     }
@@ -84,6 +85,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateColumn($sql) as $schemaName) {
+            assert(is_string($schemaName) && $schemaName !== '');
             yield new SchemaMetadataRow($schemaName);
         }
     }
@@ -113,7 +115,10 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new TableMetadataRow($row[0], $row[1], []);
+            [$schemaName, $tableName] = $row;
+            assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
+            assert(is_string($tableName) && $tableName !== '');
+            yield new TableMetadataRow($schemaName, $tableName, []);
         }
     }
 
@@ -235,6 +240,18 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             $collationName,
         ] = $row;
 
+        assert($namespaceName === null || (is_string($namespaceName) && $namespaceName !== ''));
+        assert(is_string($relationName) && $relationName !== '');
+        assert(is_string($attributeName) && $attributeName !== '');
+        assert(is_string($typeName));
+        assert(is_string($completeType));
+        assert(is_string($domainTypeName) || $domainTypeName === null);
+        assert(is_string($domainCompleteType) || $domainCompleteType === null);
+        assert(is_string($identity) || $identity === null);
+        assert(is_string($defaultExpression) || $defaultExpression === null);
+        assert(is_string($description) || $description === null);
+        assert($collationName === null || (is_string($collationName) && $collationName !== ''));
+
         $editor = Column::editor()
             ->setQuotedName($attributeName);
 
@@ -242,6 +259,8 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             $typeName     = $domainTypeName;
             $completeType = $domainCompleteType;
         }
+
+        assert(is_string($completeType));
 
         $editor->setTypeName(
             $this->platform->getDoctrineTypeMapping($typeName),
@@ -393,14 +412,29 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $schemaName,
+                $tableName,
+                $indexName,
+                $isUnique,
+                $predicate,
+                $columnName,
+            ] = $row;
+
+            assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($indexName) && $indexName !== '');
+            assert($predicate === null || (is_string($predicate) && $predicate !== ''));
+            assert(is_string($columnName) && $columnName !== '');
+
             yield new IndexColumnMetadataRow(
-                schemaName: $row[0],
-                tableName: $row[1],
-                indexName: $row[2],
-                type: $row[3] ? IndexType::UNIQUE : IndexType::REGULAR,
+                schemaName: $schemaName,
+                tableName: $tableName,
+                indexName: $indexName,
+                type: $isUnique ? IndexType::UNIQUE : IndexType::REGULAR,
                 isClustered: false,
-                predicate: $row[4],
-                columnName: $row[5],
+                predicate: $predicate,
+                columnName: $columnName,
                 columnLength: null,
             );
         }
@@ -469,12 +503,24 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $schemaName,
+                $tableName,
+                $constraintName,
+                $columnName,
+            ] = $row;
+
+            assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
+            assert(is_string($tableName) && $tableName !== '');
+            assert($constraintName === null || (is_string($constraintName) && $constraintName !== ''));
+            assert(is_string($columnName) && $columnName !== '');
+
             yield new PrimaryKeyConstraintColumnRow(
-                schemaName: $row[0],
-                tableName: $row[1],
-                constraintName: $row[2],
+                schemaName: $schemaName,
+                tableName: $tableName,
+                constraintName: $constraintName,
                 isClustered: true,
-                columnName: $row[3],
+                columnName: $columnName,
             );
         }
     }
@@ -553,20 +599,44 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $referencingSchemaName,
+                $referencingTableName,
+                $name,
+                $referencedSchemaName,
+                $referencedTableName,
+                $onUpdateKey,
+                $onDeleteKey,
+                $deferrable,
+                $deferred,
+                $referencingColumnName,
+                $referencedColumnName,
+            ] = $row;
+
+            assert($referencingSchemaName === null || (is_string($referencingSchemaName) && $referencingSchemaName !== ''));
+            assert(is_string($referencingTableName) && $referencingTableName !== '');
+            assert($name === null || (is_string($name) && $name !== ''));
+            assert($referencedSchemaName === null || (is_string($referencedSchemaName) && $referencedSchemaName !== ''));
+            assert(is_string($referencedTableName) && $referencedTableName !== '');
+            assert(is_string($onUpdateKey) && isset(self::REFERENTIAL_ACTIONS[$onUpdateKey]));
+            assert(is_string($onDeleteKey) && isset(self::REFERENTIAL_ACTIONS[$onDeleteKey]));
+            assert(is_string($referencingColumnName) && $referencingColumnName !== '');
+            assert(is_string($referencedColumnName) && $referencedColumnName !== '');
+
             yield new ForeignKeyConstraintColumnMetadataRow(
-                $row[0],
-                $row[1],
+                $referencingSchemaName,
+                $referencingTableName,
                 null,
-                $row[2],
-                $row[3],
-                $row[4],
+                $name,
+                $referencedSchemaName,
+                $referencedTableName,
                 MatchType::SIMPLE,
-                self::REFERENTIAL_ACTIONS[$row[5]],
-                self::REFERENTIAL_ACTIONS[$row[6]],
-                (bool) $row[7],
-                (bool) $row[8],
-                $row[9],
-                $row[10],
+                self::REFERENTIAL_ACTIONS[$onUpdateKey],
+                self::REFERENTIAL_ACTIONS[$onDeleteKey],
+                (bool) $deferrable,
+                (bool) $deferred,
+                $referencingColumnName,
+                $referencedColumnName,
             );
         }
     }
@@ -616,9 +686,13 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
-            yield new TableMetadataRow($row[0], $row[1], [
-                'unlogged' => $row[2],
-                'comment' => $row[3],
+            [$schemaName, $tableName, $unlogged, $comment] = $row;
+            assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($comment) || $comment === null);
+            yield new TableMetadataRow($schemaName, $tableName, [
+                'unlogged' => (bool) $unlogged,
+                'comment' => $comment,
             ]);
         }
     }
@@ -674,7 +748,11 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new ViewMetadataRow(...$row);
+            [$schemaName, $viewName, $definition] = $row;
+            assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
+            assert(is_string($viewName) && $viewName !== '');
+            assert(is_string($definition));
+            yield new ViewMetadataRow($schemaName, $viewName, $definition);
         }
     }
 
@@ -699,11 +777,23 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
+            [
+                $schemaName,
+                $sequenceName,
+                $increment,
+                $minimumValue,
+            ] = $row;
+
+            assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
+            assert(is_string($sequenceName) && $sequenceName !== '');
+            assert(is_numeric($increment));
+            assert(is_numeric($minimumValue));
+
             yield new SequenceMetadataRow(
-                schemaName: $row[0],
-                sequenceName: $row[1],
-                allocationSize: (int) $row[2],
-                initialValue: (int) $row[3],
+                schemaName: $schemaName,
+                sequenceName: $sequenceName,
+                allocationSize: (int) $increment,
+                initialValue: (int) $minimumValue,
                 cacheSize: null,
             );
         }
