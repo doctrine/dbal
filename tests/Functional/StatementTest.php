@@ -367,4 +367,13 @@ EOF
 
         self::assertEquals(1, $result);
     }
+
+    public function testBindValueWithNAN(): void
+    {
+        $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
+
+        $stmt->bindValue(1, NAN);
+        $result = $stmt->executeQuery();
+        self::assertEquals(0, $result->fetchOne());
+    }
 }
