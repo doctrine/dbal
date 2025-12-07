@@ -11,6 +11,7 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
+use TypeError;
 
 use function array_change_key_case;
 use function array_column;
@@ -21,6 +22,9 @@ use function count;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
+use function is_array;
+use function is_int;
+use function is_scalar;
 use function is_string;
 use function preg_match;
 use function preg_match_all;
@@ -66,6 +70,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableDefinition(array $table): string
     {
         assert(is_string($table['table_name']) && $table['table_name'] !== '');
+
         return $table['table_name'];
     }
 
@@ -146,12 +151,14 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     protected function _getPortableViewDefinition(array $view): View
     {
         assert(is_string($view['name']) && is_string($view['sql']));
+
         return new View($view['name'], $view['sql']);
     }
 
     /**
      * {@inheritDoc}
-     * @throws \Doctrine\DBAL\Exception
+     *
+     * @throws Exception
      */
     protected function _getPortableTableForeignKeysList(array $rows): array
     {
@@ -223,7 +230,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
@@ -233,6 +241,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         /** @var list<string> $foreign */
         $foreign = $tableForeignKey['foreign'];
         assert($local !== [] && $foreign !== []);
+
         return new ForeignKeyConstraint(
             $local,
             $tableForeignKey['foreignTable'],
@@ -329,6 +338,7 @@ SQL
 
         if ($sql !== false) {
             assert(is_string($sql));
+
             return $sql;
         }
 
@@ -382,6 +392,7 @@ SQL
     {
         $config = func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig();
         assert($config instanceof ComparatorConfig);
+
         return new SQLite\Comparator($this->platform, $config);
     }
 
@@ -498,7 +509,7 @@ SQL,
 
         foreach ($rows as $row) {
             assert(is_string($row['table_name']));
-            $tableName  = $row['table_name'];
+            $tableName = $row['table_name'];
             assert(is_string($row['name']));
             $columnName = $row['name'];
             $tableSQL   = $sqlByTable[$row['table_name']];

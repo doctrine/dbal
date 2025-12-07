@@ -26,6 +26,8 @@ use function extension_loaded;
 use function file_exists;
 use function implode;
 use function in_array;
+use function is_numeric;
+use function is_scalar;
 use function is_string;
 use function str_starts_with;
 use function strlen;

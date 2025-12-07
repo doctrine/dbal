@@ -14,6 +14,8 @@ use function array_shift;
 use function assert;
 use function count;
 use function get_debug_type;
+use function is_int;
+use function is_string;
 use function method_exists;
 use function sprintf;
 
@@ -119,7 +121,7 @@ class Result
             assert(count($row) >= 2);
             [$key, $value] = $row;
             assert(is_string($key) || is_int($key));
-            $data[$key]    = $value;
+            $data[$key] = $value;
         }
 
         return $data;

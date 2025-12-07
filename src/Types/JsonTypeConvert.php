@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use JsonException;
 
 use function is_resource;
+use function is_string;
 use function json_decode;
 use function json_encode;
 use function stream_get_contents;
@@ -51,7 +52,7 @@ trait JsonTypeConvert
             $value = stream_get_contents($value);
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'string', ['string']);
         }
 

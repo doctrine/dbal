@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraintEditor;
 use Doctrine\DBAL\Schema\SchemaProvider;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableConfiguration;
+use TypeError;
 
 use function array_map;
 use function array_values;
@@ -79,8 +80,9 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
-     * @throws \Doctrine\DBAL\Exception
+     *
+     * @throws TypeError
+     * @throws Exception
      */
     public function getAllTables(): array
     {
@@ -298,8 +300,9 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
-     * @throws \Doctrine\DBAL\Exception
+     *
+     * @throws TypeError
+     * @throws Exception
      */
     public function getForeignKeyConstraintsForTable(?string $schemaName, string $tableName): array
     {
@@ -330,7 +333,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
      * @return array<string, array<non-empty-string, list<ForeignKeyConstraint>>>
      *
      * @throws Exception
-     * @throws \TypeError
+     * @throws TypeError
      */
     private function getForeignKeyConstraintsForAllTables(): array
     {

@@ -56,6 +56,7 @@ use function is_array;
 use function is_bool;
 use function is_float;
 use function is_int;
+use function is_scalar;
 use function is_string;
 use function key;
 use function max;
@@ -68,6 +69,7 @@ use function str_replace;
 use function strlen;
 use function strtolower;
 use function strtoupper;
+use function strval;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -205,6 +207,7 @@ abstract class AbstractPlatform
                 return $this->getVarcharTypeDeclarationSQLSnippet($length);
             } catch (InvalidColumnType $e) {
                 assert(is_string($column['name']));
+
                 throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
             }
         }
@@ -230,6 +233,7 @@ abstract class AbstractPlatform
             return $this->getBinaryTypeDeclarationSQLSnippet($length);
         } catch (InvalidColumnType $e) {
             assert(is_string($column['name']));
+
             throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
         }
     }
@@ -256,6 +260,7 @@ abstract class AbstractPlatform
             assert(is_scalar($v) || $v === null);
             $values[] = strval($v);
         }
+
         $length = count($values) > 1
             ? max(...array_map(mb_strlen(...), $values))
             : mb_strlen($values[key($values)]);
@@ -1248,6 +1253,7 @@ abstract class AbstractPlatform
         if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
             $where = $index->getOption('where');
             assert(is_string($where));
+
             return ' WHERE ' . $where;
         }
 
@@ -1576,14 +1582,15 @@ abstract class AbstractPlatform
         if (! isset($column['type'])) {
             assert(is_scalar($default));
             $defaultStr = (string) $default;
-            $defaultDeclaration = sprintf(" DEFAULT '%s'", $defaultStr);
-            return $defaultDeclaration;
+
+            return sprintf(" DEFAULT '%s'", $defaultStr);
         }
 
         $type = $column['type'];
 
         if ($type instanceof Types\PhpIntegerMappingType) {
             assert(is_int($default));
+
             return ' DEFAULT ' . (string) $default;
         }
 
@@ -1624,6 +1631,7 @@ abstract class AbstractPlatform
             assert(is_bool($default));
             $converted = $this->convertBooleans($default);
             assert(is_string($converted));
+
             return ' DEFAULT ' . $converted;
         }
 
@@ -1633,9 +1641,9 @@ abstract class AbstractPlatform
 
         assert(is_scalar($default));
         $defaultStr = (string) $default;
-        $quoted = $this->quoteStringLiteral($defaultStr);
-        $defaultDeclaration = sprintf(' DEFAULT %s', $quoted);
-        return $defaultDeclaration;
+        $quoted     = $this->quoteStringLiteral($defaultStr);
+
+        return sprintf(' DEFAULT %s', $quoted);
     }
 
     /**

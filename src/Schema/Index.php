@@ -15,15 +15,19 @@ use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 use function array_filter;
+use function array_is_list;
 use function array_keys;
 use function array_map;
 use function array_search;
 use function array_shift;
+use function assert;
 use function count;
 use function gettype;
 use function implode;
+use function is_array;
 use function is_int;
 use function is_object;
+use function is_string;
 use function strlen;
 use function strtolower;
 

@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 
+use function is_scalar;
+
 class FloatType extends Type
 {
     /**
@@ -30,7 +32,7 @@ class FloatType extends Type
             return null;
         }
 
-        if (!is_scalar($value)) {
+        if (! is_scalar($value)) {
             throw InvalidType::new($value, 'float', ['scalar']);
         }
 

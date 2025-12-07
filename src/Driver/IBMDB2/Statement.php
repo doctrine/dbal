@@ -18,6 +18,7 @@ use function error_get_last;
 use function fclose;
 use function is_int;
 use function is_resource;
+use function is_string;
 use function stream_copy_to_stream;
 use function stream_get_meta_data;
 use function tmpfile;

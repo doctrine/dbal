@@ -11,8 +11,10 @@ use Doctrine\DBAL\Types\Type;
 
 use function array_fill;
 use function array_key_exists;
+use function assert;
 use function count;
 use function implode;
+use function is_array;
 use function substr;
 
 /** @phpstan-import-type WrapperParameterTypeArray from Connection */

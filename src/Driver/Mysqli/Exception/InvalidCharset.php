@@ -9,6 +9,8 @@ use mysqli;
 use mysqli_sql_exception;
 use ReflectionProperty;
 
+use function assert;
+use function is_string;
 use function sprintf;
 
 /** @internal */
@@ -25,9 +27,9 @@ final class InvalidCharset extends AbstractException
 
     public static function upcast(mysqli_sql_exception $exception, string $charset): self
     {
-        $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
-        /** @var string $sqlstate */
+        $p        = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
         $sqlstate = $p->getValue($exception);
+        assert(is_string($sqlstate));
 
         return new self(
             sprintf('Failed to set charset "%s": %s', $charset, $exception->getMessage()),

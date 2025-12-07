@@ -8,6 +8,8 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 
+use function is_scalar;
+
 /**
  * Type that maps an SQL INT to a PHP integer.
  */
@@ -34,7 +36,7 @@ class IntegerType extends Type implements PhpIntegerMappingType
             return null;
         }
 
-        if (!is_scalar($value)) {
+        if (! is_scalar($value)) {
             throw InvalidType::new($value, 'int', ['scalar']);
         }
 

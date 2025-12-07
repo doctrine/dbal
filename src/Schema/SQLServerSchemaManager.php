@@ -9,13 +9,17 @@ use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
+use TypeError;
 
 use function array_change_key_case;
+use function array_map;
 use function assert;
 use function explode;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
+use function is_array;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -45,8 +49,9 @@ FROM   sys.schemas
 WHERE  name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')
 SQL,
         );
+
         /** @var list<string> $schemas */
-        return $schemas;
+        return array_map(static fn ($v) => $v, $schemas);
     }
 
     /**
@@ -57,6 +62,7 @@ SQL,
         assert(is_string($sequence['name']));
         assert(is_numeric($sequence['increment']));
         assert(is_numeric($sequence['start_value']));
+
         return new Sequence($sequence['name'], (int) $sequence['increment'], (int) $sequence['start_value']);
     }
 
@@ -239,7 +245,8 @@ SQL,
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
@@ -251,6 +258,7 @@ SQL,
         /** @var array<string, mixed> $options */
         $options = $tableForeignKey['options'];
         assert($local !== [] && $foreign !== []);
+
         return new ForeignKeyConstraint(
             $local,
             $tableForeignKey['foreign_table'],
@@ -270,10 +278,12 @@ SQL,
         // @phpstan-ignore missingType.checkedException
         if ($table['schema_name'] !== $this->getCurrentSchemaName()) {
             assert(is_string($table['schema_name']) && $table['schema_name'] !== '' && is_string($table['table_name']) && $table['table_name'] !== '');
+
             return $table['schema_name'] . '.' . $table['table_name'];
         }
 
         assert(is_string($table['table_name']) && $table['table_name'] !== '');
+
         return $table['table_name'];
     }
 
@@ -293,6 +303,7 @@ SQL,
     protected function _getPortableViewDefinition(array $view): View
     {
         assert(is_string($view['name']) && is_string($view['definition']));
+
         return new View($view['name'], $view['definition']);
     }
 
@@ -301,6 +312,7 @@ SQL,
     {
         $config = func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig();
         assert($config instanceof ComparatorConfig);
+
         return new SQLServer\Comparator(
             $this->platform,
             $this->getDatabaseCollation(),
@@ -334,6 +346,7 @@ SQL,
         if ($schemaName !== null) {
             assert($schemaName !== '');
         }
+
         return $schemaName;
     }
 

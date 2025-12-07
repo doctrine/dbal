@@ -10,6 +10,7 @@ use mysqli_sql_exception;
 use ReflectionProperty;
 
 use function assert;
+use function is_string;
 
 /** @internal */
 final class ConnectionFailed extends AbstractException
@@ -24,9 +25,9 @@ final class ConnectionFailed extends AbstractException
 
     public static function upcast(mysqli_sql_exception $exception): self
     {
-        $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
-        /** @var string $sqlstate */
+        $p        = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
         $sqlstate = $p->getValue($exception);
+        assert(is_string($sqlstate));
 
         return new self($exception->getMessage(), $sqlstate, $exception->getCode(), $exception);
     }

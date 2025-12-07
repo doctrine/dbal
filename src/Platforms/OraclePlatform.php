@@ -23,9 +23,11 @@ use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
+use function assert;
 use function count;
 use function explode;
 use function implode;
+use function is_string;
 use function sprintf;
 use function str_contains;
 use function strlen;

@@ -26,6 +26,7 @@ use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function assert;
 use function implode;
+use function is_int;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -56,6 +57,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
 
         foreach ($this->connection->iterateColumn($sql) as $databaseName) {
             assert(is_string($databaseName) && $databaseName !== '');
+
             yield new DatabaseMetadataRow($databaseName);
         }
     }
@@ -83,6 +85,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             [$tableName] = $row;
 
             assert(is_string($tableName) && $tableName !== '');
+
             yield new TableMetadataRow(null, $tableName, []);
         }
     }
@@ -332,6 +335,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             assert(is_string($indexName) && $indexName !== '');
             assert(is_string($uniqueness));
             assert(is_string($columnName) && $columnName !== '');
+
             yield new IndexColumnMetadataRow(
                 schemaName: null,
                 tableName: $tableName,
@@ -397,6 +401,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             assert(is_string($tableName) && $tableName !== '');
             assert(is_string($constraintName) && $constraintName !== '');
             assert(is_string($columnName) && $columnName !== '');
+
             yield new PrimaryKeyConstraintColumnRow(
                 schemaName: null,
                 tableName: $tableName,
@@ -482,6 +487,7 @@ SQL,
             assert(is_string($deferred));
             assert(is_string($referencingColumnName) && $referencingColumnName !== '');
             assert(is_string($referencedColumnName) && $referencedColumnName !== '');
+
             yield new ForeignKeyConstraintColumnMetadataRow(
                 referencingSchemaName: null,
                 referencingTableName: $referencingTableName,
@@ -551,9 +557,8 @@ SQL,
 
             assert(is_string($tableName) && $tableName !== '');
             assert($comment === null || is_string($comment));
-            yield new TableMetadataRow(null, $tableName, [
-                'comment' => $comment,
-            ]);
+
+            yield new TableMetadataRow(null, $tableName, ['comment' => $comment]);
         }
     }
 
@@ -598,6 +603,7 @@ SQL,
 
             assert(is_string($viewName) && $viewName !== '');
             assert(is_string($definition));
+
             yield new ViewMetadataRow(
                 schemaName: null,
                 viewName: $viewName,

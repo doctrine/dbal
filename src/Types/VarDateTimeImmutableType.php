@@ -10,6 +10,8 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use Exception;
 
+use function is_string;
+
 /**
  * Immutable type of {@see VarDateTimeType}.
  */
@@ -52,7 +54,7 @@ class VarDateTimeImmutableType extends DateTimeImmutableType
             return $value;
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'DateTimeImmutable', ['string']);
         }
 

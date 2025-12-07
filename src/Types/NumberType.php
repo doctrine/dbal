@@ -12,6 +12,8 @@ use TypeError;
 use ValueError;
 
 use function is_float;
+use function is_int;
+use function is_string;
 
 final class NumberType extends Type
 {
@@ -45,7 +47,7 @@ final class NumberType extends Type
             $value = (string) $value;
         }
 
-        if (!is_int($value) && !is_string($value)) {
+        if (! is_int($value) && ! is_string($value)) {
             throw InvalidType::new($value, 'int|string', ['int', 'string']);
         }
 

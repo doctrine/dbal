@@ -10,6 +10,8 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use Exception;
 
+use function is_string;
+
 /**
  * Variable DateTime Type using DateTime::__construct() instead of DateTime::createFromFormat().
  *
@@ -32,7 +34,7 @@ class VarDateTimeType extends DateTimeType
             return $value;
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'DateTime', ['string']);
         }
 

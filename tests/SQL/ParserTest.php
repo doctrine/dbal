@@ -27,18 +27,18 @@ class ParserTest extends TestCase implements Visitor
         $this->assertParsed($expected);
     }
 
-    /** @return iterable<string,list<mixed>> */
+    /** @return iterable<int,list<mixed>> */
     public static function statementsWithParametersProvider(): iterable
     {
+        $i = 0;
         foreach (self::getModes() as $mode => $mySQLStringEscaping) {
             foreach (self::getStatementsWithParameters() as $item => $arguments) {
-                self::assertIsInt($item);
-                yield sprintf('%s: %d', $mode, $item) => array_merge([$mySQLStringEscaping], $arguments);
+                yield $i++ => array_merge([$mySQLStringEscaping], $arguments);
             }
         }
     }
 
-    /** @return iterable<list<string>> */
+    /** @return iterable<mixed,list<string>> */
     private static function getStatementsWithParameters(): iterable
     {
         yield [

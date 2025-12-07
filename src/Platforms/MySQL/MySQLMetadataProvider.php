@@ -29,6 +29,9 @@ use function array_map;
 use function assert;
 use function explode;
 use function implode;
+use function is_bool;
+use function is_int;
+use function is_string;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -90,6 +93,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
 
         foreach ($this->connection->iterateColumn($sql) as $databaseName) {
             assert(is_string($databaseName) && $databaseName !== '');
+
             yield new DatabaseMetadataRow($databaseName);
         }
     }
@@ -119,6 +123,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             [$tableName] = $row;
 
             assert(is_string($tableName) && $tableName !== '');
+
             yield new TableMetadataRow(null, $tableName, []);
         }
     }
@@ -541,6 +546,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             assert(is_string($tableName) && $tableName !== '');
             assert(is_string($constraintName) && $constraintName !== '');
             assert(is_string($columnName) && $columnName !== '');
+
             yield new PrimaryKeyConstraintColumnRow(
                 schemaName: null,
                 tableName: $tableName,
@@ -630,6 +636,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             assert(is_string($deleteRule));
             assert(is_string($referencingColumnName) && $referencingColumnName !== '');
             assert(is_string($referencedColumnName) && $referencedColumnName !== '');
+
             yield new ForeignKeyConstraintColumnMetadataRow(
                 referencingSchemaName: null,
                 referencingTableName: $referencingTableName,
@@ -696,6 +703,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             assert($createOptions === null || is_string($createOptions));
             assert($collation === null || is_string($collation));
             assert($charset === null || is_string($charset));
+
             yield new TableMetadataRow(null, $tableName, [
                 'engine'         => $engine,
                 'autoincrement'  => $autoincrement,
@@ -745,6 +753,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
 
             assert(is_string($viewName) && $viewName !== '');
             assert(is_string($definition));
+
             yield new ViewMetadataRow(
                 schemaName: null,
                 viewName: $viewName,

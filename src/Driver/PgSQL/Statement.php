@@ -11,6 +11,8 @@ use PgSql\Connection as PgSqlConnection;
 
 use function assert;
 use function is_resource;
+use function is_scalar;
+use function is_string;
 use function ksort;
 use function pg_escape_bytea;
 use function pg_escape_identifier;

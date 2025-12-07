@@ -26,11 +26,14 @@ use function array_map;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function assert;
 use function count;
 use function implode;
 use function in_array;
 use function is_array;
 use function is_numeric;
+use function is_scalar;
+use function is_string;
 use function sprintf;
 use function str_replace;
 use function strtolower;
@@ -324,6 +327,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     {
         if (isset($options['table_options'])) {
             assert(is_string($options['table_options']));
+
             return $options['table_options'];
         }
 
@@ -697,6 +701,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return sprintf('ENUM(%s)', implode(', ', array_map(
             function ($value) {
                 assert(is_scalar($value));
+
                 return $this->quoteStringLiteral((string) $value);
             },
             $column['values'],

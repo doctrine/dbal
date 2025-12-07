@@ -10,6 +10,7 @@ use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Throwable;
 
+use function is_string;
 use function substr;
 
 /**
@@ -62,7 +63,7 @@ class DateIntervalType extends Type
             return $value;
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'DateInterval', ['string']);
         }
 

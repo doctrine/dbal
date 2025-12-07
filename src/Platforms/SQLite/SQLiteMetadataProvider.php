@@ -29,6 +29,8 @@ use function array_map;
 use function assert;
 use function count;
 use function implode;
+use function is_bool;
+use function is_int;
 use function is_string;
 use function preg_match;
 use function preg_match_all;
@@ -95,6 +97,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
 
         foreach ($this->connection->iterateColumn($sql) as $name) {
             assert(is_string($name) && $name !== '');
+
             yield $name;
         }
     }
@@ -147,7 +150,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
             [$tableName] = $row;
             assert(is_string($tableName));
-            $rows[]      = $row;
+            $rows[] = $row;
 
             $sqlByTableName[$tableName] ??= $this->getCreateTableSQL($tableName);
         }
@@ -170,7 +173,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         assert(is_string($tableName) && $tableName !== '');
         assert(is_string($columnName) && $columnName !== '');
         assert(is_string($type));
-        assert(is_bool($notNull));
+        $notNull = (bool) $notNull;
         assert($defaultExpression === null || is_string($defaultExpression));
 
         $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $type, $matches);
@@ -350,6 +353,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
             assert(is_string($indexName) && $indexName !== '');
             assert(is_bool($isUnique));
             assert(is_string($columnName) && $columnName !== '');
+
             yield new IndexColumnMetadataRow(
                 schemaName: null,
                 tableName: $tableName,
@@ -411,6 +415,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
 
             assert(is_string($tableName) && $tableName !== '');
             assert(is_string($columnName) && $columnName !== '');
+
             yield new PrimaryKeyConstraintColumnRow(
                 schemaName: null,
                 tableName: $tableName,
@@ -487,18 +492,24 @@ SQL,
         $currentDetails   = [];
 
         foreach ($rows as $row) {
-            assert(is_string($row[0]) && $row[0] !== '');
-            assert(is_int($row[1]));
-            assert(is_string($row[2]) && $row[2] !== '');
-            assert(is_string($row[3]) && $row[3] !== '');
-            assert($row[4] === null || is_string($row[4]));
-            $onUpdate = $row[5] ?? 'NO ACTION';
-            assert(is_string($onUpdate));
-            $onDelete = $row[6] ?? 'NO ACTION';
-            assert(is_string($onDelete));
-            assert($row[6] === null || is_string($row[6]));
-            $tableName = $row[0];
-            $id        = $row[1];
+            [$tableName, $id, $referencedTable, $onUpdate, $onDelete, $referencingColumn, $referencedColumn] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            /** @var non-empty-string $tableName */
+            assert(is_int($id));
+            /** @var int $id */
+            assert(is_string($referencedTable) && $referencedTable !== '');
+            /** @var non-empty-string $referencedTable */
+            assert($onUpdate !== '');
+            /** @var string $onUpdate */
+            assert($onDelete === null || is_string($onDelete));
+            /** @var string|null $onDelete */
+            $onUpdate ??= 'NO ACTION';
+            $onDelete ??= 'NO ACTION';
+            assert(is_string($referencingColumn) && $referencingColumn !== '');
+            /** @var non-empty-string $referencingColumn */
+            assert($referencedColumn === null || is_string($referencedColumn));
+            /** @var string|null $referencedColumn */
 
             if ($tableName !== $currentTableName) {
                 $currentDetails   = $this->getForeignKeyConstraintDetails($tableName);
@@ -510,14 +521,14 @@ SQL,
 
             $name = $details->getName();
 
-            if ($row[6] !== null) {
-                $referencedColumnNames = [$row[6]];
+            if ($referencedColumn !== null) {
+                $referencedColumnNames = [$referencedColumn];
             } else {
                 // inferring a shorthand form for the foreign key constraint,
                 // where the referenced column names are omitted
                 $referencedColumnNames = [];
 
-                foreach ($this->getPrimaryKeyConstraintColumns($row[2]) as $primaryKeyConstraintColumn) {
+                foreach ($this->getPrimaryKeyConstraintColumns($referencedTable) as $primaryKeyConstraintColumn) {
                     $referencedColumnNames[] = $primaryKeyConstraintColumn->getColumnName();
                 }
 
@@ -525,26 +536,27 @@ SQL,
                     throw UnsupportedSchema::sqliteMissingForeignKeyConstraintReferencedColumns(
                         $name,
                         $tableName,
-                        $row[2],
+                        $referencedTable,
                     );
                 }
             }
 
             foreach ($referencedColumnNames as $referencedColumnName) {
                 assert(is_string($referencedColumnName) && $referencedColumnName !== '');
+
                 yield new ForeignKeyConstraintColumnMetadataRow(
                     referencingSchemaName: null,
                     referencingTableName: $tableName,
-                    id: $row[1],
+                    id: $id,
                     name: $name,
                     referencedSchemaName: null,
-                    referencedTableName: $row[2],
+                    referencedTableName: $referencedTable,
                     matchType: MatchType::SIMPLE,
                     onUpdateAction: $this->createReferentialAction($onUpdate),
                     onDeleteAction: $this->createReferentialAction($onDelete),
                     isDeferrable: $details->isDeferrable(),
                     isDeferred: $details->isDeferred(),
-                    referencingColumnName: $row[3],
+                    referencingColumnName: $referencingColumn,
                     referencedColumnName: $referencedColumnName,
                 );
             }
@@ -553,7 +565,7 @@ SQL,
 
     private function createReferentialAction(string $value): ReferentialAction
     {
-        $action = ReferentialAction::tryFrom($value);
+        $action = ReferentialAction::tryFrom(str_replace('_', ' ', $value));
         assert($action !== null);
 
         return $action;
@@ -733,6 +745,7 @@ SQL,
 
             assert(is_string($viewName) && $viewName !== '');
             assert(is_string($definition));
+
             yield new ViewMetadataRow(
                 schemaName: null,
                 viewName: $viewName,

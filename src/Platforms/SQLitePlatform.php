@@ -24,6 +24,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
+use TypeError;
 
 use function array_combine;
 use function array_fill_keys;
@@ -618,7 +619,8 @@ class SQLitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     public function getAlterTableSQL(TableDiff $diff): array
     {
@@ -896,7 +898,8 @@ class SQLitePlatform extends AbstractPlatform
 
     /**
      * @return array<ForeignKeyConstraint>
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     private function getForeignKeysInAlteredTable(TableDiff $diff): array
     {

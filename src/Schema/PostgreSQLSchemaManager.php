@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
+use TypeError;
 
 use function array_change_key_case;
 use function array_map;
@@ -16,6 +17,7 @@ use function assert;
 use function count;
 use function explode;
 use function implode;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -46,8 +48,9 @@ WHERE  schema_name NOT LIKE 'pg\_%'
 AND    schema_name != 'information_schema'
 SQL,
         );
+
         /** @var list<string> $schemas */
-        return $schemas;
+        return array_map(static fn ($v) => $v, $schemas);
     }
 
     /**
@@ -87,7 +90,8 @@ SQL,
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
@@ -125,6 +129,7 @@ SQL,
         $foreignTable   = $values[2];
 
         assert(is_string($tableForeignKey['conname']));
+
         return new ForeignKeyConstraint(
             $localColumns,
             $foreignTable,
@@ -145,6 +150,7 @@ SQL,
     protected function _getPortableViewDefinition(array $view): View
     {
         assert(is_string($view['schemaname']) && is_string($view['viewname']) && is_string($view['definition']));
+
         return new View($view['schemaname'] . '.' . $view['viewname'], $view['definition']);
     }
 
@@ -160,10 +166,12 @@ SQL,
 
         if ($table['schema_name'] === $currentSchema) {
             assert(is_string($table['table_name']) && $table['table_name'] !== '');
+
             return $table['table_name'];
         }
 
         assert(is_string($table['schema_name']) && $table['schema_name'] !== '' && is_string($table['table_name']) && $table['table_name'] !== '');
+
         return $table['schema_name'] . '.' . $table['table_name'];
     }
 
@@ -211,6 +219,7 @@ SQL,
         }
 
         assert(is_numeric($sequence['increment_by']) && is_numeric($sequence['min_value']));
+
         return new Sequence($sequenceName, (int) $sequence['increment_by'], (int) $sequence['min_value']);
     }
 

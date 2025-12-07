@@ -8,6 +8,9 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\InvalidOption;
 use Doctrine\DBAL\Driver\Mysqli\Initializer;
 use mysqli;
 
+use function assert;
+use function is_int;
+use function is_string;
 use function mysqli_options;
 
 final class Options implements Initializer

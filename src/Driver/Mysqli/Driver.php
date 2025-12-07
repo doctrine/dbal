@@ -15,6 +15,12 @@ use mysqli;
 use mysqli_sql_exception;
 use SensitiveParameter;
 
+use function assert;
+use function is_array;
+use function is_int;
+use function is_scalar;
+use function is_string;
+
 final class Driver extends AbstractMySQLDriver
 {
     /**
@@ -96,6 +102,7 @@ final class Driver extends AbstractMySQLDriver
         ) {
             return;
         }
+
         // Create intermediate variables for phpstan level 9 type inference
         $ssl_key = '';
         if (isset($params['ssl_key'])) {
@@ -150,6 +157,7 @@ final class Driver extends AbstractMySQLDriver
         }
 
         assert(is_string($params['charset']));
+
         yield new Charset($params['charset']);
     }
 }

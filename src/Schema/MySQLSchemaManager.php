@@ -15,14 +15,22 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationM
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
+use TypeError;
 
+use function array_all;
 use function array_change_key_case;
+use function array_is_list;
 use function array_map;
 use function assert;
+use function count;
 use function explode;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
+use function is_array;
+use function is_int;
+use function is_numeric;
+use function is_string;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -206,6 +214,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 if (is_string($tableColumn['column_type'])) {
                     $values = $this->parseEnumExpression($tableColumn['column_type']);
                 }
+
                 break;
         }
 
@@ -333,7 +342,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {

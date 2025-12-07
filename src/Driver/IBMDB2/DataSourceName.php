@@ -6,7 +6,10 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use SensitiveParameter;
 
+use function assert;
 use function implode;
+use function is_scalar;
+use function is_string;
 use function sprintf;
 use function str_contains;
 

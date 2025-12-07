@@ -12,6 +12,7 @@ use function explode;
 use function implode;
 use function is_array;
 use function is_resource;
+use function is_string;
 use function stream_get_contents;
 
 /**
@@ -47,7 +48,7 @@ class SimpleArrayType extends Type
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'string', ['string']);
         }
 

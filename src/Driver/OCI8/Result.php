@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
 
+use function assert;
+use function is_array;
 use function oci_cancel;
 use function oci_error;
 use function oci_fetch_all;
@@ -38,21 +39,38 @@ final class Result implements ResultInterface
 
     public function fetchNumeric(): array|false
     {
-        $result = $this->fetch(OCI_NUM); // Intermediate variable to help phpstan level 9 infer the type
-        /** @var list<mixed>|false $result */
+        /** @var list<mixed> $result */
+        $result = $this->fetch(OCI_NUM);
+
+        if ($result === false) {
+            return false;
+        }
+
+        assert(is_array($result));
+
         return $result;
     }
 
     public function fetchAssociative(): array|false
     {
-        $result = $this->fetch(OCI_ASSOC); // Intermediate variable to help phpstan level 9 infer the type
-        /** @var array<string, mixed>|false $result */
+        /** @var array<string, mixed> $result */
+        $result = $this->fetch(OCI_ASSOC);
+
+        if ($result === false) {
+            return false;
+        }
+
+        assert(is_array($result));
+
         return $result;
     }
 
     public function fetchOne(): mixed
     {
-        return FetchUtils::fetchOne($this);
+        /** @var list<mixed>|false $row */
+        $row = $this->fetch(OCI_NUM);
+
+        return $row !== false ? $row[0] : null;
     }
 
     /**
@@ -76,9 +94,12 @@ final class Result implements ResultInterface
      */
     public function fetchFirstColumn(): array
     {
-        $result = $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0]; // Intermediate variable to help phpstan level 9 infer the type
-        /** @var list<mixed> $result */
-        return $result;
+        $result = $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN);
+
+        /** @var list<mixed> $column */
+        $column = $result[0] ?? [];
+
+        return $column;
     }
 
     public function rowCount(): int
@@ -129,6 +150,8 @@ final class Result implements ResultInterface
     /** @return array<mixed> */
     private function fetchAll(int $mode, int $fetchStructure): array
     {
+        $result = [];
+
         oci_fetch_all(
             $this->statement,
             $result,

@@ -9,21 +9,24 @@ use mysqli;
 use mysqli_sql_exception;
 use ReflectionProperty;
 
+use function assert;
+use function is_string;
+
 /** @internal */
 final class ConnectionError extends AbstractException
 {
     public static function new(mysqli $connection): self
     {
-        /** @var string $sqlstate */ 
-        $sqlstate = $connection->sqlstate; // We need a intermediate variable, so phpstan could infer the type returned
+        $sqlstate = $connection->sqlstate;
+
         return new self($connection->error, $sqlstate, $connection->errno);
     }
 
     public static function upcast(mysqli_sql_exception $exception): self
     {
-        $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
-        /** @var string $sqlstate */
-        $sqlstate = $p->getValue($exception); // Intermediate variable for phpstan type inference
+        $p        = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
+        $sqlstate = $p->getValue($exception);
+        assert(is_string($sqlstate)); // Intermediate variable for phpstan type inference
 
         return new self($exception->getMessage(), $sqlstate, $exception->getCode(), $exception);
     }

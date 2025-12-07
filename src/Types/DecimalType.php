@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 
 use function is_float;
 use function is_int;
+use function is_string;
 
 /**
  * Type that maps an SQL DECIMAL to a PHP string.
@@ -35,7 +36,7 @@ class DecimalType extends Type
             return (string) $value;
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'string', ['string']);
         }
 

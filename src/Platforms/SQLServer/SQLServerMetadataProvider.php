@@ -26,6 +26,9 @@ use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function assert;
 use function implode;
+use function is_bool;
+use function is_numeric;
+use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
@@ -48,6 +51,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
 
         foreach ($this->connection->iterateColumn($sql) as $databaseName) {
             assert(is_string($databaseName) && $databaseName !== '');
+
             yield new DatabaseMetadataRow($databaseName);
         }
     }
@@ -64,6 +68,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
 
         foreach ($this->connection->iterateColumn($sql) as $schemaName) {
             assert(is_string($schemaName) && $schemaName !== '');
+
             yield new SchemaMetadataRow($schemaName);
         }
     }
@@ -92,6 +97,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
 
             assert(is_string($schemaName) && $schemaName !== '');
             assert(is_string($tableName) && $tableName !== '');
+
             yield new TableMetadataRow($schemaName, $tableName, []);
         }
     }
@@ -369,6 +375,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
             assert(is_bool($isUnique));
             assert(is_numeric($type));
             assert(is_string($columnName) && $columnName !== '');
+
             yield new IndexColumnMetadataRow(
                 schemaName: $schemaName,
                 tableName: $tableName,
@@ -450,6 +457,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
             assert(is_string($constraintName) && $constraintName !== '' || $constraintName === null);
             assert(is_numeric($type));
             assert(is_string($columnName) && $columnName !== '');
+
             yield new PrimaryKeyConstraintColumnRow(
                 schemaName: $schemaName,
                 tableName: $tableName,
@@ -546,6 +554,7 @@ SQL,
             assert(is_string($deleteAction) && $deleteAction !== '');
             assert(is_string($referencingColumnName) && $referencingColumnName !== '');
             assert(is_string($referencedColumnName) && $referencedColumnName !== '');
+
             yield new ForeignKeyConstraintColumnMetadataRow(
                 referencingSchemaName: $referencingSchemaName,
                 referencingTableName: $referencingTableName,
@@ -622,9 +631,8 @@ SQL,
 
             assert(is_string($schemaName) && $schemaName !== '' || $schemaName === null);
             assert(is_string($tableName) && $tableName !== '');
-            yield new TableMetadataRow($schemaName, $tableName, [
-                'comment' => $comment,
-            ]);
+
+            yield new TableMetadataRow($schemaName, $tableName, ['comment' => $comment]);
         }
     }
 
@@ -688,6 +696,7 @@ SQL,
             assert(is_string($schemaName) && $schemaName !== '' || $schemaName === null);
             assert(is_string($viewName) && $viewName !== '');
             assert(is_string($definition));
+
             yield new ViewMetadataRow($schemaName, $viewName, $definition);
         }
     }
@@ -716,6 +725,7 @@ SQL,
             assert(is_string($sequenceName) && $sequenceName !== '');
             assert(is_numeric($increment));
             assert(is_numeric($startValue));
+
             yield new SequenceMetadataRow(
                 schemaName: $schemaName,
                 sequenceName: $sequenceName,

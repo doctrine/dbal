@@ -15,11 +15,14 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
+use TypeError;
 use ValueError;
 
 use function array_keys;
 use function array_map;
+use function assert;
 use function count;
+use function is_string;
 use function strrpos;
 use function strtolower;
 use function strtoupper;
@@ -129,7 +132,8 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
      * @param non-empty-list<string> $foreignColumnNames Names of the referenced table columns.
      * @param string                 $name               Name of the foreign key constraint.
      * @param array<string, mixed>   $options            Options associated with the foreign key constraint.
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     public function __construct(
         array $localColumnNames,
@@ -644,8 +648,11 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
         }
     }
 
-    /** @param array<string, mixed> $options
-     * @throws \TypeError */
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @throws TypeError
+     */
     private function parseMatchType(array $options): ?MatchType
     {
         if (isset($options['match'])) {
@@ -673,8 +680,11 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
         return MatchType::SIMPLE;
     }
 
-    /** @param array<string, mixed> $options
-     * @throws \TypeError */
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @throws TypeError
+     */
     private function parseReferentialAction(array $options, string $option): ?ReferentialAction
     {
         if (isset($options[$option])) {

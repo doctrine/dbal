@@ -6,8 +6,11 @@ namespace Doctrine\DBAL\Driver\AbstractOracleDriver;
 
 use Doctrine\Deprecations\Deprecation;
 
+use function assert;
 use function implode;
 use function is_array;
+use function is_scalar;
+use function is_string;
 use function sprintf;
 
 /**
@@ -45,12 +48,14 @@ final class EasyConnectString
     {
         if (isset($params['connectstring'])) {
             assert(is_string($params['connectstring']));
+
             return new self($params['connectstring']);
         }
 
         if (! isset($params['host'])) {
             $dbname = $params['dbname'] ?? '';
             assert(is_string($dbname));
+
             return new self($dbname);
         }
 
@@ -122,6 +127,7 @@ final class EasyConnectString
         }
 
         assert(is_scalar($value));
+
         return (string) $value;
     }
 }

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Statement as WrapperStatement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Error;
+use mysqli_stmt;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use ReflectionProperty;
 
@@ -39,7 +40,7 @@ class StatementTest extends FunctionalTestCase
         $mysqliStatement = $mysqliProperty->getValue($driverStatement);
 
         self::assertIsObject($mysqliStatement);
-        /** @var \mysqli_stmt $mysqliStatement */
+        /** @var mysqli_stmt $mysqliStatement */
 
         unset($statement, $driverStatement);
 

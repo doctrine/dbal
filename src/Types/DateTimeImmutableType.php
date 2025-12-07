@@ -10,6 +10,8 @@ use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Exception;
 
+use function is_string;
+
 /**
  * Immutable type of {@see DateTimeType}.
  */
@@ -60,7 +62,7 @@ class DateTimeImmutableType extends Type implements PhpDateTimeMappingType
             return $value;
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'DateTimeImmutable', ['string']);
         }
 

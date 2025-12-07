@@ -13,6 +13,8 @@ use PDOException;
 use SensitiveParameter;
 
 use function array_intersect_key;
+use function assert;
+use function is_scalar;
 use function is_string;
 
 final class Driver extends AbstractSQLiteDriver

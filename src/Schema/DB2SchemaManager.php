@@ -8,9 +8,18 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use TypeError;
 
+use function array_all;
 use function array_change_key_case;
+use function array_is_list;
+use function assert;
+use function count;
 use function implode;
+use function is_array;
+use function is_bool;
+use function is_int;
+use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
@@ -141,7 +150,8 @@ class DB2SchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {

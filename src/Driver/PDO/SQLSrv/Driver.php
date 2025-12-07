@@ -14,7 +14,9 @@ use Doctrine\DBAL\Driver\PDO\PDOConnect;
 use PDO;
 use SensitiveParameter;
 
+use function assert;
 use function is_int;
+use function is_scalar;
 use function is_string;
 use function sprintf;
 
@@ -71,7 +73,7 @@ final class Driver extends AbstractSQLServerDriver
     /**
      * Constructs the Sqlsrv PDO DSN.
      *
-     * @param mixed[]  $params
+     * @param mixed[]              $params
      * @param array<string, mixed> $connectionOptions
      *
      * @throws Exception

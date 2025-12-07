@@ -13,6 +13,8 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
+use function assert;
+use function is_string;
 use function method_exists;
 
 /**
@@ -197,6 +199,7 @@ class Column extends AbstractNamedObject
                 if ($castedValue !== null && $castedValue === '') {
                     $castedValue = null;
                 }
+
                 $this->_platformOptions[$name] = $castedValue;
                 break;
             case 'default_constraint_name':

@@ -9,11 +9,14 @@ use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
+use TypeError;
 
 use function array_change_key_case;
 use function array_key_exists;
 use function assert;
 use function implode;
+use function is_array;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -41,6 +44,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $view = array_change_key_case($view, CASE_LOWER);
 
         assert(is_string($view['view_name']) && is_string($view['text']));
+
         return new View($this->getQuotedIdentifierName($view['view_name']), $view['text']);
     }
 
@@ -54,6 +58,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $table = array_change_key_case($table, CASE_LOWER);
 
         assert(is_string($table['table_name']));
+
         /** @phpstan-ignore return.type */
         return $this->getQuotedIdentifierName($table['table_name']);
     }
@@ -196,6 +201,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         assert(is_string($tableColumn['column_name']));
+
         return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
     }
 
@@ -238,7 +244,8 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
-     * @throws \TypeError
+     *
+     * @throws TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
@@ -248,6 +255,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         /** @var list<string> $foreign */
         $foreign = $tableForeignKey['foreign'];
         assert($local !== [] && $foreign !== []);
+
         return new ForeignKeyConstraint(
             $local,
             $this->getQuotedIdentifierName($tableForeignKey['foreignTable']),
@@ -270,6 +278,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         assert(is_string($sequence['sequence_name']));
         assert(is_numeric($sequence['increment_by']) && is_numeric($sequence['min_value']));
+
         return new Sequence(
             $this->getQuotedIdentifierName($sequence['sequence_name']),
             (int) $sequence['increment_by'],

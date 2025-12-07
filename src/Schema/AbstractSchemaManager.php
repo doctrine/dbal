@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
+use TypeError;
 
 use function array_filter;
 use function array_intersect;
@@ -27,6 +28,10 @@ use function assert;
 use function count;
 use function func_get_arg;
 use function func_num_args;
+use function is_array;
+use function is_bool;
+use function is_int;
+use function is_string;
 use function strtolower;
 
 /**
@@ -613,7 +618,7 @@ abstract class AbstractSchemaManager
      * @return list<Table>
      *
      * @throws Exception
-     * @throws \TypeError
+     * @throws TypeError
      */
     public function introspectTables(): array
     {
@@ -1318,8 +1323,8 @@ abstract class AbstractSchemaManager
             assert(is_bool($row['non_unique']));
             assert(is_string($row['column_name']));
             assert(is_int($row['length']) || $row['length'] === null);
-            assert(!isset($row['where']) || is_string($row['where']));
-            assert(!isset($row['flags']) || is_array($row['flags']));
+            assert(! isset($row['where']) || is_string($row['where']));
+            assert(! isset($row['flags']) || is_array($row['flags']));
 
             $indexName = $keyName = $row['key_name'];
             if ($row['primary']) {

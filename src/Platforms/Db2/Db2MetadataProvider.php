@@ -23,7 +23,10 @@ use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 
+use function assert;
 use function implode;
+use function is_int;
+use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
@@ -77,6 +80,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             [$tableName] = $row;
 
             assert(is_string($tableName) && $tableName !== '');
+
             yield new TableMetadataRow(null, $tableName, []);
         }
     }
@@ -293,6 +297,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             assert(is_string($indexName) && $indexName !== '');
             assert(is_string($uniqueRule));
             assert(is_string($columnName) && $columnName !== '');
+
             yield new IndexColumnMetadataRow(
                 schemaName: null,
                 tableName: $tableName,
@@ -514,9 +519,8 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             [$tableName, $comment] = $row;
             assert(is_string($tableName) && $tableName !== '');
             assert($comment === null || is_string($comment));
-            yield new TableMetadataRow(null, $tableName, [
-                'comment' => $comment,
-            ]);
+
+            yield new TableMetadataRow(null, $tableName, ['comment' => $comment]);
         }
     }
 
@@ -562,6 +566,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             [$viewName, $definition] = $row;
             assert(is_string($viewName) && $viewName !== '');
             assert(is_string($definition));
+
             yield new ViewMetadataRow(null, $viewName, $definition);
         }
     }

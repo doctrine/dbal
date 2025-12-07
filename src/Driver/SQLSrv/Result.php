@@ -8,6 +8,8 @@ use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
 
+use function array_is_list;
+use function assert;
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
 use function sqlsrv_field_metadata;
@@ -28,9 +30,7 @@ final class Result implements ResultInterface
     {
     }
 
-    /**
-     * @return list<mixed>|false
-     */
+    /** @return list<mixed>|false */
     public function fetchNumeric(): array|false
     {
         $result = $this->fetch(SQLSRV_FETCH_NUMERIC);
@@ -39,12 +39,11 @@ final class Result implements ResultInterface
         }
 
         assert(array_is_list($result));
+
         return $result;
     }
 
-    /**
-     * @return array<string, mixed>|false
-     */
+    /** @return array<string, mixed>|false */
     public function fetchAssociative(): array|false
     {
         $result = $this->fetch(SQLSRV_FETCH_ASSOC);
@@ -127,10 +126,8 @@ final class Result implements ResultInterface
         }
     }
 
-    /**
-     * @return array<mixed>|false|null
-     */
-    private function fetch(int $fetchType)
+    /** @return array<mixed>|false|null */
+    private function fetch(int $fetchType): array|false|null
     {
         return sqlsrv_fetch_array($this->statement, $fetchType);
     }

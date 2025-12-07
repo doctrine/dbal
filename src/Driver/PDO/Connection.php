@@ -12,6 +12,7 @@ use PDOException;
 use PDOStatement;
 
 use function assert;
+use function is_scalar;
 
 final class Connection implements ConnectionInterface
 {
@@ -38,6 +39,7 @@ final class Connection implements ConnectionInterface
     {
         $version = $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
         assert(is_scalar($version));
+
         return (string) $version;
     }
 

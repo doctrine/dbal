@@ -9,13 +9,12 @@ use ErrorException;
 use SensitiveParameter;
 
 use function addslashes;
-use function array_filter;
-use function array_keys;
-use function array_map;
-use function array_slice;
-use function array_values;
+use function assert;
 use function func_get_args;
 use function implode;
+use function is_int;
+use function is_scalar;
+use function is_string;
 use function pg_connect;
 use function preg_match;
 use function restore_error_handler;
@@ -33,9 +32,10 @@ final class Driver extends AbstractPostgreSQLDriver
     ): Connection {
         set_error_handler(
             static function (int $severity, string $message): never {
-                $args = func_get_args();
+                $args     = func_get_args();
                 $filename = isset($args[2]) && is_string($args[2]) ? $args[2] : null;
-                $line = isset($args[3]) && is_int($args[3]) ? $args[3] : null;
+                $line     = isset($args[3]) && is_int($args[3]) ? $args[3] : null;
+
                 throw new ErrorException($message, 0, $severity, $filename, $line);
             },
         );
@@ -81,19 +81,23 @@ final class Driver extends AbstractPostgreSQLDriver
         }
 
         $components = [];
-        foreach ([
-            'host' => $params['host'] ?? null,
-            'hostaddr' => $params['hostaddr'] ?? null,
-            'port' => $params['port'] ?? null,
-            'dbname' => $params['dbname'] ?? 'postgres',
-            'user' => $params['user'] ?? null,
-            'password' => $params['password'] ?? null,
-            'sslmode' => $params['sslmode'] ?? null,
-            'gssencmode' => $params['gssencmode'] ?? null
-        ] as $key => $value) {
-            if ($value !== '' && $value !== null) {
-                $components[$key] = $value;
+        foreach (
+            [
+                'host' => $params['host'] ?? null,
+                'hostaddr' => $params['hostaddr'] ?? null,
+                'port' => $params['port'] ?? null,
+                'dbname' => $params['dbname'] ?? 'postgres',
+                'user' => $params['user'] ?? null,
+                'password' => $params['password'] ?? null,
+                'sslmode' => $params['sslmode'] ?? null,
+                'gssencmode' => $params['gssencmode'] ?? null,
+            ] as $key => $value
+        ) {
+            if ($value === '' || $value === null) {
+                continue;
             }
+
+            $components[$key] = $value;
         }
 
         $parts = [];

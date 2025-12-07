@@ -12,6 +12,8 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
 use function array_diff_assoc;
+use function assert;
+use function is_string;
 
 /**
  * Compares schemas in the context of MySQL platform.

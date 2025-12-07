@@ -40,6 +40,7 @@ use Traversable;
 
 use function array_key_exists;
 use function array_merge;
+use function assert;
 use function count;
 use function implode;
 use function is_array;
@@ -165,6 +166,7 @@ class Connection implements ServerVersionProvider
         }
 
         assert(is_string($database) && $database !== '');
+
         return $database;
     }
 

@@ -11,6 +11,9 @@ use PDOException;
 use PDOStatement;
 use ValueError;
 
+use function assert;
+use function is_array;
+
 final class Result implements ResultInterface
 {
     /** @internal The result can be only instantiated by its driver connection or statement. */
@@ -20,15 +23,29 @@ final class Result implements ResultInterface
 
     public function fetchNumeric(): array|false
     {
-        $result = $this->fetch(PDO::FETCH_NUM); // Intermediate variable to help phpstan level 9 infer the type
-        /** @var list<mixed>|false $result */
+        /** @var list<mixed> $result */
+        $result = $this->fetch(PDO::FETCH_NUM);
+
+        if ($result === false) {
+            return false;
+        }
+
+        assert(is_array($result));
+
         return $result;
     }
 
     public function fetchAssociative(): array|false
     {
-        $result = $this->fetch(PDO::FETCH_ASSOC); // Intermediate variable to help phpstan level 9 infer the type
-        /** @var array<string, mixed>|false $result */
+        /** @var array<string, mixed> $result */
+        $result = $this->fetch(PDO::FETCH_ASSOC);
+
+        if ($result === false) {
+            return false;
+        }
+
+        assert(is_array($result));
+
         return $result;
     }
 
@@ -42,8 +59,9 @@ final class Result implements ResultInterface
      */
     public function fetchAllNumeric(): array
     {
-        $result = $this->fetchAll(PDO::FETCH_NUM);  // Intermediate variable to help phpstan level 9 infer the type
         /** @var list<list<mixed>> $result */
+        $result = $this->fetchAll(PDO::FETCH_NUM);
+
         return $result;
     }
 
@@ -52,8 +70,9 @@ final class Result implements ResultInterface
      */
     public function fetchAllAssociative(): array
     {
-        $result = $this->fetchAll(PDO::FETCH_ASSOC); // Intermediate variable to help phpstan level 9 infer the type
         /** @var list<array<string, mixed>> $result */
+        $result = $this->fetchAll(PDO::FETCH_ASSOC);
+
         return $result;
     }
 
@@ -62,7 +81,10 @@ final class Result implements ResultInterface
      */
     public function fetchFirstColumn(): array
     {
-        return $this->fetchAll(PDO::FETCH_COLUMN);
+        /** @var list<mixed> $result */
+        $result = $this->fetchAll(PDO::FETCH_COLUMN);
+
+        return $result;
     }
 
     public function rowCount(): int

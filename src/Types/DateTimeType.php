@@ -10,6 +10,8 @@ use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Exception;
 
+use function is_string;
+
 /**
  * Type that maps an SQL DATETIME/TIMESTAMP to a PHP DateTime object.
  */
@@ -60,7 +62,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
             return $value;
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'DateTime', ['string']);
         }
 

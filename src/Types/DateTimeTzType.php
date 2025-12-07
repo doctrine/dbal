@@ -9,6 +9,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 
+use function is_string;
+
 /**
  * DateTime type accepting additional information about timezone offsets.
  *
@@ -73,7 +75,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             return $value;
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, 'DateTime', ['string']);
         }
 

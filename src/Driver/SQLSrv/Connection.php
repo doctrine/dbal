@@ -8,6 +8,9 @@ use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 
+use function assert;
+use function is_int;
+use function is_string;
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
 use function sqlsrv_query;

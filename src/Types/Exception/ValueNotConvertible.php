@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Types\Exception;
 use Doctrine\DBAL\Types\ConversionException;
 use Throwable;
 
+use function gettype;
+use function is_scalar;
 use function is_string;
 use function sprintf;
 use function strlen;
@@ -30,7 +32,7 @@ final class ValueNotConvertible extends ConversionException implements TypesExce
                 $message,
             );
         } else {
-            if (!is_scalar($value) && $value !== null) {
+            if (! is_scalar($value) && $value !== null) {
                 $value = gettype($value);
             }
 

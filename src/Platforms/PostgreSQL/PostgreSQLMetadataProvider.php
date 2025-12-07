@@ -27,6 +27,8 @@ use Doctrine\DBAL\Types\Exception\TypesException;
 use function assert;
 use function count;
 use function implode;
+use function is_numeric;
+use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
@@ -63,6 +65,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
 
         foreach ($this->connection->iterateColumn($sql) as $databaseName) {
             assert(is_string($databaseName) && $databaseName !== '');
+
             yield new DatabaseMetadataRow($databaseName);
         }
     }
@@ -86,6 +89,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
 
         foreach ($this->connection->iterateColumn($sql) as $schemaName) {
             assert(is_string($schemaName) && $schemaName !== '');
+
             yield new SchemaMetadataRow($schemaName);
         }
     }
@@ -118,6 +122,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             [$schemaName, $tableName] = $row;
             assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
             assert(is_string($tableName) && $tableName !== '');
+
             yield new TableMetadataRow($schemaName, $tableName, []);
         }
     }
@@ -690,6 +695,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
             assert(is_string($tableName) && $tableName !== '');
             assert(is_string($comment) || $comment === null);
+
             yield new TableMetadataRow($schemaName, $tableName, [
                 'unlogged' => (bool) $unlogged,
                 'comment' => $comment,
@@ -752,6 +758,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             assert($schemaName === null || (is_string($schemaName) && $schemaName !== ''));
             assert(is_string($viewName) && $viewName !== '');
             assert(is_string($definition));
+
             yield new ViewMetadataRow($schemaName, $viewName, $definition);
         }
     }

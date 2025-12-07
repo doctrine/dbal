@@ -8,6 +8,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 
+use function assert;
+use function is_string;
+
 /** @internal */
 final class ConnectionCollationMetadataProvider implements CollationMetadataProvider
 {
@@ -30,6 +33,7 @@ SQL
 
         if ($charset !== false) {
             assert(is_string($charset) && $charset !== '');
+
             return $charset;
         }
 
