@@ -200,9 +200,11 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             case 'decimal':
             case 'double':
             case 'real':
-                $editor
-                    ->setPrecision($length)
-                    ->setScale($scale);
+                $editor->setPrecision($length);
+                if ($scale !== null) {
+                    $editor->setScale($scale);
+                }
+
                 break;
         }
 
@@ -352,12 +354,22 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $tableName,
+                $constraintName,
+                $columnName,
+            ] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert($constraintName === null || (is_string($constraintName) && $constraintName !== ''));
+            assert(is_string($columnName) && $columnName !== '');
+
             yield new PrimaryKeyConstraintColumnRow(
                 schemaName: null,
-                tableName: $row[0],
-                constraintName: $row[1],
+                tableName: $tableName,
+                constraintName: $constraintName,
                 isClustered: true,
-                columnName: $row[2],
+                columnName: $columnName,
             );
         }
     }
@@ -423,20 +435,38 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $referencingTableName,
+                $name,
+                $referencedTableName,
+                $updateRule,
+                $deleteRule,
+                $referencingColumnName,
+                $referencedColumnName,
+            ] = $row;
+
+            assert(is_string($referencingTableName) && $referencingTableName !== '');
+            assert($name === null || (is_string($name) && $name !== ''));
+            assert(is_string($referencedTableName) && $referencedTableName !== '');
+            assert(is_string($updateRule) && isset(self::REFERENTIAL_ACTIONS[$updateRule]));
+            assert(is_string($deleteRule) && isset(self::REFERENTIAL_ACTIONS[$deleteRule]));
+            assert(is_string($referencingColumnName) && $referencingColumnName !== '');
+            assert(is_string($referencedColumnName) && $referencedColumnName !== '');
+
             yield new ForeignKeyConstraintColumnMetadataRow(
                 referencingSchemaName: null,
-                referencingTableName: $row[0],
+                referencingTableName: $referencingTableName,
                 id: null,
-                name: $row[1],
+                name: $name,
                 referencedSchemaName: null,
-                referencedTableName: $row[2],
+                referencedTableName: $referencedTableName,
                 matchType: MatchType::SIMPLE,
-                onUpdateAction: self::REFERENTIAL_ACTIONS[$row[3]],
-                onDeleteAction: self::REFERENTIAL_ACTIONS[$row[4]],
+                onUpdateAction: self::REFERENTIAL_ACTIONS[$updateRule],
+                onDeleteAction: self::REFERENTIAL_ACTIONS[$deleteRule],
                 isDeferrable: false,
                 isDeferred: false,
-                referencingColumnName: $row[5],
-                referencedColumnName: $row[6],
+                referencingColumnName: $referencingColumnName,
+                referencedColumnName: $referencedColumnName,
             );
         }
     }
@@ -481,8 +511,11 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
-            yield new TableMetadataRow(null, $row[0], [
-                'comment' => $row[1],
+            [$tableName, $comment] = $row;
+            assert(is_string($tableName) && $tableName !== '');
+            assert($comment === null || is_string($comment));
+            yield new TableMetadataRow(null, $tableName, [
+                'comment' => $comment,
             ]);
         }
     }
@@ -526,7 +559,10 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new ViewMetadataRow(null, ...$row);
+            [$viewName, $definition] = $row;
+            assert(is_string($viewName) && $viewName !== '');
+            assert(is_string($definition));
+            yield new ViewMetadataRow(null, $viewName, $definition);
         }
     }
 
