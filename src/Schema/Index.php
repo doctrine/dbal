@@ -121,6 +121,8 @@ class Index extends AbstractNamedObject
         if (isset($options['where'])) {
             $predicate = $options['where'];
 
+            assert(is_string($predicate));
+
             if (strlen($predicate) === 0) {
                 Deprecation::trigger(
                     'doctrine/dbal',
@@ -142,7 +144,10 @@ class Index extends AbstractNamedObject
             $this->type = $this->inferType();
         }
 
-        $this->columns = $this->parseColumns($isPrimary, $columns, $options['lengths'] ?? []);
+        $lengths = $options['lengths'] ?? [];
+        assert(is_array($lengths) && array_is_list($lengths));
+
+        $this->columns = $this->parseColumns($isPrimary, $columns, $lengths);
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -192,9 +197,13 @@ class Index extends AbstractNamedObject
             throw InvalidState::indexHasInvalidPredicate($this->getName());
         }
 
-        return $this->hasOption('where')
+        $value = $this->hasOption('where')
             ? $this->getOption('where')
             : null;
+
+        assert($value === null || (is_string($value) && $value !== ''));
+
+        return $value;
     }
 
     protected function _addColumn(string $column): void
@@ -246,6 +255,8 @@ class Index extends AbstractNamedObject
 
         $subParts = $platform->supportsColumnLengthIndexes() && $this->hasOption('lengths')
             ? $this->getOption('lengths') : [];
+
+        assert(is_array($subParts) && array_is_list($subParts));
 
         $columns = [];
 
@@ -734,8 +745,16 @@ class Index extends AbstractNamedObject
             return $length !== null;
         };
 
-        return array_filter($this->options['lengths'] ?? [], $filter)
-            === array_filter($other->options['lengths'] ?? [], $filter);
+        $thisLengths = $this->options['lengths'] ?? [];
+        assert(is_array($thisLengths) && array_is_list($thisLengths));
+        /** @var array<int|null> $thisLengths */
+
+        $otherLengths = $other->options['lengths'] ?? [];
+        assert(is_array($otherLengths) && array_is_list($otherLengths));
+        /** @var array<int|null> $otherLengths */
+
+        return array_filter($thisLengths, $filter)
+            === array_filter($otherLengths, $filter);
     }
 
     /**
