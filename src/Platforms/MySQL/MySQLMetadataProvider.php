@@ -71,6 +71,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             throw DatabaseRequired::new(__METHOD__);
         }
 
+        assert(is_string($databaseName) && $databaseName !== '');
         $this->databaseName = $databaseName;
     }
 
@@ -88,6 +89,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateColumn($sql) as $databaseName) {
+            assert(is_string($databaseName) && $databaseName !== '');
             yield new DatabaseMetadataRow($databaseName);
         }
     }
@@ -114,7 +116,10 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateNumeric($sql, [$this->databaseName]) as $row) {
-            yield new TableMetadataRow(null, $row[0], []);
+            [$tableName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            yield new TableMetadataRow(null, $tableName, []);
         }
     }
 
@@ -212,6 +217,21 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             $collationName,
         ] = $row;
 
+        assert(is_string($tableName) && $tableName !== '');
+        assert(is_string($columnName) && $columnName !== '');
+        assert(is_string($dbType));
+        assert(is_string($columnType));
+        assert($characterMaximumLength === null || is_int($characterMaximumLength));
+        assert($characterOctetLength === null || is_int($characterOctetLength));
+        assert($numericPrecision === null || is_int($numericPrecision));
+        assert($numericScale === null || is_int($numericScale));
+        assert(is_string($isNullable));
+        assert($columnDefault === null || is_string($columnDefault));
+        assert(is_string($extra));
+        assert($columnComment === null || (is_string($columnComment) && $columnComment !== ''));
+        assert($characterSetName === null || (is_string($characterSetName) && $characterSetName !== ''));
+        assert($collationName === null || (is_string($collationName) && $collationName !== ''));
+
         $editor = Column::editor()
             ->setQuotedName($columnName)
             ->setTypeName(
@@ -262,10 +282,10 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             case 'real':
             case 'numeric':
             case 'decimal':
-                $editor->setPrecision((int) $numericPrecision);
+                $editor->setPrecision($numericPrecision);
 
                 if ($numericScale !== null) {
-                    $editor->setScale((int) $numericScale);
+                    $editor->setScale($numericScale);
                 }
 
                 break;
@@ -290,10 +310,19 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
 
         $editor
             ->setDefaultValue($default)
-            ->setNotNull($isNullable !== 'YES')
-            ->setComment($columnComment)
-            ->setCharset($characterSetName)
-            ->setCollation($collationName);
+            ->setNotNull($isNullable !== 'YES');
+
+        if ($columnComment !== null) {
+            $editor->setComment($columnComment);
+        }
+
+        if ($characterSetName !== null) {
+            $editor->setCharset($characterSetName);
+        }
+
+        if ($collationName !== null) {
+            $editor->setCollation($collationName);
+        }
 
         if (str_contains($extra, 'auto_increment')) {
             $editor->setAutoincrement(true);
@@ -400,22 +429,38 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
-            if ($row[5] !== null) {
-                $length = (int) $row[5];
+            [
+                $tableName,
+                $indexName,
+                $indexType,
+                $nonUnique,
+                $columnName,
+                $subPart,
+            ] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($indexName) && $indexName !== '');
+            assert(is_string($indexType));
+            assert(is_bool($nonUnique));
+            assert(is_string($columnName) && $columnName !== '');
+            assert($subPart === null || is_int($subPart));
+
+            if ($subPart !== null) {
+                $length = $subPart;
                 assert($length > 0);
             } else {
                 $length = null;
             }
 
-            if ($row[2] === 'FULLTEXT') {
+            if ($indexType === 'FULLTEXT') {
                 $type = IndexType::FULLTEXT;
-            } elseif ($row[2] === 'SPATIAL') {
+            } elseif ($indexType === 'SPATIAL') {
                 $type = IndexType::SPATIAL;
 
                 // the SUB_PART column may contain a non-null value for spatial indexes,
                 // but this is not the prefix length
                 $length = null;
-            } elseif ($row[3]) {
+            } elseif ($nonUnique) {
                 $type = IndexType::REGULAR;
             } else {
                 $type = IndexType::UNIQUE;
@@ -423,12 +468,12 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
 
             yield new IndexColumnMetadataRow(
                 schemaName: null,
-                tableName: $row[0],
-                indexName: $row[1],
+                tableName: $tableName,
+                indexName: $indexName,
                 type: $type,
                 isClustered: false,
                 predicate: null,
-                columnName: $row[4],
+                columnName: $columnName,
                 columnLength: $length,
             );
         }
@@ -491,12 +536,17 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [$tableName, $constraintName, $columnName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($constraintName) && $constraintName !== '');
+            assert(is_string($columnName) && $columnName !== '');
             yield new PrimaryKeyConstraintColumnRow(
                 schemaName: null,
-                tableName: $row[0],
-                constraintName: $row[1],
+                tableName: $tableName,
+                constraintName: $constraintName,
                 isClustered: true,
-                columnName: $row[2],
+                columnName: $columnName,
             );
         }
     }
@@ -563,20 +613,37 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $referencingTableName,
+                $constraintName,
+                $referencedTableName,
+                $updateRule,
+                $deleteRule,
+                $referencingColumnName,
+                $referencedColumnName,
+            ] = $row;
+
+            assert(is_string($referencingTableName) && $referencingTableName !== '');
+            assert(is_string($constraintName) && $constraintName !== '');
+            assert(is_string($referencedTableName) && $referencedTableName !== '');
+            assert(is_string($updateRule));
+            assert(is_string($deleteRule));
+            assert(is_string($referencingColumnName) && $referencingColumnName !== '');
+            assert(is_string($referencedColumnName) && $referencedColumnName !== '');
             yield new ForeignKeyConstraintColumnMetadataRow(
                 referencingSchemaName: null,
-                referencingTableName: $row[0],
+                referencingTableName: $referencingTableName,
                 id: null,
-                name: $row[1],
+                name: $constraintName,
                 referencedSchemaName: null,
-                referencedTableName: $row[2],
+                referencedTableName: $referencedTableName,
                 matchType: MatchType::SIMPLE,
-                onUpdateAction: $this->createReferentialAction($row[3]),
-                onDeleteAction: $this->createReferentialAction($row[4]),
+                onUpdateAction: $this->createReferentialAction($updateRule),
+                onDeleteAction: $this->createReferentialAction($deleteRule),
                 isDeferrable: false,
                 isDeferred: false,
-                referencingColumnName: $row[5],
-                referencedColumnName: $row[6],
+                referencingColumnName: $referencingColumnName,
+                referencedColumnName: $referencedColumnName,
             );
         }
     }
@@ -620,13 +687,22 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         }
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
-            yield new TableMetadataRow(null, $row[0], [
-                'engine'         => $row[1],
-                'autoincrement'  => $row[2],
-                'comment'        => $row[3],
-                'create_options' => $this->parseCreateOptions($row[4]),
-                'collation'      => $row[5],
-                'charset'        => $row[6],
+            [$tableName, $engine, $autoincrement, $comment, $createOptions, $collation, $charset] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($engine));
+            assert($autoincrement === null || is_int($autoincrement));
+            assert($comment === null || is_string($comment));
+            assert($createOptions === null || is_string($createOptions));
+            assert($collation === null || is_string($collation));
+            assert($charset === null || is_string($charset));
+            yield new TableMetadataRow(null, $tableName, [
+                'engine'         => $engine,
+                'autoincrement'  => $autoincrement,
+                'comment'        => $comment,
+                'create_options' => $this->parseCreateOptions($createOptions),
+                'collation'      => $collation,
+                'charset'        => $charset,
             ]);
         }
     }
@@ -665,7 +741,15 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             SQL;
 
         foreach ($this->connection->iterateNumeric($sql, [$this->databaseName]) as $row) {
-            yield new ViewMetadataRow(null, ...$row);
+            [$viewName, $definition] = $row;
+
+            assert(is_string($viewName) && $viewName !== '');
+            assert(is_string($definition));
+            yield new ViewMetadataRow(
+                schemaName: null,
+                viewName: $viewName,
+                definition: $definition,
+            );
         }
     }
 
