@@ -64,7 +64,11 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         throw NotSupported::new(__METHOD__);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @return iterable<TableMetadataRow>
+     */
     public function getAllTableNames(): iterable
     {
         foreach ($this->getTableNames() as $tableName) {
@@ -89,7 +93,10 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
             $this->buildTableNamePredicate('name'),
         );
 
-        yield from $this->connection->iterateColumn($sql);
+        foreach ($this->connection->iterateColumn($sql) as $name) {
+            assert(is_string($name) && $name !== '');
+            yield $name;
+        }
     }
 
     /** {@inheritDoc} */
@@ -139,6 +146,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
             [$tableName] = $row;
+            assert(is_string($tableName));
             $rows[]      = $row;
 
             $sqlByTableName[$tableName] ??= $this->getCreateTableSQL($tableName);
@@ -158,6 +166,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
     private function createTableColumn(array $row, array $sqlByTableName): TableColumnMetadataRow
     {
         [$tableName, $columnName, $type, $notNull, $defaultExpression] = $row;
+
+        assert(is_string($tableName) && $tableName !== '');
+        assert(is_string($columnName) && $columnName !== '');
+        assert(is_string($type));
+        assert(is_bool($notNull));
+        assert($defaultExpression === null || is_string($defaultExpression));
 
         $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $type, $matches);
         assert($matchResult === 1);
@@ -197,6 +211,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         }
 
         $tableSQL = $sqlByTableName[$tableName];
+        assert(is_string($tableSQL));
 
         $editor
             ->setAutoincrement(
@@ -205,7 +220,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
             ->setComment(
                 $this->parseColumnCommentFromSQL($columnName, $tableSQL),
             )
-            ->setNotNull((bool) $notNull);
+            ->setNotNull($notNull);
 
         if ($typeName === Types::STRING || $typeName === Types::TEXT) {
             $editor->setCollation(
@@ -261,9 +276,8 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         }
 
         $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
-        assert(is_string($comment));
 
-        return $comment;
+        return (string) $comment;
     }
 
     /**
@@ -330,14 +344,20 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [$tableName, $indexName, $isUnique, $columnName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($indexName) && $indexName !== '');
+            assert(is_bool($isUnique));
+            assert(is_string($columnName) && $columnName !== '');
             yield new IndexColumnMetadataRow(
                 schemaName: null,
-                tableName: $row[0],
-                indexName: $row[1],
-                type: $row[2] ? IndexType::UNIQUE : IndexType::REGULAR,
+                tableName: $tableName,
+                indexName: $indexName,
+                type: $isUnique ? IndexType::UNIQUE : IndexType::REGULAR,
                 isClustered: false,
                 predicate: null,
-                columnName: $row[3],
+                columnName: $columnName,
                 columnLength: null,
             );
         }
@@ -387,12 +407,16 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [$tableName, $columnName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($columnName) && $columnName !== '');
             yield new PrimaryKeyConstraintColumnRow(
                 schemaName: null,
-                tableName: $row[0],
+                tableName: $tableName,
                 constraintName: null,
                 isClustered: true,
-                columnName: $row[1],
+                columnName: $columnName,
             );
         }
     }
@@ -463,6 +487,16 @@ SQL,
         $currentDetails   = [];
 
         foreach ($rows as $row) {
+            assert(is_string($row[0]) && $row[0] !== '');
+            assert(is_int($row[1]));
+            assert(is_string($row[2]) && $row[2] !== '');
+            assert(is_string($row[3]) && $row[3] !== '');
+            assert($row[4] === null || is_string($row[4]));
+            $onUpdate = $row[5] ?? 'NO ACTION';
+            assert(is_string($onUpdate));
+            $onDelete = $row[6] ?? 'NO ACTION';
+            assert(is_string($onDelete));
+            assert($row[6] === null || is_string($row[6]));
             $tableName = $row[0];
             $id        = $row[1];
 
@@ -497,6 +531,7 @@ SQL,
             }
 
             foreach ($referencedColumnNames as $referencedColumnName) {
+                assert(is_string($referencedColumnName) && $referencedColumnName !== '');
                 yield new ForeignKeyConstraintColumnMetadataRow(
                     referencingSchemaName: null,
                     referencingTableName: $tableName,
@@ -505,11 +540,11 @@ SQL,
                     referencedSchemaName: null,
                     referencedTableName: $row[2],
                     matchType: MatchType::SIMPLE,
-                    onUpdateAction: $this->createReferentialAction($row[3]),
-                    onDeleteAction: $this->createReferentialAction($row[4]),
+                    onUpdateAction: $this->createReferentialAction($onUpdate),
+                    onDeleteAction: $this->createReferentialAction($onDelete),
                     isDeferrable: $details->isDeferrable(),
                     isDeferred: $details->isDeferred(),
-                    referencingColumnName: $row[5],
+                    referencingColumnName: $row[3],
                     referencedColumnName: $referencedColumnName,
                 );
             }
@@ -598,6 +633,7 @@ SQL,
         );
 
         assert($sql !== false);
+        assert(is_string($sql));
 
         return $sql;
     }
@@ -693,7 +729,15 @@ SQL,
         SQL;
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new ViewMetadataRow(null, ...$row);
+            [$viewName, $definition] = $row;
+
+            assert(is_string($viewName) && $viewName !== '');
+            assert(is_string($definition));
+            yield new ViewMetadataRow(
+                schemaName: null,
+                viewName: $viewName,
+                definition: $definition,
+            );
         }
     }
 
