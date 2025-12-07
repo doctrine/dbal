@@ -47,6 +47,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateColumn($sql) as $databaseName) {
+            assert(is_string($databaseName) && $databaseName !== '');
             yield new DatabaseMetadataRow($databaseName);
         }
     }
@@ -62,6 +63,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateColumn($sql) as $schemaName) {
+            assert(is_string($schemaName) && $schemaName !== '');
             yield new SchemaMetadataRow($schemaName);
         }
     }
@@ -86,7 +88,11 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new TableMetadataRow($row[0], $row[1], []);
+            [$schemaName, $tableName] = $row;
+
+            assert(is_string($schemaName) && $schemaName !== '');
+            assert(is_string($tableName) && $tableName !== '');
+            yield new TableMetadataRow($schemaName, $tableName, []);
         }
     }
 
@@ -183,6 +189,20 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
             $description,
         ] = $row;
 
+        assert(is_string($schemaName) && $schemaName !== '' || $schemaName === null);
+        assert(is_string($tableName) && $tableName !== '');
+        assert(is_string($columnName) && $columnName !== '');
+        assert(is_string($dbType));
+        assert(is_numeric($length));
+        assert(is_bool($isNullable));
+        assert(is_string($defaultExpression) || $defaultExpression === null);
+        assert(is_string($defaultConstraintName) && $defaultConstraintName !== '' || $defaultConstraintName === null);
+        assert(is_numeric($precision) || $precision === null);
+        assert(is_numeric($scale) || $scale === null);
+        assert(is_bool($isIdentity));
+        assert(is_string($collationName) && $collationName !== '' || $collationName === null);
+        assert(is_string($description) || $description === null);
+
         $length = (int) $length;
 
         switch ($dbType) {
@@ -225,7 +245,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 $this->platform->getDoctrineTypeMapping($dbType),
             )
             ->setNotNull(! $isNullable)
-            ->setAutoincrement((bool) $isIdentity);
+            ->setAutoincrement($isIdentity);
 
         if ($precision !== null) {
             $editor->setPrecision((int) $precision);
@@ -334,14 +354,29 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $schemaName,
+                $tableName,
+                $indexName,
+                $isUnique,
+                $type,
+                $columnName,
+            ] = $row;
+
+            assert(is_string($schemaName) && $schemaName !== '' || $schemaName === null);
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($indexName) && $indexName !== '');
+            assert(is_bool($isUnique));
+            assert(is_numeric($type));
+            assert(is_string($columnName) && $columnName !== '');
             yield new IndexColumnMetadataRow(
-                schemaName: $row[0],
-                tableName: $row[1],
-                indexName: $row[2],
-                type: $row[3] ? IndexType::UNIQUE : IndexType::REGULAR,
-                isClustered: (int) $row[4] === 1,
+                schemaName: $schemaName,
+                tableName: $tableName,
+                indexName: $indexName,
+                type: $isUnique ? IndexType::UNIQUE : IndexType::REGULAR,
+                isClustered: (int) $type === 1,
                 predicate: null,
-                columnName: $row[5],
+                columnName: $columnName,
                 columnLength: null,
             );
         }
@@ -402,12 +437,25 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $schemaName,
+                $tableName,
+                $constraintName,
+                $type,
+                $columnName,
+            ] = $row;
+
+            assert(is_string($schemaName) && $schemaName !== '' || $schemaName === null);
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($constraintName) && $constraintName !== '' || $constraintName === null);
+            assert(is_numeric($type));
+            assert(is_string($columnName) && $columnName !== '');
             yield new PrimaryKeyConstraintColumnRow(
-                schemaName: $row[0],
-                tableName: $row[1],
-                constraintName: $row[2],
-                isClustered: (int) $row[3] === 1,
-                columnName: $row[4],
+                schemaName: $schemaName,
+                tableName: $tableName,
+                constraintName: $constraintName,
+                isClustered: (int) $type === 1,
+                columnName: $columnName,
             );
         }
     }
@@ -477,20 +525,41 @@ SQL,
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [
+                $referencingSchemaName,
+                $referencingTableName,
+                $name,
+                $referencedSchemaName,
+                $referencedTableName,
+                $updateAction,
+                $deleteAction,
+                $referencingColumnName,
+                $referencedColumnName,
+            ] = $row;
+
+            assert(is_string($referencingSchemaName) && $referencingSchemaName !== '' || $referencingSchemaName === null);
+            assert(is_string($referencingTableName) && $referencingTableName !== '');
+            assert(is_string($name) && $name !== '');
+            assert(is_string($referencedSchemaName) && $referencedSchemaName !== '' || $referencedSchemaName === null);
+            assert(is_string($referencedTableName) && $referencedTableName !== '');
+            assert(is_string($updateAction) && $updateAction !== '');
+            assert(is_string($deleteAction) && $deleteAction !== '');
+            assert(is_string($referencingColumnName) && $referencingColumnName !== '');
+            assert(is_string($referencedColumnName) && $referencedColumnName !== '');
             yield new ForeignKeyConstraintColumnMetadataRow(
-                referencingSchemaName: $row[0],
-                referencingTableName: $row[1],
+                referencingSchemaName: $referencingSchemaName,
+                referencingTableName: $referencingTableName,
                 id: null,
-                name: $row[2],
-                referencedSchemaName: $row[3],
-                referencedTableName: $row[4],
+                name: $name,
+                referencedSchemaName: $referencedSchemaName,
+                referencedTableName: $referencedTableName,
                 matchType: MatchType::SIMPLE,
-                onUpdateAction: $this->createReferentialAction($row[5]),
-                onDeleteAction: $this->createReferentialAction($row[6]),
+                onUpdateAction: $this->createReferentialAction($updateAction),
+                onDeleteAction: $this->createReferentialAction($deleteAction),
                 isDeferrable: false,
                 isDeferred: false,
-                referencingColumnName: $row[7],
-                referencedColumnName: $row[8],
+                referencingColumnName: $referencingColumnName,
+                referencedColumnName: $referencedColumnName,
             );
         }
     }
@@ -549,8 +618,12 @@ SQL,
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
-            yield new TableMetadataRow($row[0], $row[1], [
-                'comment' => $row[2],
+            [$schemaName, $tableName, $comment] = $row;
+
+            assert(is_string($schemaName) && $schemaName !== '' || $schemaName === null);
+            assert(is_string($tableName) && $tableName !== '');
+            yield new TableMetadataRow($schemaName, $tableName, [
+                'comment' => $comment,
             ]);
         }
     }
@@ -610,7 +683,12 @@ SQL,
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new ViewMetadataRow(...$row);
+            [$schemaName, $viewName, $definition] = $row;
+
+            assert(is_string($schemaName) && $schemaName !== '' || $schemaName === null);
+            assert(is_string($viewName) && $viewName !== '');
+            assert(is_string($definition));
+            yield new ViewMetadataRow($schemaName, $viewName, $definition);
         }
     }
 
@@ -632,11 +710,17 @@ SQL,
         SQL;
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
+            [$schemaName, $sequenceName, $increment, $startValue] = $row;
+
+            assert(is_string($schemaName) && $schemaName !== '' || $schemaName === null);
+            assert(is_string($sequenceName) && $sequenceName !== '');
+            assert(is_numeric($increment));
+            assert(is_numeric($startValue));
             yield new SequenceMetadataRow(
-                schemaName: $row[0],
-                sequenceName: $row[1],
-                allocationSize: (int) $row[2],
-                initialValue: (int) $row[3],
+                schemaName: $schemaName,
+                sequenceName: $sequenceName,
+                allocationSize: (int) $increment,
+                initialValue: (int) $startValue,
                 cacheSize: null,
             );
         }
