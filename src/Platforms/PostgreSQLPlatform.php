@@ -185,7 +185,9 @@ class PostgreSQLPlatform extends AbstractPlatform
         $query = '';
 
         if ($foreignKey->hasOption('match')) {
-            $query .= ' MATCH ' . $foreignKey->getOption('match');
+            $match = $foreignKey->getOption('match'); // Use intermediate variable so phpstan can infer the type at level 9
+            assert(is_scalar($match));
+            $query .= ' MATCH ' . (string) $match;
         }
 
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);

@@ -49,8 +49,10 @@ class Comparator extends BaseComparator
         $collation = $table->getOption('collation');
 
         if ($charset === null && $collation !== null) {
+            assert(is_string($collation) && $collation !== '');
             $charset = $this->collationMetadataProvider->getCollationCharset($collation);
         } elseif ($charset !== null && $collation === null) {
+            assert(is_string($charset) && $charset !== '');
             $collation = $this->charsetMetadataProvider->getDefaultCharsetCollation($charset);
         } elseif ($charset === null && $collation === null) {
             $charset   = $this->defaultTableOptions->getCharset();

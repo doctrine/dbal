@@ -518,7 +518,9 @@ SQL,
         $sql = '';
 
         if ($foreignKey->hasOption('onDelete')) {
-            $referentialAction = $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onDelete'));
+            $onDelete = $foreignKey->getOption('onDelete');
+            assert(is_string($onDelete));
+            $referentialAction = $this->getForeignKeyReferentialActionSQL($onDelete);
 
             if ($referentialAction !== '') {
                 $sql .= ' ON DELETE ' . $referentialAction;

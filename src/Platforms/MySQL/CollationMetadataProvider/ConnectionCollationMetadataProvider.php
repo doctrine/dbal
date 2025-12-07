@@ -29,6 +29,7 @@ SQL
         );
 
         if ($charset !== false) {
+            assert(is_string($charset) && $charset !== '');
             return $charset;
         }
 

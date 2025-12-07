@@ -29,6 +29,7 @@ final class ConnectionCharsetMetadataProvider implements CharsetMetadataProvider
         );
 
         if ($collation !== false) {
+            assert(is_string($collation) && $collation !== '');
             return $collation;
         }
 

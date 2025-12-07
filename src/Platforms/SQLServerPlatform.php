@@ -546,9 +546,10 @@ class SQLServerPlatform extends AbstractPlatform
             );
         }
 
-        return 'DROP CONSTRAINT ' . $this->quoteSingleIdentifier(
-            $column->getPlatformOption(self::OPTION_DEFAULT_CONSTRAINT_NAME),
-        );
+        $constraintName = $column->getPlatformOption(self::OPTION_DEFAULT_CONSTRAINT_NAME); // Use intemediate variable so phpstan infer the type at level 9
+        assert(is_string($constraintName));
+
+        return 'DROP CONSTRAINT ' . $this->quoteSingleIdentifier($constraintName);
     }
 
     /**
@@ -981,6 +982,7 @@ class SQLServerPlatform extends AbstractPlatform
     public function getAsciiStringTypeDeclarationSQL(array $column): string
     {
         $length = $column['length'] ?? null;
+        assert(is_int($length) || $length === null);
 
         if (empty($column['fixed'])) {
             return parent::getVarcharTypeDeclarationSQLSnippet($length);
