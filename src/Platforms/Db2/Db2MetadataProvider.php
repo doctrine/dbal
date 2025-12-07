@@ -74,7 +74,10 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         SQL;
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
-            yield new TableMetadataRow(null, $row[0], []);
+            [$tableName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            yield new TableMetadataRow(null, $tableName, []);
         }
     }
 
@@ -154,6 +157,17 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             $generated,
             $default,
         ] = $row;
+
+        assert(is_string($tableName) && $tableName !== '');
+        assert(is_string($columnName) && $columnName !== '');
+        assert(is_string($typeName));
+        assert(is_int($codePage));
+        assert(is_string($nulls));
+        assert($length === null || is_int($length));
+        assert($scale === null || is_int($scale));
+        assert($remarks === null || is_string($remarks));
+        assert(is_string($generated));
+        assert($default === null || is_string($default));
 
         $editor = Column::editor()
             ->setQuotedName($columnName);
@@ -271,14 +285,20 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            [$tableName, $indexName, $uniqueRule, $columnName] = $row;
+
+            assert(is_string($tableName) && $tableName !== '');
+            assert(is_string($indexName) && $indexName !== '');
+            assert(is_string($uniqueRule));
+            assert(is_string($columnName) && $columnName !== '');
             yield new IndexColumnMetadataRow(
                 schemaName: null,
-                tableName: $row[0],
-                indexName: $row[1],
-                type: $row[2] === 'U' ? IndexType::UNIQUE : IndexType::REGULAR,
+                tableName: $tableName,
+                indexName: $indexName,
+                type: $uniqueRule === 'U' ? IndexType::UNIQUE : IndexType::REGULAR,
                 isClustered: false,
                 predicate: null,
-                columnName: $row[3],
+                columnName: $columnName,
                 columnLength: null,
             );
         }
