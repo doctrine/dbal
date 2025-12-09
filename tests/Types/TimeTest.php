@@ -27,6 +27,7 @@ class TimeTest extends BaseDateTypeTestCase
 
     public function testDateFieldResetInPHPValue(): void
     {
+        /** @var DateTime $time */
         $time = $this->type->convertToPHPValue('01:23:34', $this->platform);
 
         self::assertEquals('01:23:34', $time->format('H:i:s'));
