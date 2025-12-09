@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
+use TypeError;
 
 use function array_filter;
 use function array_intersect;
@@ -235,6 +236,7 @@ abstract class AbstractSchemaManager
      * @return list<Table>
      *
      * @throws Exception
+     * @throws TypeError
      */
     public function listTables(): array
     {

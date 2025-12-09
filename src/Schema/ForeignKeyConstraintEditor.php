@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use TypeError;
 
 use function array_map;
 use function array_merge;
@@ -226,6 +227,7 @@ final class ForeignKeyConstraintEditor
         return $this;
     }
 
+    /** @throws TypeError */
     public function create(): ForeignKeyConstraint
     {
         if (count($this->referencingColumnNames) < 1) {

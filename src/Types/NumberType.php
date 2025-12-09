@@ -15,12 +15,18 @@ use function is_float;
 
 final class NumberType extends Type
 {
-    /** {@inheritDoc} */
+    /** {@inheritDoc}
+     *
+     * @throws TypeError
+     */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getDecimalTypeDeclarationSQL($column);
     }
 
+    /**
+     * @throws TypeError
+     */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -34,6 +40,9 @@ final class NumberType extends Type
         return (string) $value;
     }
 
+    /**
+     * @throws TypeError
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?Number
     {
         if ($value === null) {

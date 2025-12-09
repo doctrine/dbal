@@ -22,6 +22,7 @@ use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
+use TypeError;
 
 use function array_diff_key;
 use function array_map;
@@ -404,6 +405,7 @@ class Table extends AbstractNamedObject
      * @param non-empty-string $newName
      *
      * @throws LogicException
+     * @throws TypeError
      */
     final public function renameColumn(string $oldName, string $newName): Column
     {
@@ -495,6 +497,8 @@ class Table extends AbstractNamedObject
      * @param non-empty-list<string> $localColumnNames
      * @param non-empty-list<string> $foreignColumnNames
      * @param array<string, mixed>   $options
+     *
+     * @throws TypeError
      */
     public function addForeignKeyConstraint(
         string $foreignTableName,

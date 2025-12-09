@@ -113,6 +113,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
+     * 
+     * @throws TypeError
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {

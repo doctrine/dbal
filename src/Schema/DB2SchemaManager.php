@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use TypeError;
 
 use function array_change_key_case;
 use function implode;
@@ -128,6 +129,8 @@ class DB2SchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
+     * 
+     * @throws TypeError
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
