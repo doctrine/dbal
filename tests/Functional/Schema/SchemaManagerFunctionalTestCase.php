@@ -50,6 +50,7 @@ use function array_keys;
 use function array_map;
 use function array_values;
 use function get_debug_type;
+use function intval;
 use function sprintf;
 use function str_starts_with;
 use function strtolower;
@@ -1090,8 +1091,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     }
 
     /**
-     * @param non-empty-string $name
-     * @param mixed[]          $data
+     * @param non-empty-string              $name
+     * @param array{options?: array<mixed>} $data
      */
     protected function createTestTable(string $name, array $data = []): Table
     {
@@ -1559,17 +1560,21 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
-        $lastUsedIdBeforeDelete = (int) $this->connection->fetchOne(
+        $lastUsedIdBeforeDeleteValue = $this->connection->fetchOne(
             "SELECT id FROM test_pk_auto_increment WHERE text = '1'",
         );
+        /** @var int $lastUsedIdBeforeDeleteValue */
+        $lastUsedIdBeforeDelete = intval($lastUsedIdBeforeDeleteValue);
 
         $this->connection->executeStatement('DELETE FROM test_pk_auto_increment');
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
-        $lastUsedIdAfterDelete = (int) $this->connection->fetchOne(
+        $lastUsedIdAfterDeleteValue = $this->connection->fetchOne(
             "SELECT id FROM test_pk_auto_increment WHERE text = '2'",
         );
+        /** @var int $lastUsedIdAfterDeleteValue */
+        $lastUsedIdAfterDelete = intval($lastUsedIdAfterDeleteValue);
 
         self::assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
     }

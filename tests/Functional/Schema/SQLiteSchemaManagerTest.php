@@ -238,9 +238,11 @@ SQL;
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
-        $lastUsedIdAfterDelete = (int) $this->connection->fetchOne(
+        $lastUsedIdAfterDeleteValue = $this->connection->fetchOne(
             'SELECT id FROM test_pk_auto_increment WHERE text = "2"',
         );
+        /** @var int $lastUsedIdAfterDeleteValue */
+        $lastUsedIdAfterDelete = (int) $lastUsedIdAfterDeleteValue;
 
         // with an empty table, non autoincrement rowid is always 1
         self::assertEquals(1, $lastUsedIdAfterDelete);

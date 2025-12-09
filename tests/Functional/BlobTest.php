@@ -234,7 +234,8 @@ class BlobTest extends FunctionalTestCase
 
         $actual = [];
         foreach ($blobs as $blob) {
-            $blob     = Type::getType('blob')->convertToPHPValue($blob, $this->connection->getDatabasePlatform());
+            $blob = Type::getType('blob')->convertToPHPValue($blob, $this->connection->getDatabasePlatform());
+            /** @var resource $blob */
             $actual[] = stream_get_contents($blob);
         }
 

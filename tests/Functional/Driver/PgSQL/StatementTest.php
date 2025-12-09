@@ -29,14 +29,17 @@ class StatementTest extends FunctionalTestCase
     public function testStatementsAreDeallocatedProperly(): void
     {
         $statement = $this->connection->prepare('SELECT 1');
+        /** @var \Doctrine\DBAL\Statement $statement */
 
         $property = new ReflectionProperty(WrapperStatement::class, 'stmt');
 
         $driverStatement = $property->getValue($statement);
+        /** @var object $driverStatement */
 
         $property = new ReflectionProperty(Statement::class, 'name');
 
         $name = $property->getValue($driverStatement);
+        /** @var string $name */
 
         unset($statement, $driverStatement);
 

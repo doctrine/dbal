@@ -761,12 +761,14 @@ SQL;
         self::assertTrue($tableFinal->hasColumn('id'));
         self::assertTrue($tableFinal->hasColumn('foo'));
 
-        $partitionedTableCount = (int) ($this->connection->fetchOne(
+        $partitionedTableCountValue = $this->connection->fetchOne(
             "select count(*) as count from pg_class where relname = 'partitioned_table' and relkind = 'p'",
-        ));
+        );
+        /** @var int $partitionedTableCountValue */
+        $partitionedTableCount = (int) $partitionedTableCountValue;
         self::assertSame(1, $partitionedTableCount);
 
-        $partitionsCount = (int) ($this->connection->fetchOne(
+        $partitionsCountValue = $this->connection->fetchOne(
             <<<'SQL'
             select count(*) as count
             from pg_class parent
@@ -776,7 +778,9 @@ SQL;
                 and child.relname = 'partition'
             where parent.relname = 'partitioned_table' and parent.relkind = 'p';
             SQL,
-        ));
+        );
+        /** @var int $partitionsCountValue */
+        $partitionsCount = (int) $partitionsCountValue;
         self::assertSame(1, $partitionsCount);
     }
 

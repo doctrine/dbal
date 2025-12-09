@@ -9,6 +9,7 @@ use Doctrine\DBAL\Statement as WrapperStatement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Error;
+use mysqli_stmt;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use ReflectionProperty;
 
@@ -29,11 +30,14 @@ class StatementTest extends FunctionalTestCase
     public function testStatementsAreDeallocatedProperly(): void
     {
         $statement = $this->connection->prepare('SELECT 1');
+        /** @var \Doctrine\DBAL\Statement $statement */
 
         $property        = new ReflectionProperty(WrapperStatement::class, 'stmt');
         $driverStatement = $property->getValue($statement);
+        /** @var object $driverStatement */
 
-        $mysqliProperty  = new ReflectionProperty(Statement::class, 'stmt');
+        $mysqliProperty = new ReflectionProperty(Statement::class, 'stmt');
+        /** @var mysqli_stmt $mysqliStatement */
         $mysqliStatement = $mysqliProperty->getValue($driverStatement);
 
         unset($statement, $driverStatement);

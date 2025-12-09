@@ -143,7 +143,9 @@ class DataAccessTest extends FunctionalTestCase
 
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(1, $row['test_int']);
-        self::assertStringStartsWith($datetimeString, $row['test_datetime']);
+        $testDatetime = $row['test_datetime'];
+        /** @var string $testDatetime */
+        self::assertStringStartsWith($datetimeString, $testDatetime);
     }
 
     public function testFetchAssociative(): void
@@ -176,7 +178,9 @@ class DataAccessTest extends FunctionalTestCase
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(1, $row['test_int']);
-        self::assertStringStartsWith($datetimeString, $row['test_datetime']);
+        $testDatetime = $row['test_datetime'];
+        /** @var string $testDatetime */
+        self::assertStringStartsWith($datetimeString, $testDatetime);
     }
 
     public function testFetchArray(): void
@@ -206,7 +210,9 @@ class DataAccessTest extends FunctionalTestCase
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(1, $row[0]);
-        self::assertStringStartsWith($datetimeString, $row[1]);
+        $testDatetime = $row[1];
+        /** @var string $testDatetime */
+        self::assertStringStartsWith($datetimeString, $testDatetime);
     }
 
     public function testFetchColumn(): void
@@ -620,7 +626,10 @@ class DataAccessTest extends FunctionalTestCase
         $date = $stmt->executeQuery()->fetchOne();
         self::assertNotFalse($date);
 
-        self::assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
+        /** @var string $date */
+        $timestamp = strtotime($date);
+        /** @var int $timestamp */
+        self::assertEquals($expected, date('Y-m-d H:i:s', $timestamp));
     }
 
     /** @return mixed[][] */

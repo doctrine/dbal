@@ -177,6 +177,7 @@ EOF
                 $result->fetchOne(),
                 $this->connection->getDatabasePlatform(),
             );
+        /** @var resource $stream */
 
         self::assertSame($contents, stream_get_contents($stream));
     }
