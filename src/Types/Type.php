@@ -85,10 +85,7 @@ abstract class Type
      *
      * @throws ConversionException
      */
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
-    {
-        return $value;
-    }
+    abstract public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed;
 
     /**
      * Gets the SQL declaration snippet for a column of this type.
