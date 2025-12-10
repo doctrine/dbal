@@ -1,4 +1,4 @@
-name: "Continuous Integration (Nightly)"
+name: "CI (Nightly): PHPUnit"
 
 on:
   schedule:
@@ -7,7 +7,12 @@ on:
 
 jobs:
   phpunit-mariadb-devel:
-    name: "PHPUnit with MariaDB"
+    name: >
+      ${{ format('MariaDB {0} - PHP {1} - ext. {2}',
+        matrix.mariadb-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
     runs-on: "ubuntu-24.04"
 
     strategy:
@@ -72,7 +77,13 @@ jobs:
           content: "There was an error running Doctrine on MariaDB:${{ matrix.mariadb-version }} - URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
 
   phpunit-sqlite:
-    name: PHPUnit with SQLite
+    name: >
+      ${{ format('SQLite - PHP {0} - OS {1} - ext. {2} - deps {3}',
+        matrix.php-version || 'Ø',
+        matrix.os || 'Ø',
+        matrix.extension || 'Ø',
+        matrix.dependency-versions || 'Ø'
+      ) }}
     uses: ./.github/workflows/phpunit-sqlite.yml
     with:
       os: ${{ matrix.os }}
@@ -94,7 +105,12 @@ jobs:
           - highest
 
   phpunit-mariadb:
-    name: PHPUnit with MariaDB
+    name: >
+      ${{ format('MariaDB {0} - PHP {1} - ext. {2}',
+        matrix.mariadb-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
     uses: ./.github/workflows/phpunit-mariadb.yml
     with:
       php-version: ${{ matrix.php-version }}
@@ -113,7 +129,12 @@ jobs:
           - pdo_mysql
 
   phpunit-mysql:
-    name: PHPUnit with MySQL
+    name: >
+      ${{ format('MySQL {0} - PHP {1} - ext. {2}',
+        matrix.mysql-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
     uses: ./.github/workflows/phpunit-mysql.yml
     with:
       php-version: ${{ matrix.php-version }}
@@ -132,7 +153,12 @@ jobs:
           - pdo_mysql
 
   phpunit-sqlserver:
-    name: PHPUnit with SQL Server
+    name: >
+      ${{ format('SQL Server - PHP {0} - ext. {1} - collation. {2}',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø',
+        matrix.collation || 'Ø'
+      ) }}
     uses: ./.github/workflows/phpunit-sqlserver.yml
     with:
       php-version: ${{ matrix.php-version }}
@@ -151,7 +177,12 @@ jobs:
           - Latin1_General_100_CI_AS_SC_UTF8
 
   phpunit-oracle:
-    name: PHPUnit with Oracle
+    name: >
+      ${{ format('Oracle {0} - PHP {1} - ext. {2}',
+        matrix.oracle-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
     uses: ./.github/workflows/phpunit-oracle.yml
     with:
       php-version: ${{ matrix.php-version }}
@@ -170,7 +201,12 @@ jobs:
           - pdo_oci
 
   phpunit-postgres:
-    name: PHPUnit with PostgreSQL
+    name: >
+      ${{ format('PostgreSQL {0} - PHP {1} - ext. {2}',
+        matrix.postgres-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
     uses: ./.github/workflows/phpunit-postgres.yml
     with:
       php-version: ${{ matrix.php-version }}

@@ -1,4 +1,4 @@
-name: "Continuous Integration"
+name: "CI: PHPUnit"
 
 on:
   pull_request:
@@ -28,7 +28,13 @@ on:
 
 jobs:
   phpunit-smoke-check:
-    name: "PHPUnit with SQLite"
+    name: >
+      ${{ format('SQLite - PHP {0} - OS {1} - ext. {2} - deps {3}',
+        matrix.php-version || 'Ø',
+        matrix.os || 'Ø',
+        matrix.extension || 'Ø',
+        matrix.dependency-versions || 'Ø'
+      ) }}
     uses: ./.github/workflows/phpunit-sqlite.yml
     with:
       os: ${{ matrix.os }}
@@ -58,7 +64,12 @@ jobs:
             config-file-suffix: "-stringify_fetches"
 
   phpunit-oracle:
-    name: "PHPUnit with Oracle"
+    name: >
+      ${{ format('Oracle {0} - PHP {1} - ext. {2}',
+        matrix.oracle-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-oracle.yml
     with:
@@ -79,7 +90,12 @@ jobs:
           - pdo_oci
 
   phpunit-postgres:
-    name: "PHPUnit with PostgreSQL"
+    name: >
+      ${{ format('PostgreSQL {0} - PHP {1} - ext. {2}',
+        matrix.postgres-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-postgres.yml
     with:
@@ -114,7 +130,12 @@ jobs:
             config-file-suffix: "-stringify_fetches"
 
   phpunit-mariadb:
-    name: "PHPUnit with MariaDB"
+    name: >
+      ${{ format('MariaDB {0} - PHP {1} - ext. {2}',
+        matrix.mariadb-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-mariadb.yml
     with:
@@ -145,7 +166,13 @@ jobs:
             extension: "pdo_mysql"
 
   phpunit-mysql:
-    name: "PHPUnit with MySQL"
+    name: >
+      ${{ format('MySQL {0} - PHP {1} - ext. {2} - suffix {3}',
+        matrix.mysql-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø',
+        matrix.config-file-suffix || 'Ø'
+      ) }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-mysql.yml
     with:
@@ -177,7 +204,12 @@ jobs:
             extension: "pdo_mysql"
 
   phpunit-mssql:
-    name: "PHPUnit with SQL Server"
+    name: >
+      ${{ format('SQL Server - PHP {0} - ext. {1} - collation. {2}',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø',
+        matrix.collation || 'Ø'
+      ) }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-sqlserver.yml
     with:
@@ -198,7 +230,9 @@ jobs:
           - "Latin1_General_100_CS_AS_SC_UTF8"
 
   phpunit-db2:
-    name: "PHPUnit with Db2"
+    name: >
+      Db2 - 
+      ${{ matrix.php-version || 'Ø' }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-db2.yml
     with:
@@ -211,7 +245,9 @@ jobs:
           - "8.4"
 
   development-deps:
-    name: "PHPUnit with PDO_SQLite and development dependencies"
+    name: >
+      PDO_SQLite and development dependencies - 
+      ${{ matrix.php-version || 'Ø' }}
     runs-on: "ubuntu-24.04"
 
     strategy:
