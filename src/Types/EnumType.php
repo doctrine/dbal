@@ -15,4 +15,12 @@ final class EnumType extends Type
     {
         return $platform->getEnumDeclarationSQL($column);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
+    {
+        return $value;
+    }
 }

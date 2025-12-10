@@ -21,4 +21,12 @@ final class AsciiStringType extends StringType
     {
         return ParameterType::ASCII;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
+    {
+        return $value;
+    }
 }

@@ -761,12 +761,11 @@ SQL;
         self::assertTrue($tableFinal->hasColumn('id'));
         self::assertTrue($tableFinal->hasColumn('foo'));
 
-        $partitionedTableCount = (int) ($this->connection->fetchOne(
+        self::assertSame('1', $this->connection->fetchOne(
             "select count(*) as count from pg_class where relname = 'partitioned_table' and relkind = 'p'",
         ));
-        self::assertSame(1, $partitionedTableCount);
 
-        $partitionsCount = (int) ($this->connection->fetchOne(
+        self::assertSame('1', $this->connection->fetchOne(
             <<<'SQL'
             select count(*) as count
             from pg_class parent
@@ -777,7 +776,6 @@ SQL;
             where parent.relname = 'partitioned_table' and parent.relkind = 'p';
             SQL,
         ));
-        self::assertSame(1, $partitionsCount);
     }
 
     /** @link https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PUBLIC */
@@ -795,5 +793,13 @@ class MoneyType extends Type
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return 'MyMoney';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
+    {
+        return $value;
     }
 }

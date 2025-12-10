@@ -18,4 +18,12 @@ class GuidType extends StringType
     {
         return $platform->getGuidTypeDeclarationSQL($column);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
+    {
+        return $value;
+    }
 }

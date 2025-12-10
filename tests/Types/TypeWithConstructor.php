@@ -21,9 +21,6 @@ class TypeWithConstructor extends Type
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
     {
         return $value;

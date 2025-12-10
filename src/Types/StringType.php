@@ -18,4 +18,12 @@ class StringType extends Type
     {
         return $platform->getStringTypeDeclarationSQL($column);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
+    {
+        return $value;
+    }
 }
