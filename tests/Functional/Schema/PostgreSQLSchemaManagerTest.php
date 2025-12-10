@@ -761,11 +761,11 @@ SQL;
         self::assertTrue($tableFinal->hasColumn('id'));
         self::assertTrue($tableFinal->hasColumn('foo'));
 
-        self::assertSame('1', $this->connection->fetchOne(
+        self::assertSame(1, $this->connection->fetchOne(
             "select count(*) as count from pg_class where relname = 'partitioned_table' and relkind = 'p'",
         ));
 
-        self::assertSame('1', $this->connection->fetchOne(
+        self::assertSame(1, $this->connection->fetchOne(
             <<<'SQL'
             select count(*) as count
             from pg_class parent
