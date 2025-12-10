@@ -795,9 +795,6 @@ class MoneyType extends Type
         return 'MyMoney';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
     {
         return $value;

@@ -25,9 +25,6 @@ class PointType extends Type
         return ['point'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
     {
         return $value;

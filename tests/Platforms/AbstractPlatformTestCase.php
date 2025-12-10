@@ -120,9 +120,6 @@ abstract class AbstractPlatformTestCase extends TestCase
                 return $platform->getDecimalTypeDeclarationSQL($column);
             }
 
-            /**
-             * {@inheritDoc}
-             */
             public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
             {
                 return $value;
