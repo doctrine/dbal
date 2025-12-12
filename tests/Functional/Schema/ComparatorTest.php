@@ -147,6 +147,7 @@ class ComparatorTest extends FunctionalTestCase
     {
         return [
             [Types::INTEGER, 1],
+            [Types::FLOAT, 42.0],
             [Types::BOOLEAN, false],
             [Types::TEXT, 'Doctrine'],
         ];
