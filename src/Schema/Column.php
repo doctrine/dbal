@@ -9,10 +9,12 @@ use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
+use function is_numeric;
 use function method_exists;
 
 /**
@@ -384,10 +386,16 @@ class Column extends AbstractNamedObject
     /** @return ColumnProperties */
     public function toArray(): array
     {
+        if ($this->_type instanceof FloatType && is_numeric($this->_default)) {
+            $default = (float) $this->_default;
+        } else {
+            $default = $this->_default;
+        }
+
         return array_merge([
             'name'             => $this->_name,
             'type'             => $this->_type,
-            'default'          => $this->_default,
+            'default'          => $default,
             'notnull'          => $this->_notnull,
             'length'           => $this->_length,
             'precision'        => $this->_precision,
