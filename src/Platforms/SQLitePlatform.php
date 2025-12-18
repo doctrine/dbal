@@ -35,6 +35,8 @@ use function array_values;
 use function count;
 use function explode;
 use function implode;
+use function is_array;
+use function is_string;
 use function sprintf;
 use function str_replace;
 use function strpos;
@@ -592,6 +594,30 @@ class SQLitePlatform extends AbstractPlatform
     public function getDropTablesSQL(array $tables): array
     {
         $sql = [];
+
+        foreach ($tables as $table) {
+            if (! $table->hasOption(Table::OPTION_EXTRA_DROP_SQL)) {
+                continue;
+            }
+
+            if (! is_array($table->getOption(Table::OPTION_EXTRA_DROP_SQL))) {
+                throw new InvalidArgumentException(sprintf(
+                    'Table option "%s" must be an array',
+                    Table::OPTION_EXTRA_DROP_SQL,
+                ));
+            }
+
+            foreach ($table->getOption(Table::OPTION_EXTRA_DROP_SQL) as $extraSql) {
+                if (! is_string($extraSql)) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Table option "%s" must be an array of strings',
+                        Table::OPTION_EXTRA_DROP_SQL,
+                    ));
+                }
+
+                $sql[] = $extraSql;
+            }
+        }
 
         foreach ($tables as $table) {
             $sql[] = $this->getDropTableSQL($table->getQuotedName($this));

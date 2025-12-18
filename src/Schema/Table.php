@@ -43,6 +43,9 @@ use function strtolower;
  */
 class Table extends AbstractNamedObject
 {
+    public const OPTION_EXTRA_CREATE_SQL = 'extra_create_sql';
+    public const OPTION_EXTRA_DROP_SQL   = 'extra_drop_sql';
+
     /** @var Column[] */
     protected array $_columns = [];
 

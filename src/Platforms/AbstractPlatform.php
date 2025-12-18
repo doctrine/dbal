@@ -948,6 +948,26 @@ abstract class AbstractPlatform
             }
         }
 
+        if ($createForeignKeys && $table->hasOption(Table::OPTION_EXTRA_CREATE_SQL)) {
+            if (! is_array($table->getOption(Table::OPTION_EXTRA_CREATE_SQL))) {
+                throw new InvalidArgumentException(sprintf(
+                    'Table option "%s" must be an array',
+                    Table::OPTION_EXTRA_CREATE_SQL,
+                ));
+            }
+
+            foreach ($table->getOption(Table::OPTION_EXTRA_CREATE_SQL) as $extraSql) {
+                if (! is_string($extraSql)) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Table option "%s" must be an array of strings',
+                        Table::OPTION_EXTRA_CREATE_SQL,
+                    ));
+                }
+
+                $sql[] = $extraSql;
+            }
+        }
+
         return $sql;
     }
 
@@ -971,6 +991,28 @@ abstract class AbstractPlatform
                     $table->getQuotedName($this),
                 );
             }
+
+            if (! $table->hasOption(Table::OPTION_EXTRA_CREATE_SQL)) {
+                continue;
+            }
+
+            if (! is_array($table->getOption(Table::OPTION_EXTRA_CREATE_SQL))) {
+                throw new InvalidArgumentException(sprintf(
+                    'Table option "%s" must be an array',
+                    Table::OPTION_EXTRA_CREATE_SQL,
+                ));
+            }
+
+            foreach ($table->getOption(Table::OPTION_EXTRA_CREATE_SQL) as $extraSql) {
+                if (! is_string($extraSql)) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Table option "%s" must be an array of strings',
+                        Table::OPTION_EXTRA_CREATE_SQL,
+                    ));
+                }
+
+                $sql[] = $extraSql;
+            }
         }
 
         return $sql;
@@ -986,6 +1028,26 @@ abstract class AbstractPlatform
         $sql = [];
 
         foreach ($tables as $table) {
+            if ($table->hasOption(Table::OPTION_EXTRA_DROP_SQL)) {
+                if (! is_array($table->getOption(Table::OPTION_EXTRA_DROP_SQL))) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Table option "%s" must be an array',
+                        Table::OPTION_EXTRA_DROP_SQL,
+                    ));
+                }
+
+                foreach ($table->getOption(Table::OPTION_EXTRA_DROP_SQL) as $extraSql) {
+                    if (! is_string($extraSql)) {
+                        throw new InvalidArgumentException(sprintf(
+                            'Table option "%s" must be an array of strings',
+                            Table::OPTION_EXTRA_DROP_SQL,
+                        ));
+                    }
+
+                    $sql[] = $extraSql;
+                }
+            }
+
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL(
                     $foreignKey->getQuotedName($this),

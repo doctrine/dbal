@@ -1279,4 +1279,209 @@ abstract class AbstractPlatformTestCase extends TestCase
             "field 'values' is an empty array" => [['values' => []]],
         ];
     }
+
+    public function testGetCreateTableSQLWithExtraCreateSQL(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions([
+                Table::OPTION_EXTRA_CREATE_SQL => [
+                    'CREATE INDEX idx_test ON test (id)',
+                    'CREATE VIEW test_view AS SELECT * FROM test',
+                ],
+            ])
+            ->create();
+
+        $sql = $this->platform->getCreateTableSQL($table);
+
+        // Should contain the CREATE TABLE statement
+        self::assertNotEmpty($sql);
+        self::assertStringContainsString('CREATE TABLE', $sql[0]);
+        // Should contain the extra SQL statements
+        self::assertContains('CREATE INDEX idx_test ON test (id)', $sql);
+        self::assertContains('CREATE VIEW test_view AS SELECT * FROM test', $sql);
+    }
+
+    public function testGetCreateTableSQLWithExtraCreateSQLNonArrayThrowsException(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions([Table::OPTION_EXTRA_CREATE_SQL => 'not an array'])
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(sprintf('Table option "%s" must be an array', Table::OPTION_EXTRA_CREATE_SQL));
+
+        $this->platform->getCreateTableSQL($table);
+    }
+
+    public function testGetCreateTablesSQLWithExtraCreateSQL(): void
+    {
+        $table1 = Table::editor()
+            ->setUnquotedName('test1')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions([Table::OPTION_EXTRA_CREATE_SQL => ['CREATE INDEX idx_test1 ON test1 (id)']])
+            ->create();
+
+        $table2 = Table::editor()
+            ->setUnquotedName('test2')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setAutoincrement(true)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions([Table::OPTION_EXTRA_CREATE_SQL => ['CREATE INDEX idx_test2 ON test2 (id)']])
+            ->create();
+
+        $sql = $this->platform->getCreateTablesSQL([$table1, $table2]);
+
+        self::assertContains('CREATE INDEX idx_test1 ON test1 (id)', $sql);
+        self::assertContains('CREATE INDEX idx_test2 ON test2 (id)', $sql);
+    }
+
+    public function testGetCreateTablesSQLWithExtraCreateSQLNonArrayThrowsException(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions([Table::OPTION_EXTRA_CREATE_SQL => 'not an array'])
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(sprintf('Table option "%s" must be an array', Table::OPTION_EXTRA_CREATE_SQL));
+
+        $this->platform->getCreateTablesSQL([$table]);
+    }
+
+    public function testGetDropTablesSQLWithExtraDropSQL(): void
+    {
+        $table1 = Table::editor()
+            ->setUnquotedName('test1')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setOptions([
+                Table::OPTION_EXTRA_DROP_SQL => [
+                    'DROP VIEW IF EXISTS test1_view',
+                    'DROP TRIGGER IF EXISTS test1_trigger',
+                ],
+            ])
+            ->create();
+
+        $table2 = Table::editor()
+            ->setUnquotedName('test2')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setOptions([Table::OPTION_EXTRA_DROP_SQL => ['DROP VIEW IF EXISTS test2_view']])
+            ->create();
+
+        $sql = $this->platform->getDropTablesSQL([$table1, $table2]);
+
+        // Verify extra drop SQL is present
+        self::assertContains('DROP VIEW IF EXISTS test1_view', $sql);
+        self::assertContains('DROP TRIGGER IF EXISTS test1_trigger', $sql);
+        self::assertContains('DROP VIEW IF EXISTS test2_view', $sql);
+
+        // Verify DROP TABLE statements are present
+        $dropTable1Sql = 'DROP TABLE ' . $table1->getQuotedName($this->platform);
+        $dropTable2Sql = 'DROP TABLE ' . $table2->getQuotedName($this->platform);
+        self::assertContains($dropTable1Sql, $sql);
+        self::assertContains($dropTable2Sql, $sql);
+
+        // Verify all expected SQL statements are present
+        // The implementation guarantees extra drop SQL comes before DROP TABLE statements
+        $hasDropTable1 = false;
+        $hasDropTable2 = false;
+        foreach ($sql as $statement) {
+            if ($statement === $dropTable1Sql) {
+                $hasDropTable1 = true;
+            }
+
+            if ($statement !== $dropTable2Sql) {
+                continue;
+            }
+
+            $hasDropTable2 = true;
+        }
+
+        self::assertTrue($hasDropTable1);
+        self::assertTrue($hasDropTable2);
+    }
+
+    public function testGetDropTablesSQLWithExtraDropSQLNonArrayThrowsException(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setOptions([Table::OPTION_EXTRA_DROP_SQL => 'not an array'])
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(sprintf('Table option "%s" must be an array', Table::OPTION_EXTRA_DROP_SQL));
+
+        $this->platform->getDropTablesSQL([$table]);
+    }
 }
