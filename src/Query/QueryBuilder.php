@@ -1635,7 +1635,7 @@ class QueryBuilder
 
     public function withComment(string $comment): self
     {
-        $this->comments[] = $comment;
+        $this->comments[] = $this->sanitizeComment($comment);
 
         $this->sql = null;
 
@@ -1650,5 +1650,10 @@ class QueryBuilder
         }
 
         return $comments;
+    }
+
+    private function sanitizeComment(string $comment): string
+    {
+        return trim(str_replace(['*/', '/*'], '', $comment));
     }
 }

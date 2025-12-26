@@ -428,6 +428,19 @@ Multiple comments can be added by calling the method multiple times:
         ->withComment('Comment 2');
     // /* Comment 1 */ /* Comment 2 */ SELECT id, name FROM users
 
+Comments containing `/*` and `*/` will be sanitized in order to prevent comment injection. Each occurrence of aforementioned
+tokens will be replaced by an empty string and trimmed.
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->select('id', 'name')
+        ->from('users')
+        ->withComment('*/ drop table users; /*');
+    // /* drop table users; */ SELECT id, name FROM users
+
 Building Expressions
 --------------------
 

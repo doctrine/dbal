@@ -528,7 +528,7 @@ final class QueryBuilderTest extends FunctionalTestCase
         self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
     }
 
-    public function testSelectWithComment(): void
+    public function testSelectWithCommentIsSanitized(): void
     {
         $expectedRows = $this->prepareExpectedRows([['id' => 1], ['id' => 2]]);
         $qb           = $this->connection->createQueryBuilder();
@@ -538,9 +538,9 @@ final class QueryBuilderTest extends FunctionalTestCase
             ->from('for_update')
             ->where('id IN (?, ?)')
             ->setParameters([1, 2], [ParameterType::INTEGER, ParameterType::INTEGER])
-            ->withComment('Test comment');
+            ->withComment('*/ drop table users; /*');
 
-        self::assertSame('/* Test comment */ SELECT id FROM for_update WHERE id IN (?, ?)', $select->getSQL());
+        self::assertSame('/* drop table users; */ SELECT id FROM for_update WHERE id IN (?, ?)', $select->getSQL());
         self::assertSame($expectedRows, $select->executeQuery()->fetchAllAssociative());
     }
 
