@@ -403,7 +403,8 @@ Values of parameters used in a CTE should be defined in the main QueryBuilder.
 Comments
 ~~~~~~~~~~~
 
-To add comments to the query you can use the ``withComment()`` method which will add the comment at the top of the query:
+To add comments to the query you can use the ``withComment()`` method
+which will add the comment at the top of the query:
 
 .. code-block:: php
 
@@ -428,8 +429,9 @@ Multiple comments can be added by calling the method multiple times:
         ->withComment('Comment 2');
     // /* Comment 1 */ /* Comment 2 */ SELECT id, name FROM users
 
-Comments containing `/*` and `*/` will be sanitized in order to prevent comment injection. Each occurrence of aforementioned
-tokens will be replaced by an empty string and trimmed.
+Comments containing ``/*`` and ``*/`` will be sanitized in order to prevent
+comment injection. Each occurrence of aforementioned tokens will be replaced
+by an empty string and trimmed.
 
 .. code-block:: php
 
