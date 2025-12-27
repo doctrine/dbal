@@ -401,9 +401,9 @@ Multiple CTEs can be defined by calling the with method multiple times.
 Values of parameters used in a CTE should be defined in the main QueryBuilder.
 
 Comments
-~~~~~~~~~~~
+~~~~~~~~
 
-To add comments to the query you can use the ``withComment()`` method
+To add comments to the query you can use the ``addComment()`` method
 which will add the comment at the top of the query:
 
 .. code-block:: php
@@ -413,7 +413,7 @@ which will add the comment at the top of the query:
     $queryBuilder
         ->select('id', 'name')
         ->from('users')
-        ->withComment('This is a comment');
+        ->addComment('This is a comment');
     // /* This is a comment */ SELECT id, name FROM users
 
 Multiple comments can be added by calling the method multiple times:
@@ -425,8 +425,8 @@ Multiple comments can be added by calling the method multiple times:
     $queryBuilder
         ->select('id', 'name')
         ->from('users')
-        ->withComment('Comment 1')
-        ->withComment('Comment 2');
+        ->addComment('Comment 1')
+        ->addComment('Comment 2');
     // /* Comment 1 */ /* Comment 2 */ SELECT id, name FROM users
 
 Comments containing ``/*`` and ``*/`` will be sanitized in order to prevent
@@ -440,7 +440,7 @@ by an empty string and trimmed.
     $queryBuilder
         ->select('id', 'name')
         ->from('users')
-        ->withComment('*/ drop table users; /*');
+        ->addComment('*/ drop table users; /*');
     // /* drop table users; */ SELECT id, name FROM users
 
 Building Expressions

@@ -65,12 +65,12 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('SELECT some_function()', (string) $qb);
     }
 
-    public function testSimpleSelectWithComment(): void
+    public function testSimpleSelectAddComment(): void
     {
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('some_function()')
-           ->withComment('Test comment');
+           ->addComment('Test comment');
 
         self::assertEquals('/* Test comment */ SELECT some_function()', (string) $qb);
     }
@@ -424,13 +424,13 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
     }
 
-    public function testUpdateWithComment(): void
+    public function testUpdateAddComment(): void
     {
         $qb = new QueryBuilder($this->conn);
         $qb->update('users')
            ->set('foo', '?')
            ->set('bar', '?')
-           ->withComment('Test comment');
+           ->addComment('Test comment');
 
         self::assertEquals('/* Test comment */ UPDATE users SET foo = ?, bar = ?', (string) $qb);
     }
@@ -453,11 +453,11 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('DELETE FROM users', (string) $qb);
     }
 
-    public function testDeleteWithComment(): void
+    public function testDeleteAddComment(): void
     {
         $qb = new QueryBuilder($this->conn);
         $qb->delete('users');
-        $qb->withComment('Test comment');
+        $qb->addComment('Test comment');
 
         self::assertEquals('/* Test comment */ DELETE FROM users', (string) $qb);
     }
@@ -485,7 +485,7 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
-    public function testInsertValuesWithComment(): void
+    public function testInsertValuesAddComment(): void
     {
         $qb = new QueryBuilder($this->conn);
         $qb->insert('users')
@@ -495,7 +495,7 @@ class QueryBuilderTest extends TestCase
                     'bar' => '?',
                 ],
             )
-            ->withComment('Test comment');
+            ->addComment('Test comment');
 
         self::assertEquals('/* Test comment */ INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }

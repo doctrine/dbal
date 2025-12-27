@@ -1633,7 +1633,7 @@ class QueryBuilder
         return $this;
     }
 
-    public function withComment(string $comment): self
+    public function addComment(string $comment): self
     {
         $this->comments[] = $this->sanitizeComment($comment);
 
