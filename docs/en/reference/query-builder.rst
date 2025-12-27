@@ -403,8 +403,8 @@ Values of parameters used in a CTE should be defined in the main QueryBuilder.
 Comments
 ~~~~~~~~
 
-To add comments to the query you can use the ``addComment()`` method
-which will add the comment at the top of the query:
+To add comments to the query, use the ``addComment()`` method which
+will add the comment before the query:
 
 .. code-block:: php
 
