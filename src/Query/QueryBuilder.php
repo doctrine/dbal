@@ -28,7 +28,9 @@ use function count;
 use function implode;
 use function is_object;
 use function sprintf;
+use function str_replace;
 use function substr;
+use function trim;
 
 /**
  * QueryBuilder class is responsible to dynamically create SQL queries.
