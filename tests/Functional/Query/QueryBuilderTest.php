@@ -541,7 +541,10 @@ final class QueryBuilderTest extends FunctionalTestCase
             ->addComment('Test comment')
             ->addComment('*/ drop table users; /*');
 
-        self::assertSame('/* Test comment */ /* drop table users; */ SELECT id FROM for_update WHERE id IN (?, ?)', $select->getSQL());
+        self::assertSame(
+            '/* Test comment */ /* drop table users; */ SELECT id FROM for_update WHERE id IN (?, ?)',
+            $select->getSQL(),
+        );
         self::assertSame($expectedRows, $select->executeQuery()->fetchAllAssociative());
     }
 
