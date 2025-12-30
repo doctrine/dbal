@@ -70,9 +70,29 @@ class QueryBuilderTest extends TestCase
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('some_function()')
-           ->addComment('Test comment');
+           ->addComment('Test  comment');
 
         self::assertEquals('/* Test comment */ SELECT some_function()', (string) $qb);
+    }
+
+    public function testEmptyCommentAfterSanitizationIsIgnored(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->addComment('/* */');
+        $qb->select('1');
+
+        self::assertSame('SELECT 1', (string) $qb);
+    }
+
+    public function testControlCharactersAreNormalizedToSpaces(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->addComment("route=read\nshard=2\ttrace=abc");
+        $qb->select('1');
+
+        self::assertSame('/* route=read shard=2 trace=abc */ SELECT 1', (string) $qb);
     }
 
     public function testSimpleSelect(): void

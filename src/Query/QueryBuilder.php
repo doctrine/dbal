@@ -27,6 +27,7 @@ use function array_unshift;
 use function count;
 use function implode;
 use function is_object;
+use function preg_replace;
 use function sprintf;
 use function str_replace;
 use function substr;
@@ -1637,7 +1638,12 @@ class QueryBuilder
 
     public function addComment(string $comment): self
     {
-        $this->comments[] = $this->sanitizeComment($comment);
+        $sanitizedComment = $this->sanitizeComment($comment);
+        if ($sanitizedComment === '') {
+            return $this;
+        }
+
+        $this->comments[] = $sanitizedComment;
 
         $this->sql = null;
 
@@ -1656,6 +1662,10 @@ class QueryBuilder
 
     private function sanitizeComment(string $comment): string
     {
-        return trim(str_replace(['*/', '/*'], '', $comment));
+        $comment = str_replace(['*/', '/*'], '', $comment);
+        $comment = preg_replace('/[[:cntrl:]]+/u', ' ', $comment) ?? $comment;
+        $comment = preg_replace('/\s+/u', ' ', $comment) ?? $comment;
+
+        return trim($comment);
     }
 }
