@@ -210,7 +210,8 @@ jobs:
 
   phpunit-mssql:
     name: >
-      ${{ format('SQL Server - PHP {0} - ext. {1} - collation. {2}',
+      ${{ format('SQL Server {0} - PHP {1} - ext. {2} - collation. {3}',
+        matrix.sqlserver-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø',
         matrix.collation || 'Ø'
@@ -219,6 +220,7 @@ jobs:
     uses: ./.github/workflows/phpunit-sqlserver.yml
     with:
       php-version: ${{ matrix.php-version }}
+      sqlserver-version: ${{ matrix.sqlserver-version }}
       extension: ${{ matrix.extension }}
       collation: ${{ matrix.collation }}
 
@@ -227,6 +229,9 @@ jobs:
         php-version:
           - "7.4"
           - "8.5"
+        sqlserver-version:
+          - "2022"
+          - "2025"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -235,9 +240,11 @@ jobs:
         include:
           - collation: "Latin1_General_100_CS_AS_SC_UTF8"
             php-version: "7.4"
+            sqlserver-version: "2025"
             extension: "sqlsrv"
           - collation: "Latin1_General_100_CS_AS_SC_UTF8"
             php-version: "7.4"
+            sqlserver-version: "2025"
             extension: "pdo_sqlsrv"
 
   phpunit-db2:
