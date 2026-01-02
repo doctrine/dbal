@@ -6,6 +6,9 @@ on:
       php-version:
         required: true
         type: string
+      sqlserver-version:
+        required: true
+        type: string
       extension:
         required: true
         type: string
@@ -19,7 +22,7 @@ jobs:
 
     services:
       sqlserver:
-        image: mcr.microsoft.com/mssql/server:2022-latest
+        image: mcr.microsoft.com/mssql/server:${{ inputs.sqlserver-version }}-latest
         ports:
           - '1433:1433'
         env:
@@ -55,5 +58,5 @@ jobs:
       - name: Upload coverage file
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ github.job }}-php-${{ inputs.php-version }}-${{ inputs.extension }}-${{ inputs.collation }}.coverage
+          name: ${{ github.job }}-${{ inputs.sqlserver-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}-${{ inputs.collation }}.coverage
           path: coverage.xml
