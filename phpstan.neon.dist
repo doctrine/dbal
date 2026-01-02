@@ -94,7 +94,7 @@ parameters:
         - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapNumericRow\(\) expects list<string\|null>, .* given\.$~'
 
         # Required for Psalm compatibility
-        - '~^Property Doctrine\\DBAL\\Tests\\Types\\BaseDateTypeTestCase\:\:\$currentTimezone \(non-empty-string\) does not accept string\.$~'
+        - '~^Property Doctrine\\DBAL\\Tests\\Types\\BaseDateTypeTestCase<TType of Doctrine\\DBAL\\Types\\Type>\:\:\$currentTimezone \(non-empty-string\) does not accept string\.$~'
 
         # The @throws annotations are part of a contract. Even if the default implementation doen't throw those
         # exceptions, the child implementations might do so.

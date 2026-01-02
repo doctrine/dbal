@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\TimeType;
 
+/** @extends BaseDateTypeTestCase<TimeType> */
 class TimeTest extends BaseDateTypeTestCase
 {
     protected function setUp(): void
