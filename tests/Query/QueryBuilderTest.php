@@ -75,6 +75,27 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('/* Test comment */ SELECT some_function()', (string) $qb);
     }
 
+    public function testSimpleSelectAddMultilineComment(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('some_function()')
+           ->addComment(
+               <<<'COMMENT'
+               This is a multiline comment.
+               It can span multiple lines.
+               COMMENT,
+           );
+
+        self::assertEquals(
+            <<<'SQL'
+            /* This is a multiline comment.
+            It can span multiple lines. */ SELECT some_function()
+            SQL,
+            (string) $qb,
+        );
+    }
+
     public function testSimpleSelect(): void
     {
         $qb = new QueryBuilder($this->conn);
