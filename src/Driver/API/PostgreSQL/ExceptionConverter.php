@@ -21,6 +21,7 @@ use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
+use Override;
 
 use function str_contains;
 
@@ -28,6 +29,7 @@ use function str_contains;
 final class ExceptionConverter implements ExceptionConverterInterface
 {
     /** @link http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html */
+    #[Override]
     public function convert(Exception $exception, ?Query $query): DriverException
     {
         switch ($exception->getSQLState()) {

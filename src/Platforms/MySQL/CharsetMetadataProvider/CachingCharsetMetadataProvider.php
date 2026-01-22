@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 
 use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
+use Override;
 
 use function array_key_exists;
 
@@ -18,6 +19,7 @@ final class CachingCharsetMetadataProvider implements CharsetMetadataProvider
     {
     }
 
+    #[Override]
     public function getDefaultCharsetCollation(string $charset): ?string
     {
         if (array_key_exists($charset, $this->cache)) {

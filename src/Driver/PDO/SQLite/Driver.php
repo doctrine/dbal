@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
+use Override;
 use PDO;
 use PDOException;
 use SensitiveParameter;
@@ -20,6 +21,7 @@ final readonly class Driver extends AbstractSQLiteDriver
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

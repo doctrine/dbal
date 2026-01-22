@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tools\Console\Command;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider;
+use Override;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -33,6 +34,7 @@ class RunSqlCommand extends Command
         parent::__construct();
     }
 
+    #[Override]
     protected function configure(): void
     {
         $this
@@ -57,6 +59,7 @@ EOT);
      *
      * @throws Exception
      */
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $conn = $this->getConnection($input);

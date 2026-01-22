@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\Driver\Middleware\AbstractResultMiddleware;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Override;
 
 final class Result extends AbstractResultMiddleware
 {
@@ -15,6 +16,7 @@ final class Result extends AbstractResultMiddleware
         parent::__construct($result);
     }
 
+    #[Override]
     public function fetchNumeric(): array|false
     {
         return $this->converter->convertNumeric(
@@ -22,6 +24,7 @@ final class Result extends AbstractResultMiddleware
         );
     }
 
+    #[Override]
     public function fetchAssociative(): array|false
     {
         return $this->converter->convertAssociative(
@@ -29,6 +32,7 @@ final class Result extends AbstractResultMiddleware
         );
     }
 
+    #[Override]
     public function fetchOne(): mixed
     {
         return $this->converter->convertOne(
@@ -39,6 +43,7 @@ final class Result extends AbstractResultMiddleware
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         return $this->converter->convertAllNumeric(
@@ -49,6 +54,7 @@ final class Result extends AbstractResultMiddleware
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         return $this->converter->convertAllAssociative(
@@ -59,6 +65,7 @@ final class Result extends AbstractResultMiddleware
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         return $this->converter->convertFirstColumn(
@@ -66,6 +73,7 @@ final class Result extends AbstractResultMiddleware
         );
     }
 
+    #[Override]
     public function getColumnName(int $index): string
     {
         return $this->converter->convertColumnName(

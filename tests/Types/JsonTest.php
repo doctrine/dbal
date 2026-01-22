@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -20,6 +21,7 @@ class JsonTest extends TestCase
     protected AbstractPlatform&MockObject $platform;
     protected JsonType $type;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

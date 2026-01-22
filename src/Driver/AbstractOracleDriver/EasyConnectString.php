@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\AbstractOracleDriver;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver\Exception\InvalidConfiguration;
 use Doctrine\DBAL\Driver\Exception;
+use Override;
 
 use function implode;
 use function is_array;
@@ -22,6 +23,7 @@ final readonly class EasyConnectString
     {
     }
 
+    #[Override]
     public function __toString(): string
     {
         return $this->string;

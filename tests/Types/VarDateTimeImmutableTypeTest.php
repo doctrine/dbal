@@ -10,6 +10,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\VarDateTimeImmutableType;
+use Override;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -18,6 +19,7 @@ class VarDateTimeImmutableTypeTest extends TestCase
     private AbstractPlatform&MockObject $platform;
     private VarDateTimeImmutableType $type;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

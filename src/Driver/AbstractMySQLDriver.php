@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\MariaDB1010Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+use Override;
 
 use function preg_match;
 use function stripos;
@@ -28,6 +29,7 @@ abstract readonly class AbstractMySQLDriver implements Driver
      *
      * @throws InvalidPlatformVersion
      */
+    #[Override]
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractMySQLPlatform
     {
         $version = $versionProvider->getServerVersion();
@@ -43,6 +45,7 @@ abstract readonly class AbstractMySQLDriver implements Driver
         return new MySQLPlatform();
     }
 
+    #[Override]
     public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();

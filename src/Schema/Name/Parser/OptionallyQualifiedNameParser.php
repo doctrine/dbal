@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\InvalidName;
+use Override;
 
 use function count;
 
@@ -21,6 +22,7 @@ final readonly class OptionallyQualifiedNameParser implements Parser
     {
     }
 
+    #[Override]
     public function parse(string $input): OptionallyQualifiedName
     {
         $identifiers = $this->genericNameParser->parse($input)

@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -41,6 +42,7 @@ class ConnectionTest extends TestCase
         'port' => 1234,
     ];
 
+    #[Override]
     protected function setUp(): void
     {
         $this->connection = DriverManager::getConnection(self::CONNECTION_PARAMS);
@@ -710,6 +712,7 @@ class ConnectionTest extends TestCase
     public function testItPreservesTheOriginalExceptionOnRollbackFailure(): void
     {
         $connection = new class (['memory' => true], new Driver\SQLite3\Driver()) extends Connection {
+            #[Override]
             public function rollBack(): void
             {
                 throw new ConnectionException('Rollback exception');
@@ -734,11 +737,13 @@ class ConnectionTest extends TestCase
     public function testItFailsDuringCommitBeforeTouchingDb(): void
     {
         $connection = new class (['memory' => true], new Driver\SQLite3\Driver()) extends Connection {
+            #[Override]
             public function commit(): void
             {
                 throw new \Exception('Fail before touching the db');
             }
 
+            #[Override]
             public function rollBack(): void
             {
                 throw new \Exception('Rollback got triggered');

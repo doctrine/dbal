@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Override;
 
 class TypeWithConstructor extends Type
 {
@@ -16,6 +17,7 @@ class TypeWithConstructor extends Type
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return '';

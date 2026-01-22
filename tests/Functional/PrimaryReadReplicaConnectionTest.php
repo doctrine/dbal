@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use Throwable;
 
 use function array_change_key_case;
@@ -21,6 +22,7 @@ use const CASE_LOWER;
 /** @phpstan-import-type Params from DriverManager */
 class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (! $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {

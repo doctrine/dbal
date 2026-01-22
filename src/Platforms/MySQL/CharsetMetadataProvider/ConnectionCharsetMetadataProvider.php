@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
+use Override;
 
 /** @internal */
 final readonly class ConnectionCharsetMetadataProvider implements CharsetMetadataProvider
@@ -16,6 +17,7 @@ final readonly class ConnectionCharsetMetadataProvider implements CharsetMetadat
     }
 
     /** @throws Exception */
+    #[Override]
     public function getDefaultCharsetCollation(string $charset): ?string
     {
         $collation = $this->connection->fetchOne(

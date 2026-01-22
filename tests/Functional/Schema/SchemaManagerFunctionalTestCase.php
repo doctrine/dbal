@@ -44,6 +44,7 @@ use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TimeType;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_find;
@@ -59,6 +60,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     abstract protected function supportsPlatform(AbstractPlatform $platform): bool;
 
+    #[Override]
     protected function setUp(): void
     {
         $platform = $this->connection->getDatabasePlatform();
@@ -70,6 +72,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager = $this->connection->createSchemaManager();
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         if (! isset($this->schemaManager)) {

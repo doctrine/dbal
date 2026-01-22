@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Configuration;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +18,7 @@ class ConfigurationTest extends TestCase
      */
     protected Configuration $config;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->config = new Configuration();

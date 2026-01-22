@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
+use Override;
 
 use function array_key_exists;
 
@@ -18,6 +19,7 @@ final class CachingCollationMetadataProvider implements CollationMetadataProvide
     {
     }
 
+    #[Override]
     public function getCollationCharset(string $collation): ?string
     {
         if (array_key_exists($collation, $this->cache)) {

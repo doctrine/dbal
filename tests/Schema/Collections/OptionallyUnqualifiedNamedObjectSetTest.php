@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
 use Doctrine\DBAL\Schema\Collections\OptionallyUnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\OptionallyNamedObject;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class OptionallyUnqualifiedNamedObjectSetTest extends TestCase
@@ -176,6 +177,7 @@ class OptionallyUnqualifiedNamedObjectSetTest extends TestCase
                 $this->name = $name !== null ? UnqualifiedName::unquoted($name) : null;
             }
 
+            #[Override]
             public function getObjectName(): ?UnqualifiedName
             {
                 return $this->name;

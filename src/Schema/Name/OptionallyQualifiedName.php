@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema\Name;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Exception\IncomparableNames;
 use Doctrine\DBAL\Schema\Name;
+use Override;
 
 /**
  * An optionally qualified {@see Name} consisting of an unqualified name and an optional unqualified qualifier.
@@ -27,6 +28,7 @@ final readonly class OptionallyQualifiedName implements Name
         return $this->qualifier;
     }
 
+    #[Override]
     public function toSQL(AbstractPlatform $platform): string
     {
         $unqualifiedName = $this->unqualifiedName->toSQL($platform);
@@ -38,6 +40,7 @@ final readonly class OptionallyQualifiedName implements Name
         return $this->qualifier->toSQL($platform) . '.' . $unqualifiedName;
     }
 
+    #[Override]
     public function toString(): string
     {
         $unqualifiedName = $this->unqualifiedName->toString();

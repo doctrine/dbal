@@ -21,21 +21,25 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /** @extends AbstractPlatformTestCase<SQLServerPlatform> */
 class SQLServerPlatformTest extends AbstractPlatformTestCase
 {
+    #[Override]
     public function createPlatform(): AbstractPlatform
     {
         return new SQLServerPlatform();
     }
 
+    #[Override]
     protected function createComparator(): Comparator
     {
         return new SQLServer\Comparator($this->platform, '', new ComparatorConfig());
     }
 
+    #[Override]
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE [test] ([id] INT IDENTITY NOT NULL, [test] NVARCHAR(255), PRIMARY KEY ([id]))';
@@ -44,6 +48,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
@@ -160,17 +165,20 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertTrue($this->platform->supportsSavepoints());
     }
 
+    #[Override]
     public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX [my_idx] ON [mytable] ([user_name], [last_login])';
     }
 
+    #[Override]
     public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX [index_name] ON [test] ([test], [test2]) WHERE [test] IS NOT NULL'
             . ' AND [test2] IS NOT NULL';
     }
 
+    #[Override]
     protected function getGenerateForeignKeySql(): string
     {
         return 'ALTER TABLE [test] ADD FOREIGN KEY ([fk_name_id]) REFERENCES [other_table] ([id])';
@@ -592,6 +600,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, PRIMARY KEY ([create]))'];
@@ -600,6 +609,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
         return [
@@ -611,6 +621,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
         return [
@@ -622,6 +633,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
@@ -637,6 +649,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    #[Override]
     public function testGetCreateSchemaSQL(): void
     {
         self::assertEquals(
@@ -852,16 +865,19 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('xml'));
     }
 
+    #[Override]
     protected function getExpectedFixedLengthStringTypeDeclarationSQLNoLength(): string
     {
         return 'NCHAR';
     }
 
+    #[Override]
     protected function getExpectedFixedLengthStringTypeDeclarationSQLWithLength(): string
     {
         return 'NCHAR(16)';
     }
 
+    #[Override]
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
@@ -869,11 +885,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
+    #[Override]
     protected function getExpectedVariableLengthStringTypeDeclarationSQLWithLength(): string
     {
         return 'NVARCHAR(16)';
     }
 
+    #[Override]
     public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
@@ -884,6 +902,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ["EXEC [sp_rename] N'[mytable].[idx_foo]', N'idx_bar', N'INDEX'"];
@@ -892,6 +911,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
@@ -900,11 +920,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    #[Override]
     protected function getQuotedCommentOnColumnSQLWithoutQuoteCharacter(): string
     {
         return "COMMENT ON COLUMN [mytable].[id] IS 'This is a comment'";
     }
 
+    #[Override]
     protected function getQuotedCommentOnColumnSQLWithQuoteCharacter(): string
     {
         return "COMMENT ON COLUMN [mytable].[id] IS 'It''s a quote !'";
@@ -913,6 +935,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ["EXEC [sp_rename] N'[myschema].[mytable].[idx_foo]', N'idx_bar', N'INDEX'"];
@@ -921,6 +944,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
@@ -929,6 +953,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    #[Override]
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -937,6 +962,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getCommentOnColumnSQL(): array
     {
         return [
@@ -949,6 +975,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
         return [
@@ -961,11 +988,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    #[Override]
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX [select] ([foo])';
     }
 
+    #[Override]
     protected function getQuotesReservedKeywordInTruncateTableSQL(): string
     {
         return 'TRUNCATE TABLE [select]';
@@ -974,6 +1003,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE [mytable] ALTER COLUMN [name] NCHAR(2) NOT NULL'];
@@ -982,6 +1012,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ["EXEC [sp_rename] N'[mytable].[idx_foo]', N'idx_foo_renamed', N'INDEX'"];
@@ -1184,6 +1215,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /** @return array<string, array{array<string>, string}> */
+    #[Override]
     public static function getEnumDeclarationSQLProvider(): array
     {
         return [
@@ -1193,6 +1225,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /** @return array<string, array{array<string>, int, string}> */
+    #[Override]
     public static function getEnumDeclarationWithLengthSQLProvider(): array
     {
         return [

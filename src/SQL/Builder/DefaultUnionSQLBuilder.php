@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\SQL\Builder;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\UnionQuery;
 use Doctrine\DBAL\Query\UnionType;
+use Override;
 
 use function count;
 use function implode;
@@ -18,6 +19,7 @@ final readonly class DefaultUnionSQLBuilder implements UnionSQLBuilder
     ) {
     }
 
+    #[Override]
     public function buildSQL(UnionQuery $query): string
     {
         $parts = [];

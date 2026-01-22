@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PgSQL\Exception;
 
 use Doctrine\DBAL\Driver\Exception;
+use Override;
 use UnexpectedValueException;
 
 use function sprintf;
@@ -20,6 +21,7 @@ final class UnexpectedValue extends UnexpectedValueException implements Exceptio
         ));
     }
 
+    #[Override]
     public function getSQLState(): null
     {
         return null;

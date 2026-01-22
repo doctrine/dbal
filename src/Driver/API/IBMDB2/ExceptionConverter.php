@@ -17,6 +17,7 @@ use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
+use Override;
 
 /**
  * @internal
@@ -25,6 +26,7 @@ use Doctrine\DBAL\Query;
  */
 final class ExceptionConverter implements ExceptionConverterInterface
 {
+    #[Override]
     public function convert(Exception $exception, ?Query $query): DriverException
     {
         return match ($exception->getCode()) {

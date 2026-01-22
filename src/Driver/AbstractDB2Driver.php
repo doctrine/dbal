@@ -9,17 +9,20 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\IBMDB2\ExceptionConverter;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\ServerVersionProvider;
+use Override;
 
 /**
  * Abstract base implementation of the {@see Driver} interface for Db2 based drivers.
  */
 abstract readonly class AbstractDB2Driver implements Driver
 {
+    #[Override]
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): DB2Platform
     {
         return new DB2Platform();
     }
 
+    #[Override]
     public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();

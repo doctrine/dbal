@@ -7,10 +7,12 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class FetchBooleanTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (

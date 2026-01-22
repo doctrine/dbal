@@ -13,6 +13,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Statement;
 use InvalidArgumentException;
+use Override;
 use SensitiveParameter;
 
 use function array_rand;
@@ -129,6 +130,7 @@ class PrimaryReadReplicaConnection extends Connection
         return $this->_conn !== null && $this->_conn === $this->connections['primary'];
     }
 
+    #[Override]
     public function connect(?string $connectionName = null): DriverConnection
     {
         if ($connectionName !== null) {
@@ -264,6 +266,7 @@ class PrimaryReadReplicaConnection extends Connection
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {
         $this->ensureConnectedToPrimary();
@@ -271,6 +274,7 @@ class PrimaryReadReplicaConnection extends Connection
         return parent::executeStatement($sql, $params, $types);
     }
 
+    #[Override]
     public function beginTransaction(): void
     {
         $this->ensureConnectedToPrimary();
@@ -278,6 +282,7 @@ class PrimaryReadReplicaConnection extends Connection
         parent::beginTransaction();
     }
 
+    #[Override]
     public function commit(): void
     {
         $this->ensureConnectedToPrimary();
@@ -285,6 +290,7 @@ class PrimaryReadReplicaConnection extends Connection
         parent::commit();
     }
 
+    #[Override]
     public function rollBack(): void
     {
         $this->ensureConnectedToPrimary();
@@ -292,6 +298,7 @@ class PrimaryReadReplicaConnection extends Connection
         parent::rollBack();
     }
 
+    #[Override]
     public function close(): void
     {
         unset($this->connections['primary'], $this->connections['replica']);
@@ -302,6 +309,7 @@ class PrimaryReadReplicaConnection extends Connection
         $this->connections = ['primary' => null, 'replica' => null];
     }
 
+    #[Override]
     public function createSavepoint(string $savepoint): void
     {
         $this->ensureConnectedToPrimary();
@@ -309,6 +317,7 @@ class PrimaryReadReplicaConnection extends Connection
         parent::createSavepoint($savepoint);
     }
 
+    #[Override]
     public function releaseSavepoint(string $savepoint): void
     {
         $this->ensureConnectedToPrimary();
@@ -316,6 +325,7 @@ class PrimaryReadReplicaConnection extends Connection
         parent::releaseSavepoint($savepoint);
     }
 
+    #[Override]
     public function rollbackSavepoint(string $savepoint): void
     {
         $this->ensureConnectedToPrimary();
@@ -323,6 +333,7 @@ class PrimaryReadReplicaConnection extends Connection
         parent::rollbackSavepoint($savepoint);
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         $this->ensureConnectedToPrimary();

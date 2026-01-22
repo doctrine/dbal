@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Exception;
+use Override;
 
 /**
  * Immutable type of {@see DateTimeType}.
@@ -18,6 +19,7 @@ class DateTimeImmutableType extends Type
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getDateTimeTypeDeclarationSQL($column);
@@ -30,6 +32,7 @@ class DateTimeImmutableType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -54,6 +57,7 @@ class DateTimeImmutableType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeImmutable
     {
         if ($value === null || $value instanceof DateTimeImmutable) {

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PgSQL;
 use Doctrine\DBAL\Driver\PgSQL\Exception\UnknownParameter;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Override;
 use PgSql\Connection as PgSqlConnection;
 
 use function assert;
@@ -51,6 +52,7 @@ final class Statement implements StatementInterface
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         if (! isset($this->parameterMap[$param])) {
@@ -71,6 +73,7 @@ final class Statement implements StatementInterface
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function execute(): Result
     {
         ksort($this->parameters);

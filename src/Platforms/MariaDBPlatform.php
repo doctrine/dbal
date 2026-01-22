@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\JsonType;
+use Override;
 
 use function sprintf;
 
@@ -18,6 +19,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
@@ -44,6 +46,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
      *
      * @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy.
      */
+    #[Override]
     public function getColumnTypeSQLSnippet(string $tableAlias, string $databaseName): string
     {
         $subQueryAlias = 'i_' . $tableAlias;
@@ -78,6 +81,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
      *
      * @link https://mariadb.com/kb/en/foreign-keys/#constraints
      */
+    #[Override]
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         return sprintf(
@@ -88,6 +92,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     }
 
     /** {@inheritDoc} */
+    #[Override]
     protected function getColumnDeclarationSQL(array $column): string
     {
         // MariaDb forces column collation to utf8mb4_bin where the column was declared as JSON so ignore

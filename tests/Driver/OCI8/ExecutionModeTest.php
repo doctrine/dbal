@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\ExecutionMode;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 final class ExecutionModeTest extends TestCase
 {
     private ExecutionMode $mode;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->mode = new ExecutionMode();

@@ -17,6 +17,7 @@ use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
+use Override;
 
 use function array_filter;
 use function array_intersect;
@@ -1464,6 +1465,7 @@ class QueryBuilder
      *
      * @throws Exception
      */
+    #[Override]
     public function __toString(): string
     {
         return $this->getSQL();

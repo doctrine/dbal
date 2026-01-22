@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Logging\Middleware;
 use Doctrine\DBAL\ParameterType;
+use Override;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
 
@@ -16,6 +17,7 @@ class MiddlewareTest extends TestCase
     private Driver $driver;
     private TestLogger $logger;
 
+    #[Override]
     public function setUp(): void
     {
         $connection = $this->createMock(Connection::class);

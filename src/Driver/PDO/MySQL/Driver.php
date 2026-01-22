@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
+use Override;
 use PDO;
 use PDOException;
 use SensitiveParameter;
@@ -19,6 +20,7 @@ final readonly class Driver extends AbstractMySQLDriver
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

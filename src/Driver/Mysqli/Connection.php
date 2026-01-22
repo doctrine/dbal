@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use mysqli;
 use mysqli_sql_exception;
+use Override;
 
 use function assert;
 
@@ -24,11 +25,13 @@ final readonly class Connection implements ConnectionInterface
     {
     }
 
+    #[Override]
     public function getServerVersion(): string
     {
         return $this->connection->get_server_info();
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         try {
@@ -42,16 +45,19 @@ final readonly class Connection implements ConnectionInterface
         return new Statement($stmt);
     }
 
+    #[Override]
     public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
     }
 
+    #[Override]
     public function quote(string $value): string
     {
         return "'" . $this->connection->escape_string($value) . "'";
     }
 
+    #[Override]
     public function exec(string $sql): int|string
     {
         try {
@@ -63,6 +69,7 @@ final readonly class Connection implements ConnectionInterface
         return $this->connection->affected_rows;
     }
 
+    #[Override]
     public function lastInsertId(): int|string
     {
         $lastInsertId = $this->connection->insert_id;
@@ -74,6 +81,7 @@ final readonly class Connection implements ConnectionInterface
         return $this->connection->insert_id;
     }
 
+    #[Override]
     public function beginTransaction(): void
     {
         try {
@@ -88,6 +96,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function commit(): void
     {
         try {
@@ -97,6 +106,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function rollBack(): void
     {
         try {
@@ -106,6 +116,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function getNativeConnection(): mysqli
     {
         return $this->connection;

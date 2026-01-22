@@ -26,6 +26,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
+use Override;
 
 use function array_merge;
 use function count;
@@ -44,6 +45,7 @@ class OraclePlatform extends AbstractPlatform
         parent::__construct(UnquotedIdentifierFolding::UPPER);
     }
 
+    #[Override]
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
@@ -53,6 +55,7 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
+    #[Override]
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {
@@ -62,6 +65,7 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('INSTR(%s, %s, %s)', $string, $substring, $start);
     }
 
+    #[Override]
     protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
@@ -109,21 +113,25 @@ class OraclePlatform extends AbstractPlatform
         }
     }
 
+    #[Override]
     public function getDateDiffExpression(string $date1, string $date2): string
     {
         return sprintf('TRUNC(%s) - TRUNC(%s)', $date1, $date2);
     }
 
+    #[Override]
     public function getBitAndComparisonExpression(string $value1, string $value2): string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
+    #[Override]
     public function getCurrentDatabaseExpression(): string
     {
         return "SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')";
     }
 
+    #[Override]
     public function getBitOrComparisonExpression(string $value1, string $value2): string
     {
         return '(' . $value1 . '-' .
@@ -138,6 +146,7 @@ class OraclePlatform extends AbstractPlatform
      * Therefore we can use MINVALUE to be able to get a hint what START WITH was for later introspection
      * in {@see listSequences()}
      */
+    #[Override]
     public function getCreateSequenceSQL(Sequence $sequence): string
     {
         return 'CREATE SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
@@ -147,6 +156,7 @@ class OraclePlatform extends AbstractPlatform
                $this->getSequenceCacheSQL($sequence->getCacheSize());
     }
 
+    #[Override]
     public function getAlterSequenceSQL(Sequence $sequence): string
     {
         return 'ALTER SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
@@ -170,6 +180,7 @@ class OraclePlatform extends AbstractPlatform
         return '';
     }
 
+    #[Override]
     public function getSequenceNextValSQL(string $sequenceName): string
     {
         $parsedName = $this->parseUnqualifiedName($sequenceName);
@@ -177,11 +188,13 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('SELECT %s.nextval FROM DUAL', $parsedName->toSQL($this));
     }
 
+    #[Override]
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
+    #[Override]
     protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level): string
     {
         return match ($level) {
@@ -195,6 +208,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(1)';
@@ -203,6 +217,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(10)';
@@ -211,6 +226,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(20)';
@@ -219,6 +235,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(5)';
@@ -227,6 +244,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0)';
@@ -235,6 +253,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
@@ -243,6 +262,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
@@ -251,6 +271,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
@@ -259,11 +280,13 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         return '';
     }
 
+    #[Override]
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length): string
     {
         if ($length === null) {
@@ -273,6 +296,7 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('VARCHAR2(%d)', $length);
     }
 
+    #[Override]
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         if ($length === null) {
@@ -282,6 +306,7 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('RAW(%d)', $length);
     }
 
+    #[Override]
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return $this->getBinaryTypeDeclarationSQLSnippet($length);
@@ -290,11 +315,13 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'CLOB';
     }
 
+    #[Override]
     public function getCurrentTimeSQL(): string
     {
         throw NotSupported::new(__METHOD__);
@@ -303,6 +330,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $sql = parent::_getCreateTableSQL($tableName, $columns, $parameters);
@@ -328,6 +356,7 @@ class OraclePlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
@@ -447,11 +476,13 @@ SQL,
         return new UnqualifiedName($this->addSuffix($tableName, '_AI_PK'));
     }
 
+    #[Override]
     public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
         return $this->getDropConstraintSQL($constraintName, $tableName);
     }
 
+    #[Override]
     protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
     {
         $this->ensurePrimaryKeyConstraintIsClustered($constraint);
@@ -459,6 +490,7 @@ SQL,
         return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
+    #[Override]
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $sql = '';
@@ -476,6 +508,7 @@ SQL,
         return $sql;
     }
 
+    #[Override]
     protected function getForeignKeyReferentialActionSQL(ReferentialAction $action): string
     {
         return match ($action) {
@@ -487,6 +520,7 @@ SQL,
         };
     }
 
+    #[Override]
     public function getCreateDatabaseSQL(string $databaseName): string
     {
         $parsedName = $this->parseUnqualifiedName($databaseName);
@@ -494,6 +528,7 @@ SQL,
         return sprintf('CREATE USER %s', $parsedName->toSQL($this));
     }
 
+    #[Override]
     public function getDropDatabaseSQL(string $databaseName): string
     {
         $parsedName = $this->parseUnqualifiedName($databaseName);
@@ -504,6 +539,7 @@ SQL,
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
         $sql          = [];
@@ -654,6 +690,7 @@ SQL,
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getColumnDeclarationSQL(array $column): string
     {
         if (isset($column['columnDefinition'])) {
@@ -677,6 +714,7 @@ SQL,
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
@@ -699,11 +737,13 @@ SQL,
         );
     }
 
+    #[Override]
     protected function supportsCommentOnStatement(): bool
     {
         return true;
     }
 
+    #[Override]
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
         if ($offset > 0) {
@@ -717,41 +757,49 @@ SQL,
         return $query;
     }
 
+    #[Override]
     public function getCreateTemporaryTableSnippetSQL(): string
     {
         return 'CREATE GLOBAL TEMPORARY TABLE';
     }
 
+    #[Override]
     public function getDateTimeTzFormatString(): string
     {
         return 'Y-m-d H:i:sP';
     }
 
+    #[Override]
     public function getDateFormatString(): string
     {
         return 'Y-m-d 00:00:00';
     }
 
+    #[Override]
     public function getTimeFormatString(): string
     {
         return '1900-01-01 H:i:s';
     }
 
+    #[Override]
     public function getMaxIdentifierLength(): int
     {
         return 128;
     }
 
+    #[Override]
     public function supportsSequences(): bool
     {
         return true;
     }
 
+    #[Override]
     public function supportsReleaseSavepoints(): bool
     {
         return false;
     }
 
+    #[Override]
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);
@@ -759,11 +807,13 @@ SQL,
         return sprintf('TRUNCATE TABLE %s', $parsedName->toSQL($this));
     }
 
+    #[Override]
     public function getDummySelectSQL(string $expression = '1'): string
     {
         return sprintf('SELECT %s FROM DUAL', $expression);
     }
 
+    #[Override]
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -794,6 +844,7 @@ SQL,
         ];
     }
 
+    #[Override]
     public function releaseSavePoint(string $savepoint): string
     {
         return '';
@@ -802,16 +853,19 @@ SQL,
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BLOB';
     }
 
+    #[Override]
     public function createMetadataProvider(Connection $connection): OracleMetadataProvider
     {
         return new OracleMetadataProvider($connection, $this);
     }
 
+    #[Override]
     public function createSchemaManager(Connection $connection): OracleSchemaManager
     {
         return new OracleSchemaManager($connection, $this);

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Override;
 
 use function count;
 
@@ -33,6 +34,7 @@ class Comparator extends BaseComparator
         parent::__construct($platform, $config);
     }
 
+    #[Override]
     public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
         return parent::compareTables(

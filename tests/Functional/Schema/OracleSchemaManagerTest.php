@@ -17,9 +17,11 @@ use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\DateTimeTzType;
 use Doctrine\DBAL\Types\DateType;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    #[Override]
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof OraclePlatform;
@@ -28,6 +30,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * Oracle currently stores VARBINARY columns as RAW (fixed-size)
      */
+    #[Override]
     protected function assertVarBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
     {
         $column = $table->getColumn($columnName);
@@ -157,6 +160,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertInstanceOf(DateTimeTzType::class, $colDateTimeTz->getType());
     }
 
+    #[Override]
     public function testCreateAndListSequences(): void
     {
         self::markTestSkipped(
@@ -198,6 +202,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertCount(1, $columns);
     }
 
+    #[Override]
     public function getExpectedDefaultSchemaName(): ?string
     {
         return null;

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
+use Override;
 
 use function sprintf;
 
@@ -24,6 +25,7 @@ class MySQLPlatform extends AbstractMySQLPlatform
      *
      * @link https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-13.html#mysqld-8-0-13-data-types
      */
+    #[Override]
     protected function getDefaultValueDeclarationSQL(array $column): string
     {
         if ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) {
@@ -33,11 +35,13 @@ class MySQLPlatform extends AbstractMySQLPlatform
         return parent::getDefaultValueDeclarationSQL($column);
     }
 
+    #[Override]
     public function getCurrentDateSQL(): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
+    #[Override]
     public function getCurrentTimeSQL(): string
     {
         throw NotSupported::new(__METHOD__);
@@ -46,6 +50,7 @@ class MySQLPlatform extends AbstractMySQLPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);

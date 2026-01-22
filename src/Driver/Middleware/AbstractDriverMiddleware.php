@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+use Override;
 use SensitiveParameter;
 
 abstract readonly class AbstractDriverMiddleware implements Driver
@@ -20,6 +21,7 @@ abstract readonly class AbstractDriverMiddleware implements Driver
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,
@@ -27,11 +29,13 @@ abstract readonly class AbstractDriverMiddleware implements Driver
         return $this->wrappedDriver->connect($params);
     }
 
+    #[Override]
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
     {
         return $this->wrappedDriver->getDatabasePlatform($versionProvider);
     }
 
+    #[Override]
     public function getExceptionConverter(): ExceptionConverter
     {
         return $this->wrappedDriver->getExceptionConverter();

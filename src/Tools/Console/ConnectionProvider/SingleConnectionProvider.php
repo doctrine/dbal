@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tools\Console\ConnectionProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\ConnectionNotFound;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider;
+use Override;
 
 use function sprintf;
 
@@ -18,11 +19,13 @@ final readonly class SingleConnectionProvider implements ConnectionProvider
     ) {
     }
 
+    #[Override]
     public function getDefaultConnection(): Connection
     {
         return $this->connection;
     }
 
+    #[Override]
     public function getConnection(string $name): Connection
     {
         if ($name !== $this->defaultConnectionName) {

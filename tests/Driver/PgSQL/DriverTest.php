@@ -8,11 +8,13 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PgSQL\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 
 use function in_array;
 
 class DriverTest extends AbstractDriverTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -42,6 +44,7 @@ class DriverTest extends AbstractDriverTestCase
         $this->driver->connect($params);
     }
 
+    #[Override]
     protected function createDriver(): DriverInterface
     {
         return new Driver();

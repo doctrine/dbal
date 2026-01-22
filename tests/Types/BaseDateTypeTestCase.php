@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -27,12 +28,14 @@ abstract class BaseDateTypeTestCase extends TestCase
     /** @var non-empty-string */
     private string $currentTimezone;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->platform        = self::createStub(AbstractPlatform::class);
         $this->currentTimezone = date_default_timezone_get();
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         date_default_timezone_set($this->currentTimezone);

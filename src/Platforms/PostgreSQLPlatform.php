@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use UnexpectedValueException;
 
 use function array_merge;
@@ -77,11 +78,13 @@ class PostgreSQLPlatform extends AbstractPlatform
         $this->useBooleanTrueFalseStrings = $flag;
     }
 
+    #[Override]
     public function getRegexpExpression(): string
     {
         return 'SIMILAR TO';
     }
 
+    #[Override]
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start !== null) {
@@ -94,6 +97,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return sprintf('POSITION(%s IN %s)', $substring, $string);
     }
 
+    #[Override]
     protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
@@ -108,36 +112,43 @@ class PostgreSQLPlatform extends AbstractPlatform
         return '(' . $date . ' ' . $operator . ' (' . $interval . " || ' " . $unit->value . "')::interval)";
     }
 
+    #[Override]
     public function getDateDiffExpression(string $date1, string $date2): string
     {
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
     }
 
+    #[Override]
     public function getCurrentDatabaseExpression(): string
     {
         return 'CURRENT_DATABASE()';
     }
 
+    #[Override]
     public function supportsSequences(): bool
     {
         return true;
     }
 
+    #[Override]
     public function supportsSchemas(): bool
     {
         return true;
     }
 
+    #[Override]
     public function supportsIdentityColumns(): bool
     {
         return true;
     }
 
+    #[Override]
     protected function supportsCommentOnStatement(): bool
     {
         return true;
     }
 
+    #[Override]
     protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
     {
         $this->ensurePrimaryKeyConstraintIsClustered($constraint);
@@ -145,6 +156,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
+    #[Override]
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
@@ -167,6 +179,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
         $sql         = [];
@@ -314,6 +327,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
@@ -328,6 +342,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         ];
     }
 
+    #[Override]
     public function getCreateSequenceSQL(Sequence $sequence): string
     {
         return 'CREATE SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
@@ -337,6 +352,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             $this->getSequenceCacheSQL($sequence->getCacheSize());
     }
 
+    #[Override]
     public function getAlterSequenceSQL(Sequence $sequence): string
     {
         return 'ALTER SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
@@ -356,16 +372,19 @@ class PostgreSQLPlatform extends AbstractPlatform
         return '';
     }
 
+    #[Override]
     public function getDropSequenceSQL(string $name): string
     {
         return parent::getDropSequenceSQL($name) . ' CASCADE';
     }
 
+    #[Override]
     public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
         return $this->getDropConstraintSQL($constraintName, $tableName);
     }
 
+    #[Override]
     public function getDropIndexSQL(string $indexName, string $tableName): string
     {
         $parsedIndexName = $this->parseUnqualifiedName($indexName);
@@ -380,6 +399,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $elements = [];
@@ -415,6 +435,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
@@ -496,6 +517,7 @@ class PostgreSQLPlatform extends AbstractPlatform
      *
      * Postgres wants boolean values converted to the strings 'true'/'false'.
      */
+    #[Override]
     public function convertBooleans(mixed $item): mixed
     {
         if (! $this->useBooleanTrueFalseStrings) {
@@ -515,6 +537,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         );
     }
 
+    #[Override]
     public function convertBooleansToDatabaseValue(mixed $item): mixed
     {
         if (! $this->useBooleanTrueFalseStrings) {
@@ -537,6 +560,7 @@ class PostgreSQLPlatform extends AbstractPlatform
      *
      * @template T
      */
+    #[Override]
     public function convertFromBoolean(mixed $item): ?bool
     {
         if (in_array($item, $this->booleanLiterals['false'], true)) {
@@ -546,6 +570,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return parent::convertFromBoolean($item);
     }
 
+    #[Override]
     public function getSequenceNextValSQL(string $sequenceName): string
     {
         $parsedName = $this->parseUnqualifiedName($sequenceName);
@@ -553,6 +578,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return sprintf('SELECT NEXTVAL(%s)', $this->quoteStringLiteral($parsedName->toSQL($this)));
     }
 
+    #[Override]
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL '
@@ -562,6 +588,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BOOLEAN';
@@ -570,6 +597,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
@@ -578,6 +606,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
@@ -586,6 +615,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
@@ -594,6 +624,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getGuidTypeDeclarationSQL(array $column): string
     {
         return 'UUID';
@@ -602,6 +633,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITHOUT TIME ZONE';
@@ -610,6 +642,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
@@ -618,6 +651,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
@@ -626,6 +660,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME(0) WITHOUT TIME ZONE';
@@ -634,6 +669,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         if (! empty($column['autoincrement'])) {
@@ -643,6 +679,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return '';
     }
 
+    #[Override]
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length): string
     {
         $sql = 'VARCHAR';
@@ -654,11 +691,13 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return 'BYTEA';
     }
 
+    #[Override]
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return 'BYTEA';
@@ -667,21 +706,25 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'TEXT';
     }
 
+    #[Override]
     public function getDateTimeTzFormatString(): string
     {
         return 'Y-m-d H:i:sO';
     }
 
+    #[Override]
     public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string
     {
         return 'INSERT INTO ' . $quotedTableName . ' (' . $quotedIdentifierColumnName . ') VALUES (DEFAULT)';
     }
 
+    #[Override]
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);
@@ -695,6 +738,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -742,6 +786,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BYTEA';
@@ -750,6 +795,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getDefaultValueDeclarationSQL(array $column): string
     {
         if (isset($column['autoincrement']) && $column['autoincrement'] === true) {
@@ -759,6 +805,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return parent::getDefaultValueDeclarationSQL($column);
     }
 
+    #[Override]
     protected function supportsColumnCollation(): bool
     {
         return true;
@@ -767,6 +814,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getJsonTypeDeclarationSQL(array $column): string
     {
         return 'JSON';
@@ -775,16 +823,19 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getJsonbTypeDeclarationSQL(array $column): string
     {
         return 'JSONB';
     }
 
+    #[Override]
     public function createMetadataProvider(Connection $connection): PostgreSQLMetadataProvider
     {
         return new PostgreSQLMetadataProvider($connection, $this);
     }
 
+    #[Override]
     public function createSchemaManager(Connection $connection): PostgreSQLSchemaManager
     {
         return new PostgreSQLSchemaManager($connection, $this);

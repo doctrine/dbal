@@ -10,6 +10,7 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
 use Error;
 use Generator;
+use Override;
 use PgSql\Connection as PgSqlConnection;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -22,6 +23,7 @@ use const PGSQL_TUPLES_OK;
 
 class ResultTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,6 +35,7 @@ class ResultTest extends FunctionalTestCase
         self::markTestSkipped('This test requires the pgsql driver.');
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         $this->connection->executeStatement('DROP TABLE IF EXISTS types_test');

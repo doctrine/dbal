@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCreateTemporaryFile;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Override;
 
 use function assert;
 use function db2_bind_param;
@@ -50,6 +51,7 @@ final class Statement implements StatementInterface
     {
     }
 
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         assert(is_int($param));
@@ -79,6 +81,7 @@ final class Statement implements StatementInterface
         }
     }
 
+    #[Override]
     public function execute(): Result
     {
         $handles = $this->bindLobs();

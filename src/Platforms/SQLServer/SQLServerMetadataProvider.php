@@ -25,6 +25,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
+use Override;
 
 use function assert;
 use function implode;
@@ -40,6 +41,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllDatabaseNames(): iterable
     {
         $sql = <<<'SQL'
@@ -54,6 +56,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllSchemaNames(): iterable
     {
         $sql = <<<'SQL'
@@ -69,6 +72,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllTableNames(): iterable
     {
         $sql = sprintf(
@@ -93,12 +97,14 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getTableColumnsForAllTables(): iterable
     {
         return $this->getTableColumns(null, null);
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getTableColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName === null) {
@@ -282,12 +288,14 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getIndexColumnsForAllTables(): iterable
     {
         return $this->getIndexColumns(null, null);
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getIndexColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName === null) {
@@ -350,12 +358,14 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getPrimaryKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getPrimaryKeyConstraintColumns(null, null);
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getPrimaryKeyConstraintColumnsForTable(
         ?string $schemaName,
         string $tableName,
@@ -415,12 +425,14 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getForeignKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getForeignKeyConstraintColumns(null, null);
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getForeignKeyConstraintColumnsForTable(
         ?string $schemaName,
         string $tableName,
@@ -506,12 +518,14 @@ SQL,
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getTableOptionsForAllTables(): iterable
     {
         return $this->getTableOptions(null, null);
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getTableOptionsForTable(
         ?string $schemaName,
         string $tableName,
@@ -592,6 +606,7 @@ SQL,
      *
      * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-views-transact-sql
      */
+    #[Override]
     public function getAllViews(): iterable
     {
         $sql = sprintf(
@@ -621,6 +636,7 @@ SQL,
      *
      * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sequences-transact-sql
      */
+    #[Override]
     public function getAllSequences(): iterable
     {
         $sql = <<<'SQL'

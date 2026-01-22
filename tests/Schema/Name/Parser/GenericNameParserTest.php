@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedDot;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedNextIdentifier;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\UnableToParseIdentifier;
 use Doctrine\DBAL\Schema\Name\Parser\GenericNameParser;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -17,6 +18,7 @@ class GenericNameParserTest extends TestCase
 {
     private GenericNameParser $parser;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->parser = new GenericNameParser();

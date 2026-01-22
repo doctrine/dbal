@@ -7,33 +7,39 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
 {
+    #[Override]
     public function createPlatform(): AbstractPlatform
     {
         return new MariaDBPlatform();
     }
 
     /** @return string[] */
+    #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER TABLE `mytable` RENAME INDEX `idx_foo` TO `idx_bar`'];
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return ['ALTER TABLE `table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
     }
 
     /** @return string[] */
+    #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER TABLE `myschema`.`mytable` RENAME INDEX `idx_foo` TO `idx_bar`'];
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
@@ -45,6 +51,7 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/
      */
+    #[Override]
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
@@ -56,11 +63,13 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
         self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
+    #[Override]
     public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
         self::markTestSkipped('MariaDB supports default values for BLOB and TEXT columns');
     }
 
+    #[Override]
     protected function getGenerateForeignKeySql(): string
     {
         return 'ALTER TABLE `test` ADD FOREIGN KEY (`fk_name_id`) REFERENCES `other_table` (`id`)'
@@ -68,6 +77,7 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
     }
 
     /** {@inheritDoc} */
+    #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [

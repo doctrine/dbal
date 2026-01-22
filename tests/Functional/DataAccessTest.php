@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_change_key_case;
@@ -27,6 +28,7 @@ use const CASE_LOWER;
 
 class DataAccessTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()

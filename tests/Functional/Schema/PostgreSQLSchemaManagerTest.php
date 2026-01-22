@@ -22,6 +22,7 @@ use Doctrine\DBAL\Types\JsonbType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
@@ -29,6 +30,7 @@ use function version_compare;
 
 class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    #[Override]
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof PostgreSQLPlatform;
@@ -290,6 +292,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * PostgreSQL stores BINARY columns as BLOB
      */
+    #[Override]
     protected function assertBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
     {
         self::assertInstanceOf(BlobType::class, $table->getColumn($columnName)->getType());
@@ -298,6 +301,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * PostgreSQL stores VARBINARY columns as BLOB
      */
+    #[Override]
     protected function assertVarBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
     {
         self::assertInstanceOf(BlobType::class, $table->getColumn($columnName)->getType());
@@ -722,6 +726,7 @@ SQL;
     }
 
     /** @link https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PUBLIC */
+    #[Override]
     public function getExpectedDefaultSchemaName(): string
     {
         return 'public';
@@ -733,6 +738,7 @@ class MoneyType extends Type
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return 'MyMoney';

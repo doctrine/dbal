@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider\ConnectionCharsetMetad
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
+use Override;
 
 use function assert;
 
@@ -25,6 +26,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     private ?DefaultTableOptions $defaultTableOptions = null;
 
     /** @throws Exception */
+    #[Override]
     public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
         return new MySQL\Comparator(

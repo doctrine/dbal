@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Converter;
 use Doctrine\DBAL\Portability\Statement;
+use Override;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -16,6 +17,7 @@ class StatementTest extends TestCase
     protected Statement $stmt;
     protected DriverStatement&MockObject $wrappedStmt;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->wrappedStmt = $this->createMock(DriverStatement::class);

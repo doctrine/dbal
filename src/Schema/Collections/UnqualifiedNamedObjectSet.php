@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\NamedObject;
+use Override;
 use Traversable;
 
 use function array_combine;
@@ -42,11 +43,13 @@ final class UnqualifiedNamedObjectSet implements ObjectSet
         }
     }
 
+    #[Override]
     public function isEmpty(): bool
     {
         return count($this->elements) === 0;
     }
 
+    #[Override]
     public function get(UnqualifiedName $elementName): ?NamedObject
     {
         $key = $this->getKey($elementName);
@@ -54,6 +57,7 @@ final class UnqualifiedNamedObjectSet implements ObjectSet
         return $this->elements[$key] ?? null;
     }
 
+    #[Override]
     public function add(object $element): void
     {
         $elementName = $element->getObjectName();
@@ -66,6 +70,7 @@ final class UnqualifiedNamedObjectSet implements ObjectSet
         $this->elements[$key] = $element;
     }
 
+    #[Override]
     public function remove(UnqualifiedName $elementName): void
     {
         $key = $this->getKey($elementName);
@@ -77,6 +82,7 @@ final class UnqualifiedNamedObjectSet implements ObjectSet
         unset($this->elements[$key]);
     }
 
+    #[Override]
     public function modify(UnqualifiedName $elementName, callable $modification): void
     {
         $key = $this->getKey($elementName);
@@ -88,18 +94,21 @@ final class UnqualifiedNamedObjectSet implements ObjectSet
         $this->replace($key, $modification($this->elements[$key]));
     }
 
+    #[Override]
     public function clear(): void
     {
         $this->elements = [];
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function toList(): array
     {
         return array_values($this->elements);
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getIterator(): Traversable
     {
         foreach ($this->elements as $element) {

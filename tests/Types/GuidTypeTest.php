@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\GuidType;
+use Override;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -14,6 +15,7 @@ class GuidTypeTest extends TestCase
     private AbstractPlatform&MockObject $platform;
     private GuidType $type;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

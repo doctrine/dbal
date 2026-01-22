@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Override;
+
 /**
  * An abstract {@see OptionallyNamedObject}.
  *
@@ -25,6 +27,7 @@ abstract class AbstractOptionallyNamedObject implements OptionallyNamedObject
         $this->name = $name;
     }
 
+    #[Override]
     public function getObjectName(): ?Name
     {
         return $this->name;

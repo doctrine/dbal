@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PgSQL;
 
 use Doctrine\DBAL\SQL\Parser\Visitor;
+use Override;
 
 use function count;
 use function implode;
@@ -17,6 +18,7 @@ final class ConvertParameters implements Visitor
     /** @var array<array-key, int> */
     private array $parameterMap = [];
 
+    #[Override]
     public function acceptPositionalParameter(string $sql): void
     {
         $position                      = count($this->parameterMap) + 1;
@@ -24,6 +26,7 @@ final class ConvertParameters implements Visitor
         $this->buffer[]                = '$' . $position;
     }
 
+    #[Override]
     public function acceptNamedParameter(string $sql): void
     {
         $position                 = count($this->parameterMap) + 1;
@@ -31,6 +34,7 @@ final class ConvertParameters implements Visitor
         $this->buffer[]           = '$' . $position;
     }
 
+    #[Override]
     public function acceptOther(string $sql): void
     {
         $this->buffer[] = $sql;

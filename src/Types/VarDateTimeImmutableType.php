@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use Exception;
+use Override;
 
 /**
  * Immutable type of {@see VarDateTimeType}.
@@ -22,6 +23,7 @@ class VarDateTimeImmutableType extends DateTimeImmutableType
      *
      * @template T
      */
+    #[Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -46,6 +48,7 @@ class VarDateTimeImmutableType extends DateTimeImmutableType
      *
      * @template T
      */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeImmutable
     {
         if ($value === null || $value instanceof DateTimeImmutable) {

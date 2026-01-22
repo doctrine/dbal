@@ -7,11 +7,13 @@ namespace Doctrine\DBAL\Tests\Functional\Connection;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Override;
 
 use function sleep;
 
 class ConnectionLostTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {

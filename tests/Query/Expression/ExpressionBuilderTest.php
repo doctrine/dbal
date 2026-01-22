@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Query\Expression;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -14,6 +15,7 @@ class ExpressionBuilderTest extends TestCase
 {
     protected ExpressionBuilder $expr;
 
+    #[Override]
     protected function setUp(): void
     {
         $conn = self::createStub(Connection::class);

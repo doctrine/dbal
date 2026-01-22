@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\SQL\Parser;
+use Override;
 
 use function addcslashes;
 use function assert;
@@ -36,6 +37,7 @@ final readonly class Connection implements ConnectionInterface
         $this->executionMode = new ExecutionMode();
     }
 
+    #[Override]
     public function getServerVersion(): string
     {
         $version = oci_server_version($this->connection);
@@ -51,6 +53,7 @@ final readonly class Connection implements ConnectionInterface
      * @throws Parser\Exception
      * @throws Error
      */
+    #[Override]
     public function prepare(string $sql): Statement
     {
         $visitor = new ConvertPositionalToNamedPlaceholders();
@@ -70,11 +73,13 @@ final readonly class Connection implements ConnectionInterface
      * @throws Exception
      * @throws Parser\Exception
      */
+    #[Override]
     public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
     }
 
+    #[Override]
     public function quote(string $value): string
     {
         return "'" . addcslashes(str_replace("'", "''", $value), "\000\n\r\\\032") . "'";
@@ -84,21 +89,25 @@ final readonly class Connection implements ConnectionInterface
      * @throws Exception
      * @throws Parser\Exception
      */
+    #[Override]
     public function exec(string $sql): int|string
     {
         return $this->prepare($sql)->execute()->rowCount();
     }
 
+    #[Override]
     public function lastInsertId(): int|string
     {
         throw IdentityColumnsNotSupported::new();
     }
 
+    #[Override]
     public function beginTransaction(): void
     {
         $this->executionMode->disableAutoCommit();
     }
 
+    #[Override]
     public function commit(): void
     {
         if (! @oci_commit($this->connection)) {
@@ -108,6 +117,7 @@ final readonly class Connection implements ConnectionInterface
         $this->executionMode->enableAutoCommit();
     }
 
+    #[Override]
     public function rollBack(): void
     {
         if (! oci_rollback($this->connection)) {
@@ -118,6 +128,7 @@ final readonly class Connection implements ConnectionInterface
     }
 
     /** @return resource */
+    #[Override]
     public function getNativeConnection()
     {
         return $this->connection;

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
+use Override;
 
 /** @internal */
 final readonly class ConnectionCollationMetadataProvider implements CollationMetadataProvider
@@ -16,6 +17,7 @@ final readonly class ConnectionCollationMetadataProvider implements CollationMet
     }
 
     /** @throws Exception */
+    #[Override]
     public function getCollationCharset(string $collation): ?string
     {
         $charset = $this->connection->fetchOne(

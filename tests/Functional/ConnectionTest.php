@@ -20,6 +20,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
 use Error;
+use Override;
 use PDO;
 use Throwable;
 
@@ -30,6 +31,7 @@ class ConnectionTest extends FunctionalTestCase
 {
     private const string TABLE = 'connection_test';
 
+    #[Override]
     protected function tearDown(): void
     {
         if (file_exists('/tmp/test_nesting.sqlite')) {

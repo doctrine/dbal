@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\OCI8\Exception\InvalidConfiguration;
+use Override;
 use SensitiveParameter;
 
 use function oci_connect;
@@ -23,6 +24,7 @@ final readonly class Driver extends AbstractOracleDriver
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

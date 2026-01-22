@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Driver;
 
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
+use Override;
 
 use function array_key_exists;
 use function microtime;
@@ -37,8 +38,10 @@ abstract class AbstractPostgreSQLDriverTestCase extends AbstractDriverTestCase
         self::fail(sprintf('Query result does not contain a record where column "query" equals "%s".', $sql));
     }
 
+    #[Override]
     abstract protected function createDriver(): AbstractPostgreSQLDriver;
 
+    #[Override]
     protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter(): ?string
     {
         return 'postgres';

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Tools\Console;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider\SingleConnectionProvider;
+use Override;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -21,6 +22,7 @@ class RunSqlCommandTest extends TestCase
     private RunSqlCommand $command;
     private Connection&MockObject $connectionMock;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);

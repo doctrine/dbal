@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Override;
 
 use function assert;
 use function strlen;
@@ -16,6 +17,7 @@ use function strlen;
  */
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
+    #[Override]
     protected function determineCurrentSchemaName(): ?string
     {
         $currentSchema = $this->connection->fetchOne('SELECT current_schema()');

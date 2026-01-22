@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
 use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
+use Override;
 use PDO;
 
 final readonly class Connection extends AbstractConnectionMiddleware
@@ -15,6 +16,7 @@ final readonly class Connection extends AbstractConnectionMiddleware
         parent::__construct($connection);
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         return new Statement(
@@ -22,6 +24,7 @@ final readonly class Connection extends AbstractConnectionMiddleware
         );
     }
 
+    #[Override]
     public function getNativeConnection(): PDO
     {
         return $this->connection->getNativeConnection();

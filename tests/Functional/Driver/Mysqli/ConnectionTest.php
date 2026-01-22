@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Mysqli\Connection;
 use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 
 use function array_merge;
 
@@ -17,6 +18,7 @@ use const MYSQLI_OPT_CONNECT_TIMEOUT;
 /** @require extension mysqli */
 class ConnectionTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (TestUtil::isDriverOneOf('mysqli')) {

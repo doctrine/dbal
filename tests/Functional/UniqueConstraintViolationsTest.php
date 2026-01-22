@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Assert;
 use Throwable;
 
@@ -27,6 +28,7 @@ final class UniqueConstraintViolationsTest extends FunctionalTestCase
 {
     private string $constraintName = '';
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -267,6 +269,7 @@ final class UniqueConstraintViolationsTest extends FunctionalTestCase
         }
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         $schemaManager = $this->connection->createSchemaManager();

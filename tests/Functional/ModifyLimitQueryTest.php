@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function array_change_key_case;
 use function count;
@@ -20,6 +21,7 @@ use const CASE_LOWER;
 
 class ModifyLimitQueryTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()

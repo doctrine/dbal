@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Assert;
 use Throwable;
 
@@ -27,6 +28,7 @@ final class ForeignKeyConstraintViolationsTest extends FunctionalTestCase
 {
     private string $constraintName = '';
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -286,6 +288,7 @@ final class ForeignKeyConstraintViolationsTest extends FunctionalTestCase
         }
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         $schemaManager = $this->connection->createSchemaManager();

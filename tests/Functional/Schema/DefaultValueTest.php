@@ -8,12 +8,14 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
 
 class DefaultValueTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $editor = Table::editor()

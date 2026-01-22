@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraintEditor;
 use Doctrine\DBAL\Schema\SchemaProvider;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableConfiguration;
+use Override;
 
 use function array_map;
 use function array_values;
@@ -54,6 +55,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllDatabaseNames(): array
     {
         $databaseNames = [];
@@ -66,6 +68,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllSchemaNames(): array
     {
         $schemaNames = [];
@@ -78,6 +81,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllTables(): array
     {
         $tableColumnsByTable          = $this->getColumnsForAllTables();
@@ -131,6 +135,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllTableNames(): array
     {
         $tableNames = [];
@@ -150,6 +155,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getColumnsForTable(?string $schemaName, string $tableName): array
     {
         $columns = [];
@@ -185,6 +191,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getIndexesForTable(?string $schemaName, string $tableName): array
     {
         $editors   = [];
@@ -244,6 +251,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         );
     }
 
+    #[Override]
     public function getPrimaryKeyConstraintForTable(?string $schemaName, string $tableName): ?PrimaryKeyConstraint
     {
         $editor    = null;
@@ -293,6 +301,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getForeignKeyConstraintsForTable(?string $schemaName, string $tableName): array
     {
         $editors   = [];
@@ -353,6 +362,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getOptionsForTable(?string $schemaName, string $tableName): ?array
     {
         foreach ($this->metadataProvider->getTableOptionsForTable($schemaName, $tableName) as $row) {
@@ -386,6 +396,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllViews(): array
     {
         $processor = new ViewMetadataProcessor();
@@ -399,6 +410,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function getAllSequences(): array
     {
         $processor = new SequenceMetadataProcessor();

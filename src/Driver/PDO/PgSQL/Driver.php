@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
+use Override;
 use PDO;
 use Pdo\Pgsql;
 use PDOException;
@@ -20,6 +21,7 @@ final readonly class Driver extends AbstractPostgreSQLDriver
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

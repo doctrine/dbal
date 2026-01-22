@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Override;
 
 use function count;
 use function explode;
@@ -23,11 +24,13 @@ class SimpleArrayType extends Type
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getClobTypeDeclarationSQL($column);
     }
 
+    #[Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if (! is_array($value) || count($value) === 0) {
@@ -38,6 +41,7 @@ class SimpleArrayType extends Type
     }
 
     /** @return list<string> */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): array
     {
         if ($value === null) {

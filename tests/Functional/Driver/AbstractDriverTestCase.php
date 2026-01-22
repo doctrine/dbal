@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Override;
 use PHPUnit\Framework\Constraint\IsType;
 use PHPUnit\Framework\NativeType;
 
@@ -17,6 +18,7 @@ abstract class AbstractDriverTestCase extends FunctionalTestCase
      */
     protected Driver $driver;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->driver = $this->createDriver();

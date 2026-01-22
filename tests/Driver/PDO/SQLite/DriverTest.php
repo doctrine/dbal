@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Driver\PDO\SQLite;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use Doctrine\DBAL\Driver\PDO\SQLite\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractSQLiteDriverTestCase;
+use Override;
 
 class DriverTest extends AbstractSQLiteDriverTestCase
 {
@@ -28,6 +29,7 @@ class DriverTest extends AbstractSQLiteDriverTestCase
         $this->driver->connect(['password' => false]);
     }
 
+    #[Override]
     protected function createDriver(): Driver
     {
         return new Driver();

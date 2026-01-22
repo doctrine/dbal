@@ -13,10 +13,12 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\EnumType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 final class EnumTypeTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $this->dropTableIfExists('my_enum_table');

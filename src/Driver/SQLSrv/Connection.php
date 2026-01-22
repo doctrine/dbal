@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
+use Override;
 
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
@@ -27,6 +28,7 @@ final readonly class Connection implements ConnectionInterface
     {
     }
 
+    #[Override]
     public function getServerVersion(): string
     {
         $serverInfo = sqlsrv_server_info($this->connection);
@@ -34,21 +36,25 @@ final readonly class Connection implements ConnectionInterface
         return $serverInfo['SQLServerVersion'];
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         return new Statement($this->connection, $sql);
     }
 
+    #[Override]
     public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
     }
 
+    #[Override]
     public function quote(string $value): string
     {
         return "'" . str_replace("'", "''", $value) . "'";
     }
 
+    #[Override]
     public function exec(string $sql): int
     {
         $stmt = sqlsrv_query($this->connection, $sql);
@@ -66,6 +72,7 @@ final readonly class Connection implements ConnectionInterface
         return $rowsAffected;
     }
 
+    #[Override]
     public function lastInsertId(): int|string
     {
         $result = $this->query('SELECT @@IDENTITY');
@@ -79,6 +86,7 @@ final readonly class Connection implements ConnectionInterface
         return $lastInsertId;
     }
 
+    #[Override]
     public function beginTransaction(): void
     {
         if (! sqlsrv_begin_transaction($this->connection)) {
@@ -86,6 +94,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function commit(): void
     {
         if (! sqlsrv_commit($this->connection)) {
@@ -93,6 +102,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function rollBack(): void
     {
         if (! sqlsrv_rollback($this->connection)) {
@@ -101,6 +111,7 @@ final readonly class Connection implements ConnectionInterface
     }
 
     /** @return resource */
+    #[Override]
     public function getNativeConnection()
     {
         return $this->connection;

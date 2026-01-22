@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\PDO;
 
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Override;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -18,16 +19,19 @@ final readonly class Result implements ResultInterface
     {
     }
 
+    #[Override]
     public function fetchNumeric(): array|false
     {
         return $this->fetch(PDO::FETCH_NUM);
     }
 
+    #[Override]
     public function fetchAssociative(): array|false
     {
         return $this->fetch(PDO::FETCH_ASSOC);
     }
 
+    #[Override]
     public function fetchOne(): mixed
     {
         return $this->fetch(PDO::FETCH_COLUMN);
@@ -36,6 +40,7 @@ final readonly class Result implements ResultInterface
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         return $this->fetchAll(PDO::FETCH_NUM);
@@ -44,6 +49,7 @@ final readonly class Result implements ResultInterface
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         return $this->fetchAll(PDO::FETCH_ASSOC);
@@ -52,11 +58,13 @@ final readonly class Result implements ResultInterface
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         return $this->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    #[Override]
     public function rowCount(): int
     {
         try {
@@ -66,6 +74,7 @@ final readonly class Result implements ResultInterface
         }
     }
 
+    #[Override]
     public function columnCount(): int
     {
         try {
@@ -76,6 +85,7 @@ final readonly class Result implements ResultInterface
     }
 
     /** @throws Exception */
+    #[Override]
     public function getColumnName(int $index): string
     {
         try {
@@ -93,6 +103,7 @@ final readonly class Result implements ResultInterface
         return $meta['name'];
     }
 
+    #[Override]
     public function free(): void
     {
         $this->statement->closeCursor();

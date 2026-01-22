@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Override;
 
 use function is_int;
 use function oci_bind_by_name;
@@ -39,6 +40,7 @@ final readonly class Statement implements StatementInterface
     ) {
     }
 
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         if (is_int($param)) {
@@ -85,6 +87,7 @@ final readonly class Statement implements StatementInterface
         };
     }
 
+    #[Override]
     public function execute(): Result
     {
         if ($this->executionMode->isAutoCommitEnabled()) {

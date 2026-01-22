@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use mysqli_sql_exception;
 use mysqli_stmt;
+use Override;
 
 use function array_fill;
 use function assert;
@@ -54,6 +55,7 @@ final class Statement implements StatementInterface
         @$this->stmt->close();
     }
 
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         assert(is_int($param));
@@ -63,6 +65,7 @@ final class Statement implements StatementInterface
         $this->boundValues[$param] =& $this->values[$param];
     }
 
+    #[Override]
     public function execute(): Result
     {
         if (count($this->boundValues) > 0) {

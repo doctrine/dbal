@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Driver\OCI8\Exception\InvalidConfiguration;
 use Doctrine\DBAL\Tests\Driver\AbstractOracleDriverTestCase;
+use Override;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
 #[RequiresPhpExtension('oci8')]
@@ -24,6 +25,7 @@ class DriverTest extends AbstractOracleDriverTestCase
         ]);
     }
 
+    #[Override]
     protected function createDriver(): DriverInterface
     {
         return new Driver();

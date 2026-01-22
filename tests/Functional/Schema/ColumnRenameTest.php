@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class ColumnRenameTest extends FunctionalTestCase
 {
@@ -23,6 +24,7 @@ class ColumnRenameTest extends FunctionalTestCase
     private Comparator $comparator;
 
     /** @throws Exception */
+    #[Override]
     protected function setUp(): void
     {
         $this->schemaManager = $this->connection->createSchemaManager();

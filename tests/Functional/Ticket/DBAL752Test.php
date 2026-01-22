@@ -9,9 +9,11 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\SmallIntType;
+use Override;
 
 class DBAL752Test extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if ($this->connection->getDatabasePlatform() instanceof SQLitePlatform) {

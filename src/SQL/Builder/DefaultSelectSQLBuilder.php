@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
 use Doctrine\DBAL\Query\SelectQuery;
+use Override;
 
 use function count;
 use function implode;
@@ -24,6 +25,7 @@ final readonly class DefaultSelectSQLBuilder implements SelectSQLBuilder
     }
 
     /** @throws Exception */
+    #[Override]
     public function buildSQL(SelectQuery $query): string
     {
         $parts = ['SELECT'];

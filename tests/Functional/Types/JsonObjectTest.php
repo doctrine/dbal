@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use stdClass;
 
 use function is_resource;
@@ -19,6 +20,7 @@ use function stream_get_contents;
 
 class JsonObjectTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()

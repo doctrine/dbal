@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Override;
 
 use function assert;
 use function is_int;
@@ -66,6 +67,7 @@ final class Statement implements StatementInterface
         $this->sql .= self::LAST_INSERT_ID_SQL;
     }
 
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         assert(is_int($param));
@@ -74,6 +76,7 @@ final class Statement implements StatementInterface
         $this->types[$param]     = $type;
     }
 
+    #[Override]
     public function execute(): Result
     {
         $this->stmt ??= $this->prepare();

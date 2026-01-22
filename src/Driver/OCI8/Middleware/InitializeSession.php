@@ -8,16 +8,19 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Override;
 use SensitiveParameter;
 
 final readonly class InitializeSession implements Middleware
 {
+    #[Override]
     public function wrap(Driver $driver): Driver
     {
         return new readonly class ($driver) extends AbstractDriverMiddleware {
             /**
              * {@inheritDoc}
              */
+            #[Override]
             public function connect(
                 #[SensitiveParameter]
                 array $params,

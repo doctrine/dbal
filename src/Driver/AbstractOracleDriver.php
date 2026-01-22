@@ -10,17 +10,20 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\OCI\ExceptionConverter;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+use Override;
 
 /**
  * Abstract base implementation of the {@see Driver} interface for Oracle based drivers.
  */
 abstract readonly class AbstractOracleDriver implements Driver
 {
+    #[Override]
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): OraclePlatform
     {
         return new OraclePlatform();
     }
 
+    #[Override]
     public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();

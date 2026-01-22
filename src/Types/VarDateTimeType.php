@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use Exception;
+use Override;
 
 /**
  * Variable DateTime Type using DateTime::__construct() instead of DateTime::createFromFormat().
@@ -25,6 +26,7 @@ class VarDateTimeType extends DateTimeType
      *
      * @template T
      */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTime
     {
         if ($value === null || $value instanceof DateTime) {

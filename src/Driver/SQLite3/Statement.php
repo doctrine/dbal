@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Override;
 use SQLite3;
 use SQLite3Stmt;
 
@@ -30,11 +31,13 @@ final readonly class Statement implements StatementInterface
     ) {
     }
 
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         $this->statement->bindValue($param, $value, $this->convertParamType($type));
     }
 
+    #[Override]
     public function execute(): Result
     {
         try {

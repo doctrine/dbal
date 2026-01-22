@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use Doctrine\DBAL\Platforms\Exception\PlatformException;
+use Override;
 use PDO;
 use SensitiveParameter;
 
@@ -32,6 +33,7 @@ final readonly class Driver extends AbstractDriverMiddleware
      * @throws PlatformException
      * @throws Exception
      */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

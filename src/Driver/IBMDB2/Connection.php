@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
+use Override;
 use stdClass;
 
 use function assert;
@@ -37,6 +38,7 @@ final readonly class Connection implements ConnectionInterface
     {
     }
 
+    #[Override]
     public function getServerVersion(): string
     {
         $serverInfo = db2_server_info($this->connection);
@@ -45,6 +47,7 @@ final readonly class Connection implements ConnectionInterface
         return $serverInfo->DBMS_VER;
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         $stmt = @db2_prepare($this->connection, $sql);
@@ -56,16 +59,19 @@ final readonly class Connection implements ConnectionInterface
         return new Statement($stmt);
     }
 
+    #[Override]
     public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
     }
 
+    #[Override]
     public function quote(string $value): string
     {
         return "'" . db2_escape_string($value) . "'";
     }
 
+    #[Override]
     public function exec(string $sql): int|string
     {
         $stmt = @db2_exec($this->connection, $sql);
@@ -83,6 +89,7 @@ final readonly class Connection implements ConnectionInterface
         return $numRows;
     }
 
+    #[Override]
     public function lastInsertId(): string
     {
         $lastInsertId = db2_last_insert_id($this->connection);
@@ -94,6 +101,7 @@ final readonly class Connection implements ConnectionInterface
         return $lastInsertId;
     }
 
+    #[Override]
     public function beginTransaction(): void
     {
         if (db2_autocommit($this->connection, DB2_AUTOCOMMIT_OFF) !== true) {
@@ -101,6 +109,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function commit(): void
     {
         if (! db2_commit($this->connection)) {
@@ -112,6 +121,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function rollBack(): void
     {
         if (! db2_rollback($this->connection)) {
@@ -124,6 +134,7 @@ final readonly class Connection implements ConnectionInterface
     }
 
     /** @return resource */
+    #[Override]
     public function getNativeConnection()
     {
         return $this->connection;

@@ -9,12 +9,14 @@ use Doctrine\DBAL\Statement as WrapperStatement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Error;
+use Override;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use ReflectionProperty;
 
 #[RequiresPhpExtension('mysqli')]
 class StatementTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

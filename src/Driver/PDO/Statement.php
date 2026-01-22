@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Override;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -18,6 +19,7 @@ final readonly class Statement implements StatementInterface
     {
     }
 
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         $pdoType = $this->convertParamType($type);
@@ -49,6 +51,7 @@ final readonly class Statement implements StatementInterface
         }
     }
 
+    #[Override]
     public function execute(): Result
     {
         try {

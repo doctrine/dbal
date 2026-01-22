@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Override;
 
 use function assert;
 use function is_string;
@@ -21,6 +22,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     private ?string $databaseCollation = null;
 
     /** @throws Exception */
+    #[Override]
     public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
         return new SQLServer\Comparator(
@@ -48,6 +50,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         return $this->databaseCollation;
     }
 
+    #[Override]
     protected function determineCurrentSchemaName(): ?string
     {
         $schemaName = $this->connection->fetchOne('SELECT SCHEMA_NAME()');

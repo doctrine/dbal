@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PgSQL;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\SQL\Parser;
+use Override;
 use PgSql\Connection as PgSqlConnection;
 
 use function assert;
@@ -39,6 +40,7 @@ final readonly class Connection implements ConnectionInterface
         @pg_close($this->connection);
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         $visitor = new ConvertParameters();
@@ -61,6 +63,7 @@ final readonly class Connection implements ConnectionInterface
         return new Statement($this->connection, $statementName, $visitor->getParameterMap());
     }
 
+    #[Override]
     public function query(string $sql): Result
     {
         if (@pg_send_query($this->connection, $sql) !== true) {
@@ -78,6 +81,7 @@ final readonly class Connection implements ConnectionInterface
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function quote(string $value): string
     {
         $quotedValue = pg_escape_literal($this->connection, $value);
@@ -86,12 +90,14 @@ final readonly class Connection implements ConnectionInterface
         return $quotedValue;
     }
 
+    #[Override]
     public function exec(string $sql): int
     {
         return $this->query($sql)->rowCount();
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function lastInsertId(): int|string
     {
         try {
@@ -105,26 +111,31 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function beginTransaction(): void
     {
         $this->exec('BEGIN');
     }
 
+    #[Override]
     public function commit(): void
     {
         $this->exec('COMMIT');
     }
 
+    #[Override]
     public function rollBack(): void
     {
         $this->exec('ROLLBACK');
     }
 
+    #[Override]
     public function getServerVersion(): string
     {
         return (string) pg_version($this->connection)['server'];
     }
 
+    #[Override]
     public function getNativeConnection(): PgSqlConnection
     {
         return $this->connection;

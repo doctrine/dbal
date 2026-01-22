@@ -7,12 +7,14 @@ namespace Doctrine\DBAL\Tests\Types;
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateType;
+use Override;
 
 use function date_default_timezone_set;
 
 /** @extends BaseDateTypeTestCase<DateType> */
 class DateTest extends BaseDateTypeTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $this->type = new DateType();

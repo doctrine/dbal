@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\PDO\SQLSrv\Connection;
 use Doctrine\DBAL\Driver\PDO\SQLSrv\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 use PDO;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
@@ -18,6 +19,7 @@ use function array_replace;
 #[RequiresPhpExtension('pdo_sqlsrv')]
 class DriverTest extends AbstractDriverTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -29,11 +31,13 @@ class DriverTest extends AbstractDriverTestCase
         self::markTestSkipped('This test requires the pdo_sqlsrv driver.');
     }
 
+    #[Override]
     protected function createDriver(): DriverInterface
     {
         return new Driver();
     }
 
+    #[Override]
     protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter(): ?string
     {
         return 'master';

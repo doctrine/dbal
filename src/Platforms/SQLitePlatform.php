@@ -25,6 +25,7 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use Override;
 
 use function array_merge;
 use function assert;
@@ -48,26 +49,31 @@ class SQLitePlatform extends AbstractPlatform
         parent::__construct(UnquotedIdentifierFolding::NONE);
     }
 
+    #[Override]
     public function getCreateDatabaseSQL(string $databaseName): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
+    #[Override]
     public function getDropDatabaseSQL(string $databaseName): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
+    #[Override]
     public function getRegexpExpression(): string
     {
         return 'REGEXP';
     }
 
+    #[Override]
     public function getModExpression(string $dividend, string $divisor): string
     {
         return $dividend . ' % ' . $divisor;
     }
 
+    #[Override]
     public function getTrimExpression(
         string $str,
         TrimMode $mode = TrimMode::UNSPECIFIED,
@@ -89,6 +95,7 @@ class SQLitePlatform extends AbstractPlatform
         return sprintf('%s(%s)', $trimFn, implode(', ', $arguments));
     }
 
+    #[Override]
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
@@ -98,6 +105,7 @@ class SQLitePlatform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
+    #[Override]
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null || $start === '1') {
@@ -112,6 +120,7 @@ class SQLitePlatform extends AbstractPlatform
         );
     }
 
+    #[Override]
     protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
@@ -137,6 +146,7 @@ class SQLitePlatform extends AbstractPlatform
         ) . ')';
     }
 
+    #[Override]
     public function getDateDiffExpression(string $date1, string $date2): string
     {
         return sprintf("JULIANDAY(%s, 'start of day') - JULIANDAY(%s, 'start of day')", $date1, $date2);
@@ -151,17 +161,20 @@ class SQLitePlatform extends AbstractPlatform
      * @link https://www.sqlite.org/lang_select.html
      * @see Connection::getDatabase()
      */
+    #[Override]
     public function getCurrentDatabaseExpression(): string
     {
         return "'main'";
     }
 
     /** @link https://www2.sqlite.org/cvstrac/wiki?p=UnsupportedSql */
+    #[Override]
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {
         return new DefaultSelectSQLBuilder($this, null, null);
     }
 
+    #[Override]
     protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level): string
     {
         return match ($level) {
@@ -172,6 +185,7 @@ class SQLitePlatform extends AbstractPlatform
         };
     }
 
+    #[Override]
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
@@ -180,6 +194,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BOOLEAN';
@@ -188,6 +203,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($column);
@@ -196,6 +212,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         // SQLite autoincrement is implicit for INTEGER PKs, but not for BIGINT fields.
@@ -209,6 +226,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         // SQLite autoincrement is implicit for INTEGER PKs, but not for SMALLINT fields.
@@ -222,6 +240,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATETIME';
@@ -230,6 +249,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
@@ -238,6 +258,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME';
@@ -246,6 +267,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         // SQLite autoincrement is only possible for the primary key
@@ -259,6 +281,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         if ($this->hasAutoIncrementColumn($columns, $parameters)) {
@@ -351,11 +374,13 @@ class SQLitePlatform extends AbstractPlatform
         return false;
     }
 
+    #[Override]
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return 'BLOB';
     }
 
+    #[Override]
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length): string
     {
         $sql = 'VARCHAR';
@@ -367,6 +392,7 @@ class SQLitePlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return 'BLOB';
@@ -375,11 +401,13 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'CLOB';
     }
 
+    #[Override]
     protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
     {
         $this->ensurePrimaryKeyConstraintIsNotNamed($constraint);
@@ -388,6 +416,7 @@ class SQLitePlatform extends AbstractPlatform
         return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
+    #[Override]
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
@@ -401,21 +430,25 @@ class SQLitePlatform extends AbstractPlatform
         };
     }
 
+    #[Override]
     public function supportsIdentityColumns(): bool
     {
         return true;
     }
 
+    #[Override]
     protected function supportsColumnCollation(): bool
     {
         return true;
     }
 
+    #[Override]
     protected function supportsInlineColumnComments(): bool
     {
         return true;
     }
 
+    #[Override]
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);
@@ -423,6 +456,7 @@ class SQLitePlatform extends AbstractPlatform
         return sprintf('DELETE FROM %s', $parsedName->toSQL($this));
     }
 
+    #[Override]
     protected function getInlineColumnCommentSQL(string $comment): string
     {
         return $this->getInlineCommentSQL($comment);
@@ -437,6 +471,7 @@ class SQLitePlatform extends AbstractPlatform
         return '--' . str_replace("\n", "\n--", $comment) . "\n";
     }
 
+    #[Override]
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -488,6 +523,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BLOB';
@@ -496,6 +532,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getCreateTablesSQL(array $tables): array
     {
         $sql = [];
@@ -515,6 +552,7 @@ class SQLitePlatform extends AbstractPlatform
      *
      * @link https://www.sqlite.org/lang_createindex.html
      */
+    #[Override]
     public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
@@ -542,6 +580,7 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** {@inheritDoc} */
+    #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         return [
@@ -553,6 +592,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getDropTablesSQL(array $tables): array
     {
         $sql = [];
@@ -564,11 +604,13 @@ class SQLitePlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $tableName): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
+    #[Override]
     public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
         throw NotSupported::new(__METHOD__);
@@ -577,6 +619,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
         $sql = $this->getSimpleAlterTableSQL($diff);
@@ -965,11 +1008,13 @@ class SQLitePlatform extends AbstractPlatform
             ->create();
     }
 
+    #[Override]
     public function createMetadataProvider(Connection $connection): SQLiteMetadataProvider
     {
         return new SQLiteMetadataProvider($connection, $this);
     }
 
+    #[Override]
     public function createSchemaManager(Connection $connection): SQLiteSchemaManager
     {
         return new SQLiteSchemaManager($connection, $this);
@@ -978,6 +1023,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * Returns the union select query part surrounded by parenthesis if possible for platform.
      */
+    #[Override]
     public function getUnionSelectPartSQL(string $subQuery): string
     {
         return $subQuery;

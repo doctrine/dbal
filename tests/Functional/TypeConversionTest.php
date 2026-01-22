@@ -13,6 +13,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
@@ -22,6 +23,7 @@ class TypeConversionTest extends FunctionalTestCase
 {
     private static int $typeCounter = 0;
 
+    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()

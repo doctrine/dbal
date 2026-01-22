@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver\PDO;
 
 use Doctrine\DBAL\Driver\PDO\Exception;
+use Override;
 use PDOException;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
@@ -28,6 +29,7 @@ class ExceptionTest extends TestCase
      */
     private PDOException $wrappedException;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->wrappedException = new PDOException(self::MESSAGE);

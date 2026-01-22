@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_keys;
@@ -21,6 +22,7 @@ use function strlen;
 
 class PortabilityTest extends FunctionalTestCase
 {
+    #[Override]
     protected function tearDown(): void
     {
         // the connection that overrides the shared one has to be manually closed prior to 4.0.0 to prevent leak

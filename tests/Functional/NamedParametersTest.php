@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Throwable;
 
@@ -161,6 +162,7 @@ class NamedParametersTest extends FunctionalTestCase
         ];
     }
 
+    #[Override]
     protected function setUp(): void
     {
         if ($this->connection->createSchemaManager()->tableExists('ddc1372_foobar')) {

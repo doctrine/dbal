@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\AbstractDB2Driver;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
+use Override;
 use SensitiveParameter;
 
 use function db2_connect;
@@ -16,6 +17,7 @@ final readonly class Driver extends AbstractDB2Driver
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

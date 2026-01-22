@@ -18,6 +18,7 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Error;
+use Override;
 
 use function base64_decode;
 use function get_debug_type;
@@ -28,6 +29,7 @@ use function stream_get_contents;
 
 class StatementTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()
@@ -48,6 +50,7 @@ class StatementTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         ini_restore('memory_limit');

@@ -21,20 +21,24 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 /** @extends AbstractPlatformTestCase<SQLitePlatform> */
 class SQLitePlatformTest extends AbstractPlatformTestCase
 {
+    #[Override]
     public function createPlatform(): AbstractPlatform
     {
         return new SQLitePlatform();
     }
 
+    #[Override]
     protected function createComparator(): Comparator
     {
         return new SQLite\Comparator($this->platform, new ComparatorConfig());
     }
 
+    #[Override]
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE "test" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL'
@@ -44,6 +48,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
@@ -173,11 +178,13 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    #[Override]
     public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX "my_idx" ON "mytable" ("user_name", "last_login")';
     }
 
+    #[Override]
     public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX "index_name" ON "test" ("test", "test2")';
@@ -196,6 +203,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    #[Override]
     public function testGeneratesForeignKeyCreationSql(): void
     {
         $this->expectException(Exception::class);
@@ -203,6 +211,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         parent::testGeneratesForeignKeyCreationSql();
     }
 
+    #[Override]
     protected function getGenerateForeignKeySql(): string
     {
         self::fail('Foreign key constraints are not yet supported for SQLite.');
@@ -455,6 +464,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY ("create"))'];
@@ -463,6 +473,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
         return [
@@ -474,6 +485,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
         return [
@@ -485,6 +497,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
@@ -500,21 +513,25 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    #[Override]
     public function getExpectedFixedLengthBinaryTypeDeclarationSQLNoLength(): string
     {
         return 'BLOB';
     }
 
+    #[Override]
     public function getExpectedFixedLengthBinaryTypeDeclarationSQLWithLength(): string
     {
         return 'BLOB';
     }
 
+    #[Override]
     public function getExpectedVariableLengthBinaryTypeDeclarationSQLNoLength(): string
     {
         return 'BLOB';
     }
 
+    #[Override]
     public function getExpectedVariableLengthBinaryTypeDeclarationSQLWithLength(): string
     {
         return 'BLOB';
@@ -523,6 +540,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return [
@@ -538,6 +556,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
@@ -551,16 +570,19 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    #[Override]
     protected function getQuotedCommentOnColumnSQLWithoutQuoteCharacter(): string
     {
         return "COMMENT ON COLUMN \"mytable\".\"id\" IS 'This is a comment'";
     }
 
+    #[Override]
     protected function getQuotedCommentOnColumnSQLWithQuoteCharacter(): string
     {
         return "COMMENT ON COLUMN \"mytable\".\"id\" IS 'It''s a quote !'";
     }
 
+    #[Override]
     public function testAlterTableRenameIndexInSchema(): void
     {
         self::markTestIncomplete(
@@ -569,6 +591,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    #[Override]
     public function testQuotesAlterTableRenameIndexInSchema(): void
     {
         self::markTestIncomplete(
@@ -577,6 +600,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    #[Override]
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -619,6 +643,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getCommentOnColumnSQL(): array
     {
         return [
@@ -628,31 +653,37 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    #[Override]
     protected static function getInlineColumnCommentDelimiter(): string
     {
         return "\n";
     }
 
+    #[Override]
     protected static function getInlineColumnRegularCommentSQL(): string
     {
         return "--Regular comment\n";
     }
 
+    #[Override]
     protected static function getInlineColumnCommentRequiringEscapingSQL(): string
     {
         return "--Using inline comment delimiter \n-- works\n";
     }
 
+    #[Override]
     protected static function getInlineColumnEmptyCommentSQL(): string
     {
         return '';
     }
 
+    #[Override]
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX "select" ("foo")';
     }
 
+    #[Override]
     protected function getQuotesReservedKeywordInTruncateTableSQL(): string
     {
         return 'DELETE FROM "select"';
@@ -661,6 +692,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
         return [
@@ -675,6 +707,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return [

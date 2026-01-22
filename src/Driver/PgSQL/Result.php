@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\PgSQL\Exception\UnexpectedValue;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Override;
 use PgSql\Result as PgSqlResult;
 use ValueError;
 
@@ -49,6 +50,7 @@ final class Result implements ResultInterface
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function fetchNumeric(): array|false
     {
         if ($this->result === null) {
@@ -64,6 +66,7 @@ final class Result implements ResultInterface
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function fetchAssociative(): array|false
     {
         if ($this->result === null) {
@@ -79,12 +82,14 @@ final class Result implements ResultInterface
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         if ($this->result === null) {
@@ -100,6 +105,7 @@ final class Result implements ResultInterface
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         if ($this->result === null) {
@@ -115,6 +121,7 @@ final class Result implements ResultInterface
     }
 
     /** {@inheritDoc} */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         if ($this->result === null) {
@@ -129,6 +136,7 @@ final class Result implements ResultInterface
         );
     }
 
+    #[Override]
     public function rowCount(): int
     {
         if ($this->result === null) {
@@ -138,6 +146,7 @@ final class Result implements ResultInterface
         return pg_affected_rows($this->result);
     }
 
+    #[Override]
     public function columnCount(): int
     {
         if ($this->result === null) {
@@ -147,6 +156,7 @@ final class Result implements ResultInterface
         return pg_num_fields($this->result);
     }
 
+    #[Override]
     public function getColumnName(int $index): string
     {
         if ($this->result === null) {
@@ -160,6 +170,7 @@ final class Result implements ResultInterface
         }
     }
 
+    #[Override]
     public function free(): void
     {
         if ($this->result === null) {

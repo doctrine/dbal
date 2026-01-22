@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
+use Override;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -21,6 +22,7 @@ final readonly class Connection implements ConnectionInterface
         $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
+    #[Override]
     public function exec(string $sql): int
     {
         try {
@@ -34,11 +36,13 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function getServerVersion(): string
     {
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         try {
@@ -51,6 +55,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function query(string $sql): Result
     {
         try {
@@ -63,11 +68,13 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function quote(string $value): string
     {
         return $this->connection->quote($value);
     }
 
+    #[Override]
     public function lastInsertId(): int|string
     {
         try {
@@ -99,6 +106,7 @@ final readonly class Connection implements ConnectionInterface
         return $value;
     }
 
+    #[Override]
     public function beginTransaction(): void
     {
         try {
@@ -108,6 +116,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function commit(): void
     {
         try {
@@ -117,6 +126,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function rollBack(): void
     {
         try {
@@ -126,6 +136,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function getNativeConnection(): PDO
     {
         return $this->connection;

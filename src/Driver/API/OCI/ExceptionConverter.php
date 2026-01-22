@@ -22,6 +22,7 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\TransactionRolledBack;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
+use Override;
 
 use function assert;
 use function count;
@@ -32,6 +33,7 @@ use function str_replace;
 final class ExceptionConverter implements ExceptionConverterInterface
 {
     /** @link http://www.dba-oracle.com/t_error_code_list.htm */
+    #[Override]
     public function convert(Exception $exception, ?Query $query): DriverException
     {
         return match ($exception->getCode()) {

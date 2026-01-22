@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Connection;
 
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Override;
 
 use function sprintf;
 
@@ -12,6 +13,7 @@ final class FetchEmptyTest extends FunctionalTestCase
 {
     private string $query;
 
+    #[Override]
     public function setUp(): void
     {
         $this->query = sprintf(

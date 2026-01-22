@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_shift;
@@ -52,6 +53,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
+    #[Override]
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE `test` (`id` INT AUTO_INCREMENT NOT NULL, `test` VARCHAR(255) DEFAULT NULL, '
@@ -59,6 +61,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
@@ -132,16 +135,19 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertTrue($this->platform->supportsSavepoints());
     }
 
+    #[Override]
     public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX `my_idx` ON `mytable` (`user_name`, `last_login`)';
     }
 
+    #[Override]
     public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX `index_name` ON `test` (`test`, `test2`)';
     }
 
+    #[Override]
     protected function getGenerateForeignKeySql(): string
     {
         return 'ALTER TABLE `test` ADD FOREIGN KEY (`fk_name_id`) REFERENCES `other_table` (`id`)';
@@ -203,6 +209,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, '
@@ -211,6 +218,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
         return [
@@ -220,6 +228,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
         return [
@@ -229,6 +238,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
@@ -338,6 +348,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('varbinary'));
     }
 
+    #[Override]
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
@@ -345,6 +356,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
+    #[Override]
     public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
@@ -353,6 +365,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return [
@@ -362,12 +375,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return ['ALTER TABLE `table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
     }
 
     /** @return string[] */
+    #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
@@ -377,16 +392,19 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
     }
 
+    #[Override]
     protected function getQuotedCommentOnColumnSQLWithoutQuoteCharacter(): string
     {
         return "COMMENT ON COLUMN `mytable`.`id` IS 'This is a comment'";
     }
 
+    #[Override]
     protected function getQuotedCommentOnColumnSQLWithQuoteCharacter(): string
     {
         return "COMMENT ON COLUMN `mytable`.`id` IS 'It''s a quote !'";
@@ -454,6 +472,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertTrue($comparator->compareTables($table, $diffTable)->isEmpty());
     }
 
+    #[Override]
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -462,6 +481,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getCommentOnColumnSQL(): array
     {
         return [
@@ -471,11 +491,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
+    #[Override]
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX `select` (`foo`)';
     }
 
+    #[Override]
     protected function getQuotesReservedKeywordInTruncateTableSQL(): string
     {
         return 'TRUNCATE `select`';
@@ -484,6 +506,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE `mytable` CHANGE `name` `name` CHAR(2) NOT NULL'];
@@ -492,6 +515,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ['ALTER TABLE `mytable` RENAME INDEX `idx_foo` TO `idx_foo_renamed`'];
@@ -500,6 +524,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public static function getGeneratesDecimalTypeDeclarationSQL(): iterable
     {
         yield [['precision' => 10, 'scale' => 8, 'unsigned' => true], 'NUMERIC(10, 8) UNSIGNED'];
@@ -510,6 +535,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public static function getGeneratesFloatDeclarationSQL(): iterable
     {
         return [
@@ -525,6 +551,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
+    #[Override]
     public static function getGeneratesSmallFloatDeclarationSQL(): iterable
     {
         return [
@@ -565,6 +592,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
+    #[Override]
     protected function createComparator(): Comparator
     {
         return new MySQL\Comparator(
@@ -578,12 +606,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     /** @param array<string> $values */
     #[DataProvider('getEnumDeclarationExceptionWithLengthSQLProvider')]
+    #[Override]
     public function testGetEnumDeclarationExceptionWithLengthSQL(array $values, int $length): void
     {
         self::markTestSkipped('There is no exception thrown on MySQL.');
     }
 
     /** @return array<string, array{array<string>, string}> */
+    #[Override]
     public static function getEnumDeclarationSQLProvider(): array
     {
         return [
@@ -593,6 +623,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /** @return array<string, array{array<string>, int, string}> */
+    #[Override]
     public static function getEnumDeclarationWithLengthSQLProvider(): array
     {
         return [

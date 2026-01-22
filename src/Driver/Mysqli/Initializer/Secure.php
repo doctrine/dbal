@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\Mysqli\Initializer;
 
 use Doctrine\DBAL\Driver\Mysqli\Initializer;
 use mysqli;
+use Override;
 use SensitiveParameter;
 
 final readonly class Secure implements Initializer
@@ -20,6 +21,7 @@ final readonly class Secure implements Initializer
     ) {
     }
 
+    #[Override]
     public function initialize(mysqli $connection): void
     {
         $connection->ssl_set($this->key, $this->cert, $this->ca, $this->capath, $this->cipher);
