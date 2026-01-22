@@ -12,7 +12,7 @@ use mysqli_sql_exception;
 
 use function assert;
 
-final class Connection implements ConnectionInterface
+final readonly class Connection implements ConnectionInterface
 {
     /**
      * Name of the option to set connection flags
@@ -20,7 +20,7 @@ final class Connection implements ConnectionInterface
     public const string OPTION_FLAGS = 'flags';
 
     /** @internal The connection can be only instantiated by its driver. */
-    public function __construct(private readonly mysqli $connection)
+    public function __construct(private mysqli $connection)
     {
     }
 

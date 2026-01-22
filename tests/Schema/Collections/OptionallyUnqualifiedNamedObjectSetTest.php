@@ -167,11 +167,11 @@ class OptionallyUnqualifiedNamedObjectSetTest extends TestCase
     private function createObject(?string $name, int $value): OptionallyNamedObject
     {
         return new /** @template-implements OptionallyNamedObject<UnqualifiedName> */
-        class ($name, $value) implements OptionallyNamedObject {
-            private readonly ?UnqualifiedName $name;
+        readonly class ($name, $value) implements OptionallyNamedObject {
+            private ?UnqualifiedName $name;
 
             /** @param ?non-empty-string $name */
-            public function __construct(?string $name, private readonly int $value)
+            public function __construct(?string $name, private int $value)
             {
                 $this->name = $name !== null ? UnqualifiedName::unquoted($name) : null;
             }

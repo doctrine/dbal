@@ -33,7 +33,7 @@ final class Result implements ResultInterface
      */
     public function __construct(
         private readonly mysqli_stmt $statement,
-        private ?Statement $statementReference = null, // @phpstan-ignore property.onlyWritten
+        private readonly ?Statement $statementReference = null, // @phpstan-ignore property.onlyWritten
     ) {
         try {
             $this->result = $statement->get_result();

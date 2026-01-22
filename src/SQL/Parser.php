@@ -27,7 +27,7 @@ use const PREG_NO_ERROR;
  *
  * @see https://github.com/php/php-src/blob/php-7.4.12/ext/pdo/pdo_sql_parser.re#L49-L69
  */
-final class Parser
+final readonly class Parser
 {
     private const string SPECIAL_CHARS = ':\?\'"`\\[\\-\\/';
 
@@ -41,8 +41,8 @@ final class Parser
     private const string SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
     private const string OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
 
-    private readonly string $sqlPattern;
-    private readonly string $tokenPattern;
+    private string $sqlPattern;
+    private string $tokenPattern;
 
     public function __construct(bool $mySQLStringEscaping)
     {

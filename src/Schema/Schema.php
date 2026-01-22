@@ -71,7 +71,7 @@ final class Schema
     /** @var array<string, Sequence> */
     private array $sequences = [];
 
-    private SchemaConfig $schemaConfig;
+    private readonly SchemaConfig $schemaConfig;
 
     /**
      * The default namespace name that the schema will use as a qualifier to resolve unqualified names.
@@ -80,7 +80,7 @@ final class Schema
      *
      * @var ?non-empty-string
      */
-    private ?string $defaultNamespaceName;
+    private readonly ?string $defaultNamespaceName;
 
     /**
      * Indicates whether the schema uses unqualified names for its objects. Once this flag is set to true, it won't be

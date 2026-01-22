@@ -23,7 +23,7 @@ final class TableEditor
     private readonly UnqualifiedNamedObjectSet $columns;
 
     /** @var UnqualifiedNamedObjectSet<Index> */
-    private UnqualifiedNamedObjectSet $indexes;
+    private readonly UnqualifiedNamedObjectSet $indexes;
 
     private ?PrimaryKeyConstraint $primaryKeyConstraint = null;
 
