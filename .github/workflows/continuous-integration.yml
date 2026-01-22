@@ -156,7 +156,7 @@ jobs:
           - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
           - "11.4"  # LTS (May 2029)
           - "11.8"  # LTS (Jun 2028)
-          - "12.0"  # Rolling Release (Q4 2025)
+          - "12.1"  # Rolling Release (Q1 2026)
         extension:
           - "mysqli"
           - "pdo_mysql"
@@ -192,20 +192,20 @@ jobs:
           - "5.7"
           - "8.0" # We have code specific to ^8.0
           - "8.4" # LTS
-          - "9.4"
+          - "9.6"
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - config-file-suffix: "-tls"
             php-version: "7.4"
-            mysql-version: "9.4"
+            mysql-version: "9.6"
             extension: "mysqli"
           - php-version: "7.4"
-            mysql-version: "9.4"
+            mysql-version: "9.6"
             extension: "mysqli"
           - php-version: "7.4"
-            mysql-version: "9.4"
+            mysql-version: "9.6"
             extension: "pdo_mysql"
 
   phpunit-mssql:
