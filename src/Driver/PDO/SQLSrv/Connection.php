@@ -8,9 +8,9 @@ use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use PDO;
 
-final class Connection extends AbstractConnectionMiddleware
+final readonly class Connection extends AbstractConnectionMiddleware
 {
-    public function __construct(private readonly PDOConnection $connection)
+    public function __construct(private PDOConnection $connection)
     {
         parent::__construct($connection);
     }

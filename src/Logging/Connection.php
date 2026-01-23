@@ -10,10 +10,10 @@ use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Psr\Log\LoggerInterface;
 
-final class Connection extends AbstractConnectionMiddleware
+final readonly class Connection extends AbstractConnectionMiddleware
 {
     /** @internal This connection can be only instantiated by its driver. */
-    public function __construct(ConnectionInterface $connection, private readonly LoggerInterface $logger)
+    public function __construct(ConnectionInterface $connection, private LoggerInterface $logger)
     {
         parent::__construct($connection);
     }

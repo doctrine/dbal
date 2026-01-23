@@ -74,7 +74,7 @@ final class AbstractConnectionMiddlewareTest extends TestCase
 
     private function createMiddleware(Connection $connection): AbstractConnectionMiddleware
     {
-        return new class ($connection) extends AbstractConnectionMiddleware {
+        return new readonly class ($connection) extends AbstractConnectionMiddleware {
         };
     }
 }

@@ -10,7 +10,7 @@ use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 /**
  * Portability wrapper for a Connection.
  */
-final class Connection extends AbstractConnectionMiddleware
+final readonly class Connection extends AbstractConnectionMiddleware
 {
     public const int PORTABILITY_ALL           = 255;
     public const int PORTABILITY_NONE          = 0;
@@ -18,7 +18,7 @@ final class Connection extends AbstractConnectionMiddleware
     public const int PORTABILITY_EMPTY_TO_NULL = 4;
     public const int PORTABILITY_FIX_CASE      = 8;
 
-    public function __construct(ConnectionInterface $connection, private readonly Converter $converter)
+    public function __construct(ConnectionInterface $connection, private Converter $converter)
     {
         parent::__construct($connection);
     }
