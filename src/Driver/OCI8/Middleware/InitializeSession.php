@@ -10,7 +10,7 @@ use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use SensitiveParameter;
 
-final class InitializeSession implements Middleware
+final readonly class InitializeSession implements Middleware
 {
     public function wrap(Driver $driver): Driver
     {
