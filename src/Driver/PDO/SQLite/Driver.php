@@ -15,7 +15,7 @@ use SensitiveParameter;
 use function array_intersect_key;
 use function is_string;
 
-final class Driver extends AbstractSQLiteDriver
+final readonly class Driver extends AbstractSQLiteDriver
 {
     /**
      * {@inheritDoc}

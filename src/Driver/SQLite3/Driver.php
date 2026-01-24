@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use SensitiveParameter;
 use SQLite3;
 
-final class Driver extends AbstractSQLiteDriver
+final readonly class Driver extends AbstractSQLiteDriver
 {
     /**
      * {@inheritDoc}

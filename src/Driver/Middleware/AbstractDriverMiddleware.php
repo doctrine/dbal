@@ -11,7 +11,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
 use SensitiveParameter;
 
-abstract class AbstractDriverMiddleware implements Driver
+abstract readonly class AbstractDriverMiddleware implements Driver
 {
     public function __construct(private readonly Driver $wrappedDriver)
     {

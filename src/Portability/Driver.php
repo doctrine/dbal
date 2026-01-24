@@ -16,7 +16,7 @@ use SensitiveParameter;
 use const CASE_LOWER;
 use const CASE_UPPER;
 
-final class Driver extends AbstractDriverMiddleware
+final readonly class Driver extends AbstractDriverMiddleware
 {
     public function __construct(
         DriverInterface $driver,

@@ -11,7 +11,7 @@ use SensitiveParameter;
 use function db2_connect;
 use function db2_pconnect;
 
-final class Driver extends AbstractDB2Driver
+final readonly class Driver extends AbstractDB2Driver
 {
     /**
      * {@inheritDoc}

@@ -14,7 +14,7 @@ final class InitializeSession implements Middleware
 {
     public function wrap(Driver $driver): Driver
     {
-        return new class ($driver) extends AbstractDriverMiddleware {
+        return new readonly class ($driver) extends AbstractDriverMiddleware {
             /**
              * {@inheritDoc}
              */

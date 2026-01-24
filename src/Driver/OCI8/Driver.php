@@ -18,7 +18,7 @@ use const OCI_NO_AUTO_COMMIT;
 /**
  * A Doctrine DBAL driver for the Oracle OCI8 PHP extensions.
  */
-final class Driver extends AbstractOracleDriver
+final readonly class Driver extends AbstractOracleDriver
 {
     /**
      * {@inheritDoc}

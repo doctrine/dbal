@@ -15,7 +15,7 @@ use function sqlsrv_connect;
 /**
  * Driver for ext/sqlsrv.
  */
-final class Driver extends AbstractSQLServerDriver
+final readonly class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritDoc}

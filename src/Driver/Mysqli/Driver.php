@@ -15,7 +15,7 @@ use mysqli;
 use mysqli_sql_exception;
 use SensitiveParameter;
 
-final class Driver extends AbstractMySQLDriver
+final readonly class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritDoc}

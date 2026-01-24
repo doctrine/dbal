@@ -17,7 +17,7 @@ use function is_int;
 use function is_string;
 use function sprintf;
 
-final class Driver extends AbstractSQLServerDriver
+final readonly class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritDoc}

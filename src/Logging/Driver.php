@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use Psr\Log\LoggerInterface;
 use SensitiveParameter;
 
-final class Driver extends AbstractDriverMiddleware
+final readonly class Driver extends AbstractDriverMiddleware
 {
     /** @internal This driver can be only instantiated by its middleware. */
     public function __construct(DriverInterface $driver, private readonly LoggerInterface $logger)

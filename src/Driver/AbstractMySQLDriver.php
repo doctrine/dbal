@@ -21,7 +21,7 @@ use function version_compare;
 /**
  * Abstract base implementation of the {@see Driver} interface for MySQL based drivers.
  */
-abstract class AbstractMySQLDriver implements Driver
+abstract readonly class AbstractMySQLDriver implements Driver
 {
     /**
      * {@inheritDoc}

@@ -25,7 +25,7 @@ final class AbstractDriverMiddlewareTest extends TestCase
 
     private function createMiddleware(Driver $driver): AbstractDriverMiddleware
     {
-        return new class ($driver) extends AbstractDriverMiddleware {
+        return new readonly class ($driver) extends AbstractDriverMiddleware {
         };
     }
 }
