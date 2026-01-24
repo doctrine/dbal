@@ -16,7 +16,7 @@ use const SQLITE3_INTEGER;
 use const SQLITE3_NULL;
 use const SQLITE3_TEXT;
 
-final class Statement implements StatementInterface
+final readonly class Statement implements StatementInterface
 {
     private const int TYPE_BLOB    = SQLITE3_BLOB;
     private const int TYPE_INTEGER = SQLITE3_INTEGER;
@@ -25,8 +25,8 @@ final class Statement implements StatementInterface
 
     /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(
-        private readonly SQLite3 $connection,
-        private readonly SQLite3Stmt $statement,
+        private SQLite3 $connection,
+        private SQLite3Stmt $statement,
     ) {
     }
 

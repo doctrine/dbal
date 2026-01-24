@@ -105,7 +105,7 @@ class Connection implements ServerVersionProvider
      */
     private bool $isRollbackOnly = false;
 
-    private SchemaManagerFactory $schemaManagerFactory;
+    private readonly SchemaManagerFactory $schemaManagerFactory;
 
     /**
      * Initializes a new instance of the Connection class.

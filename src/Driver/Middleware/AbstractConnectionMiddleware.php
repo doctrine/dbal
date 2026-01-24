@@ -8,9 +8,9 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 
-abstract class AbstractConnectionMiddleware implements Connection
+abstract readonly class AbstractConnectionMiddleware implements Connection
 {
-    public function __construct(private readonly Connection $wrappedConnection)
+    public function __construct(private Connection $wrappedConnection)
     {
     }
 
