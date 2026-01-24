@@ -9,16 +9,19 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
 use function date_default_timezone_get;
 use function date_default_timezone_set;
 
+/** @template TType of Type */
 abstract class BaseDateTypeTestCase extends TestCase
 {
-    protected AbstractPlatform&MockObject $platform;
+    protected AbstractPlatform&Stub $platform;
+
+    /** @var TType */
     protected Type $type;
 
     /** @var non-empty-string */
@@ -26,7 +29,7 @@ abstract class BaseDateTypeTestCase extends TestCase
 
     protected function setUp(): void
     {
-        $this->platform        = $this->createMock(AbstractPlatform::class);
+        $this->platform        = self::createStub(AbstractPlatform::class);
         $this->currentTimezone = date_default_timezone_get();
     }
 

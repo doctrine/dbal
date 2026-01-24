@@ -33,8 +33,8 @@ class ResultTest extends FunctionalTestCase
         }
 
         self::assertFalse(
-            TestUtil::isDriverOneOf('mysqli', 'ibm_db2'),
-            'We expect mysqli and ibm_db2 drivers to throw an exception.',
+            TestUtil::isDriverOneOf('ibm_db2'),
+            'We expect ibm_db2 driver to throw an exception.',
         );
         // Other drivers will silently return an empty result
         self::assertSame($expected, $value);

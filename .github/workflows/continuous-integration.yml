@@ -155,7 +155,7 @@ jobs:
           - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
           - "11.4"  # LTS (May 2029)
           - "11.8"  # LTS (Jun 2028)
-          - "12.0"  # Rolling Release (Q4 2025)
+          - "12.1"  # Rolling Release (Q1 2026)
         extension:
           - "mysqli"
           - "pdo_mysql"
@@ -189,18 +189,18 @@ jobs:
         mysql-version:
           - "8.0"
           - "8.4" # LTS
-          - "9.4"
+          - "9.6"
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - config-file-suffix: "-tls"
             php-version: "8.4"
-            mysql-version: "9.4"
+            mysql-version: "9.6"
             extension: "mysqli"
           - config-file-suffix: "-stringify_fetches"
             php-version: "8.4"
-            mysql-version: "9.4"
+            mysql-version: "9.6"
             extension: "pdo_mysql"
 
   phpunit-mssql:
@@ -236,7 +236,7 @@ jobs:
 
   phpunit-db2:
     name: >
-      Db2 - 
+      Db2 -
       ${{ matrix.php-version || 'Ø' }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-db2.yml
@@ -251,7 +251,7 @@ jobs:
 
   development-deps:
     name: >
-      PDO_SQLite and development dependencies - 
+      PDO_SQLite and development dependencies -
       ${{ matrix.php-version || 'Ø' }}
     runs-on: "ubuntu-24.04"
 

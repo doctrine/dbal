@@ -41,7 +41,7 @@ final class Driver extends AbstractMySQLDriver
         }
 
         try {
-            $success = @$connection->real_connect(
+            @$connection->real_connect(
                 $host,
                 $params['user'] ?? '',
                 $params['password'] ?? '',
@@ -52,10 +52,6 @@ final class Driver extends AbstractMySQLDriver
             );
         } catch (mysqli_sql_exception $e) {
             throw ConnectionFailed::upcast($e);
-        }
-
-        if (! $success) {
-            throw ConnectionFailed::new($connection);
         }
 
         foreach ($this->compilePostInitializers($params) as $initializer) {
