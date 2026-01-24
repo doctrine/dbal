@@ -10,6 +10,8 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use mysqli;
 use mysqli_sql_exception;
 
+use function assert;
+
 final class Connection implements ConnectionInterface
 {
     /**
@@ -35,9 +37,7 @@ final class Connection implements ConnectionInterface
             throw ConnectionError::upcast($e);
         }
 
-        if ($stmt === false) {
-            throw ConnectionError::new($this->connection);
-        }
+        assert($stmt !== false);
 
         return new Statement($stmt);
     }
@@ -55,13 +55,9 @@ final class Connection implements ConnectionInterface
     public function exec(string $sql): int|string
     {
         try {
-            $result = $this->connection->query($sql);
+            $this->connection->query($sql);
         } catch (mysqli_sql_exception $e) {
             throw ConnectionError::upcast($e);
-        }
-
-        if ($result === false) {
-            throw ConnectionError::new($this->connection);
         }
 
         return $this->connection->affected_rows;
@@ -80,17 +76,22 @@ final class Connection implements ConnectionInterface
 
     public function beginTransaction(): void
     {
-        if (! $this->connection->begin_transaction()) {
-            throw ConnectionError::new($this->connection);
+        try {
+            // Prior to PHP 8.5.2, PHP 8.4.17 and PHP 8.3.30, mysqli::begin_transaction() didn't respect error reporting
+            // configuration and reported failure as false return value
+            // See: https://github.com/php/php-src/commit/dbf56e0eba68c61385e9a2d15a3e3f5066f80ec4
+            if (! $this->connection->begin_transaction()) {
+                throw ConnectionError::new($this->connection);
+            }
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
         }
     }
 
     public function commit(): void
     {
         try {
-            if (! $this->connection->commit()) {
-                throw ConnectionError::new($this->connection);
-            }
+            $this->connection->commit();
         } catch (mysqli_sql_exception $e) {
             throw ConnectionError::upcast($e);
         }
@@ -99,9 +100,7 @@ final class Connection implements ConnectionInterface
     public function rollBack(): void
     {
         try {
-            if (! $this->connection->rollback()) {
-                throw ConnectionError::new($this->connection);
-            }
+            $this->connection->rollback();
         } catch (mysqli_sql_exception $e) {
             throw ConnectionError::upcast($e);
         }

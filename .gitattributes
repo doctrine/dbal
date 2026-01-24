@@ -6,9 +6,12 @@
 /.gitignore export-ignore
 /phpcs.xml.dist export-ignore
 /phpstan.neon.dist export-ignore
+/phpstan-baseline.neon export-ignore
 /phpunit.xml.dist export-ignore
 /run-all.sh export-ignore
 /SECURITY.md export-ignore
 /static-analysis export-ignore
 /tests export-ignore
 /UPGRADE.md export-ignore
+/README.md export-ignore
+/CONTRIBUTING.md export-ignore

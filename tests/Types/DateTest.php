@@ -10,6 +10,7 @@ use Doctrine\DBAL\Types\DateType;
 
 use function date_default_timezone_set;
 
+/** @extends BaseDateTypeTestCase<DateType> */
 class DateTest extends BaseDateTypeTestCase
 {
     protected function setUp(): void

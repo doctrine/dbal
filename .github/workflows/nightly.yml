@@ -162,6 +162,7 @@ jobs:
     uses: ./.github/workflows/phpunit-sqlserver.yml
     with:
       php-version: ${{ matrix.php-version }}
+      sqlserver-version: ${{ matrix.sqlserver-version }}
       extension: ${{ matrix.extension }}
       collation: ${{ matrix.collation }}
 
@@ -170,6 +171,8 @@ jobs:
       matrix:
         php-version:
           - '8.5'
+        sqlserver-version:
+          - '2025'
         extension:
           - sqlsrv
           - pdo_sqlsrv

@@ -20,6 +20,8 @@ final readonly class Options implements Initializer
     public function initialize(mysqli $connection): void
     {
         foreach ($this->options as $option => $value) {
+            // mysqli::options() doesn't respect error reporting configuration and reports failure as false return value
+            // See: https://github.com/php/php-src/issues/20968
             if (! mysqli_options($connection, $option, $value)) {
                 throw InvalidOption::fromOption($option, $value);
             }
