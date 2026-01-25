@@ -28,8 +28,6 @@ final readonly class Driver extends AbstractDriverMiddleware
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @throws PlatformException
      * @throws Exception
      */

@@ -263,9 +263,6 @@ class PrimaryReadReplicaConnection extends Connection
         return $params;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {

@@ -51,7 +51,6 @@ final class Statement implements StatementInterface
         );
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
@@ -72,7 +71,6 @@ final class Statement implements StatementInterface
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function execute(): Result
     {

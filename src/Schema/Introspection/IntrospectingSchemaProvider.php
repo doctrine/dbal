@@ -54,7 +54,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     ) {
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllDatabaseNames(): array
     {
@@ -67,7 +66,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         return $databaseNames;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllSchemaNames(): array
     {
@@ -80,7 +78,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         return $schemaNames;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllTables(): array
     {
@@ -134,7 +131,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         return $tables;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllTableNames(): array
     {
@@ -154,7 +150,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         return $tableNames;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getColumnsForTable(?string $schemaName, string $tableName): array
     {
@@ -190,7 +185,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         return $columns;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getIndexesForTable(?string $schemaName, string $tableName): array
     {
@@ -300,7 +294,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         );
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getForeignKeyConstraintsForTable(?string $schemaName, string $tableName): array
     {
@@ -361,7 +354,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         );
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getOptionsForTable(?string $schemaName, string $tableName): ?array
     {
@@ -395,7 +387,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         return $options;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllViews(): array
     {
@@ -409,7 +400,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         return $views;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllSequences(): array
     {

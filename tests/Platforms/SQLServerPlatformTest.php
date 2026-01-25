@@ -45,9 +45,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         return 'CREATE TABLE [test] ([id] INT IDENTITY NOT NULL, [test] NVARCHAR(255), PRIMARY KEY ([id]))';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
@@ -597,18 +594,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, PRIMARY KEY ([create]))'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
@@ -618,9 +609,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
@@ -630,9 +618,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
@@ -899,18 +884,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ["EXEC [sp_rename] N'[mytable].[idx_foo]', N'idx_bar', N'INDEX'"];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -932,18 +911,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         return "COMMENT ON COLUMN [mytable].[id] IS 'It''s a quote !'";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ["EXEC [sp_rename] N'[myschema].[mytable].[idx_foo]', N'idx_bar', N'INDEX'"];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -959,9 +932,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertSame('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL([]));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getCommentOnColumnSQL(): array
     {
@@ -972,9 +942,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
@@ -1000,18 +967,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         return 'TRUNCATE TABLE [select]';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE [mytable] ALTER COLUMN [name] NCHAR(2) NOT NULL'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

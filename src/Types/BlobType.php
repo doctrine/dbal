@@ -21,9 +21,6 @@ use function is_string;
  */
 class BlobType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

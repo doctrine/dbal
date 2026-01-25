@@ -20,9 +20,6 @@ use function is_string;
  */
 class BigIntType extends Type implements PhpIntegerMappingType
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

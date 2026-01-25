@@ -13,9 +13,6 @@ use Override;
  */
 class SmallIntType extends Type implements PhpIntegerMappingType
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

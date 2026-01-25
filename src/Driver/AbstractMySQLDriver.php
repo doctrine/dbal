@@ -24,11 +24,7 @@ use function version_compare;
  */
 abstract readonly class AbstractMySQLDriver implements Driver
 {
-    /**
-     * {@inheritDoc}
-     *
-     * @throws InvalidPlatformVersion
-     */
+    /** @throws InvalidPlatformVersion */
     #[Override]
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractMySQLPlatform
     {

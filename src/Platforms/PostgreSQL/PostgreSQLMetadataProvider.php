@@ -49,11 +49,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
     {
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @link https://www.postgresql.org/docs/current/catalog-pg-database.html
-     */
+    /** @link https://www.postgresql.org/docs/current/catalog-pg-database.html */
     #[Override]
     public function getAllDatabaseNames(): iterable
     {
@@ -68,11 +64,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @link https://www.postgresql.org/docs/current/catalog-pg-namespace.html
-     */
+    /** @link https://www.postgresql.org/docs/current/catalog-pg-namespace.html */
     #[Override]
     public function getAllSchemaNames(): iterable
     {
@@ -92,8 +84,6 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @link https://www.postgresql.org/docs/current/catalog-pg-class.html
      * @link https://www.postgresql.org/docs/current/catalog-pg-namespace.html
      */
@@ -121,14 +111,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getTableColumnsForAllTables(): iterable
     {
         return $this->getTableColumns(null, null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getTableColumnsForTable(?string $schemaName, string $tableName): iterable
     {
@@ -346,14 +334,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         return $expression;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getIndexColumnsForAllTables(): iterable
     {
         return $this->getIndexColumns(null, null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getIndexColumnsForTable(?string $schemaName, string $tableName): iterable
     {
@@ -419,14 +405,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getPrimaryKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getPrimaryKeyConstraintColumns(null, null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getPrimaryKeyConstraintColumnsForTable(
         ?string $schemaName,
@@ -494,14 +478,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getForeignKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getForeignKeyConstraintColumns(null, null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getForeignKeyConstraintColumnsForTable(
         ?string $schemaName,
@@ -588,14 +570,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getTableOptionsForAllTables(): iterable
     {
         return $this->getTableOptions(null, null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getTableOptionsForTable(
         ?string $schemaName,
@@ -672,11 +652,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         return implode(' AND ', $conditions);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @link https://www.postgresql.org/docs/current/catalog-pg-views.html
-     */
+    /** @link https://www.postgresql.org/docs/current/catalog-pg-views.html */
     #[Override]
     public function getAllViews(): iterable
     {
@@ -698,7 +674,6 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllSequences(): iterable
     {

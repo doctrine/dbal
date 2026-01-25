@@ -15,9 +15,6 @@ use Override;
  */
 class DateType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

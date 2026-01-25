@@ -76,7 +76,6 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
             . ' ON UPDATE NO ACTION ON DELETE NO ACTION';
     }
 
-    /** {@inheritDoc} */
     #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {

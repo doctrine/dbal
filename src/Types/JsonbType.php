@@ -12,9 +12,6 @@ use Override;
  */
 class JsonbType extends JsonType
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

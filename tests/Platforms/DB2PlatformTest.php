@@ -45,9 +45,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             . '"TEST" VARCHAR(255) DEFAULT NULL, PRIMARY KEY ("ID"))';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
@@ -63,9 +60,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return 'CREATE UNIQUE INDEX "INDEX_NAME" ON "TEST" ("TEST", "TEST2")';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
@@ -82,9 +76,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
@@ -94,9 +85,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
@@ -106,9 +94,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
@@ -446,18 +431,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return 'VARCHAR(16) FOR BIT DATA';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ['RENAME INDEX "IDX_FOO" TO "IDX_BAR"'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -467,18 +446,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['RENAME INDEX "MYSCHEMA"."IDX_FOO" TO "IDX_BAR"'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -494,9 +467,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getCommentOnColumnSQL(): array
     {
@@ -704,9 +674,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return 'TRUNCATE "SELECT" IMMEDIATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -716,9 +683,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

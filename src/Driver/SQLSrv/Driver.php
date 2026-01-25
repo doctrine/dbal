@@ -18,9 +18,6 @@ use function sqlsrv_connect;
  */
 final readonly class Driver extends AbstractSQLServerDriver
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function connect(
         #[SensitiveParameter]

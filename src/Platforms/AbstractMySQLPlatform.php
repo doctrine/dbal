@@ -123,9 +123,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'CHAR_LENGTH(' . $string . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getJsonTypeDeclarationSQL(array $column): string
     {
@@ -138,8 +135,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *     TEXT       : 2 ^ 16 - 1 = 65535
      *     MEDIUMTEXT : 2 ^ 24 - 1 = 16777215
      *     LONGTEXT   : 2 ^ 32 - 1 = 4294967295
-     *
-     * {@inheritDoc}
      */
     #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
@@ -163,36 +158,24 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'LONGTEXT';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATETIME';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
@@ -200,8 +183,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * MySQL supports this through AUTO_INCREMENT columns.
      */
     #[Override]
@@ -234,9 +215,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $tableAlias . '.DATA_TYPE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
@@ -432,63 +410,42 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return implode(' ', $chunks);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getFloatDeclarationSQL(array $column): string
     {
         return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSmallFloatDeclarationSQL(array $column): string
     {
         return 'FLOAT' . $this->getUnsignedDeclaration($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
         return parent::getDecimalTypeDeclarationSQL($column) . $this->getUnsignedDeclaration($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getEnumDeclarationSQL(array $column): string
     {
@@ -512,9 +469,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
@@ -623,8 +577,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * MySQL commits a transaction implicitly when DROP TABLE is executed, however not
      * if DROP TEMPORARY TABLE is executed.
      */
@@ -642,8 +594,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *     BLOB       : 2 ^ 16 - 1 = 65535
      *     MEDIUMBLOB : 2 ^ 24 - 1 = 16777215
      *     LONGBLOB   : 2 ^ 32 - 1 = 4294967295
-     *
-     * {@inheritDoc}
      */
     #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string

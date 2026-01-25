@@ -40,9 +40,6 @@ final class Result extends AbstractResultMiddleware
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllNumeric(): array
     {
@@ -51,9 +48,6 @@ final class Result extends AbstractResultMiddleware
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllAssociative(): array
     {
@@ -62,9 +56,6 @@ final class Result extends AbstractResultMiddleware
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchFirstColumn(): array
     {

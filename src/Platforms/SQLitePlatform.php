@@ -153,8 +153,6 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * The DBAL doesn't support databases on the SQLite platform. The expression here always returns a fixed string
      * as an indicator of an implicitly selected database.
      *
@@ -191,27 +189,18 @@ class SQLitePlatform extends AbstractPlatform
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BOOLEAN';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
@@ -223,9 +212,6 @@ class SQLitePlatform extends AbstractPlatform
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
@@ -237,36 +223,24 @@ class SQLitePlatform extends AbstractPlatform
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATETIME';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
@@ -278,9 +252,6 @@ class SQLitePlatform extends AbstractPlatform
         return ! empty($column['unsigned']) ? ' UNSIGNED' : '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
@@ -398,9 +369,6 @@ class SQLitePlatform extends AbstractPlatform
         return 'BLOB';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
@@ -511,6 +479,7 @@ class SQLitePlatform extends AbstractPlatform
         ];
     }
 
+    #[Override]
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
         if ($limit === null && $offset > 0) {
@@ -520,18 +489,12 @@ class SQLitePlatform extends AbstractPlatform
         return parent::doModifyLimitQuery($query, $limit, $offset);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BLOB';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getCreateTablesSQL(array $tables): array
     {
@@ -545,8 +508,6 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Unlike other database platforms, SQLite requires the schema name to be specified as part of the index name, not
      * the table name.
      *
@@ -579,7 +540,6 @@ class SQLitePlatform extends AbstractPlatform
         return implode(' ', $chunks);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
@@ -589,9 +549,6 @@ class SQLitePlatform extends AbstractPlatform
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDropTablesSQL(array $tables): array
     {
@@ -616,9 +573,6 @@ class SQLitePlatform extends AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {

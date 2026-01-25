@@ -31,27 +31,18 @@ abstract class AbstractResultMiddleware implements Result
         return $this->wrappedResult->fetchOne();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllNumeric(): array
     {
         return $this->wrappedResult->fetchAllNumeric();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllAssociative(): array
     {
         return $this->wrappedResult->fetchAllAssociative();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchFirstColumn(): array
     {

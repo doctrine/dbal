@@ -45,9 +45,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             . ', "test" VARCHAR(255) DEFAULT NULL)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
@@ -461,18 +458,12 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals($sql, $this->platform->getAlterTableSQL($diff));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY ("create"))'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
@@ -482,9 +473,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
@@ -494,9 +482,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
@@ -537,9 +522,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         return 'BLOB';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -553,9 +535,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -640,9 +619,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         ], $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getCommentOnColumnSQL(): array
     {
@@ -689,9 +665,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         return 'DELETE FROM "select"';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -704,9 +677,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

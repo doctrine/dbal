@@ -18,9 +18,6 @@ final readonly class Driver extends AbstractDriverMiddleware
         parent::__construct($driver);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function connect(
         #[SensitiveParameter]

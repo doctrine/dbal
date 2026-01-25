@@ -55,27 +55,18 @@ final readonly class Result implements ResultInterface
         return FetchUtils::fetchOne($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllNumeric(): array
     {
         return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_ROW);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllAssociative(): array
     {
         return $this->fetchAll(OCI_ASSOC, OCI_FETCHSTATEMENT_BY_ROW);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchFirstColumn(): array
     {

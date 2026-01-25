@@ -88,9 +88,6 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testCaseInsensitiveDoctrineTypeMappingFromType(): void
     {
         $type = new class () extends Type {
-            /**
-             * {@inheritDoc}
-             */
             #[Override]
             public function getMappedDatabaseTypes(AbstractPlatform $platform): array
             {
@@ -102,9 +99,6 @@ abstract class AbstractPlatformTestCase extends TestCase
                 return 'testtype';
             }
 
-            /**
-             * {@inheritDoc}
-             */
             #[Override]
             public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
             {

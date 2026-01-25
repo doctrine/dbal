@@ -9,9 +9,6 @@ use Override;
 
 class FloatType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

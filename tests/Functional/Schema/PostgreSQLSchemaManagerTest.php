@@ -716,7 +716,7 @@ SQL;
             select count(*) as count
             from pg_class parent
             inner join pg_inherits on pg_inherits.inhparent = parent.oid
-            inner join pg_class child on pg_inherits.inhrelid = child.oid 
+            inner join pg_class child on pg_inherits.inhrelid = child.oid
                 and child.relkind = 'r'
                 and child.relname = 'partition'
             where parent.relname = 'partitioned_table' and parent.relkind = 'p';
@@ -735,9 +735,6 @@ SQL;
 
 class MoneyType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

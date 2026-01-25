@@ -12,9 +12,6 @@ use Override;
  */
 class GuidType extends StringType
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

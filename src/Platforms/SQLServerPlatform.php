@@ -108,11 +108,7 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DATEDIFF(day, ' . $date2 . ',' . $date1 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Microsoft SQL Server supports this through AUTO_INCREMENT columns.
-     */
+    /** Microsoft SQL Server supports this through AUTO_INCREMENT columns. */
     #[Override]
     public function supportsIdentityColumns(): bool
     {
@@ -182,9 +178,6 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DROP INDEX ' . $parsedIndexName->toSQL($this) . ' ON ' . $parsedTableName->toSQL($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
@@ -321,9 +314,6 @@ class SQLServerPlatform extends AbstractPlatform
         return parent::getCreateIndexSQL($index, $tableName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
@@ -628,9 +618,6 @@ class SQLServerPlatform extends AbstractPlatform
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
@@ -650,9 +637,6 @@ class SQLServerPlatform extends AbstractPlatform
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getRenameColumnSQL(string $tableName, string $oldColumnName, string $newColumnName): array
     {
@@ -828,45 +812,30 @@ class SQLServerPlatform extends AbstractPlatform
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getGuidTypeDeclarationSQL(array $column): string
     {
         return 'UNIQUEIDENTIFIER';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
@@ -895,9 +864,6 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('NVARCHAR(%d)', $length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getAsciiStringTypeDeclarationSQL(array $column): string
     {
@@ -910,18 +876,12 @@ class SQLServerPlatform extends AbstractPlatform
         return parent::getCharTypeDeclarationSQLSnippet($length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'VARCHAR(MAX)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
@@ -932,9 +892,6 @@ class SQLServerPlatform extends AbstractPlatform
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
@@ -943,27 +900,18 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DATETIME2(6)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME(0)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
@@ -1152,18 +1100,12 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('TRUNCATE TABLE %s', $parsedName->toSQL($this));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'VARBINARY(MAX)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getColumnDeclarationSQL(array $column): string
     {

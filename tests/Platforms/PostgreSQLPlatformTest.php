@@ -39,9 +39,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             . ', "test" VARCHAR(255) DEFAULT NULL, PRIMARY KEY ("id"))';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
@@ -268,18 +265,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY ("create"))'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
@@ -289,9 +280,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
@@ -301,9 +289,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
@@ -636,18 +621,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER INDEX "idx_foo" RENAME TO "idx_bar"'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -682,18 +661,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER INDEX "myschema"."idx_foo" RENAME TO "idx_bar"'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -721,9 +694,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertSame('UUID', $this->platform->getGuidTypeDeclarationSQL([]));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getCommentOnColumnSQL(): array
     {
@@ -807,18 +777,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         return 'TRUNCATE "select"';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE "mytable" ALTER "name" TYPE CHAR(2)'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

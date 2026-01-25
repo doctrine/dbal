@@ -17,9 +17,6 @@ class MoneyType extends Type
 {
     public const string NAME = 'money';
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

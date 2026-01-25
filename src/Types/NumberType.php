@@ -16,7 +16,6 @@ use function is_float;
 
 final class NumberType extends Type
 {
-    /** {@inheritDoc} */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

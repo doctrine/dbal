@@ -176,9 +176,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $query;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
@@ -324,9 +321,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $type->getSQLDeclaration($columnDefinition, $this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
@@ -396,9 +390,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
@@ -512,11 +503,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $this->convertSingleBooleanValue($item, $callback);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Postgres wants boolean values converted to the strings 'true'/'false'.
-     */
+    /** Postgres wants boolean values converted to the strings 'true'/'false'. */
     #[Override]
     public function convertBooleans(mixed $item): mixed
     {
@@ -585,90 +572,60 @@ class PostgreSQLPlatform extends AbstractPlatform
             . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BOOLEAN';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getGuidTypeDeclarationSQL(array $column): string
     {
         return 'UUID';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITHOUT TIME ZONE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME(0) WITHOUT TIME ZONE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
@@ -703,9 +660,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return 'BYTEA';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
@@ -783,18 +737,12 @@ class PostgreSQLPlatform extends AbstractPlatform
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BYTEA';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getDefaultValueDeclarationSQL(array $column): string
     {
@@ -811,18 +759,12 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getJsonTypeDeclarationSQL(array $column): string
     {
         return 'JSON';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getJsonbTypeDeclarationSQL(array $column): string
     {

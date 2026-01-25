@@ -49,7 +49,6 @@ final class Result implements ResultInterface
         $this->free();
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function fetchNumeric(): array|false
     {
@@ -65,7 +64,6 @@ final class Result implements ResultInterface
         return $this->mapNumericRow($row, $this->fetchNumericColumnTypes());
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function fetchAssociative(): array|false
     {
@@ -81,14 +79,12 @@ final class Result implements ResultInterface
         return $this->mapAssociativeRow($row, $this->fetchAssociativeColumnTypes());
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function fetchAllNumeric(): array
     {
@@ -104,7 +100,6 @@ final class Result implements ResultInterface
         );
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function fetchAllAssociative(): array
     {
@@ -120,7 +115,6 @@ final class Result implements ResultInterface
         );
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function fetchFirstColumn(): array
     {

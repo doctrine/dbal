@@ -59,27 +59,18 @@ final readonly class Result implements ResultInterface
         return FetchUtils::fetchOne($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchFirstColumn(): array
     {

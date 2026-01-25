@@ -27,7 +27,6 @@ use const PGSQL_CONNECT_FORCE_NEW;
 
 final readonly class Driver extends AbstractPostgreSQLDriver
 {
-    /** {@inheritDoc} */
     #[Override]
     public function connect(
         #[SensitiveParameter]

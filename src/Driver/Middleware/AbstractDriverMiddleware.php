@@ -18,9 +18,6 @@ abstract readonly class AbstractDriverMiddleware implements Driver
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function connect(
         #[SensitiveParameter]

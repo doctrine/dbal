@@ -15,9 +15,6 @@ use function is_int;
  */
 class DecimalType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

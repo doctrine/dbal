@@ -232,11 +232,7 @@ class Connection implements ServerVersionProvider
         return $connection;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws Exception
-     */
+    /** @throws Exception */
     #[Override]
     public function getServerVersion(): string
     {

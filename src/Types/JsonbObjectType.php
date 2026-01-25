@@ -14,9 +14,6 @@ class JsonbObjectType extends Type
 {
     use JsonTypeConvert;
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

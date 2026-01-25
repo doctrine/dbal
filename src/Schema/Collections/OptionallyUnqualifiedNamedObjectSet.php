@@ -145,14 +145,12 @@ final class OptionallyUnqualifiedNamedObjectSet implements ObjectSet
         $this->elements = $this->elementPositionsByKey = [];
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function toList(): array
     {
         return $this->elements;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getIterator(): Traversable
     {

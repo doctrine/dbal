@@ -18,9 +18,6 @@ use function is_string;
 
 final readonly class Driver extends AbstractPostgreSQLDriver
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function connect(
         #[SensitiveParameter]

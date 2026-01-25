@@ -16,9 +16,6 @@ use function sprintf;
  */
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
@@ -74,8 +71,6 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Unlike other platforms, the default referential action on MariaDB is <code>RESTRICT</code>, so we cannot use the
      * default implementation which assumes <code>NO_ACTION</code> as the default.
      *
@@ -91,7 +86,6 @@ class MariaDBPlatform extends AbstractMySQLPlatform
         );
     }
 
-    /** {@inheritDoc} */
     #[Override]
     protected function getColumnDeclarationSQL(array $column): string
     {

@@ -53,21 +53,18 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
     {
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllDatabaseNames(): iterable
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllSchemaNames(): iterable
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllTableNames(): iterable
     {
@@ -96,14 +93,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         yield from $this->connection->iterateColumn($sql);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getTableColumnsForAllTables(): iterable
     {
         return $this->getTableColumns(null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getTableColumnsForTable(?string $schemaName, string $tableName): iterable
     {
@@ -288,14 +283,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         )) . ')';
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getIndexColumnsForAllTables(): iterable
     {
         return $this->getIndexColumns(null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getIndexColumnsForTable(?string $schemaName, string $tableName): iterable
     {
@@ -351,14 +344,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getPrimaryKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getPrimaryKeyConstraintColumns(null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getPrimaryKeyConstraintColumnsForTable(
         ?string $schemaName,
@@ -407,14 +398,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getForeignKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getForeignKeyConstraintColumns(null);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getForeignKeyConstraintColumnsForTable(
         ?string $schemaName,
@@ -614,14 +603,12 @@ SQL,
         return $sql;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getTableOptionsForAllTables(): iterable
     {
         return $this->getTableOptions($this->getTableNames());
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getTableOptionsForTable(
         ?string $schemaName,
@@ -695,7 +682,6 @@ SQL,
         return $comment === '' ? null : $comment;
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllViews(): iterable
     {
@@ -712,7 +698,6 @@ SQL,
         }
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getAllSequences(): iterable
     {

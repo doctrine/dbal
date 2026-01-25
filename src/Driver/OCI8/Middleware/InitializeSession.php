@@ -17,9 +17,6 @@ final readonly class InitializeSession implements Middleware
     public function wrap(Driver $driver): Driver
     {
         return new readonly class ($driver) extends AbstractDriverMiddleware {
-            /**
-             * {@inheritDoc}
-             */
             #[Override]
             public function connect(
                 #[SensitiveParameter]

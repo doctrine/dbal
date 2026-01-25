@@ -17,9 +17,6 @@ use function is_string;
 
 final readonly class Driver extends AbstractOracleDriver
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function connect(
         #[SensitiveParameter]

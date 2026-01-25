@@ -37,27 +37,18 @@ final readonly class Result implements ResultInterface
         return $this->fetch(PDO::FETCH_COLUMN);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllNumeric(): array
     {
         return $this->fetchAll(PDO::FETCH_NUM);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllAssociative(): array
     {
         return $this->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchFirstColumn(): array
     {

@@ -19,8 +19,6 @@ use function sprintf;
 class MySQLPlatform extends AbstractMySQLPlatform
 {
     /**
-     * {@inheritDoc}
-     *
      * Oracle MySQL does not support default values on TEXT/BLOB columns until 8.0.13.
      *
      * @link https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-13.html#mysqld-8-0-13-data-types
@@ -47,9 +45,6 @@ class MySQLPlatform extends AbstractMySQLPlatform
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {

@@ -21,9 +21,6 @@ use const OCI_NO_AUTO_COMMIT;
  */
 final readonly class Driver extends AbstractOracleDriver
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function connect(
         #[SensitiveParameter]

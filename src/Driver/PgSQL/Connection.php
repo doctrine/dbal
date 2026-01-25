@@ -80,7 +80,6 @@ final readonly class Connection implements ConnectionInterface
         return new Result($result);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function quote(string $value): string
     {
@@ -96,7 +95,6 @@ final readonly class Connection implements ConnectionInterface
         return $this->query($sql)->rowCount();
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function lastInsertId(): int|string
     {

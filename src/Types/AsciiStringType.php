@@ -10,9 +10,6 @@ use Override;
 
 final class AsciiStringType extends StringType
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

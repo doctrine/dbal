@@ -478,9 +478,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getCommentOnColumnSQL(): array
     {
@@ -503,27 +500,18 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         return 'TRUNCATE `select`';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE `mytable` CHANGE `name` `name` CHAR(2) NOT NULL'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ['ALTER TABLE `mytable` RENAME INDEX `idx_foo` TO `idx_foo_renamed`'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public static function getGeneratesDecimalTypeDeclarationSQL(): iterable
     {
@@ -532,9 +520,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         yield from parent::getGeneratesDecimalTypeDeclarationSQL();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public static function getGeneratesFloatDeclarationSQL(): iterable
     {
@@ -548,9 +533,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public static function getGeneratesSmallFloatDeclarationSQL(): iterable
     {

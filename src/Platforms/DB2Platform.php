@@ -37,9 +37,6 @@ class DB2Platform extends AbstractPlatform
         parent::__construct(UnquotedIdentifierFolding::UPPER);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
@@ -81,9 +78,6 @@ class DB2Platform extends AbstractPlatform
         return $this->getVarcharTypeDeclarationSQLSnippet($length) . ' FOR BIT DATA';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
@@ -91,45 +85,30 @@ class DB2Platform extends AbstractPlatform
         return 'CLOB(1M)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
@@ -180,27 +159,18 @@ class DB2Platform extends AbstractPlatform
         return 'DAYS(' . $date1 . ') - DAYS(' . $date2 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
@@ -253,9 +223,6 @@ class DB2Platform extends AbstractPlatform
         return 'CURRENT TIMESTAMP';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
@@ -280,9 +247,6 @@ class DB2Platform extends AbstractPlatform
         return parent::getCreateIndexSQL($index, $tableName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
@@ -510,9 +474,6 @@ class DB2Platform extends AbstractPlatform
         return $clauses;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
@@ -528,9 +489,6 @@ class DB2Platform extends AbstractPlatform
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getDefaultValueDeclarationSQL(array $column): string
     {
@@ -624,8 +582,6 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Db2 supports savepoints, but they work semantically different than on other vendor platforms.
      *
      * TODO: We have to investigate how to get Db2 up and running with savepoints.

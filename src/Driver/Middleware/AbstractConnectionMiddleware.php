@@ -69,9 +69,6 @@ abstract readonly class AbstractConnectionMiddleware implements Connection
         return $this->wrappedConnection->getServerVersion();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getNativeConnection()
     {

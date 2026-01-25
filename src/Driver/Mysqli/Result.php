@@ -74,9 +74,6 @@ final class Result implements ResultInterface
         return $this->result->fetch_column();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllNumeric(): array
     {
@@ -88,9 +85,6 @@ final class Result implements ResultInterface
         return $this->result->fetch_all(MYSQLI_NUM);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchAllAssociative(): array
     {
@@ -101,9 +95,6 @@ final class Result implements ResultInterface
         return $this->result->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function fetchFirstColumn(): array
     {

@@ -37,9 +37,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             . '"TEST" VARCHAR2(255) DEFAULT NULL NULL, PRIMARY KEY ("ID"))';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
@@ -145,9 +142,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         return 'ALTER TABLE "TEST" ADD FOREIGN KEY ("FK_NAME_ID") REFERENCES "OTHER_TABLE" ("ID")';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
@@ -229,18 +223,12 @@ SQL
         . '+' . $value2 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("CREATE" VARCHAR2(255) NOT NULL, PRIMARY KEY ("CREATE"))'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
@@ -250,9 +238,6 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
@@ -262,9 +247,6 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
@@ -403,18 +385,12 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER INDEX "IDX_FOO" RENAME TO "IDX_BAR"'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -424,18 +400,12 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER INDEX "MYSCHEMA"."IDX_FOO" RENAME TO "IDX_BAR"'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -486,9 +456,6 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getCommentOnColumnSQL(): array
     {
@@ -588,18 +555,12 @@ EOD;
         return 'TRUNCATE TABLE "SELECT"';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE "MYTABLE" MODIFY ("NAME" CHAR(2) DEFAULT NULL)'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

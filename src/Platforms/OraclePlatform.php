@@ -140,8 +140,6 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Need to specifiy minvalue, since start with is hidden in the system and MINVALUE <= START WITH.
      * Therefore we can use MINVALUE to be able to get a hint what START WITH was for later introspection
      * in {@see listSequences()}
@@ -205,81 +203,54 @@ class OraclePlatform extends AbstractPlatform
         };
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(1)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(10)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(20)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(5)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
@@ -312,9 +283,6 @@ class OraclePlatform extends AbstractPlatform
         return $this->getBinaryTypeDeclarationSQLSnippet($length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
@@ -327,9 +295,6 @@ class OraclePlatform extends AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
@@ -536,9 +501,6 @@ SQL,
         return sprintf('DROP USER %s CASCADE', $parsedName->toSQL($this));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
@@ -687,9 +649,6 @@ SQL,
         return array_merge($sql, $commentsSQL);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getColumnDeclarationSQL(array $column): string
     {
@@ -711,9 +670,6 @@ SQL,
         return $column['name']->toSQL($this) . ' ' . $declaration;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
@@ -850,9 +806,6 @@ SQL,
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {

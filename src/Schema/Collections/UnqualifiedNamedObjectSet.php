@@ -100,14 +100,12 @@ final class UnqualifiedNamedObjectSet implements ObjectSet
         $this->elements = [];
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function toList(): array
     {
         return array_values($this->elements);
     }
 
-    /** {@inheritDoc} */
     #[Override]
     public function getIterator(): Traversable
     {
