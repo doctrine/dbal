@@ -38,10 +38,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
     /** @return string[] */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
-        return [
-            'ALTER TABLE `table` RENAME INDEX `create` TO `select`',
-            'ALTER TABLE `table` RENAME INDEX `foo` TO `bar`',
-        ];
+        return ['ALTER TABLE `table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
     }
 
     /** @return string[] */
@@ -53,10 +50,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
     /** @return string[] */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
-        return [
-            'ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`',
-            'ALTER TABLE `schema`.`table` RENAME INDEX `foo` TO `bar`',
-        ];
+        return ['ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
     }
 
     public function testHasCorrectDefaultTransactionIsolationLevel(): void

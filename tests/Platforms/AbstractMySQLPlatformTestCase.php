@@ -179,10 +179,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
-        self::assertEquals([
-            'ALTER TABLE `foo` ADD PRIMARY KEY (`bar`)',
-            'CREATE UNIQUE INDEX `UNIQ_8C73652178240498` ON `foo` (`baz`)',
-        ], $sql);
+        self::assertEquals(
+            ['ALTER TABLE `foo` ADD PRIMARY KEY (`bar`), ADD UNIQUE INDEX `UNIQ_8C73652178240498` (`baz`)'],
+            $sql,
+        );
     }
 
     public function testModifyLimitQuery(): void
@@ -364,12 +364,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /** @return string[] */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
-        return [
-            'DROP INDEX `create` ON `table`',
-            'CREATE INDEX `select` ON `table` (id)',
-            'DROP INDEX `foo` ON `table`',
-            'CREATE INDEX `bar` ON `table` (id)',
-        ];
+        return ['ALTER TABLE `table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
     }
 
     /** @return string[] */
@@ -384,12 +379,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /** @return string[] */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
-        return [
-            'DROP INDEX `create` ON `schema`.`table`',
-            'CREATE INDEX `select` ON `schema`.`table` (id)',
-            'DROP INDEX `foo` ON `schema`.`table`',
-            'CREATE INDEX `bar` ON `schema`.`table` (id)',
-        ];
+        return ['ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
     }
 
     protected function getQuotedCommentOnColumnSQLWithoutQuoteCharacter(): string

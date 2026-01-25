@@ -14,7 +14,7 @@ use function count;
 /**
  * Table Diff.
  */
-final class TableDiff
+final readonly class TableDiff
 {
     /**
      * Constructs a TableDiff object.
@@ -31,17 +31,17 @@ final class TableDiff
      * @param array<UnqualifiedName>         $droppedForeignKeyConstraintNames
      */
     public function __construct(
-        private readonly Table $oldTable,
-        private readonly array $addedColumns = [],
-        private readonly array $changedColumns = [],
-        private readonly array $droppedColumns = [],
+        private Table $oldTable,
+        private array $addedColumns = [],
+        private array $changedColumns = [],
+        private array $droppedColumns = [],
         private array $addedIndexes = [],
         private array $droppedIndexes = [],
-        private readonly array $renamedIndexes = [],
-        private readonly array $addedForeignKeys = [],
-        private readonly array $droppedForeignKeyConstraintNames = [],
-        private readonly ?PrimaryKeyConstraint $addedPrimaryKeyConstraint = null,
-        private readonly ?PrimaryKeyConstraint $droppedPrimaryKeyConstraint = null,
+        private array $renamedIndexes = [],
+        private array $addedForeignKeys = [],
+        private array $droppedForeignKeyConstraintNames = [],
+        private ?PrimaryKeyConstraint $addedPrimaryKeyConstraint = null,
+        private ?PrimaryKeyConstraint $droppedPrimaryKeyConstraint = null,
     ) {
     }
 
@@ -124,38 +124,10 @@ final class TableDiff
         return $this->addedIndexes;
     }
 
-    /**
-     * @internal This method exists only for compatibility with the current implementation of schema managers
-     *           that modify the diff while processing it.
-     */
-    public function unsetAddedIndex(Index $index): void
-    {
-        $this->addedIndexes = array_filter(
-            $this->addedIndexes,
-            static function (Index $addedIndex) use ($index): bool {
-                return $addedIndex !== $index;
-            },
-        );
-    }
-
     /** @return array<Index> */
     public function getDroppedIndexes(): array
     {
         return $this->droppedIndexes;
-    }
-
-    /**
-     * @internal This method exists only for compatibility with the current implementation of schema managers
-     *           that modify the diff while processing it.
-     */
-    public function unsetDroppedIndex(Index $index): void
-    {
-        $this->droppedIndexes = array_filter(
-            $this->droppedIndexes,
-            static function (Index $droppedIndex) use ($index): bool {
-                return $droppedIndex !== $index;
-            },
-        );
     }
 
     /** @return array<non-empty-string,Index> */

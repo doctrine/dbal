@@ -325,6 +325,13 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff): array
     {
+        $sql          = [];
+        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
+
+        foreach ($diff->getDroppedForeignKeyConstraintNames() as $constraintName) {
+            $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
+        }
+
         $queryParts = [];
 
         foreach ($diff->getAddedColumns() as $column) {
@@ -358,69 +365,29 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $queryParts[] = 'ADD ' . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
-        $tableSql = [];
+        foreach ($diff->getDroppedIndexes() as $index) {
+            $queryParts[] = 'DROP INDEX ' . $index->getObjectName()->toSQL($this);
+        }
+
+        foreach ($diff->getAddedIndexes() as $index) {
+            $queryParts[] = 'ADD ' . $this->getIndexDeclarationSQL($index);
+        }
+
+        foreach ($diff->getRenamedIndexes() as $oldIndexName => $index) {
+            $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
+            $queryParts[]       = 'RENAME INDEX ' . $parsedOldIndexName->toSQL($this) . ' TO '
+                . $index->getObjectName()->toSQL($this);
+        }
 
         if (count($queryParts) > 0) {
-            $tableSql[] = 'ALTER TABLE ' . $diff->getOldTable()->getObjectName()->toSQL($this) . ' '
-                . implode(', ', $queryParts);
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . implode(', ', $queryParts);
         }
 
-        return array_merge(
-            $this->getPreAlterTableIndexForeignKeySQL($diff),
-            $tableSql,
-            $this->getPostAlterTableIndexForeignKeySQL($diff),
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
-    {
-        $sql = [];
-
-        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
-
-        foreach ($diff->getDroppedIndexes() as $droppedIndex) {
-            foreach ($diff->getAddedIndexes() as $addedIndex) {
-                if (! $this->indexedColumnNamesEqual($droppedIndex, $addedIndex)) {
-                    continue;
-                }
-
-                $sql[] = sprintf(
-                    'ALTER TABLE %s DROP INDEX %s, ADD %s',
-                    $tableNameSQL,
-                    $droppedIndex->getObjectName()->toSQL($this),
-                    $this->getIndexDeclarationSQL($addedIndex),
-                );
-
-                $diff->unsetAddedIndex($addedIndex);
-                $diff->unsetDroppedIndex($droppedIndex);
-
-                break;
-            }
+        foreach ($diff->getAddedForeignKeys() as $addedForeignKeyConstraint) {
+            $sql[] = $this->getCreateForeignKeySQL($addedForeignKeyConstraint, $tableNameSQL);
         }
 
-        return array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
-    }
-
-    private function indexedColumnNamesEqual(Index $index1, Index $index2): bool
-    {
-        $columns1 = $index1->getIndexedColumns();
-        $columns2 = $index2->getIndexedColumns();
-
-        if (count($columns1) !== count($columns2)) {
-            return false;
-        }
-
-        $folding = $this->getUnquotedIdentifierFolding();
-        foreach ($columns1 as $i => $column1) {
-            if (! $column1->getColumnName()->equals($columns2[$i]->getColumnName(), $folding)) {
-                return false;
-            }
-        }
-
-        return true;
+        return $sql;
     }
 
     /**
