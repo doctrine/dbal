@@ -13,7 +13,7 @@ use Doctrine\DBAL\ServerVersionProvider;
 /**
  * Abstract base implementation of the {@see Driver} interface for Microsoft SQL Server based drivers.
  */
-abstract class AbstractSQLServerDriver implements Driver
+abstract readonly class AbstractSQLServerDriver implements Driver
 {
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): SQLServerPlatform
     {

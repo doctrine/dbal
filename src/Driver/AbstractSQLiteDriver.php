@@ -13,7 +13,7 @@ use Doctrine\DBAL\ServerVersionProvider;
 /**
  * Abstract base implementation of the {@see Driver} interface for SQLite based drivers.
  */
-abstract class AbstractSQLiteDriver implements Driver
+abstract readonly class AbstractSQLiteDriver implements Driver
 {
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): SQLitePlatform
     {

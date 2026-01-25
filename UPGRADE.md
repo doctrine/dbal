@@ -8,10 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
-## BC BREAK: `AbstractConnectionMiddleware` marked as readonly
+## BC BREAK: `AbstractDriverMiddleware` and `AbstractConnectionMiddleware` marked as readonly
 
-The `AbstractConnectionMiddleware` class has been marked as read-only. As a
-result, classes extending it must be declared as read-only as well.
+The `AbstractDriverMiddleware` and `AbstractConnectionMiddleware` classes have been marked as read-only. As a
+result, classes extending them must be declared as read-only as well.
 
 ## BC BREAK: Either of the `host` and `connectstring` parameters must be specified for `oci8` and `pdo_oci` connections.
 

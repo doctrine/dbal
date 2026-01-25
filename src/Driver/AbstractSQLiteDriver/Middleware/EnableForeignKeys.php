@@ -10,11 +10,11 @@ use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use SensitiveParameter;
 
-final class EnableForeignKeys implements Middleware
+final readonly class EnableForeignKeys implements Middleware
 {
     public function wrap(Driver $driver): Driver
     {
-        return new class ($driver) extends AbstractDriverMiddleware {
+        return new readonly class ($driver) extends AbstractDriverMiddleware {
             /**
              * {@inheritDoc}
              */

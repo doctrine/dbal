@@ -14,7 +14,7 @@ use Doctrine\DBAL\ServerVersionProvider;
 /**
  * Abstract base implementation of the {@see Driver} interface for Oracle based drivers.
  */
-abstract class AbstractOracleDriver implements Driver
+abstract readonly class AbstractOracleDriver implements Driver
 {
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): OraclePlatform
     {

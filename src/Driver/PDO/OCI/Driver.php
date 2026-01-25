@@ -14,7 +14,7 @@ use SensitiveParameter;
 
 use function is_string;
 
-final class Driver extends AbstractOracleDriver
+final readonly class Driver extends AbstractOracleDriver
 {
     /**
      * {@inheritDoc}

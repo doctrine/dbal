@@ -13,7 +13,7 @@ use Doctrine\DBAL\ServerVersionProvider;
 /**
  * Abstract base implementation of the {@see Driver} interface for Db2 based drivers.
  */
-abstract class AbstractDB2Driver implements Driver
+abstract readonly class AbstractDB2Driver implements Driver
 {
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): DB2Platform
     {

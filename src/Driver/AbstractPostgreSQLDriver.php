@@ -13,7 +13,7 @@ use Doctrine\DBAL\ServerVersionProvider;
 /**
  * Abstract base implementation of the {@see Driver} interface for PostgreSQL based drivers.
  */
-abstract class AbstractPostgreSQLDriver implements Driver
+abstract readonly class AbstractPostgreSQLDriver implements Driver
 {
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): PostgreSQLPlatform
     {

@@ -14,7 +14,7 @@ use SensitiveParameter;
 
 use function is_string;
 
-final class Driver extends AbstractMySQLDriver
+final readonly class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritDoc}

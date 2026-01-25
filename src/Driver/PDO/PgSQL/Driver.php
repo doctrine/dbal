@@ -15,7 +15,7 @@ use SensitiveParameter;
 
 use function is_string;
 
-final class Driver extends AbstractPostgreSQLDriver
+final readonly class Driver extends AbstractPostgreSQLDriver
 {
     /**
      * {@inheritDoc}

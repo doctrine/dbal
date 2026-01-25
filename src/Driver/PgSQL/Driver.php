@@ -24,7 +24,7 @@ use function sprintf;
 
 use const PGSQL_CONNECT_FORCE_NEW;
 
-final class Driver extends AbstractPostgreSQLDriver
+final readonly class Driver extends AbstractPostgreSQLDriver
 {
     /** {@inheritDoc} */
     public function connect(
