@@ -176,6 +176,14 @@ class PostgreSQLPlatform extends AbstractPlatform
         $tableName    = $table->getObjectName();
         $tableNameSQL = $tableName->toSQL($this);
 
+        foreach ($diff->getDroppedForeignKeyConstraintNames() as $constraintName) {
+            $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
+        }
+
+        foreach ($diff->getDroppedIndexes() as $index) {
+            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
+        }
+
         $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
 
         if ($droppedPrimaryKeyConstraint !== null) {
@@ -274,12 +282,22 @@ class PostgreSQLPlatform extends AbstractPlatform
                 . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
-        return array_merge(
-            $this->getPreAlterTableIndexForeignKeySQL($diff),
-            $sql,
-            $commentsSQL,
-            $this->getPostAlterTableIndexForeignKeySQL($diff),
-        );
+        foreach ($diff->getAddedForeignKeys() as $foreignKey) {
+            $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
+        }
+
+        foreach ($diff->getAddedIndexes() as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
+        }
+
+        foreach ($diff->getRenamedIndexes() as $oldIndexName => $index) {
+            $sql = array_merge(
+                $sql,
+                $this->getRenameIndexSQL($oldIndexName, $index, $tableNameSQL),
+            );
+        }
+
+        return array_merge($sql, $commentsSQL);
     }
 
     private function getTypeSQLDeclaration(Column $column): string
