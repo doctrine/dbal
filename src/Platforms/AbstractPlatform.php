@@ -1270,49 +1270,6 @@ abstract class AbstractPlatform
         );
     }
 
-    /** @return list<string> */
-    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
-    {
-        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
-
-        $sql = [];
-
-        foreach ($diff->getDroppedForeignKeyConstraintNames() as $constraintName) {
-            $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
-        }
-
-        foreach ($diff->getDroppedIndexes() as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
-        }
-
-        return $sql;
-    }
-
-    /** @return list<string> */
-    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
-    {
-        $sql = [];
-
-        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
-
-        foreach ($diff->getAddedForeignKeys() as $foreignKey) {
-            $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
-        }
-
-        foreach ($diff->getAddedIndexes() as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
-        }
-
-        foreach ($diff->getRenamedIndexes() as $oldIndexName => $index) {
-            $sql = array_merge(
-                $sql,
-                $this->getRenameIndexSQL($oldIndexName, $index, $tableNameSQL),
-            );
-        }
-
-        return $sql;
-    }
-
     /**
      * Returns the SQL for renaming an index on a table.
      *

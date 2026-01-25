@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `AbstractPlatform::getPreAlterTableIndexForeignKeySQL()` and `AbstractPlatform::getPostAlterTableIndexForeignKeySQL()`
+
+The `getPreAlterTableIndexForeignKeySQL()` and `getPostAlterTableIndexForeignKeySQL()` methods of the `AbstractPlatform`
+class have been removed.
+
 ## BC BREAK: `AbstractDriverMiddleware` and `AbstractConnectionMiddleware` marked as readonly
 
 The `AbstractDriverMiddleware` and `AbstractConnectionMiddleware` classes have been marked as read-only. As a

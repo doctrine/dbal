@@ -264,6 +264,14 @@ class DB2Platform extends AbstractPlatform
         $tableName    = $diff->getOldTable()->getObjectName();
         $tableNameSQL = $tableName->toSQL($this);
 
+        foreach ($diff->getDroppedForeignKeyConstraintNames() as $constraintName) {
+            $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
+        }
+
+        foreach ($diff->getDroppedIndexes() as $index) {
+            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
+        }
+
         $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
 
         if ($droppedPrimaryKeyConstraint !== null) {
@@ -341,17 +349,27 @@ class DB2Platform extends AbstractPlatform
                 . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
+        foreach ($diff->getAddedForeignKeys() as $foreignKey) {
+            $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
+        }
+
+        foreach ($diff->getAddedIndexes() as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
+        }
+
+        foreach ($diff->getRenamedIndexes() as $oldIndexName => $index) {
+            $sql = array_merge(
+                $sql,
+                $this->getRenameIndexSQL($oldIndexName, $index, $tableNameSQL),
+            );
+        }
+
         // Some table alteration operations require a table reorganization.
         if ($needsReorg) {
             $sql[] = sprintf("CALL SYSPROC.ADMIN_CMD ('REORG TABLE %s')", $tableNameSQL);
         }
 
-        return array_merge(
-            $this->getPreAlterTableIndexForeignKeySQL($diff),
-            $sql,
-            $commentsSQL,
-            $this->getPostAlterTableIndexForeignKeySQL($diff),
-        );
+        return array_merge($sql, $commentsSQL);
     }
 
     public function getRenameTableSQL(string $oldName, string $newName): string

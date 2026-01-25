@@ -476,32 +476,6 @@ class SQLitePlatform extends AbstractPlatform
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
-    {
-        return [];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
-    {
-        $table = $diff->getOldTable();
-
-        $tableNameSQL = $table->getObjectName()->toSQL($this);
-
-        $sql = [];
-
-        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
-        }
-
-        return $sql;
-    }
-
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
         if ($limit === null && $offset > 0) {
@@ -676,10 +650,12 @@ class SQLitePlatform extends AbstractPlatform
             ->getUnqualifiedName()
             ->getValue();
 
+        $tableNameSQL = $table->getObjectName()->toSQL($this);
+
         $dataTable = new Table('__temp__' . $tableName);
 
         $newTable = new Table(
-            $table->getObjectName()->toSQL($this),
+            $tableNameSQL,
             $columns,
             [],
             [],
@@ -691,15 +667,15 @@ class SQLitePlatform extends AbstractPlatform
 
         $newTable->addOption('alter', true);
 
-        $sql = $this->getPreAlterTableIndexForeignKeySQL($diff);
-
-        $sql[] = sprintf(
-            'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
-            $dataTable->getObjectName()->toSQL($this),
-            implode(', ', $oldColumnNames),
-            $table->getObjectName()->toSQL($this),
-        );
-        $sql[] = $this->getDropTableSQL($table->getObjectName()->toSQL($this));
+        $sql = [
+            sprintf(
+                'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
+                $dataTable->getObjectName()->toSQL($this),
+                implode(', ', $oldColumnNames),
+                $table->getObjectName()->toSQL($this),
+            ),
+            $this->getDropTableSQL($table->getObjectName()->toSQL($this)),
+        ];
 
         $sql   = array_merge($sql, $this->getCreateTableSQL($newTable));
         $sql[] = sprintf(
@@ -711,7 +687,11 @@ class SQLitePlatform extends AbstractPlatform
         );
         $sql[] = $this->getDropTableSQL($dataTable->getObjectName()->toSQL($this));
 
-        return array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff));
+        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
+        }
+
+        return $sql;
     }
 
     /** @return list<string>|false */
