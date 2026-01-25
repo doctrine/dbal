@@ -10,9 +10,11 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class AsciiStringTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()

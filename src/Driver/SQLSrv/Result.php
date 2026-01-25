@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Override;
 
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
@@ -28,45 +29,43 @@ final readonly class Result implements ResultInterface
     {
     }
 
+    #[Override]
     public function fetchNumeric(): array|false
     {
         return $this->fetch(SQLSRV_FETCH_NUMERIC);
     }
 
+    #[Override]
     public function fetchAssociative(): array|false
     {
         return $this->fetch(SQLSRV_FETCH_ASSOC);
     }
 
+    #[Override]
     public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }
 
+    #[Override]
     public function rowCount(): int
     {
         $count = sqlsrv_rows_affected($this->statement);
@@ -78,6 +77,7 @@ final readonly class Result implements ResultInterface
         return 0;
     }
 
+    #[Override]
     public function columnCount(): int
     {
         $count = sqlsrv_num_fields($this->statement);
@@ -89,6 +89,7 @@ final readonly class Result implements ResultInterface
         return 0;
     }
 
+    #[Override]
     public function getColumnName(int $index): string
     {
         $meta = sqlsrv_field_metadata($this->statement);
@@ -100,6 +101,7 @@ final readonly class Result implements ResultInterface
         return $meta[$index]['Name'];
     }
 
+    #[Override]
     public function free(): void
     {
         // emulate it by fetching and discarding rows, similarly to what PDO does in this case

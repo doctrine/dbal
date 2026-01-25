@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Countable;
+use Override;
 
 use function array_merge;
 use function array_values;
@@ -71,6 +72,7 @@ class CompositeExpression implements Countable
      *
      * @phpstan-return int<0, max>
      */
+    #[Override]
     public function count(): int
     {
         return count($this->parts);
@@ -79,6 +81,7 @@ class CompositeExpression implements Countable
     /**
      * Retrieves the string representation of this composite expression.
      */
+    #[Override]
     public function __toString(): string
     {
         if ($this->count() === 1) {

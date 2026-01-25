@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 use Iterator;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_filter;
@@ -30,6 +31,7 @@ final class JsonCollationTest extends FunctionalTestCase
 
     private Comparator $comparator;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->platform = $this->connection->getDatabasePlatform();

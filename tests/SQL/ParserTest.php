@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\SQL;
 
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\SQL\Parser\Visitor;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -425,16 +426,19 @@ SQL
         ];
     }
 
+    #[Override]
     public function acceptPositionalParameter(string $sql): void
     {
         $this->result[] = sprintf('{%s}', $sql);
     }
 
+    #[Override]
     public function acceptNamedParameter(string $sql): void
     {
         $this->result[] = sprintf('{%s}', $sql);
     }
 
+    #[Override]
     public function acceptOther(string $sql): void
     {
         $this->result[] = $sql;

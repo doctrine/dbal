@@ -10,9 +10,11 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class DBAL202Test extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (! $this->connection->getDatabasePlatform() instanceof OraclePlatform) {

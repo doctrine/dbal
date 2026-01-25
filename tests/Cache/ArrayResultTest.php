@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Cache;
 
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -19,6 +20,7 @@ class ArrayResultTest extends TestCase
 {
     private ArrayResult $result;
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

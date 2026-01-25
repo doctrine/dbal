@@ -11,9 +11,11 @@ use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Tests\Schema\AbstractComparatorTestCase;
+use Override;
 
 class ComparatorTest extends AbstractComparatorTestCase
 {
+    #[Override]
     protected function createComparator(ComparatorConfig $config): Comparator
     {
         return new Comparator(

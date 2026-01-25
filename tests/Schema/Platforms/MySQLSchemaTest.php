@@ -17,12 +17,14 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class MySQLSchemaTest extends TestCase
 {
     private AbstractPlatform $platform;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->platform = new MySQLPlatform();

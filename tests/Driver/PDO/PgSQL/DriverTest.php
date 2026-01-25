@@ -10,11 +10,13 @@ use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 
 use function array_merge;
 
 class DriverTest extends AbstractDriverTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -78,6 +80,7 @@ class DriverTest extends AbstractDriverTestCase
         $this->driver->connect(['password' => false]);
     }
 
+    #[Override]
     protected function createDriver(): Driver
     {
         return new Driver();

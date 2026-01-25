@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedDot;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedNextIdentifier;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\UnableToParseIdentifier;
+use Override;
 
 use function assert;
 use function count;
@@ -50,6 +51,7 @@ final class GenericNameParser implements Parser
         /x
     PATTERN;
 
+    #[Override]
     public function parse(string $input): GenericName
     {
         $offset      = 0;

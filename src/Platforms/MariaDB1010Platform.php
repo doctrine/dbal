@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
+use Override;
 
 use function implode;
 
@@ -13,12 +14,14 @@ use function implode;
  */
 class MariaDB1010Platform extends MariaDBPlatform
 {
+    #[Override]
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {
         return AbstractPlatform::createSelectSQLBuilder();
     }
 
     /** @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy. */
+    #[Override]
     public function fetchTableOptionsByTable(bool $includeTableName): string
     {
         // MariaDB-10.10.1 added FULL_COLLATION_NAME to the information_schema.COLLATION_CHARACTER_SET_APPLICABILITY.

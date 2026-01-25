@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -25,17 +26,20 @@ class MariaDBJsonComparatorTest extends TestCase
     /** @var Table[] */
     private array $tables = [];
 
+    #[Override]
     protected function setUp(): void
     {
         $this->comparator = new Comparator(
             new MariaDBPlatform(),
             new class implements CharsetMetadataProvider {
+                #[Override]
                 public function getDefaultCharsetCollation(string $charset): ?string
                 {
                     return null;
                 }
             },
             new class implements CollationMetadataProvider {
+                #[Override]
                 public function getCollationCharset(string $collation): ?string
                 {
                     return null;

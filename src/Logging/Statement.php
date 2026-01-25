@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Override;
 use Psr\Log\LoggerInterface;
 
 final class Statement extends AbstractStatementMiddleware
@@ -27,6 +28,7 @@ final class Statement extends AbstractStatementMiddleware
         parent::__construct($statement);
     }
 
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         $this->params[$param] = $value;
@@ -35,6 +37,7 @@ final class Statement extends AbstractStatementMiddleware
         parent::bindValue($param, $value, $type);
     }
 
+    #[Override]
     public function execute(): ResultInterface
     {
         $this->logger->debug('Executing statement: {sql} (parameters: {params}, types: {types})', [

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\Driver\PDO\Exception as PDOException;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
+use Override;
 use PDO;
 use SensitiveParameter;
 
@@ -19,9 +20,7 @@ use function sprintf;
 
 final readonly class Driver extends AbstractSQLServerDriver
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

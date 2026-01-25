@@ -9,17 +9,20 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\PostgreSQL\ExceptionConverter;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+use Override;
 
 /**
  * Abstract base implementation of the {@see Driver} interface for PostgreSQL based drivers.
  */
 abstract readonly class AbstractPostgreSQLDriver implements Driver
 {
+    #[Override]
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): PostgreSQLPlatform
     {
         return new PostgreSQLPlatform();
     }
 
+    #[Override]
     public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();

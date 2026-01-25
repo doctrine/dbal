@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema\Name;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Name;
+use Override;
 
 use function array_map;
 use function array_merge;
@@ -33,11 +34,13 @@ final readonly class GenericName implements Name
         return $this->identifiers;
     }
 
+    #[Override]
     public function toSQL(AbstractPlatform $platform): string
     {
         return $this->joinIdentifiers(static fn (Identifier $identifier): string => $identifier->toSQL($platform));
     }
 
+    #[Override]
     public function toString(): string
     {
         return $this->joinIdentifiers(static fn (Identifier $identifier): string => $identifier->toString());

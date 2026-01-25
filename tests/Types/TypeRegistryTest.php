@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TypeRegistry;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class TypeRegistryTest extends TestCase
@@ -22,6 +23,7 @@ class TypeRegistryTest extends TestCase
     private BlobType $testType;
     private BinaryType $otherTestType;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->testType      = new BlobType();

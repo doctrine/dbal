@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
+use Override;
 
 final readonly class Middleware implements MiddlewareInterface
 {
@@ -14,6 +15,7 @@ final readonly class Middleware implements MiddlewareInterface
     {
     }
 
+    #[Override]
     public function wrap(DriverInterface $driver): DriverInterface
     {
         if ($this->mode !== 0) {

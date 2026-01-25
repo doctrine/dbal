@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+use Override;
 
 use function assert;
 use function fopen;
@@ -20,14 +21,13 @@ use function is_string;
  */
 class BlobType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getBlobTypeDeclarationSQL($column);
     }
 
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
     {
         if ($value === null) {
@@ -49,6 +49,7 @@ class BlobType extends Type
         return $value;
     }
 
+    #[Override]
     public function getBindingType(): ParameterType
     {
         return ParameterType::LARGE_OBJECT;

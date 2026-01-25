@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\SQLite3;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Override;
 use SQLite3Result;
 
 use const SQLITE3_ASSOC;
@@ -22,6 +23,7 @@ final class Result implements ResultInterface
         $this->result = $result;
     }
 
+    #[Override]
     public function fetchNumeric(): array|false
     {
         if ($this->result === null) {
@@ -31,6 +33,7 @@ final class Result implements ResultInterface
         return $this->result->fetchArray(SQLITE3_NUM);
     }
 
+    #[Override]
     public function fetchAssociative(): array|false
     {
         if ($this->result === null) {
@@ -40,34 +43,37 @@ final class Result implements ResultInterface
         return $this->result->fetchArray(SQLITE3_ASSOC);
     }
 
+    #[Override]
     public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
 
-    /** @inheritDoc */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
 
-    /** @inheritDoc */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
 
-    /** @inheritDoc */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }
 
+    #[Override]
     public function rowCount(): int
     {
         return $this->changes;
     }
 
+    #[Override]
     public function columnCount(): int
     {
         if ($this->result === null) {
@@ -77,6 +83,7 @@ final class Result implements ResultInterface
         return $this->result->numColumns();
     }
 
+    #[Override]
     public function getColumnName(int $index): string
     {
         if ($this->result === null) {
@@ -92,6 +99,7 @@ final class Result implements ResultInterface
         return $name;
     }
 
+    #[Override]
     public function free(): void
     {
         if ($this->result === null) {

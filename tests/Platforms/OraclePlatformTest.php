@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
@@ -23,20 +24,20 @@ use function uniqid;
 /** @extends AbstractPlatformTestCase<OraclePlatform> */
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
+    #[Override]
     public function createPlatform(): AbstractPlatform
     {
         return new OraclePlatform();
     }
 
+    #[Override]
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE "TEST" ("ID" NUMBER(10) NOT NULL, '
             . '"TEST" VARCHAR2(255) DEFAULT NULL NULL, PRIMARY KEY ("ID"))';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
@@ -123,24 +124,25 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertTrue($this->platform->supportsSavepoints());
     }
 
+    #[Override]
     public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX "MY_IDX" ON "MYTABLE" ("USER_NAME", "LAST_LOGIN")';
     }
 
+    #[Override]
     public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX "INDEX_NAME" ON "TEST" ("TEST", "TEST2")';
     }
 
+    #[Override]
     protected function getGenerateForeignKeySql(): string
     {
         return 'ALTER TABLE "TEST" ADD FOREIGN KEY ("FK_NAME_ID") REFERENCES "OTHER_TABLE" ("ID")';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
         return [
@@ -207,11 +209,13 @@ SQL
         ], $this->platform->getCreateTableSQL($table));
     }
 
+    #[Override]
     public function getBitAndComparisonExpressionSql(string $value1, string $value2): string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
+    #[Override]
     public function getBitOrComparisonExpressionSql(string $value1, string $value2): string
     {
         return '(' . $value1 . '-' .
@@ -219,17 +223,13 @@ SQL
         . '+' . $value2 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("CREATE" VARCHAR2(255) NOT NULL, PRIMARY KEY ("CREATE"))'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getQuotedColumnInIndexSQL(): array
     {
         return [
@@ -238,9 +238,7 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getQuotedNameInIndexSQL(): array
     {
         return [
@@ -249,9 +247,7 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
@@ -282,6 +278,7 @@ SQL
         self::assertSame(Types::SMALLFLOAT, $this->platform->getDoctrineTypeMapping('real'));
     }
 
+    #[Override]
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
@@ -289,11 +286,13 @@ SQL
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
+    #[Override]
     protected function getExpectedVariableLengthStringTypeDeclarationSQLWithLength(): string
     {
         return 'VARCHAR2(16)';
     }
 
+    #[Override]
     public function testGetFixedLengthBinaryTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
@@ -301,11 +300,13 @@ SQL
         parent::testGetFixedLengthBinaryTypeDeclarationSQLNoLength();
     }
 
+    #[Override]
     public function getExpectedFixedLengthBinaryTypeDeclarationSQLWithLength(): string
     {
         return 'RAW(16)';
     }
 
+    #[Override]
     public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
@@ -313,6 +314,7 @@ SQL
         parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }
 
+    #[Override]
     public function getExpectedVariableLengthBinaryTypeDeclarationSQLWithLength(): string
     {
         return 'RAW(16)';
@@ -383,17 +385,13 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER INDEX "IDX_FOO" RENAME TO "IDX_BAR"'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
@@ -402,17 +400,13 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER INDEX "MYSCHEMA"."IDX_FOO" RENAME TO "IDX_BAR"'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
@@ -421,6 +415,7 @@ SQL
         ];
     }
 
+    #[Override]
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -461,9 +456,7 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getCommentOnColumnSQL(): array
     {
         return [
@@ -550,33 +543,32 @@ EOD;
         self::assertEquals($createTriggerStatement, $sql[2]);
     }
 
+    #[Override]
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX "SELECT" ("FOO")';
     }
 
+    #[Override]
     protected function getQuotesReservedKeywordInTruncateTableSQL(): string
     {
         return 'TRUNCATE TABLE "SELECT"';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE "MYTABLE" MODIFY ("NAME" CHAR(2) DEFAULT NULL)'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ['ALTER INDEX "IDX_FOO" RENAME TO "IDX_FOO_RENAMED"'];
     }
 
     /** @return array<int, array{string, array<string, mixed>}> */
+    #[Override]
     public static function asciiStringSqlDeclarationDataProvider(): array
     {
         return [
@@ -586,6 +578,7 @@ EOD;
     }
 
     /** @return array<string, array{array<string>, string}> */
+    #[Override]
     public static function getEnumDeclarationSQLProvider(): array
     {
         return [
@@ -595,6 +588,7 @@ EOD;
     }
 
     /** @return array<string, array{array<string>, int, string}> */
+    #[Override]
     public static function getEnumDeclarationWithLengthSQLProvider(): array
     {
         return [

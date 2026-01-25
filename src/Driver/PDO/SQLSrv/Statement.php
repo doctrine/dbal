@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\PDO\Statement as PDOStatement;
 use Doctrine\DBAL\ParameterType;
+use Override;
 use PDO;
 
 final class Statement extends AbstractStatementMiddleware
@@ -17,6 +18,7 @@ final class Statement extends AbstractStatementMiddleware
         parent::__construct($statement);
     }
 
+    #[Override]
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         switch ($type) {

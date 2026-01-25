@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Driver\PDO\MySQL;
 use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractDriverTestCase;
+use Override;
 
 class DriverTest extends AbstractDriverTestCase
 {
@@ -28,6 +29,7 @@ class DriverTest extends AbstractDriverTestCase
         $this->driver->connect(['password' => false]);
     }
 
+    #[Override]
     protected function createDriver(): Driver
     {
         return new Driver();

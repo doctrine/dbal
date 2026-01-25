@@ -9,17 +9,20 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\SQLite\ExceptionConverter;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+use Override;
 
 /**
  * Abstract base implementation of the {@see Driver} interface for SQLite based drivers.
  */
 abstract readonly class AbstractSQLiteDriver implements Driver
 {
+    #[Override]
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): SQLitePlatform
     {
         return new SQLitePlatform();
     }
 
+    #[Override]
     public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();

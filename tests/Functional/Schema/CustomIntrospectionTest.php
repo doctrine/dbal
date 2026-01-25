@@ -12,6 +12,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function array_map;
 use function implode;
@@ -25,6 +26,7 @@ use function sprintf;
  */
 class CustomIntrospectionTest extends FunctionalTestCase
 {
+    #[Override]
     public static function setUpBeforeClass(): void
     {
         if (TestUtil::isDriverOneOf('oci8', 'pdo_oci')) {

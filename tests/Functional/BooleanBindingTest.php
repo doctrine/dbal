@@ -10,10 +10,12 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class BooleanBindingTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (TestUtil::isDriverOneOf('pdo_oci', 'oci8')) {
@@ -34,6 +36,7 @@ class BooleanBindingTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         $this->dropTableIfExists('boolean_test_table');

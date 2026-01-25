@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Collections\Exception\SetAlreadyContainsName;
 use Doctrine\DBAL\Schema\Collections\Exception\SetDoesNotContainName;
 use Doctrine\DBAL\Schema\Name;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Override;
 use Traversable;
 
 use function strtolower;
@@ -24,6 +25,7 @@ final class UnqualifiedNameSet implements NameSet
     /** @var array<string, UnqualifiedName> */
     private array $elements = [];
 
+    #[Override]
     public function contains(Name $name): bool
     {
         $key = $this->getKey($name);
@@ -31,6 +33,7 @@ final class UnqualifiedNameSet implements NameSet
         return isset($this->elements[$key]);
     }
 
+    #[Override]
     public function add(Name $name): void
     {
         $key = $this->getKey($name);
@@ -42,6 +45,7 @@ final class UnqualifiedNameSet implements NameSet
         $this->elements[$key] = $name;
     }
 
+    #[Override]
     public function remove(Name $name): void
     {
         $key = $this->getKey($name);
@@ -54,6 +58,7 @@ final class UnqualifiedNameSet implements NameSet
     }
 
     /** @return Traversable<int, UnqualifiedName> */
+    #[Override]
     public function getIterator(): Traversable
     {
         foreach ($this->elements as $element) {

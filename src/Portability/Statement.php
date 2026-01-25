@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Override;
 
 /**
  * Portability wrapper for a Statement.
@@ -21,6 +22,7 @@ final class Statement extends AbstractStatementMiddleware
         parent::__construct($stmt);
     }
 
+    #[Override]
     public function execute(): ResultInterface
     {
         return new Result(

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\InvalidCharset;
 use Doctrine\DBAL\Driver\Mysqli\Initializer;
 use mysqli;
 use mysqli_sql_exception;
+use Override;
 
 final readonly class Charset implements Initializer
 {
@@ -15,6 +16,7 @@ final readonly class Charset implements Initializer
     {
     }
 
+    #[Override]
     public function initialize(mysqli $connection): void
     {
         try {

@@ -13,9 +13,11 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class ForeignKeyExceptionTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -73,6 +75,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $schemaManager->createTable($owningTable);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         parent::tearDown();

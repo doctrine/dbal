@@ -8,6 +8,7 @@ use DateInterval;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+use Override;
 use Throwable;
 
 use function substr;
@@ -19,9 +20,7 @@ class DateIntervalType extends Type
 {
     final public const string FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         $column['length'] = 255;
@@ -36,6 +35,7 @@ class DateIntervalType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -56,6 +56,7 @@ class DateIntervalType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateInterval
     {
         if ($value === null || $value instanceof DateInterval) {

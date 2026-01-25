@@ -12,6 +12,7 @@ use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use mysqli_result;
 use mysqli_sql_exception;
 use mysqli_stmt;
+use Override;
 use ValueError;
 
 use const MYSQLI_ASSOC;
@@ -42,6 +43,7 @@ final class Result implements ResultInterface
         }
     }
 
+    #[Override]
     public function fetchNumeric(): array|false
     {
         if ($this->result === false) {
@@ -52,6 +54,7 @@ final class Result implements ResultInterface
         return $this->result->fetch_row() ?? false;
     }
 
+    #[Override]
     public function fetchAssociative(): array|false
     {
         if ($this->result === false) {
@@ -61,6 +64,7 @@ final class Result implements ResultInterface
         return $this->result->fetch_assoc() ?? false;
     }
 
+    #[Override]
     public function fetchOne(): mixed
     {
         if ($this->result === false) {
@@ -70,9 +74,7 @@ final class Result implements ResultInterface
         return $this->result->fetch_column();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         if ($this->result === false) {
@@ -83,9 +85,7 @@ final class Result implements ResultInterface
         return $this->result->fetch_all(MYSQLI_NUM);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         if ($this->result === false) {
@@ -95,14 +95,13 @@ final class Result implements ResultInterface
         return $this->result->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }
 
+    #[Override]
     public function rowCount(): int|string
     {
         if ($this->result !== false) {
@@ -112,6 +111,7 @@ final class Result implements ResultInterface
         return $this->statement->affected_rows;
     }
 
+    #[Override]
     public function columnCount(): int
     {
         if ($this->result === false) {
@@ -121,6 +121,7 @@ final class Result implements ResultInterface
         return $this->result->field_count;
     }
 
+    #[Override]
     public function getColumnName(int $index): string
     {
         if ($this->result === false) {
@@ -135,6 +136,7 @@ final class Result implements ResultInterface
         }
     }
 
+    #[Override]
     public function free(): void
     {
         $this->result = false;

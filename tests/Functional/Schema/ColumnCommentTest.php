@@ -9,12 +9,14 @@ use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class ColumnCommentTest extends FunctionalTestCase
 {
     private static bool $initialized = false;
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

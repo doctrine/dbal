@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function array_change_key_case;
 use function array_keys;
@@ -24,6 +25,7 @@ use const CASE_LOWER;
 
 class BinaryDataAccessTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (TestUtil::isDriverOneOf('pdo_oci')) {

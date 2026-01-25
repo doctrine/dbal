@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Override;
 
 use function oci_cancel;
 use function oci_error;
@@ -36,45 +37,43 @@ final readonly class Result implements ResultInterface
     {
     }
 
+    #[Override]
     public function fetchNumeric(): array|false
     {
         return $this->fetch(OCI_NUM);
     }
 
+    #[Override]
     public function fetchAssociative(): array|false
     {
         return $this->fetch(OCI_ASSOC);
     }
 
+    #[Override]
     public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_ROW);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         return $this->fetchAll(OCI_ASSOC, OCI_FETCHSTATEMENT_BY_ROW);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
     }
 
+    #[Override]
     public function rowCount(): int
     {
         $count = oci_num_rows($this->statement);
@@ -86,11 +85,13 @@ final readonly class Result implements ResultInterface
         return 0;
     }
 
+    #[Override]
     public function columnCount(): int
     {
         return oci_num_fields($this->statement);
     }
 
+    #[Override]
     public function getColumnName(int $index): string
     {
         // OCI expects a 1-based index while DBAL works with a O-based index.
@@ -103,6 +104,7 @@ final readonly class Result implements ResultInterface
         return $name;
     }
 
+    #[Override]
     public function free(): void
     {
         oci_cancel($this->statement);

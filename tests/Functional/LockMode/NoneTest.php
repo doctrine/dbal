@@ -17,11 +17,13 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class NoneTest extends FunctionalTestCase
 {
     private Connection $connection2;
 
+    #[Override]
     public function setUp(): void
     {
         if ($this->connection->getDatabasePlatform() instanceof SQLServerPlatform) {
@@ -71,6 +73,7 @@ class NoneTest extends FunctionalTestCase
         self::fail('Separate connections do not seem to talk to the same database');
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         $this->connection2->close();

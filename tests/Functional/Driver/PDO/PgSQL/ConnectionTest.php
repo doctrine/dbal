@@ -7,12 +7,14 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\PgSQL;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
 #[RequiresPhpExtension('pdo_pgsql')]
 class ConnectionTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (TestUtil::isDriverOneOf('pdo_pgsql')) {

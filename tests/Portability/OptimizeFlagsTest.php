@@ -8,12 +8,14 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\OptimizeFlags;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class OptimizeFlagsTest extends TestCase
 {
     private OptimizeFlags $optimizeFlags;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->optimizeFlags = new OptimizeFlags();

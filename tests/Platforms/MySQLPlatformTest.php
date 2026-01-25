@@ -10,14 +10,17 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
 {
+    #[Override]
     public function createPlatform(): AbstractPlatform
     {
         return new MySQLPlatform();
     }
 
+    #[Override]
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
@@ -30,24 +33,28 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
     }
 
     /** @return string[] */
+    #[Override]
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER TABLE `mytable` RENAME INDEX `idx_foo` TO `idx_bar`'];
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return ['ALTER TABLE `table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];
     }
 
     /** @return string[] */
+    #[Override]
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER TABLE `myschema`.`mytable` RENAME INDEX `idx_foo` TO `idx_bar`'];
     }
 
     /** @return string[] */
+    #[Override]
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`, RENAME INDEX `foo` TO `bar`'];

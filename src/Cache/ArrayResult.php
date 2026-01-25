@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Cache;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Override;
 
 use function array_combine;
 use function array_keys;
@@ -30,11 +31,13 @@ final class ArrayResult implements Result
     ) {
     }
 
+    #[Override]
     public function fetchNumeric(): array|false
     {
         return $this->fetch();
     }
 
+    #[Override]
     public function fetchAssociative(): array|false
     {
         $row = $this->fetch();
@@ -46,6 +49,7 @@ final class ArrayResult implements Result
         return array_combine($this->columnNames, $row);
     }
 
+    #[Override]
     public function fetchOne(): mixed
     {
         $row = $this->fetch();
@@ -57,45 +61,43 @@ final class ArrayResult implements Result
         return $row[0];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }
 
+    #[Override]
     public function rowCount(): int
     {
         return count($this->rows);
     }
 
+    #[Override]
     public function columnCount(): int
     {
         return count($this->columnNames);
     }
 
+    #[Override]
     public function getColumnName(int $index): string
     {
         return $this->columnNames[$index] ?? throw InvalidColumnIndex::new($index);
     }
 
+    #[Override]
     public function free(): void
     {
         $this->rows = [];

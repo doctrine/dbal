@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Override;
 
 use function is_float;
 use function is_int;
@@ -14,14 +15,13 @@ use function is_int;
  */
 class DecimalType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getDecimalTypeDeclarationSQL($column);
     }
 
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
     {
         // Some drivers can represent decimals as float/int

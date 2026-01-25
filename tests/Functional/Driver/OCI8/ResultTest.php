@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Generator;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
@@ -28,6 +29,7 @@ class ResultTest extends FunctionalTestCase
      */
     private array $connectionParams;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->connectionParams = TestUtil::getConnectionParams();
@@ -39,6 +41,7 @@ class ResultTest extends FunctionalTestCase
         self::markTestSkipped('This test requires the oci8 driver.');
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         $this->connection->executeQuery('DROP FUNCTION test_oracle_fetch_failure');

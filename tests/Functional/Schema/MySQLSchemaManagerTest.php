@@ -29,16 +29,19 @@ use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\SmallFloatType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function array_keys;
 
 class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    #[Override]
     public static function setUpBeforeClass(): void
     {
         Type::addType('point', PointType::class);
     }
 
+    #[Override]
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof AbstractMySQLPlatform;
@@ -833,6 +836,7 @@ SQL;
         self::assertTrue($diff->isEmpty(), 'Tables should be identical.');
     }
 
+    #[Override]
     public function getExpectedDefaultSchemaName(): ?string
     {
         return null;

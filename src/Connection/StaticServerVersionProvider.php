@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Connection;
 
 use Doctrine\DBAL\ServerVersionProvider;
+use Override;
 
 final readonly class StaticServerVersionProvider implements ServerVersionProvider
 {
@@ -12,6 +13,7 @@ final readonly class StaticServerVersionProvider implements ServerVersionProvide
     {
     }
 
+    #[Override]
     public function getServerVersion(): string
     {
         return $this->version;

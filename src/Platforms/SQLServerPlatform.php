@@ -25,6 +25,7 @@ use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
+use Override;
 
 use function array_map;
 use function array_merge;
@@ -56,16 +57,19 @@ class SQLServerPlatform extends AbstractPlatform
         parent::__construct(UnquotedIdentifierFolding::NONE);
     }
 
+    #[Override]
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {
         return new SQLServerSelectSQLBuilder($this);
     }
 
+    #[Override]
     public function getCurrentDateSQL(): string
     {
         return $this->getConvertExpression('date', 'GETDATE()');
     }
 
+    #[Override]
     public function getCurrentTimeSQL(): string
     {
         return $this->getConvertExpression('time', 'GETDATE()');
@@ -82,6 +86,7 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('CONVERT(%s, %s)', $dataType, $expression);
     }
 
+    #[Override]
     protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
@@ -97,47 +102,51 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DATEADD(' . $unit->value . ', ' . $factorClause . $interval . ', ' . $date . ')';
     }
 
+    #[Override]
     public function getDateDiffExpression(string $date1, string $date2): string
     {
         return 'DATEDIFF(day, ' . $date2 . ',' . $date1 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Microsoft SQL Server supports this through AUTO_INCREMENT columns.
-     */
+    /** Microsoft SQL Server supports this through AUTO_INCREMENT columns. */
+    #[Override]
     public function supportsIdentityColumns(): bool
     {
         return true;
     }
 
+    #[Override]
     public function supportsReleaseSavepoints(): bool
     {
         return false;
     }
 
+    #[Override]
     public function supportsSchemas(): bool
     {
         return true;
     }
 
+    #[Override]
     protected function supportsColumnCollation(): bool
     {
         return true;
     }
 
+    #[Override]
     public function supportsSequences(): bool
     {
         return true;
     }
 
+    #[Override]
     public function getAlterSequenceSQL(Sequence $sequence): string
     {
         return 'ALTER SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize();
     }
 
+    #[Override]
     public function getCreateSequenceSQL(Sequence $sequence): string
     {
         return 'CREATE SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
@@ -146,6 +155,7 @@ class SQLServerPlatform extends AbstractPlatform
             ' MINVALUE ' . $sequence->getInitialValue();
     }
 
+    #[Override]
     public function getSequenceNextValSQL(string $sequenceName): string
     {
         $parsedName = $this->parseUnqualifiedName($sequenceName);
@@ -153,11 +163,13 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('SELECT NEXT VALUE FOR %s', $parsedName->toSQL($this));
     }
 
+    #[Override]
     public function getDropForeignKeySQL(string $constraintName, string $tableName): string
     {
         return $this->getDropConstraintSQL($constraintName, $tableName);
     }
 
+    #[Override]
     public function getDropIndexSQL(string $indexName, string $tableName): string
     {
         $parsedIndexName = $this->parseUnqualifiedName($indexName);
@@ -166,9 +178,7 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DROP INDEX ' . $parsedIndexName->toSQL($this) . ' ON ' . $parsedTableName->toSQL($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $defaultConstraintsSql = [];
@@ -278,6 +288,7 @@ class SQLServerPlatform extends AbstractPlatform
         return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $column['name']->toSQL($this);
     }
 
+    #[Override]
     public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
@@ -303,9 +314,7 @@ class SQLServerPlatform extends AbstractPlatform
         return parent::getCreateIndexSQL($index, $tableName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
         $queryParts  = [];
@@ -472,6 +481,7 @@ class SQLServerPlatform extends AbstractPlatform
         return array_merge($sql, $commentsSql);
     }
 
+    #[Override]
     public function getRenameTableSQL(string $oldName, string $newName): string
     {
         $parsedOldName = $this->parseOptionallyQualifiedName($oldName);
@@ -608,9 +618,7 @@ class SQLServerPlatform extends AbstractPlatform
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
@@ -629,9 +637,7 @@ class SQLServerPlatform extends AbstractPlatform
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getRenameColumnSQL(string $tableName, string $oldColumnName, string $newColumnName): array
     {
         $parsedTableName     = $this->parseOptionallyQualifiedName($tableName);
@@ -720,11 +726,13 @@ class SQLServerPlatform extends AbstractPlatform
         ];
     }
 
+    #[Override]
     public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string
     {
         return 'INSERT INTO ' . $quotedTableName . ' DEFAULT VALUES';
     }
 
+    #[Override]
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {
@@ -734,11 +742,13 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('CHARINDEX(%s, %s, %s)', $substring, $string, $start);
     }
 
+    #[Override]
     public function getModExpression(string $dividend, string $divisor): string
     {
         return $dividend . ' % ' . $divisor;
     }
 
+    #[Override]
     public function getTrimExpression(
         string $str,
         TrimMode $mode = TrimMode::UNSPECIFIED,
@@ -768,11 +778,13 @@ class SQLServerPlatform extends AbstractPlatform
             . ') - 1, null))) - 1, null))';
     }
 
+    #[Override]
     public function getConcatExpression(string ...$string): string
     {
         return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
+    #[Override]
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
@@ -782,61 +794,55 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('SUBSTRING(%s, %s, %s)', $string, $start, $length);
     }
 
+    #[Override]
     public function getLengthExpression(string $string): string
     {
         return 'LEN(' . $string . ')';
     }
 
+    #[Override]
     public function getCurrentDatabaseExpression(): string
     {
         return 'DB_NAME()';
     }
 
+    #[Override]
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getGuidTypeDeclarationSQL(array $column): string
     {
         return 'UNIQUEIDENTIFIER';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
         return 'DATETIMEOFFSET(6)';
     }
 
+    #[Override]
     protected function getCharTypeDeclarationSQLSnippet(?int $length): string
     {
         $sql = 'NCHAR';
@@ -848,6 +854,7 @@ class SQLServerPlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length): string
     {
         if ($length === null) {
@@ -857,9 +864,7 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('NVARCHAR(%d)', $length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getAsciiStringTypeDeclarationSQL(array $column): string
     {
         $length = $column['length'] ?? null;
@@ -871,17 +876,13 @@ class SQLServerPlatform extends AbstractPlatform
         return parent::getCharTypeDeclarationSQLSnippet($length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'VARCHAR(MAX)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         if (! empty($column['autoincrement'])) {
@@ -891,9 +892,7 @@ class SQLServerPlatform extends AbstractPlatform
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         // 3 - microseconds precision length
@@ -901,30 +900,25 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DATETIME2(6)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME(0)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BIT';
     }
 
+    #[Override]
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
         if ($limit === null && $offset <= 0) {
@@ -958,6 +952,7 @@ class SQLServerPlatform extends AbstractPlatform
         return $query;
     }
 
+    #[Override]
     public function convertBooleans(mixed $item): mixed
     {
         if (is_array($item)) {
@@ -975,36 +970,43 @@ class SQLServerPlatform extends AbstractPlatform
         return $item;
     }
 
+    #[Override]
     public function getCreateTemporaryTableSnippetSQL(): string
     {
         return 'CREATE TABLE';
     }
 
+    #[Override]
     public function getTemporaryTableName(string $tableName): string
     {
         return '#' . $tableName;
     }
 
+    #[Override]
     public function getDateTimeFormatString(): string
     {
         return 'Y-m-d H:i:s.u';
     }
 
+    #[Override]
     public function getDateFormatString(): string
     {
         return 'Y-m-d';
     }
 
+    #[Override]
     public function getTimeFormatString(): string
     {
         return 'H:i:s';
     }
 
+    #[Override]
     public function getDateTimeTzFormatString(): string
     {
         return 'Y-m-d H:i:s.u P';
     }
 
+    #[Override]
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -1043,21 +1045,25 @@ class SQLServerPlatform extends AbstractPlatform
         ];
     }
 
+    #[Override]
     public function createSavePoint(string $savepoint): string
     {
         return 'SAVE TRANSACTION ' . $savepoint;
     }
 
+    #[Override]
     public function releaseSavePoint(string $savepoint): string
     {
         return '';
     }
 
+    #[Override]
     public function rollbackSavePoint(string $savepoint): string
     {
         return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
 
+    #[Override]
     protected function getForeignKeyReferentialActionSQL(ReferentialAction $action): string
     {
         if ($action === ReferentialAction::RESTRICT) {
@@ -1069,6 +1075,7 @@ class SQLServerPlatform extends AbstractPlatform
         return parent::getForeignKeyReferentialActionSQL($action);
     }
 
+    #[Override]
     public function appendLockHint(string $fromClause, LockMode $lockMode): string
     {
         return match ($lockMode) {
@@ -1079,11 +1086,13 @@ class SQLServerPlatform extends AbstractPlatform
         };
     }
 
+    #[Override]
     public function quoteSingleIdentifier(string $identifier): string
     {
         return '[' . str_replace(']', ']]', $identifier) . ']';
     }
 
+    #[Override]
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);
@@ -1091,17 +1100,13 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('TRUNCATE TABLE %s', $parsedName->toSQL($this));
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'VARBINARY(MAX)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getColumnDeclarationSQL(array $column): string
     {
         if (isset($column['columnDefinition'])) {
@@ -1122,11 +1127,13 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * SQL Server does not support quoting collation identifiers.
      */
+    #[Override]
     protected function getColumnCollationDeclarationSQL(string $collation): string
     {
         return 'COLLATE ' . $collation;
     }
 
+    #[Override]
     public function columnsEqual(Column $column1, Column $column2): bool
     {
         if (! parent::columnsEqual($column1, $column2)) {
@@ -1142,6 +1149,7 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @link https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql#pattern
      */
+    #[Override]
     protected function getLikeWildcardCharacters(): string
     {
         return parent::getLikeWildcardCharacters() . '[';
@@ -1190,11 +1198,13 @@ class SQLServerPlatform extends AbstractPlatform
         return true;
     }
 
+    #[Override]
     public function createMetadataProvider(Connection $connection): SQLServerMetadataProvider
     {
         return new SQLServerMetadataProvider($connection, $this);
     }
 
+    #[Override]
     public function createSchemaManager(Connection $connection): SQLServerSchemaManager
     {
         return new SQLServerSchemaManager($connection, $this);

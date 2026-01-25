@@ -18,6 +18,7 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -29,6 +30,7 @@ class QueryBuilderTest extends TestCase
 {
     protected Connection&MockObject $conn;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->conn = $this->createMock(Connection::class);

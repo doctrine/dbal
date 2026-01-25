@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query;
+use Override;
 
 use function assert;
 
@@ -32,6 +33,7 @@ class DriverException extends \Exception implements Exception, Driver\Exception
         parent::__construct($message, $driverException->getCode(), $driverException);
     }
 
+    #[Override]
     public function getSQLState(): ?string
     {
         $previous = $this->getPrevious();

@@ -9,12 +9,14 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Statement as WrapperStatement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 use ReflectionProperty;
 
 use function sprintf;
 
 class StatementTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Logging;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Override;
 use Psr\Log\LoggerInterface;
 use SensitiveParameter;
 
@@ -17,9 +18,7 @@ final readonly class Driver extends AbstractDriverMiddleware
         parent::__construct($driver);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

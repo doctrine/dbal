@@ -9,15 +9,14 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Exception;
+use Override;
 
 /**
  * Type that maps an SQL DATETIME/TIMESTAMP to a PHP DateTime object.
  */
 class DateTimeType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getDateTimeTypeDeclarationSQL($column);
@@ -30,6 +29,7 @@ class DateTimeType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -54,6 +54,7 @@ class DateTimeType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTime
     {
         if ($value === null || $value instanceof DateTime) {

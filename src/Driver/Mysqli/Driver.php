@@ -13,13 +13,12 @@ use Doctrine\DBAL\Driver\Mysqli\Initializer\Secure;
 use Generator;
 use mysqli;
 use mysqli_sql_exception;
+use Override;
 use SensitiveParameter;
 
 final readonly class Driver extends AbstractMySQLDriver
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

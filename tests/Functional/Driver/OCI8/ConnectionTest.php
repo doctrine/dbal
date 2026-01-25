@@ -8,10 +8,12 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 use Throwable;
 
 class ConnectionTest extends FunctionalTestCase
 {
+    #[Override]
     public static function setUpBeforeClass(): void
     {
         if (TestUtil::isDriverOneOf('oci8')) {

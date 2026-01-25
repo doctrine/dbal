@@ -8,6 +8,7 @@ use BcMath\Number;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+use Override;
 use TypeError;
 use ValueError;
 
@@ -15,12 +16,13 @@ use function is_float;
 
 final class NumberType extends Type
 {
-    /** {@inheritDoc} */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getDecimalTypeDeclarationSQL($column);
     }
 
+    #[Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -34,6 +36,7 @@ final class NumberType extends Type
         return (string) $value;
     }
 
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?Number
     {
         if ($value === null) {

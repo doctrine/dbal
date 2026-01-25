@@ -12,12 +12,14 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function random_bytes;
 use function str_replace;
 
 class BinaryTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (TestUtil::isDriverOneOf('pdo_oci')) {

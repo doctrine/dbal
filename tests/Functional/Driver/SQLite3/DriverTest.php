@@ -10,11 +10,13 @@ use Doctrine\DBAL\Driver\SQLite3\Driver;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
 #[RequiresPhpExtension('sqlite3')]
 class DriverTest extends AbstractDriverTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -26,11 +28,13 @@ class DriverTest extends AbstractDriverTestCase
         self::markTestSkipped('This test requires the sqlite3 driver.');
     }
 
+    #[Override]
     protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter(): ?string
     {
         return 'main';
     }
 
+    #[Override]
     protected function createDriver(): DriverInterface
     {
         return new Driver();

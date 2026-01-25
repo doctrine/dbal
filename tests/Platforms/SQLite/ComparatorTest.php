@@ -8,9 +8,11 @@ use Doctrine\DBAL\Platforms\SQLite\Comparator;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Tests\Schema\AbstractComparatorTestCase;
+use Override;
 
 class ComparatorTest extends AbstractComparatorTestCase
 {
+    #[Override]
     protected function createComparator(ComparatorConfig $config): Comparator
     {
         return new Comparator(new SQLitePlatform(), $config);

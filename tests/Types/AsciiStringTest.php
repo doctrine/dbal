@@ -7,12 +7,14 @@ namespace Doctrine\DBAL\Tests\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\AsciiStringType;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class AsciiStringTest extends TestCase
 {
     private AsciiStringType $type;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->type = new AsciiStringType();

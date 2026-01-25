@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Override;
 
 class FloatType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getFloatDeclarationSQL($column);
@@ -23,6 +22,7 @@ class FloatType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?float
     {
         return $value === null ? null : (float) $value;

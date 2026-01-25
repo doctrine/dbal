@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Override;
 
 /**
  * SQLite SchemaManager.
@@ -15,6 +16,7 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
  */
 class SQLiteSchemaManager extends AbstractSchemaManager
 {
+    #[Override]
     public function createForeignKey(ForeignKeyConstraint $foreignKey, string $tableName): void
     {
         $tableName = $this->introspectTableByStringName($tableName);
@@ -22,6 +24,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         $this->alterTable(new TableDiff($tableName, addedForeignKeys: [$foreignKey]));
     }
 
+    #[Override]
     public function dropForeignKey(string $constraintName, string $tableName): void
     {
         $parsedConstraintName = $this->parseUnqualifiedName($constraintName);
@@ -39,6 +42,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         return $this->introspectTable($parsedName);
     }
 
+    #[Override]
     public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
         return new SQLite\Comparator($this->platform, $config);

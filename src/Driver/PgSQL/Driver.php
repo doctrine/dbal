@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\PgSQL;
 
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use ErrorException;
+use Override;
 use SensitiveParameter;
 
 use function addslashes;
@@ -26,7 +27,7 @@ use const PGSQL_CONNECT_FORCE_NEW;
 
 final readonly class Driver extends AbstractPostgreSQLDriver
 {
-    /** {@inheritDoc} */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

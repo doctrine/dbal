@@ -34,6 +34,7 @@ use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
+use Override;
 use SensitiveParameter;
 use Throwable;
 use Traversable;
@@ -231,11 +232,8 @@ class Connection implements ServerVersionProvider
         return $connection;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws Exception
-     */
+    /** @throws Exception */
+    #[Override]
     public function getServerVersion(): string
     {
         return $this->connect()->getServerVersion();

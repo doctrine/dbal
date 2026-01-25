@@ -22,10 +22,12 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    #[Override]
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof SQLitePlatform;
@@ -34,6 +36,7 @@ class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * SQLITE does not support databases.
      */
+    #[Override]
     public function testIntrospectDatabaseNames(): void
     {
         $this->expectException(Exception::class);
@@ -130,6 +133,7 @@ EOS);
     /**
      * SQLite stores BINARY columns as BLOB
      */
+    #[Override]
     protected function assertBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
     {
         self::assertInstanceOf(BlobType::class, $table->getColumn($columnName)->getType());
@@ -138,6 +142,7 @@ EOS);
     /**
      * SQLite stores VARBINARY columns as BLOB
      */
+    #[Override]
     protected function assertVarBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
     {
         self::assertInstanceOf(BlobType::class, $table->getColumn($columnName)->getType());
@@ -186,6 +191,7 @@ SQL;
         self::assertSame(Type::getType(Types::TEXT), $bar->getType());
     }
 
+    #[Override]
     public function testPrimaryKeyAutoIncrement(): void
     {
         $table = Table::editor()
@@ -477,6 +483,7 @@ SQL;
         ], $foreignKey1->getReferencedColumnNames());
     }
 
+    #[Override]
     public function getExpectedDefaultSchemaName(): ?string
     {
         return null;

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Driver;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 /** @template P of AbstractPlatform */
@@ -16,6 +17,7 @@ abstract class AbstractDriverTestCase extends TestCase
      */
     protected Driver $driver;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->driver = $this->createDriver();

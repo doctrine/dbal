@@ -8,6 +8,7 @@ use Doctrine\DBAL\ArrayParameters\Exception\MissingNamedParameter;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingPositionalParameter;
 use Doctrine\DBAL\SQL\Parser\Visitor;
 use Doctrine\DBAL\Types\Type;
+use Override;
 
 use function array_fill;
 use function array_key_exists;
@@ -39,6 +40,7 @@ final class ExpandArrayParameters implements Visitor
     ) {
     }
 
+    #[Override]
     public function acceptPositionalParameter(string $sql): void
     {
         $index = $this->originalParameterIndex;
@@ -52,6 +54,7 @@ final class ExpandArrayParameters implements Visitor
         $this->originalParameterIndex++;
     }
 
+    #[Override]
     public function acceptNamedParameter(string $sql): void
     {
         $name = substr($sql, 1);
@@ -63,6 +66,7 @@ final class ExpandArrayParameters implements Visitor
         $this->acceptParameter($name, $this->parameters[$name]);
     }
 
+    #[Override]
     public function acceptOther(string $sql): void
     {
         $this->convertedSQL[] = $sql;

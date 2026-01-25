@@ -32,6 +32,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -48,6 +49,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     /** @return T */
     abstract public function createPlatform(): AbstractPlatform;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->platform = $this->createPlatform();
@@ -86,9 +88,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testCaseInsensitiveDoctrineTypeMappingFromType(): void
     {
         $type = new class () extends Type {
-            /**
-             * {@inheritDoc}
-             */
+            #[Override]
             public function getMappedDatabaseTypes(AbstractPlatform $platform): array
             {
                 return ['TESTTYPE'];
@@ -99,9 +99,7 @@ abstract class AbstractPlatformTestCase extends TestCase
                 return 'testtype';
             }
 
-            /**
-             * {@inheritDoc}
-             */
+            #[Override]
             public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
             {
                 return $platform->getDecimalTypeDeclarationSQL($column);

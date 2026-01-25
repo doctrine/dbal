@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema\Name;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Name;
+use Override;
 
 /**
  * An unqualified {@see Name} consisting of a single identifier.
@@ -21,11 +22,13 @@ final readonly class UnqualifiedName implements Name
         return $this->identifier;
     }
 
+    #[Override]
     public function toSQL(AbstractPlatform $platform): string
     {
         return $this->identifier->toSQL($platform);
     }
 
+    #[Override]
     public function toString(): string
     {
         return $this->identifier->toString();

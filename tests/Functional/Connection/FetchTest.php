@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\NoKeyValue;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Override;
 
 use function iterator_to_array;
 
@@ -15,6 +16,7 @@ class FetchTest extends FunctionalTestCase
 {
     private string $query;
 
+    #[Override]
     public function setUp(): void
     {
         $this->query = TestUtil::generateResultSetQuery(['a', 'b'], [

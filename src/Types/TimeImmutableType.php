@@ -8,15 +8,14 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+use Override;
 
 /**
  * Immutable type of {@see TimeType}.
  */
 class TimeImmutableType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getTimeTypeDeclarationSQL($column);
@@ -29,6 +28,7 @@ class TimeImmutableType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -53,6 +53,7 @@ class TimeImmutableType extends Type
      *
      * @template T
      */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeImmutable
     {
         if ($value === null || $value instanceof DateTimeImmutable) {

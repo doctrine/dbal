@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Override;
+
 /**
  * An abstract {@see NamedObject}.
  *
@@ -30,6 +32,7 @@ abstract class AbstractNamedObject implements NamedObject
      *
      * @return N
      */
+    #[Override]
     public function getObjectName(): Name
     {
         return $this->name;

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Cache;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ParameterType;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 use function parse_str;
@@ -33,6 +34,7 @@ class QueryCacheProfileTest extends TestCase
         'driver'   => 'database_driver',
     ];
 
+    #[Override]
     protected function setUp(): void
     {
         $this->queryCacheProfile = new QueryCacheProfile(self::LIFETIME, self::CACHE_KEY);

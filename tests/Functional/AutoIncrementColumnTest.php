@@ -12,11 +12,13 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class AutoIncrementColumnTest extends FunctionalTestCase
 {
     private bool $shouldDisableIdentityInsert = false;
 
+    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()
@@ -42,6 +44,7 @@ class AutoIncrementColumnTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         if (! $this->shouldDisableIdentityInsert) {

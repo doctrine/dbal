@@ -19,6 +19,7 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function array_merge;
 use function count;
@@ -36,15 +37,14 @@ class DB2Platform extends AbstractPlatform
         parent::__construct(UnquotedIdentifierFolding::UPPER);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         // todo blob(n) with $column['length'];
         return 'BLOB(1M)';
     }
 
+    #[Override]
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -66,60 +66,50 @@ class DB2Platform extends AbstractPlatform
         ];
     }
 
+    #[Override]
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return $this->getCharTypeDeclarationSQLSnippet($length) . ' FOR BIT DATA';
     }
 
+    #[Override]
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return $this->getVarcharTypeDeclarationSQLSnippet($length) . ' FOR BIT DATA';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
         // todo clob(n) with $column['length'];
         return 'CLOB(1M)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         if (! empty($column['autoincrement'])) {
@@ -129,16 +119,19 @@ class DB2Platform extends AbstractPlatform
         return '';
     }
 
+    #[Override]
     public function getBitAndComparisonExpression(string $value1, string $value2): string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
+    #[Override]
     public function getBitOrComparisonExpression(string $value1, string $value2): string
     {
         return 'BITOR(' . $value1 . ', ' . $value2 . ')';
     }
 
+    #[Override]
     protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
@@ -160,35 +153,31 @@ class DB2Platform extends AbstractPlatform
         return $date . ' ' . $operator . ' ' . $interval . ' ' . $unit->value;
     }
 
+    #[Override]
     public function getDateDiffExpression(string $date1, string $date2): string
     {
         return 'DAYS(' . $date1 . ') - DAYS(' . $date2 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME';
     }
 
+    #[Override]
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);
@@ -196,11 +185,13 @@ class DB2Platform extends AbstractPlatform
         return sprintf('TRUNCATE %s IMMEDIATE', $parsedName->toSQL($this));
     }
 
+    #[Override]
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
+    #[Override]
     protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
     {
         $this->ensurePrimaryKeyConstraintIsClustered($constraint);
@@ -208,29 +199,31 @@ class DB2Platform extends AbstractPlatform
         return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
+    #[Override]
     protected function supportsCommentOnStatement(): bool
     {
         return true;
     }
 
+    #[Override]
     public function getCurrentDateSQL(): string
     {
         return 'CURRENT DATE';
     }
 
+    #[Override]
     public function getCurrentTimeSQL(): string
     {
         return 'CURRENT TIME';
     }
 
+    #[Override]
     public function getCurrentTimestampSQL(): string
     {
         return 'CURRENT TIMESTAMP';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $sql = parent::_getCreateTableSQL($tableName, $columns, $parameters);
@@ -242,6 +235,7 @@ class DB2Platform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexHasNoColumnLengths($index);
@@ -253,9 +247,7 @@ class DB2Platform extends AbstractPlatform
         return parent::getCreateIndexSQL($index, $tableName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
         $sql         = [];
@@ -372,6 +364,7 @@ class DB2Platform extends AbstractPlatform
         return array_merge($sql, $commentsSQL);
     }
 
+    #[Override]
     public function getRenameTableSQL(string $oldName, string $newName): string
     {
         $parsedOldName = $this->parseOptionallyQualifiedName($oldName);
@@ -481,9 +474,7 @@ class DB2Platform extends AbstractPlatform
         return $clauses;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
@@ -498,9 +489,7 @@ class DB2Platform extends AbstractPlatform
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function getDefaultValueDeclarationSQL(array $column): string
     {
         if (isset($column['autoincrement']) && $column['autoincrement'] === true) {
@@ -510,21 +499,25 @@ class DB2Platform extends AbstractPlatform
         return parent::getDefaultValueDeclarationSQL($column);
     }
 
+    #[Override]
     public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string
     {
         return 'INSERT INTO ' . $quotedTableName . ' (' . $quotedIdentifierColumnName . ') VALUES (DEFAULT)';
     }
 
+    #[Override]
     public function getCreateTemporaryTableSnippetSQL(): string
     {
         return 'DECLARE GLOBAL TEMPORARY TABLE';
     }
 
+    #[Override]
     public function getTemporaryTableName(string $tableName): string
     {
         return 'SESSION.' . $tableName;
     }
 
+    #[Override]
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
         if ($offset > 0) {
@@ -538,6 +531,7 @@ class DB2Platform extends AbstractPlatform
         return $query;
     }
 
+    #[Override]
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {
@@ -547,6 +541,7 @@ class DB2Platform extends AbstractPlatform
         return sprintf('LOCATE(%s, %s, %s)', $substring, $string, $start);
     }
 
+    #[Override]
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
@@ -556,48 +551,54 @@ class DB2Platform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
+    #[Override]
     public function getLengthExpression(string $string): string
     {
         return 'LENGTH(' . $string . ', CODEUNITS32)';
     }
 
+    #[Override]
     public function getCurrentDatabaseExpression(): string
     {
         return 'CURRENT_USER';
     }
 
+    #[Override]
     public function supportsIdentityColumns(): bool
     {
         return true;
     }
 
+    #[Override]
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {
         return new DefaultSelectSQLBuilder($this, 'WITH RR USE AND KEEP UPDATE LOCKS', null);
     }
 
+    #[Override]
     public function getDummySelectSQL(string $expression = '1'): string
     {
         return sprintf('SELECT %s FROM sysibm.sysdummy1', $expression);
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Db2 supports savepoints, but they work semantically different than on other vendor platforms.
      *
      * TODO: We have to investigate how to get Db2 up and running with savepoints.
      */
+    #[Override]
     public function supportsSavepoints(): bool
     {
         return false;
     }
 
+    #[Override]
     public function createMetadataProvider(Connection $connection): Db2MetadataProvider
     {
         return new Db2MetadataProvider($connection, $this);
     }
 
+    #[Override]
     public function createSchemaManager(Connection $connection): DB2SchemaManager
     {
         return new DB2SchemaManager($connection, $this);

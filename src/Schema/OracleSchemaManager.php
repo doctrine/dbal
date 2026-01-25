@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Override;
 
 /**
  * Oracle Schema Manager.
@@ -14,6 +15,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
+    #[Override]
     public function createDatabase(string $databaseName): void
     {
         $parsedName = $this->parseUnqualifiedName($databaseName);
@@ -32,6 +34,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $this->connection->executeStatement($statement);
     }
 
+    #[Override]
     public function dropTable(string $tableName): void
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);

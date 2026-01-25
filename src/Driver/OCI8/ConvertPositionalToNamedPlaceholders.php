@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\SQL\Parser\Visitor;
+use Override;
 
 use function count;
 use function implode;
@@ -25,11 +26,13 @@ final class ConvertPositionalToNamedPlaceholders implements Visitor
     /** @var array<int,string> */
     private array $parameterMap = [];
 
+    #[Override]
     public function acceptOther(string $sql): void
     {
         $this->buffer[] = $sql;
     }
 
+    #[Override]
     public function acceptPositionalParameter(string $sql): void
     {
         $position = count($this->parameterMap) + 1;
@@ -40,6 +43,7 @@ final class ConvertPositionalToNamedPlaceholders implements Visitor
         $this->buffer[] = $param;
     }
 
+    #[Override]
     public function acceptNamedParameter(string $sql): void
     {
         $this->buffer[] = $sql;

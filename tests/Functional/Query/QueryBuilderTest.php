@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function array_change_key_case;
 
@@ -28,6 +29,7 @@ use const CASE_UPPER;
 
 final class QueryBuilderTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()
@@ -51,6 +53,7 @@ final class QueryBuilderTest extends FunctionalTestCase
         $this->connection->insert('for_update', ['id' => 2]);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         if (! $this->connection->isTransactionActive()) {

@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -36,6 +37,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     abstract protected function createComparator(ComparatorConfig $config): Comparator;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->comparator = $this->createComparator(new ComparatorConfig());

@@ -10,9 +10,11 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    #[Override]
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof SQLServerPlatform;
@@ -164,6 +166,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /** @link https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/ownership-and-user-schema-separation?view=sql-server-ver16#the-dbo-schema */
+    #[Override]
     public function getExpectedDefaultSchemaName(): string
     {
         return 'dbo';

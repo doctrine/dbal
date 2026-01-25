@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
+use Override;
 use SQLite3;
 
 use function assert;
@@ -18,6 +19,7 @@ final readonly class Connection implements ConnectionInterface
     {
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         try {
@@ -31,6 +33,7 @@ final readonly class Connection implements ConnectionInterface
         return new Statement($this->connection, $statement);
     }
 
+    #[Override]
     public function query(string $sql): Result
     {
         try {
@@ -44,11 +47,13 @@ final readonly class Connection implements ConnectionInterface
         return new Result($result, $this->connection->changes());
     }
 
+    #[Override]
     public function quote(string $value): string
     {
         return sprintf('\'%s\'', SQLite3::escapeString($value));
     }
 
+    #[Override]
     public function exec(string $sql): int
     {
         try {
@@ -60,6 +65,7 @@ final readonly class Connection implements ConnectionInterface
         return $this->connection->changes();
     }
 
+    #[Override]
     public function lastInsertId(): int
     {
         $value = $this->connection->lastInsertRowID();
@@ -70,6 +76,7 @@ final readonly class Connection implements ConnectionInterface
         return $value;
     }
 
+    #[Override]
     public function beginTransaction(): void
     {
         try {
@@ -79,6 +86,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function commit(): void
     {
         try {
@@ -88,6 +96,7 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function rollBack(): void
     {
         try {
@@ -97,11 +106,13 @@ final readonly class Connection implements ConnectionInterface
         }
     }
 
+    #[Override]
     public function getNativeConnection(): SQLite3
     {
         return $this->connection;
     }
 
+    #[Override]
     public function getServerVersion(): string
     {
         return SQLite3::version()['versionString'];

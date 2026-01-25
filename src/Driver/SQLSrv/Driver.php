@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception\PortWithoutHost;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
+use Override;
 use SensitiveParameter;
 
 use function sqlsrv_configure;
@@ -17,9 +18,7 @@ use function sqlsrv_connect;
  */
 final readonly class Driver extends AbstractSQLServerDriver
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function connect(
         #[SensitiveParameter]
         array $params,

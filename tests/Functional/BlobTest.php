@@ -12,6 +12,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function fopen;
 use function str_repeat;
@@ -19,6 +20,7 @@ use function stream_get_contents;
 
 class BlobTest extends FunctionalTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         if (TestUtil::isDriverOneOf('pdo_oci')) {

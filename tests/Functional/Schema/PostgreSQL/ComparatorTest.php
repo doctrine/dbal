@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 final class ComparatorTest extends FunctionalTestCase
 {
@@ -20,6 +21,7 @@ final class ComparatorTest extends FunctionalTestCase
 
     private Comparator $comparator;
 
+    #[Override]
     protected function setUp(): void
     {
         if (! $this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {

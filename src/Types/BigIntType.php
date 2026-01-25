@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Override;
 
 use function assert;
 use function is_int;
@@ -19,14 +20,13 @@ use function is_string;
  */
 class BigIntType extends Type implements PhpIntegerMappingType
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getBigIntTypeDeclarationSQL($column);
     }
 
+    #[Override]
     public function getBindingType(): ParameterType
     {
         return ParameterType::STRING;
@@ -39,6 +39,7 @@ class BigIntType extends Type implements PhpIntegerMappingType
      *
      * @template T
      */
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): int|string|null
     {
         if ($value === null || is_int($value)) {

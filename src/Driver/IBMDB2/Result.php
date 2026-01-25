@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Override;
 
 use function db2_fetch_array;
 use function db2_fetch_assoc;
@@ -28,6 +29,7 @@ final readonly class Result implements ResultInterface
     {
     }
 
+    #[Override]
     public function fetchNumeric(): array|false
     {
         $row = @db2_fetch_array($this->statement);
@@ -39,6 +41,7 @@ final readonly class Result implements ResultInterface
         return $row;
     }
 
+    #[Override]
     public function fetchAssociative(): array|false
     {
         $row = @db2_fetch_assoc($this->statement);
@@ -50,35 +53,31 @@ final readonly class Result implements ResultInterface
         return $row;
     }
 
+    #[Override]
     public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }
 
+    #[Override]
     public function rowCount(): int
     {
         $numRows = @db2_num_rows($this->statement);
@@ -90,6 +89,7 @@ final readonly class Result implements ResultInterface
         return $numRows;
     }
 
+    #[Override]
     public function columnCount(): int
     {
         $count = db2_num_fields($this->statement);
@@ -101,6 +101,7 @@ final readonly class Result implements ResultInterface
         return 0;
     }
 
+    #[Override]
     public function getColumnName(int $index): string
     {
         $name = db2_field_name($this->statement, $index);
@@ -112,6 +113,7 @@ final readonly class Result implements ResultInterface
         return $name;
     }
 
+    #[Override]
     public function free(): void
     {
         db2_free_result($this->statement);

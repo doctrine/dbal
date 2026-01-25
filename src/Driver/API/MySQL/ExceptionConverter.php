@@ -21,6 +21,7 @@ use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
+use Override;
 
 use function str_contains;
 
@@ -31,6 +32,7 @@ final class ExceptionConverter implements ExceptionConverterInterface
      * @link https://dev.mysql.com/doc/mysql-errors/8.0/en/client-error-reference.html
      * @link https://dev.mysql.com/doc/mysql-errors/8.0/en/server-error-reference.html
      */
+    #[Override]
     public function convert(Exception $exception, ?Query $query): DriverException
     {
         if (

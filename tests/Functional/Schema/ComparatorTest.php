@@ -20,12 +20,14 @@ use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class ComparatorTest extends FunctionalTestCase
 {
     private AbstractSchemaManager $schemaManager;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->schemaManager = $this->connection->createSchemaManager();

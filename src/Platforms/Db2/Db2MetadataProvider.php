@@ -22,6 +22,7 @@ use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function implode;
 use function preg_match;
@@ -45,24 +46,23 @@ final readonly class Db2MetadataProvider implements MetadataProvider
     {
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getAllDatabaseNames(): iterable
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getAllSchemaNames(): iterable
     {
         throw NotSupported::new(__METHOD__);
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @link https://www.ibm.com/docs/en/db2/12.1.0?topic=views-syscattables
      * @link https://www.ibm.com/docs/en/db2/12.1.0?topic=registers-current-user
      */
+    #[Override]
     public function getAllTableNames(): iterable
     {
         $sql = <<<'SQL'
@@ -78,13 +78,13 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getTableColumnsForAllTables(): iterable
     {
         return $this->getTableColumns(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getTableColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName !== null) {
@@ -218,13 +218,13 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         return $expression;
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getIndexColumnsForAllTables(): iterable
     {
         return $this->getIndexColumns(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getIndexColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName !== null) {
@@ -284,13 +284,13 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getPrimaryKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getPrimaryKeyConstraintColumns(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getPrimaryKeyConstraintColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName !== null) {
@@ -342,13 +342,13 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getForeignKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getForeignKeyConstraintColumns(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getForeignKeyConstraintColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName !== null) {
@@ -421,13 +421,13 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getTableOptionsForAllTables(): iterable
     {
         return $this->getTableOptions(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getTableOptionsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName !== null) {
@@ -490,11 +490,10 @@ final readonly class Db2MetadataProvider implements MetadataProvider
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @link https://www.ibm.com/docs/en/db2/12.1.0?topic=views-syscatviews
      * @link https://www.ibm.com/docs/en/db2/12.1.0?topic=registers-current-user
      */
+    #[Override]
     public function getAllViews(): iterable
     {
         $sql = <<<'SQL'
@@ -510,7 +509,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getAllSequences(): iterable
     {
         throw NotSupported::new(__METHOD__);

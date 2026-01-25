@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
+use Override;
 
 /**
  * Portability wrapper for a Connection.
@@ -23,6 +24,7 @@ final readonly class Connection extends AbstractConnectionMiddleware
         parent::__construct($connection);
     }
 
+    #[Override]
     public function prepare(string $sql): Statement
     {
         return new Statement(
@@ -31,6 +33,7 @@ final readonly class Connection extends AbstractConnectionMiddleware
         );
     }
 
+    #[Override]
     public function query(string $sql): Result
     {
         return new Result(

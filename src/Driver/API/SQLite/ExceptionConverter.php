@@ -19,6 +19,7 @@ use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
+use Override;
 
 use function str_contains;
 
@@ -26,6 +27,7 @@ use function str_contains;
 final class ExceptionConverter implements ExceptionConverterInterface
 {
     /** @link http://www.sqlite.org/c3ref/c_abort.html */
+    #[Override]
     public function convert(Exception $exception, ?Query $query): DriverException
     {
         if (str_contains($exception->getMessage(), 'database is locked')) {

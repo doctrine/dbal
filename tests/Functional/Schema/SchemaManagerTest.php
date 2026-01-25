@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
@@ -26,6 +27,7 @@ final class SchemaManagerTest extends FunctionalTestCase
     private AbstractSchemaManager $schemaManager;
 
     /** @throws Exception */
+    #[Override]
     protected function setUp(): void
     {
         $this->schemaManager = $this->connection->createSchemaManager();

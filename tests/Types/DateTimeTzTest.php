@@ -7,10 +7,12 @@ namespace Doctrine\DBAL\Tests\Types;
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeTzType;
+use Override;
 
 /** @extends BaseDateTypeTestCase<DateTimeTzType> */
 class DateTimeTzTest extends BaseDateTypeTestCase
 {
+    #[Override]
     protected function setUp(): void
     {
         $this->type = new DateTimeTzType();

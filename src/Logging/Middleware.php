@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Logging;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
+use Override;
 use Psr\Log\LoggerInterface;
 
 final readonly class Middleware implements MiddlewareInterface
@@ -14,6 +15,7 @@ final readonly class Middleware implements MiddlewareInterface
     {
     }
 
+    #[Override]
     public function wrap(DriverInterface $driver): DriverInterface
     {
         return new Driver($driver, $this->logger);

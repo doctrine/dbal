@@ -28,6 +28,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
+use Override;
 
 use function array_map;
 use function assert;
@@ -78,11 +79,8 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         $this->databaseName = $databaseName;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @link https://dev.mysql.com/doc/refman/8.4/en/information-schema-schemata-table.html
-     */
+    /** @link https://dev.mysql.com/doc/refman/8.4/en/information-schema-schemata-table.html */
+    #[Override]
     public function getAllDatabaseNames(): iterable
     {
         $sql = <<<'SQL'
@@ -96,17 +94,14 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getAllSchemaNames(): iterable
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @link https://dev.mysql.com/doc/refman/8.4/en/information-schema-tables-table.html
-     */
+    /** @link https://dev.mysql.com/doc/refman/8.4/en/information-schema-tables-table.html */
+    #[Override]
     public function getAllTableNames(): iterable
     {
         $sql = <<<'SQL'
@@ -122,13 +117,13 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getTableColumnsForAllTables(): iterable
     {
         return $this->getTableColumns(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getTableColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName !== null) {
@@ -368,13 +363,13 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         };
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getIndexColumnsForAllTables(): iterable
     {
         return $this->getIndexColumns(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getIndexColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName !== null) {
@@ -453,13 +448,13 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getPrimaryKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getPrimaryKeyConstraintColumns(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getPrimaryKeyConstraintColumnsForTable(
         ?string $schemaName,
         string $tableName,
@@ -520,13 +515,13 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getForeignKeyConstraintColumnsForAllTables(): iterable
     {
         return $this->getForeignKeyConstraintColumns(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getForeignKeyConstraintColumnsForTable(
         ?string $schemaName,
         string $tableName,
@@ -608,13 +603,13 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         return $action;
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getTableOptionsForAllTables(): iterable
     {
         return $this->getTableOptions(null);
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getTableOptionsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName !== null) {
@@ -668,11 +663,8 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         return $options;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @link https://dev.mysql.com/doc/refman/8.4/en/information-schema-views-table.html
-     */
+    /** @link https://dev.mysql.com/doc/refman/8.4/en/information-schema-views-table.html */
+    #[Override]
     public function getAllViews(): iterable
     {
         $sql = <<<'SQL'
@@ -688,7 +680,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
         }
     }
 
-    /** {@inheritDoc} */
+    #[Override]
     public function getAllSequences(): iterable
     {
         throw NotSupported::new(__METHOD__);

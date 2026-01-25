@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Exception\InvalidPrimaryKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Override;
 
 use function count;
 
@@ -33,6 +34,7 @@ final readonly class PrimaryKeyConstraint implements OptionallyNamedObject
         }
     }
 
+    #[Override]
     public function getObjectName(): ?UnqualifiedName
     {
         return $this->name;

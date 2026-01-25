@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Override;
 
 use function array_map;
 use function array_merge;
@@ -47,6 +48,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         parent::__construct(UnquotedIdentifierFolding::NONE);
     }
 
+    #[Override]
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
         if ($limit !== null) {
@@ -63,16 +65,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $query;
     }
 
+    #[Override]
     public function quoteSingleIdentifier(string $identifier): string
     {
         return '`' . str_replace('`', '``', $identifier) . '`';
     }
 
+    #[Override]
     public function getRegexpExpression(): string
     {
         return 'RLIKE';
     }
 
+    #[Override]
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {
@@ -82,11 +87,13 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return sprintf('LOCATE(%s, %s, %s)', $substring, $string, $start);
     }
 
+    #[Override]
     public function getConcatExpression(string ...$string): string
     {
         return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
+    #[Override]
     protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
@@ -98,24 +105,25 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit->value . ')';
     }
 
+    #[Override]
     public function getDateDiffExpression(string $date1, string $date2): string
     {
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }
 
+    #[Override]
     public function getCurrentDatabaseExpression(): string
     {
         return 'DATABASE()';
     }
 
+    #[Override]
     public function getLengthExpression(string $string): string
     {
         return 'CHAR_LENGTH(' . $string . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getJsonTypeDeclarationSQL(array $column): string
     {
         return 'JSON';
@@ -127,9 +135,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *     TEXT       : 2 ^ 16 - 1 = 65535
      *     MEDIUMTEXT : 2 ^ 24 - 1 = 16777215
      *     LONGTEXT   : 2 ^ 32 - 1 = 4294967295
-     *
-     * {@inheritDoc}
      */
+    #[Override]
     public function getClobTypeDeclarationSQL(array $column): string
     {
         if (! empty($column['length']) && is_numeric($column['length'])) {
@@ -151,53 +158,46 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'LONGTEXT';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATETIME';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'TINYINT';
     }
 
     /**
-     * {@inheritDoc}
-     *
      * MySQL supports this through AUTO_INCREMENT columns.
      */
+    #[Override]
     public function supportsIdentityColumns(): bool
     {
         return true;
     }
 
+    #[Override]
     protected function supportsInlineColumnComments(): bool
     {
         return true;
     }
 
+    #[Override]
     protected function supportsColumnCollation(): bool
     {
         return true;
@@ -215,9 +215,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $tableAlias . '.DATA_TYPE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $elements = [];
@@ -269,6 +267,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     public function getCreateIndexSQL(Index $index, string $tableName): string
     {
         $this->ensureIndexIsNotClustered($index);
@@ -320,9 +319,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return implode(' ', $tableOptions);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getAlterTableSQL(TableDiff $diff): array
     {
         $sql          = [];
@@ -413,57 +410,43 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return implode(' ', $chunks);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getFloatDeclarationSQL(array $column): string
     {
         return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSmallFloatDeclarationSQL(array $column): string
     {
         return 'FLOAT' . $this->getUnsignedDeclaration($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
         return parent::getDecimalTypeDeclarationSQL($column) . $this->getUnsignedDeclaration($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getEnumDeclarationSQL(array $column): string
     {
         if (! isset($column['values']) || ! is_array($column['values']) || $column['values'] === []) {
@@ -486,9 +469,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         $sql = $this->getUnsignedDeclaration($column);
@@ -500,11 +481,13 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $sql;
     }
 
+    #[Override]
     protected function getColumnCharsetDeclarationSQL(string $charset): string
     {
         return 'CHARACTER SET ' . $charset;
     }
 
+    #[Override]
     protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
     {
         $this->ensurePrimaryKeyConstraintIsNotNamed($constraint);
@@ -513,6 +496,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
+    #[Override]
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
@@ -527,6 +511,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $query;
     }
 
+    #[Override]
     public function getDropIndexSQL(string $indexName, string $tableName): string
     {
         $parsedIndexName = $this->parseUnqualifiedName($indexName);
@@ -540,16 +525,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *
      * @link https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
      */
+    #[Override]
     public function getDropUniqueConstraintSQL(string $constraintName, string $tableName): string
     {
         return $this->getDropIndexSQL($constraintName, $tableName);
     }
 
+    #[Override]
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
+    #[Override]
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -589,11 +577,10 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * MySQL commits a transaction implicitly when DROP TABLE is executed, however not
      * if DROP TEMPORARY TABLE is executed.
      */
+    #[Override]
     public function getDropTemporaryTableSQL(string $tableName): string
     {
         $parsedName = $this->parseOptionallyQualifiedName($tableName);
@@ -607,9 +594,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *     BLOB       : 2 ^ 16 - 1 = 65535
      *     MEDIUMBLOB : 2 ^ 24 - 1 = 16777215
      *     LONGBLOB   : 2 ^ 32 - 1 = 4294967295
-     *
-     * {@inheritDoc}
      */
+    #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         if (! empty($column['length']) && is_numeric($column['length'])) {
@@ -631,6 +617,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'LONGBLOB';
     }
 
+    #[Override]
     public function quoteStringLiteral(string $str): string
     {
         // MySQL requires backslashes to be escaped as well.
@@ -639,16 +626,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return parent::quoteStringLiteral($str);
     }
 
+    #[Override]
     public function getDefaultTransactionIsolationLevel(): TransactionIsolationLevel
     {
         return TransactionIsolationLevel::REPEATABLE_READ;
     }
 
+    #[Override]
     public function createMetadataProvider(Connection $connection): MySQLMetadataProvider
     {
         return new MySQLMetadataProvider($connection, $this);
     }
 
+    #[Override]
     public function createSchemaManager(Connection $connection): MySQLSchemaManager
     {
         return new MySQLSchemaManager($connection, $this);
@@ -681,6 +671,7 @@ SQL;
         return $sql . ' WHERE ' . implode(' AND ', $conditions);
     }
 
+    #[Override]
     public function createSQLParser(): Parser
     {
         return new Parser(true);

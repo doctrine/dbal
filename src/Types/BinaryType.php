@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+use Override;
 
 use function is_resource;
 use function is_string;
@@ -17,14 +18,13 @@ use function stream_get_contents;
  */
 class BinaryType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getBinaryTypeDeclarationSQL($column);
     }
 
+    #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -42,6 +42,7 @@ class BinaryType extends Type
         return $value;
     }
 
+    #[Override]
     public function getBindingType(): ParameterType
     {
         return ParameterType::BINARY;

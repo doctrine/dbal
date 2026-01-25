@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
 use Doctrine\DBAL\Query\SelectQuery;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
+use Override;
 
 use function count;
 use function implode;
@@ -20,6 +21,7 @@ final readonly class SQLServerSelectSQLBuilder implements SelectSQLBuilder
     ) {
     }
 
+    #[Override]
     public function buildSQL(SelectQuery $query): string
     {
         $parts = ['SELECT'];

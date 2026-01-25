@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Exception as BaseException;
+use Override;
 use Throwable;
 
 /**
@@ -27,6 +28,7 @@ abstract class AbstractException extends BaseException implements Exception
         parent::__construct($message, $code, $previous);
     }
 
+    #[Override]
     public function getSQLState(): ?string
     {
         return $this->sqlState;
