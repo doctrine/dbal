@@ -57,6 +57,11 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "composer/package-versions-deprecated": true
+        },
+        "audit": {
+            "ignore": {
+                "CVE-2026-24765": "We are not affected by this vulnerability."
+            }
         }
     },
     "autoload": {
