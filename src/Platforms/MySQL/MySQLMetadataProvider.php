@@ -394,6 +394,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             WHERE %s
               AND INDEX_NAME != 'PRIMARY'
             ORDER BY TABLE_NAME,
+                INDEX_NAME,
                 SEQ_IN_INDEX
             SQL,
             implode(' AND ', $conditions),

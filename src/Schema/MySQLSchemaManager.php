@@ -428,6 +428,7 @@ SELECT
 FROM information_schema.STATISTICS
 WHERE %s
 ORDER BY TABLE_NAME,
+         INDEX_NAME,
          SEQ_IN_INDEX
 SQL,
             implode(' AND ', $conditions),
