@@ -38,8 +38,10 @@ class ResultTest extends FunctionalTestCase
     #[Override]
     protected function tearDown(): void
     {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS types_test');
-        $this->connection->executeStatement('DROP TABLE IF EXISTS types_test2');
+        if (TestUtil::isDriverOneOf('pgsql')) {
+            $this->connection->executeStatement('DROP TABLE IF EXISTS types_test');
+            $this->connection->executeStatement('DROP TABLE IF EXISTS types_test2');
+        }
 
         parent::tearDown();
     }

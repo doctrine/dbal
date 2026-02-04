@@ -80,6 +80,12 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
     {
         parent::tearDown();
 
+        $driver = $this->connection->getDriver();
+
+        if ($driver instanceof IBMDB2\Driver || $driver instanceof AbstractSQLServerDriver) {
+            return;
+        }
+
         $schemaManager = $this->connection->createSchemaManager();
 
         $schemaManager->dropTable('owning_table');
