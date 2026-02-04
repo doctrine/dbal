@@ -41,7 +41,7 @@ class DriverManagerTest extends TestCase
     #[RequiresPhpExtension('sqlite3')]
     public function testCustomWrapper(): void
     {
-        $wrapper      = $this->createMock(Connection::class);
+        $wrapper      = self::createStub(Connection::class);
         $wrapperClass = $wrapper::class;
 
         $options = [

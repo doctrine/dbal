@@ -14,7 +14,7 @@ final class AbstractConnectionMiddlewareTest extends TestCase
 {
     public function testPrepare(): void
     {
-        $statement  = $this->createMock(Statement::class);
+        $statement  = self::createStub(Statement::class);
         $connection = $this->createMock(Connection::class);
         $connection->expects(self::once())
             ->method('prepare')
@@ -26,7 +26,7 @@ final class AbstractConnectionMiddlewareTest extends TestCase
 
     public function testQuery(): void
     {
-        $result     = $this->createMock(Result::class);
+        $result     = self::createStub(Result::class);
         $connection = $this->createMock(Connection::class);
         $connection->expects(self::once())
             ->method('query')

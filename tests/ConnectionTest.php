@@ -183,12 +183,12 @@ class ConnectionTest extends TestCase
 
     public function testTransactionIsActiveAfterTransactionalInNoAutoCommitMode(): void
     {
-        $platformMock = $this->createMock(AbstractPlatform::class);
+        $platformMock = self::createStub(AbstractPlatform::class);
         $platformMock
             ->method('supportsSavepoints')
             ->willReturn(true);
 
-        $driverMock = $this->createMock(Driver::class);
+        $driverMock = self::createStub(Driver::class);
         $driverMock
             ->method('connect')
             ->willReturn(
@@ -470,7 +470,7 @@ class ConnectionTest extends TestCase
             ->willReturn($expected);
 
         $driver = $this->createConfiguredMock(Driver::class, [
-            'connect' => $this->createMock(DriverConnection::class),
+            'connect' => self::createStub(DriverConnection::class),
         ]);
 
         $conn = $this->getMockBuilder(Connection::class)
@@ -565,7 +565,7 @@ class ConnectionTest extends TestCase
             ->method('getServerVersion')
             ->willReturn('6.6.6');
 
-        $platform = $this->createMock(AbstractPlatform::class);
+        $platform = self::createStub(AbstractPlatform::class);
 
         $driver = $this->createMock(Driver::class);
         $driver->expects(self::once())
@@ -590,7 +590,7 @@ class ConnectionTest extends TestCase
         $driverConnection->expects(self::never())
             ->method('getServerVersion');
 
-        $platform = $this->createMock(AbstractPlatform::class);
+        $platform = self::createStub(AbstractPlatform::class);
 
         $driver = $this->createMock(Driver::class);
         $driver->expects(self::never())
@@ -608,9 +608,9 @@ class ConnectionTest extends TestCase
     {
         $driverMock = $this->createMock(Driver::class);
 
-        $driverConnectionMock = $this->createMock(Driver\Connection::class);
+        $driverConnectionMock = self::createStub(Driver\Connection::class);
 
-        $platformMock = $this->createMock(AbstractPlatform::class);
+        $platformMock = self::createStub(AbstractPlatform::class);
 
         $connection = new Connection(['serverVersion' => '8.0'], $driverMock);
 
@@ -630,9 +630,9 @@ class ConnectionTest extends TestCase
     {
         $driverMock = $this->createMock(Driver::class);
 
-        $driverConnectionMock = $this->createMock(Driver\Connection::class);
+        $driverConnectionMock = self::createStub(Driver\Connection::class);
 
-        $platformMock = $this->createMock(AbstractPlatform::class);
+        $platformMock = self::createStub(AbstractPlatform::class);
 
         $connection = new Connection(['primary' => ['serverVersion' => '8.0']], $driverMock);
 
@@ -650,7 +650,7 @@ class ConnectionTest extends TestCase
 
     public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
-        $cacheItemMock = $this->createMock(CacheItemInterface::class);
+        $cacheItemMock = self::createStub(CacheItemInterface::class);
         $cacheItemMock->method('isHit')->willReturn(true);
         $cacheItemMock->method('get')->willReturn(['realKey' => [[], []]]);
 
@@ -682,7 +682,7 @@ class ConnectionTest extends TestCase
             ->with($query, $params, $types, $expectedConnectionParams)
             ->willReturn(['cacheKey', 'realKey']);
 
-        $driver = $this->createMock(Driver::class);
+        $driver = self::createStub(Driver::class);
 
         (new Connection(self::CONNECTION_PARAMS, $driver))
             ->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);

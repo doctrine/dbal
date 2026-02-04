@@ -28,7 +28,7 @@ class ConnectionTest extends TestCase
         $nativeConnection = new class () {
         };
 
-        $driverConnection = $this->createMock(ConnectionInterface::class);
+        $driverConnection = self::createStub(ConnectionInterface::class);
         $driverConnection->method('getNativeConnection')
             ->willReturn($nativeConnection);
 

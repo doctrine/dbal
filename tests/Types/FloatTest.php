@@ -6,17 +6,17 @@ namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\FloatType;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class FloatTest extends TestCase
 {
-    private AbstractPlatform&MockObject $platform;
+    private AbstractPlatform&Stub $platform;
     private FloatType $type;
 
     protected function setUp(): void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->platform = self::createStub(AbstractPlatform::class);
         $this->type     = new FloatType();
     }
 

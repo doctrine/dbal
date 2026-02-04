@@ -38,7 +38,7 @@ class QueryBuilderTest extends TestCase
         $this->conn->method('createExpressionBuilder')
            ->willReturnCallback(fn () => new ExpressionBuilder($this->conn));
 
-        $platform = $this->createMock(AbstractPlatform::class);
+        $platform = self::createStub(AbstractPlatform::class);
         $platform->method('getUnionSelectPartSQL')
             ->willReturnArgument(0);
         $platform->method('getUnionAllSQL')

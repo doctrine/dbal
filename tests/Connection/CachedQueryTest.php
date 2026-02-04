@@ -88,7 +88,7 @@ class CachedQueryTest extends TestCase
             ->method('query')
             ->willReturnCallback(static fn (): ArrayResult => new ArrayResult($columnNames, $rows));
 
-        $driver = $this->createMock(Driver::class);
+        $driver = self::createStub(Driver::class);
         $driver->method('connect')
             ->willReturn($connection);
 

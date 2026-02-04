@@ -8,17 +8,17 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\VarDateTimeType;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class VarDateTimeTest extends TestCase
 {
-    private AbstractPlatform&MockObject $platform;
+    private AbstractPlatform&Stub $platform;
     private VarDateTimeType $type;
 
     protected function setUp(): void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->platform = self::createStub(AbstractPlatform::class);
         $this->type     = new VarDateTimeType();
 
         $this->platform->method('getDateTimeFormatString')

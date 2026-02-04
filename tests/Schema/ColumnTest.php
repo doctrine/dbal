@@ -73,7 +73,7 @@ class ColumnTest extends TestCase
         $this->expectException(UnknownColumnOption::class);
         $this->expectExceptionMessage('The "unknown_option" column option is not supported.');
 
-        new Column('foo', $this->createMock(Type::class), ['unknown_option' => 'bar']);
+        new Column('foo', self::createStub(Type::class), ['unknown_option' => 'bar']);
     }
 
     public function testOptionsShouldNotBeIgnored(): void

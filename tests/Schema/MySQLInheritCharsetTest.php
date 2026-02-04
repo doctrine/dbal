@@ -81,7 +81,7 @@ class MySQLInheritCharsetTest extends TestCase
      */
     private function getTableOptionsForOverride(array $params = []): array
     {
-        $driverMock = $this->createMock(Driver::class);
+        $driverMock = self::createStub(Driver::class);
 
         $platform = new MySQLPlatform();
         $conn     = new Connection($params, $driverMock, new Configuration());

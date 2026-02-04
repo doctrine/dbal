@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Types;
 
 use DateTime;
 use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
@@ -36,15 +37,11 @@ class DateTimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue(): void
     {
-        $date = $this->createMock(DateTimeImmutable::class);
+        $date = new DateTimeImmutable('2016-01-01 15:58:59', new DateTimeZone('UTC'));
 
         $this->platform->expects(self::once())
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
-        $date->expects(self::once())
-            ->method('format')
-            ->with('Y-m-d H:i:s')
-            ->willReturn('2016-01-01 15:58:59');
 
         self::assertSame(
             '2016-01-01 15:58:59',
