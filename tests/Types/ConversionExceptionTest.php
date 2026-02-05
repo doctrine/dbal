@@ -20,7 +20,7 @@ class ConversionExceptionTest extends TestCase
 {
     public function testConversionFailedPreviousException(): void
     {
-        $previous = $this->createMock(Throwable::class);
+        $previous = self::createStub(Throwable::class);
 
         $exception = ValueNotConvertible::new('foo', 'foo', null, $previous);
 
@@ -55,7 +55,7 @@ class ConversionExceptionTest extends TestCase
 
     public function testConversionFailedInvalidTypePreviousException(): void
     {
-        $previous = $this->createMock(Throwable::class);
+        $previous = self::createStub(Throwable::class);
 
         $exception = InvalidType::new('foo', 'foo', ['bar', 'baz'], $previous);
 
@@ -64,7 +64,7 @@ class ConversionExceptionTest extends TestCase
 
     public function testConversionFailedFormatPreservesPreviousException(): void
     {
-        $previous = $this->createMock(Throwable::class);
+        $previous = self::createStub(Throwable::class);
 
         $exception = InvalidFormat::new('foo', 'bar', 'baz', $previous);
 

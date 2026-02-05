@@ -185,7 +185,7 @@ final class DsnParserTest extends TestCase
 
     public function testDriverClassScheme(): void
     {
-        $driverClass = get_class($this->createMock(Driver::class));
+        $driverClass = get_class(self::createStub(Driver::class));
         $parser      = new DsnParser(['custom' => $driverClass]);
         $actual      = $parser->parse('custom://foo:bar@localhost/baz');
 

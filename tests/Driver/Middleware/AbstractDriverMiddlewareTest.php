@@ -13,7 +13,7 @@ final class AbstractDriverMiddlewareTest extends TestCase
 {
     public function testConnect(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = self::createStub(Connection::class);
         $driver     = $this->createMock(Driver::class);
         $driver->expects(self::once())
             ->method('connect')

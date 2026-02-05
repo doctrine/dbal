@@ -13,7 +13,7 @@ final class AbstractStatementMiddlewareTest extends TestCase
 {
     public function testExecute(): void
     {
-        $result    = $this->createMock(Result::class);
+        $result    = self::createStub(Result::class);
         $statement = $this->createMock(Statement::class);
         $statement->expects(self::once())
             ->method('execute')

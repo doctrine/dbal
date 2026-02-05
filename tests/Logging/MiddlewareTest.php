@@ -20,9 +20,9 @@ class MiddlewareTest extends TestCase
     #[Override]
     public function setUp(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = self::createStub(Connection::class);
 
-        $driver = $this->createMock(Driver::class);
+        $driver = self::createStub(Driver::class);
         $driver->method('connect')
             ->willReturn($connection);
 

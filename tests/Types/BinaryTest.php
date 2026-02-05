@@ -10,7 +10,7 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\ConversionException;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
@@ -21,13 +21,13 @@ use function range;
 
 class BinaryTest extends TestCase
 {
-    protected AbstractPlatform&MockObject $platform;
+    protected AbstractPlatform&Stub $platform;
     protected BinaryType $type;
 
     #[Override]
     protected function setUp(): void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->platform = self::createStub(AbstractPlatform::class);
         $this->type     = new BinaryType();
     }
 
