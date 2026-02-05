@@ -29,4 +29,9 @@ final readonly class Join
     {
         return new self('RIGHT', $table, $alias, $condition);
     }
+
+    public static function full(string $table, string $alias, ?string $condition): Join
+    {
+        return new self('FULL', $table, $alias, $condition);
+    }
 }

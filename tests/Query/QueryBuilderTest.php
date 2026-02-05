@@ -157,6 +157,18 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('SELECT u.*, p.* FROM users u RIGHT JOIN phones p ON p.user_id = u.id', (string) $qb);
     }
 
+    public function testSelectWithFullJoin(): void
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.*', 'p.*')
+            ->from('users', 'u')
+            ->fullJoin('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
+
+        self::assertEquals('SELECT u.*, p.* FROM users u FULL JOIN phones p ON p.user_id = u.id', (string) $qb);
+    }
+
     public function testSelectWithAndWhereConditions(): void
     {
         $qb = new QueryBuilder($this->conn);
