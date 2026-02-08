@@ -203,7 +203,7 @@ abstract class AbstractPlatform
             try {
                 return $this->getVarcharTypeDeclarationSQLSnippet($length);
             } catch (InvalidColumnType $e) {
-                throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
+                throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'] ?? null, $e);
             }
         }
 
@@ -226,7 +226,7 @@ abstract class AbstractPlatform
 
             return $this->getBinaryTypeDeclarationSQLSnippet($length);
         } catch (InvalidColumnType $e) {
-            throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
+            throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'] ?? null, $e);
         }
     }
 
@@ -1516,11 +1516,11 @@ abstract class AbstractPlatform
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
         if (! isset($column['precision'])) {
-            throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], ColumnPrecisionRequired::new());
+            throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'] ?? null, ColumnPrecisionRequired::new());
         }
 
         if (! isset($column['scale'])) {
-            throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], ColumnScaleRequired::new());
+            throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'] ?? null, ColumnScaleRequired::new());
         }
 
         return 'NUMERIC(' . $column['precision'] . ', ' . $column['scale'] . ')';
