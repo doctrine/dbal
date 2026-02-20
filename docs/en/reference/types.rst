@@ -528,8 +528,8 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |                    +--------------------------+---------+----------------------------------------------------------+
     |                   |                    | **SQLite**               | *all*   | ``INTEGER`` [15]                                         |
     +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
-    | **bigint**        | ``string`` [8]     | **MySQL**                | *all*   | ``BIGINT`` ``UNSIGNED`` [10]  ``AUTO_INCREMENT`` [11]    |
-    |                   |                    +--------------------------+---------+----------------------------------------------------------+
+    | **bigint**        | ``string`` or      | **MySQL**                | *all*   | ``BIGINT`` ``UNSIGNED`` [10]  ``AUTO_INCREMENT`` [11]    |
+    |                   | ``int`` [8]        +--------------------------+---------+----------------------------------------------------------+
     |                   |                    | **PostgreSQL**           | *all*   | ``BIGINT`` [12]                                          |
     |                   |                    |                          |         +----------------------------------------------------------+
     |                   |                    |                          |         | ``BIGSERIAL`` [11]                                       |
@@ -772,8 +772,8 @@ Please also notice the mapping specific footnotes for additional information.
   see [15] .
 * [7] **p** is the precision and **s** the scale set in the column definition.
   The precision defaults to ``10`` and the scale to ``0`` if not set.
-* [8] Returns PHP ``string`` type value instead of ``integer`` because of maximum integer value
-  implications on non 64bit platforms.
+* [8] On 32-bit systems, returns PHP ``string`` type value instead of ``integer`` because of maximum integer
+  value implications on non 64bit platforms.
 * [9] Returns PHP ``string`` type value instead of ``double`` because of PHP's limitation in
   preserving the exact precision when casting to ``double``.
 * [10] Used if **unsigned** attribute is set to ``true`` in the column definition (default ``false``).
