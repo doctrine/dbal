@@ -1,231 +1,311 @@
-name: "CI (Nightly): PHPUnit"
+name: CI (Nightly): PHPUnit
 
 on:
   schedule:
-    - cron: "12 3 * * *"
+    - cron: '12 3 * * *'
   workflow_dispatch:
 
 jobs:
   phpunit-mariadb-devel:
-    name: >
+    name: |
       ${{ format('MariaDB {0} - PHP {1} - ext. {2}',
         matrix.mariadb-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø'
       ) }}
-    runs-on: "ubuntu-24.04"
+
+    runs-on: ubuntu-24.04
+
+
+
+
+
+
 
     strategy:
       fail-fast: false
       matrix:
-        php-version:
-          - "8.5"
-        mariadb-version:
-          - "earliest"
-          - "verylatest"
-        extension:
-          - "mysqli"
-          - "pdo_mysql"
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+        mariadb-version: [earliest, verylatest]
+        extension: [mysqli, pdo_mysql]
 
     services:
       mariadb:
-        image: "quay.io/mariadb-foundation/mariadb-devel:${{ matrix.mariadb-version }}"
+        image: quay.io/mariadb-foundation/mariadb-devel:${{ matrix.mariadb-version }}
         env:
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: yes
-          MARIADB_DATABASE: "doctrine_tests"
-
-        options: >-
-          --health-cmd "healthcheck.sh --connect --innodb_initialized"
-
+          MARIADB_DATABASE: doctrine_tests
+        options: --health-cmd "healthcheck.sh --connect --innodb_initialized"
         ports:
-          - "3306:3306"
+          - 3306:3306
 
     steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v6"
+      - name: Checkout
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: "${{ matrix.php-version }}"
-          coverage: "pcov"
-          ini-values: "zend.assertions=1"
-          extensions: "${{ matrix.extension }}"
+          php-version: ${{ matrix.php-version }}
+          coverage: pcov
+          ini-values: zend.assertions=1
+          extensions: ${{ matrix.extension }}
         env:
           fail-fast: true
 
-      - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
+      - name: Install dependencies with Composer
+        uses: ramsey/composer-install@v3
         with:
-          composer-options: "--ignore-platform-req=php+"
+          composer-options: --ignore-platform-req=php+
 
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml"
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml
 
       - name: Tell the MariaDB Folks if it failed
-        if: ${{ failure() }}
+        if: '${{ failure() }}'
         uses: zulip/github-actions-zulip/send-message@v1
         with:
           api-key: ${{ secrets.MARIADB_ZULIP_API_KEY }}
-          email: "doctrine-bot@mariadb.zulipchat.com"
-          organization-url: "https://mariadb.zulipchat.com"
-          to: "Buildbot"
-          type: "stream"
-          topic: "CI - Doctrine/DBAL"
-          content: "There was an error running Doctrine on MariaDB:${{ matrix.mariadb-version }} - URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          email: doctrine-bot@mariadb.zulipchat.com
+          organization-url: https://mariadb.zulipchat.com
+          to: Buildbot
+          type: stream
+          topic: CI - Doctrine/DBAL
+          content: There was an error running Doctrine on MariaDB:${{ matrix.mariadb-version }} - URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
 
   phpunit-sqlite:
-    name: >
+    name: |
       ${{ format('SQLite - PHP {0} - OS {1} - ext. {2} - deps {3}',
         matrix.php-version || 'Ø',
         matrix.os || 'Ø',
         matrix.extension || 'Ø',
         matrix.dependency-versions || 'Ø'
       ) }}
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-sqlite.yml
+
+
+
+
+
+
     with:
       os: ${{ matrix.os }}
       php-version: ${{ matrix.php-version }}
       extension: ${{ matrix.extension }}
       dependency-versions: ${{ matrix.dependency-versions }}
 
+
+
+
+
+
+
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-24.04
-        php-version:
-          - '8.5'
-        extension:
-          - pdo_sqlite
-          - sqlite3
-        dependency-versions:
-          - highest
+        os: [ubuntu-24.04]
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+        extension: [pdo_sqlite, sqlite3]
+        dependency-versions: [highest]
 
   phpunit-mariadb:
-    name: >
+    name: |
       ${{ format('MariaDB {0} - PHP {1} - ext. {2}',
         matrix.mariadb-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø'
       ) }}
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-mariadb.yml
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       mariadb-version: ${{ matrix.mariadb-version }}
       extension: ${{ matrix.extension }}
 
+
+
+
+
+
+
     strategy:
       fail-fast: false
       matrix:
-        php-version:
-          - '8.5'
-        mariadb-version:
-          - '11.4'
-        extension:
-          - mysqli
-          - pdo_mysql
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+        mariadb-version: ['11.4']
+        extension: [mysqli, pdo_mysql]
 
   phpunit-mysql:
-    name: >
+    name: |
       ${{ format('MySQL {0} - PHP {1} - ext. {2}',
         matrix.mysql-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø'
       ) }}
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-mysql.yml
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       mysql-version: ${{ matrix.mysql-version }}
       extension: ${{ matrix.extension }}
 
+
+
+
+
+
+
     strategy:
       fail-fast: false
       matrix:
-        php-version:
-          - '8.5'
-        mysql-version:
-          - '9.1'
-        extension:
-          - mysqli
-          - pdo_mysql
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+        mysql-version: ['9.1']
+        extension: [mysqli, pdo_mysql]
 
   phpunit-sqlserver:
-    name: >
+    name: |
       ${{ format('SQL Server - PHP {0} - ext. {1} - collation. {2}',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø',
         matrix.collation || 'Ø'
       ) }}
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-sqlserver.yml
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       sqlserver-version: ${{ matrix.sqlserver-version }}
       extension: ${{ matrix.extension }}
       collation: ${{ matrix.collation }}
 
+
+
+
+
+
+
     strategy:
       fail-fast: false
       matrix:
-        php-version:
-          - '8.5'
-        sqlserver-version:
-          - '2025'
-        extension:
-          - sqlsrv
-          - pdo_sqlsrv
-        collation:
-          - Latin1_General_100_CI_AS_SC_UTF8
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+        sqlserver-version: ['2025']
+        extension: [sqlsrv, pdo_sqlsrv]
+        collation: [Latin1_General_100_CI_AS_SC_UTF8]
 
   phpunit-oracle:
-    name: >
+    name: |
       ${{ format('Oracle {0} - PHP {1} - ext. {2}',
         matrix.oracle-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø'
       ) }}
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-oracle.yml
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       oracle-version: ${{ matrix.oracle-version }}
       extension: ${{ matrix.extension }}
 
+
+
+
+
+
+
     strategy:
       fail-fast: false
       matrix:
-        php-version:
-          - '8.5'
-        oracle-version:
-          - '23'
-        extension:
-          - oci8
-          - pdo_oci
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+        oracle-version: ['23']
+        extension: [oci8, pdo_oci]
 
   phpunit-postgres:
-    name: >
+    name: |
       ${{ format('PostgreSQL {0} - PHP {1} - ext. {2}',
         matrix.postgres-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø'
       ) }}
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-postgres.yml
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       postgres-version: ${{ matrix.postgres-version }}
       extension: ${{ matrix.extension }}
       postgres-locale-provider: ${{ matrix.postgres-locale-provider }}
 
+
+
+
+
+
+
     strategy:
       fail-fast: false
       matrix:
-        php-version:
-          - '8.5'
-        postgres-version:
-          - '17'
-        extension:
-          - pgsql
-          - pdo_pgsql
-        postgres-locale-provider:
-          - libc
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+        postgres-version: ['17']
+        extension: [pgsql, pdo_pgsql]
+        postgres-locale-provider: [libc]

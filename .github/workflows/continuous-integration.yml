@@ -1,9 +1,9 @@
-name: "CI: PHPUnit"
+name: CI: PHPUnit
 
 on:
   pull_request:
     branches:
-      - "*.x"
+      - *.x
     paths:
       - .github/workflows/continuous-integration.yml
       - .github/workflows/phpunit-*.yml
@@ -14,7 +14,7 @@ on:
       - tests/**
   push:
     branches:
-      - "*.x"
+      - *.x
     paths:
       - .github/workflows/continuous-integration.yml
       - .github/workflows/phpunit-*.yml
@@ -24,18 +24,32 @@ on:
       - src/**
       - tests/**
   schedule:
-    - cron: "42 3 * * *"
+    - cron: '42 3 * * *'
 
 jobs:
   phpunit-smoke-check:
-    name: >
+    name: |
       ${{ format('SQLite - PHP {0} - OS {1} - ext. {2} - deps {3}',
         matrix.php-version || 'Ø',
         matrix.os || 'Ø',
         matrix.extension || 'Ø',
         matrix.dependency-versions || 'Ø'
       ) }}
+
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-sqlite.yml
+
+
+
+
+
+
+
     with:
       os: ${{ matrix.os }}
       php-version: ${{ matrix.php-version }}
@@ -43,59 +57,81 @@ jobs:
       dependency-versions: ${{ matrix.dependency-versions }}
       config-file-suffix: ${{ matrix.config-file-suffix }}
 
+
+
+
+
+
+
+
     strategy:
       matrix:
-        os:
-          - "ubuntu-24.04"
-        php-version:
-          - "8.3"
-          - "8.4"
-          - "8.5"
-        dependency-versions:
-          - "highest"
-        extension:
-          - "sqlite3"
-          - "pdo_sqlite"
+        os: [ubuntu-24.04]
+        php-version: ['8.3', '8.4', '8.5']
+        dependency-versions: [highest]
+        extension: [sqlite3, pdo_sqlite]
         include:
-          - os: "ubuntu-22.04"
-            php-version: "8.2"
-            dependency-versions: "lowest"
-            extension: "pdo_sqlite"
-          - os: "ubuntu-24.04"
-            php-version: "8.5"
-            dependency-versions: "highest"
-            extension: "sqlite3"
-          - os: "ubuntu-22.04"
-            php-version: "8.2"
-            dependency-versions: "highest"
-            extension: "pdo_sqlite"
-            config-file-suffix: "-stringify_fetches"
+          - os: ubuntu-22.04
+            php-version: '8.2'
+            dependency-versions: lowest
+            extension: pdo_sqlite
+          - os: ubuntu-24.04
+            php-version: '8.5'
+            dependency-versions: highest
+            extension: sqlite3
+          - os: ubuntu-22.04
+            php-version: '8.2'
+            dependency-versions: highest
+            extension: pdo_sqlite
+            config-file-suffix: -stringify_fetches
 
   phpunit-oracle:
-    name: >
+    name: |
       ${{ format('Oracle {0} - PHP {1} - ext. {2}',
         matrix.oracle-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø'
       ) }}
-    needs: "phpunit-smoke-check"
+
+
+
+
+
+
+
+    needs: phpunit-smoke-check
+
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-oracle.yml
+
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       oracle-version: ${{ matrix.oracle-version }}
       extension: ${{ matrix.extension }}
 
+
+
+
+
+
+
+
     strategy:
       matrix:
-        php-version:
-          - "8.5"
-        oracle-version:
-          - "18"
-          - "21"
-          - "23"
-        extension:
-          - oci8
-          - pdo_oci
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+        oracle-version: ['18', '21', '23']
+        extension: [oci8, pdo_oci]
         include:
           - php-version: '8.2'
             oracle-version: '23'
@@ -105,14 +141,35 @@ jobs:
             extension: pdo_oci
 
   phpunit-postgres:
-    name: >
+    name: |
       ${{ format('PostgreSQL {0} - PHP {1} - ext. {2}',
         matrix.postgres-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø'
       ) }}
-    needs: "phpunit-smoke-check"
+
+
+
+
+
+
+
+    needs: phpunit-smoke-check
+
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-postgres.yml
+
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       postgres-version: ${{ matrix.postgres-version }}
@@ -120,246 +177,347 @@ jobs:
       postgres-locale-provider: ${{ matrix.postgres-locale-provider }}
       config-file-suffix: ${{ matrix.config-file-suffix }}
 
+
+
+
+
+
+
+
     strategy:
       matrix:
-        php-version:
-          - "8.3"
-          - "8.4"
-          - "8.5"
-        postgres-locale-provider:
-            - "libc"
-        postgres-version:
-          - "10"
-          - "16"
-          - "17"
-        extension:
-          - "pgsql"
-          - "pdo_pgsql"
+        php-version: ['8.3', '8.4', '8.5']
+        postgres-locale-provider: [libc]
+        postgres-version: ['10', '16', '17']
+        extension: [pgsql, pdo_pgsql]
         include:
-          - php-version: "8.2"
-            postgres-version: "17"
-            extension: "pgsql"
-          - php-version: "8.2"
-            postgres-version: "17"
-            extension: "pdo_pgsql"
-          - php-version: "8.4"
-            postgres-version: "15"
-            extension: "pdo_pgsql"
-            postgres-locale-provider: "icu"
-          - php-version: "8.2"
-            postgres-version: "17"
-            extension: "pdo_pgsql"
-            config-file-suffix: "-stringify_fetches"
+          - php-version: '8.2'
+            postgres-version: '17'
+            extension: pgsql
+          - php-version: '8.2'
+            postgres-version: '17'
+            extension: pdo_pgsql
+          - php-version: '8.4'
+            postgres-version: '15'
+            extension: pdo_pgsql
+            postgres-locale-provider: icu
+          - php-version: '8.2'
+            postgres-version: '17'
+            extension: pdo_pgsql
+            config-file-suffix: -stringify_fetches
 
   phpunit-mariadb:
-    name: >
+    name: |
       ${{ format('MariaDB {0} - PHP {1} - ext. {2}',
         matrix.mariadb-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø'
       ) }}
-    needs: "phpunit-smoke-check"
+
+
+
+
+
+
+
+    needs: phpunit-smoke-check
+
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-mariadb.yml
+
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       mariadb-version: ${{ matrix.mariadb-version }}
       extension: ${{ matrix.extension }}
       config-file-suffix: ${{ matrix.config-file-suffix }}
 
+
+
+
+
+
+
+
     strategy:
       matrix:
-        php-version:
-          - "8.3"
-          - "8.4"
-          - "8.5"
-        mariadb-version:
-          # keep in sync with https://mariadb.org/about/#maintenance-policy
-          - "10.4"  # Oldest version supported by DBAL, LTS (Jun 2024) We have code specific to 10.4.3-10.5.2
-          - "10.5"  # LTS (Jun 2025) We have code specific to 10.5.2-10.6.0
-          - "10.6"  # LTS (Jul 2026) We have code specific to 10.6.0-10.10.0
-          - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
-          - "11.4"  # LTS (May 2029)
-          - "11.8"  # LTS (Jun 2028)
-          - "12.1"  # Rolling Release (Q1 2026)
-        extension:
-          - "mysqli"
-          - "pdo_mysql"
+        php-version: ['8.3', '8.4', '8.5']
+        mariadb-version: ['10.4', '10.5', '10.6', '10.11', '11.4', '11.8', '12.1']
+        extension: [mysqli, pdo_mysql]
         include:
-          - php-version: "8.2"
-            mariadb-version: "11.4"
-            extension: "mysqli"
-          - php-version: "8.2"
-            mariadb-version: "11.4"
-            extension: "pdo_mysql"
-          - config-file-suffix: "-stringify_fetches"
-            php-version: "8.2"
-            mariadb-version: "11.4"
-            extension: "pdo_mysql"
+          - php-version: '8.2'
+            mariadb-version: '11.4'
+            extension: mysqli
+          - php-version: '8.2'
+            mariadb-version: '11.4'
+            extension: pdo_mysql
+          - config-file-suffix: -stringify_fetches
+            php-version: '8.2'
+            mariadb-version: '11.4'
+            extension: pdo_mysql
 
   phpunit-mysql:
-    name: >
+    name: |
       ${{ format('MySQL {0} - PHP {1} - ext. {2} - suffix {3}',
         matrix.mysql-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø',
         matrix.config-file-suffix || 'Ø'
       ) }}
-    needs: "phpunit-smoke-check"
+
+
+
+
+
+
+
+    needs: phpunit-smoke-check
+
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-mysql.yml
+
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       mysql-version: ${{ matrix.mysql-version }}
       extension: ${{ matrix.extension }}
       config-file-suffix: ${{ matrix.config-file-suffix }}
 
+
+
+
+
+
+
+
     strategy:
       matrix:
-        php-version:
-          - "8.3"
-          - "8.4"
-          - "8.5"
-        mysql-version:
-          - "5.7"
-          - "8.0" # We have code specific to ^8.0
-          - "8.4" # LTS
-          - "9.6"
-        extension:
-          - "mysqli"
-          - "pdo_mysql"
+        php-version: ['8.3', '8.4', '8.5']
+        mysql-version: ['5.7', '8.0', '8.4', '9.6']
+        extension: [mysqli, pdo_mysql]
         include:
-          - config-file-suffix: "-tls"
-            php-version: "8.2"
-            mysql-version: "9.6"
-            extension: "mysqli"
-          - config-file-suffix: "-stringify_fetches"
-            php-version: "8.2"
-            mysql-version: "9.6"
-            extension: "pdo_mysql"
-          - php-version: "8.2"
-            mysql-version: "9.6"
-            extension: "mysqli"
+          - config-file-suffix: -tls
+            php-version: '8.2'
+            mysql-version: '9.6'
+            extension: mysqli
+          - config-file-suffix: -stringify_fetches
+            php-version: '8.2'
+            mysql-version: '9.6'
+            extension: pdo_mysql
+          - php-version: '8.2'
+            mysql-version: '9.6'
+            extension: mysqli
 
   phpunit-mssql:
-    name: >
+    name: |
       ${{ format('SQL Server {0} - PHP {1} - ext. {2} - collation. {3}',
         matrix.sqlserver-version || 'Ø',
         matrix.php-version || 'Ø',
         matrix.extension || 'Ø',
         matrix.collation || 'Ø'
       ) }}
-    needs: "phpunit-smoke-check"
+
+
+
+
+
+
+
+    needs: phpunit-smoke-check
+
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-sqlserver.yml
+
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
       sqlserver-version: ${{ matrix.sqlserver-version }}
       extension: ${{ matrix.extension }}
       collation: ${{ matrix.collation }}
 
+
+
+
+
+
+
+
     strategy:
       matrix:
-        php-version:
-          - "8.2"
-          - "8.3"
-          - "8.4"
-          - "8.5"
-        sqlserver-version:
-          - "2022"
-          - "2025"
-        extension:
-          - "sqlsrv"
-          - "pdo_sqlsrv"
-        collation:
-          - "Latin1_General_100_CI_AS_SC_UTF8"
+        php-version: ['8.2', '8.3', '8.4', '8.5']
+        sqlserver-version: ['2022', '2025']
+        extension: [sqlsrv, pdo_sqlsrv]
+        collation: [Latin1_General_100_CI_AS_SC_UTF8]
         include:
-          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
-            php-version: "8.2"
-            sqlserver-version: "2025"
-            extension: "sqlsrv"
-          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
-            php-version: "8.2"
-            sqlserver-version: "2025"
-            extension: "pdo_sqlsrv"
+          - collation: Latin1_General_100_CS_AS_SC_UTF8
+            php-version: '8.2'
+            sqlserver-version: '2025'
+            extension: sqlsrv
+          - collation: Latin1_General_100_CS_AS_SC_UTF8
+            php-version: '8.2'
+            sqlserver-version: '2025'
+            extension: pdo_sqlsrv
 
   phpunit-db2:
-    name: >
-      Db2 - 
-      ${{ matrix.php-version || 'Ø' }}
-    needs: "phpunit-smoke-check"
+    name: |
+      Db2 -  ${{ matrix.php-version || 'Ø' }}
+
+
+
+
+
+
+
+    needs: phpunit-smoke-check
+
+
+
+
+
+
+
     uses: ./.github/workflows/phpunit-db2.yml
+
+
+
+
+
+
+
     with:
       php-version: ${{ matrix.php-version }}
 
+
+
+
+
+
+
+
     strategy:
       matrix:
-        php-version:
-          - "8.2"
-          # TODO: Running the tests on PHP 8.5 causes a seqfault. Switch as soon as this is fixed.
-          - "8.4"
+        php-version: ['8.2', '8.3', '8.4', '8.4', '8.5']
 
   development-deps:
-    name: >
-      PDO_SQLite and development dependencies - 
-      ${{ matrix.php-version || 'Ø' }}
-    runs-on: "ubuntu-24.04"
+    name: |
+      PDO_SQLite and development dependencies -  ${{ matrix.php-version || 'Ø' }}
+
+
+    runs-on: ubuntu-24.04
+
+
+
+
+
+
+
 
     strategy:
       matrix:
-        php-version:
-          - "8.5"
+        php-version: ['8.3', '8.4', '8.5', '8.5']
+
 
     steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v6"
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: "${{ matrix.php-version }}"
+          php-version: ${{ matrix.php-version }}
         env:
           fail-fast: true
 
-      - name: "Lower minimum stability"
+
+      - name: Lower minimum stability
         run: |
           composer config minimum-stability dev
 
-      - name: "Install development dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
-        with:
-          composer-options: "--prefer-dist"
 
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml"
+      - name: Install development dependencies with Composer
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --prefer-dist
+
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml
 
   upload_coverage:
-    name: "Upload coverage to Codecov"
-    runs-on: "ubuntu-24.04"
+    name: Upload coverage to Codecov
+
+
+    runs-on: ubuntu-24.04
+
     if: "github.event.pull_request.head.repo.full_name != github.repository || !contains(github.event.pull_request.head.ref, '.x')"
+
+
+
+
+
+
+
     needs:
-      - "phpunit-smoke-check"
-      - "phpunit-oracle"
-      - "phpunit-postgres"
-      - "phpunit-mariadb"
-      - "phpunit-mysql"
-      - "phpunit-mssql"
-      - "phpunit-db2"
+      - phpunit-smoke-check
+      - phpunit-oracle
+      - phpunit-postgres
+      - phpunit-mariadb
+      - phpunit-mysql
+      - phpunit-mssql
+      - phpunit-db2
+
 
     steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v6"
+      - name: Checkout
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
-      - name: "Download coverage files"
-        uses: "actions/download-artifact@v7"
-        with:
-          path: "reports"
 
-      - name: "Display structure of downloaded files"
+      - name: Download coverage files
+        uses: actions/download-artifact@v7
+        with:
+          path: reports
+
+
+      - name: Display structure of downloaded files
         run: ls -R
         working-directory: reports
 
-      - name: "Upload to Codecov"
-        uses: "codecov/codecov-action@v5"
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
         with:
           directory: reports
           fail_ci_if_error: true
