@@ -61,7 +61,7 @@ parameters:
 			path: src/Schema/AbstractSchemaManager.php
 
 		-
-			rawMessage: 'Loose comparison via "!=" is not allowed.'
+			rawMessage: 'Loose comparison via "!=" between mixed and mixed is not allowed.'
 			identifier: notEqual.notAllowed
 			count: 1
 			path: src/Schema/ColumnDiff.php
