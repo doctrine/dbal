@@ -56,7 +56,7 @@ jobs:
         run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}.xml --coverage-clover=coverage.xml
 
       - name: Upload coverage file
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ github.job }}-${{ inputs.sqlserver-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}-${{ inputs.collation }}.coverage
           path: coverage.xml
