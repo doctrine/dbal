@@ -369,7 +369,10 @@ or QueryBuilder instances to one of the following methods:
         ->setMaxResults(100);
 
 Common Table Expressions
-~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+`SELECT` main query
+^^^^^^^^^^^^^^^^^^^
 
 To define Common Table Expressions (CTEs) that can be used in select query.
 
@@ -399,6 +402,39 @@ To define Common Table Expressions (CTEs) that can be used in select query.
 Multiple CTEs can be defined by calling the with method multiple times.
 
 Values of parameters used in a CTE should be defined in the main QueryBuilder.
+
+`UNION` main query part
+^^^^^^^^^^^^^^^^^^^^^^^
+
+To define Common Table Expressions (CTEs) that can be used in union query the union
+api needs to be used instead of using `select()`:
+
+.. code-block:: php
+
+    <?php
+
+    $qb = $connection->createQueryBuilder();
+
+    $baseQueryBuilder = $qb->sub()
+        ->select('id')
+        ->from('table_a');
+
+    $unionPart1 = $qb->sub()
+        ->select('id', $qb->expr()->literal('first') . ' AS value', '1 AS sort')
+        ->from('cte_base')
+        ->where($qb->expr()->eq('id', ':id1'));
+
+    $unionPart2 = $qb->sub()
+        ->select('id', $qb->expr()->literal('second') . ' AS value', '2 AS sort')
+        ->from('cte_base')
+        ->where($qb->expr()->eq('id', ':id2'));
+
+    $qb->with('cte_base', $baseQueryBuilder)
+        ->union($unionPart1)
+        ->addUnion($unionPart2)
+        ->orderBy('sort')
+        ->setParameter('id1', 2)
+        ->setParameter('id2', 1);
 
 Building Expressions
 --------------------

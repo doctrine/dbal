@@ -528,6 +528,38 @@ final class QueryBuilderTest extends FunctionalTestCase
         self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
     }
 
+    public function testCTEUnionMainQuery(): void
+    {
+        if (! $this->platformSupportsCTEs()) {
+            self::markTestSkipped('The database platform does not support CTE.');
+        }
+
+        $expectedRows = [['id' => 2, 'value' => 'first', 'sort' => 1], ['id' => 1, 'value' => 'second', 'sort' => 2]];
+        $expectedRows = $this->prepareExpectedRows($expectedRows);
+        $qb           = $this->connection->createQueryBuilder();
+
+        $baseQueryBuilder = $qb->sub()
+            ->select('id')
+            ->from('for_update');
+
+        $unionPart1 = $qb->sub()
+            ->select('id', $qb->expr()->literal('first') . ' AS value', '1 AS sort')
+            ->from('cte_base')
+            ->where($qb->expr()->eq('id', '2'));
+
+        $unionPart2 = $qb->sub()
+            ->select('id', $qb->expr()->literal('second') . ' AS value', '2 AS sort')
+            ->from('cte_base')
+            ->where($qb->expr()->eq('id', '1'));
+
+        $qb->with('cte_base', $baseQueryBuilder)
+            ->union($unionPart1)
+            ->addUnion($unionPart2)
+            ->orderBy('sort');
+
+        self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
+    }
+
     public function testPlatformDoesNotSupportCTE(): void
     {
         if ($this->platformSupportsCTEs()) {
@@ -549,7 +581,7 @@ final class QueryBuilderTest extends FunctionalTestCase
     }
 
     /**
-     * @param array<array<string, int>> $rows
+     * @param array<array<string, int|string>> $rows
      *
      * @return array<array<string, int|string>>
      */
