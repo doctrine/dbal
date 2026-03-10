@@ -685,7 +685,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getEnumDeclarationSQL(array $column): string
     {
         if (! isset($column['values']) || ! is_array($column['values']) || $column['values'] === []) {
-            throw ColumnValuesRequired::new($this, 'ENUM');
+            if (! isset($column['enumType'])) {
+                throw ColumnValuesRequired::new($this, 'ENUM');
+            }
+
+            $column['values'] = $values = array_map(fn ($case) => $case->value, $column['enumType']::cases());
         }
 
         return sprintf('ENUM(%s)', implode(', ', array_map(
