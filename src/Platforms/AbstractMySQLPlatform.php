@@ -689,7 +689,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 throw ColumnValuesRequired::new($this, 'ENUM');
             }
 
-            $column['values'] = $values = array_map(fn ($case) => $case->value, $column['enumType']::cases());
+            $column['values'] = $values = array_map(static fn ($case) => $case->value, $column['enumType']::cases());
         }
 
         return sprintf('ENUM(%s)', implode(', ', array_map(
