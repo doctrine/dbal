@@ -290,7 +290,7 @@ jobs:
           composer config minimum-stability dev
 
       - name: "Install development dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
+        uses: "ramsey/composer-install@v4"
         with:
           composer-options: "--prefer-dist"
 
