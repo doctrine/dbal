@@ -103,7 +103,10 @@ class JsonTest extends FunctionalTestCase
 
         self::assertIsString($value);
 
-        $value = json_decode($value, true);
+        $value = Type::getType(Types::JSON)->convertToPHPValue(
+            $value,
+            $this->connection->getDatabasePlatform(),
+        );
 
         self::assertIsArray($value);
 
