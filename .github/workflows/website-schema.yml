@@ -1,4 +1,3 @@
-
 name: "Website config validation"
 
 on:
@@ -18,4 +17,4 @@ on:
 jobs:
   json-validate:
     name: "Validate JSON schema"
-    uses: "doctrine/.github/.github/workflows/website-schema.yml@7.1.0"
+    uses: "doctrine/.github/.github/workflows/website-schema.yml@14.0.0"

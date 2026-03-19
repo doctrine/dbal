@@ -51,7 +51,7 @@ jobs:
           IBM_DB2_CONFIGURE_OPTS: '--with-IBM_DB2=/tmp/clidriver'
 
       - name: Install dependencies with Composer
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: '--ignore-platform-req=php+'
 
