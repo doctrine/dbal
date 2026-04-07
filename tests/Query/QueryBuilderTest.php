@@ -1546,4 +1546,199 @@ class QueryBuilderTest extends TestCase
             $qb->getSQL(),
         );
     }
+
+    public function testAddCommentSingleComment(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->select('u.id', 'u.name')
+            ->from('users', 'u')
+            ->addComment('This is a test query');
+
+        self::assertEquals(
+            <<<'SQL'
+            -- This is a test query
+
+            SELECT u.id, u.name FROM users u
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    public function testAddCommentMultipleComments(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->select('u.id', 'u.name')
+            ->from('users', 'u')
+            ->addComment('First comment')
+            ->addComment('Second comment')
+            ->addComment('Third comment');
+
+        self::assertEquals(
+            <<<'SQL'
+            -- First comment
+            -- Second comment
+            -- Third comment
+
+            SELECT u.id, u.name FROM users u
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    public function testAddCommentMultilineComment(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->addComment(
+                <<<'COMMENT'
+                This is a multiline comment.
+                It can span multiple lines.
+                COMMENT,
+            );
+
+        self::assertEquals(
+            <<<'SQL'
+            -- This is a multiline comment.
+            -- It can span multiple lines.
+
+            SELECT u.id FROM users u
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    public function testAddCommentInsertQuery(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert('users')
+            ->values(['name' => '?', 'email' => '?'])
+            ->addComment('Insert operation');
+
+        self::assertEquals(
+            <<<'SQL'
+            -- Insert operation
+
+            INSERT INTO users (name, email) VALUES(?, ?)
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    public function testAddCommentUpdateQuery(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->update('users')
+            ->set('name', '?')
+            ->where('id = ?')
+            ->addComment('Update operation');
+
+        self::assertEquals(
+            <<<'SQL'
+            -- Update operation
+
+            UPDATE users SET name = ? WHERE id = ?
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    public function testAddCommentDeleteQuery(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->delete('users')
+            ->where('id = ?')
+            ->addComment('Delete operation');
+
+        self::assertEquals(
+            <<<'SQL'
+            -- Delete operation
+
+            DELETE FROM users WHERE id = ?
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    public function testAddCommentMethodChaining(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->addComment('Comment 1')
+            ->where('u.id = ?')
+            ->addComment('Comment 2')
+            ->orderBy('u.name');
+
+        self::assertEquals(
+            <<<'SQL'
+            -- Comment 1
+            -- Comment 2
+
+            SELECT u.id FROM users u WHERE u.id = ? ORDER BY u.name
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    public function testAddCommentEmptyComment(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->addComment('');
+
+        self::assertEquals(
+            <<<'SQL'
+            -- 
+
+            SELECT u.id FROM users u
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    public function testAddCommentSpecialCharacters(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->addComment("Comment with 'quotes' and \"double quotes\"");
+
+        self::assertEquals(
+            <<<'SQL'
+            -- Comment with 'quotes' and "double quotes"
+
+            SELECT u.id FROM users u
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    #[DataProvider('lineTerminatorProvider')]
+    public function testAddCommentCommentsOutEveryLine(string $lineTerminator): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->addComment('Comment' . $lineTerminator . 'DROP TABLE users; --');
+
+        self::assertEquals(
+            <<<'SQL'
+            -- Comment
+            -- DROP TABLE users; --
+
+            SELECT u.id FROM users u
+            SQL,
+            $qb->getSQL(),
+        );
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function lineTerminatorProvider(): iterable
+    {
+        yield 'line feed' => ["\n"];
+        yield 'carriage return' => ["\r"];
+        yield 'carriage return and line feed' => ["\r\n"];
+    }
 }

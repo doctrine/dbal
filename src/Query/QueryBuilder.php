@@ -25,9 +25,11 @@ use function array_keys;
 use function array_merge;
 use function array_unshift;
 use function count;
+use function explode;
 use function implode;
 use function is_object;
 use function sprintf;
+use function str_replace;
 use function substr;
 
 /**
@@ -174,6 +176,13 @@ class QueryBuilder
      * The query cache profile used for caching results.
      */
     private ?QueryCacheProfile $resultCacheProfile = null;
+
+    /**
+     * The comments to be added to the SQL query.
+     *
+     * @var string[]
+     */
+    private array $comments = [];
 
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
@@ -358,13 +367,13 @@ class QueryBuilder
      */
     public function getSQL(): string
     {
-        return $this->sql ??= match ($this->type) {
+        return $this->sql ??= $this->addCommentsToSQL(match ($this->type) {
             QueryType::INSERT => $this->getSQLForInsert(),
             QueryType::DELETE => $this->getSQLForDelete(),
             QueryType::UPDATE => $this->getSQLForUpdate(),
             QueryType::SELECT => $this->getSQLForSelect(),
             QueryType::UNION  => $this->getSQLForUnion(),
-        };
+        });
     }
 
     /**
@@ -1658,5 +1667,74 @@ class QueryBuilder
         $this->resultCacheProfile = null;
 
         return $this;
+    }
+
+    /**
+     * Adds a comment to the SQL query.
+     *
+     * This method adds a SQL comment that will be prepended to the generated SQL query.
+     * Multiple comments can be added and will appear in the order they were added.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u.id', 'u.name')
+     *         ->from('users', 'u')
+     *         ->addComment('This is a custom comment')
+     *         ->addComment('Another comment');
+     * </code>
+     *
+     * Comments are rendered above the query, using the double-hyphen syntax. A comment may span
+     * multiple lines: the delimiter is repeated on each of them, which is also what keeps the
+     * comment from escaping into the query as SQL.
+     *
+     * @param string $comment The comment to add to the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function addComment(string $comment): self
+    {
+        $this->comments[] = $comment;
+
+        $this->sql = null;
+
+        return $this;
+    }
+
+    /**
+     * Adds comments to the SQL query.
+     *
+     * @param string $sql The SQL query to add comments to.
+     *
+     * @return string The SQL query with comments prepended.
+     */
+    private function addCommentsToSQL(string $sql): string
+    {
+        if (count($this->comments) === 0) {
+            return $sql;
+        }
+
+        $commentLines = [];
+        foreach ($this->comments as $comment) {
+            foreach ($this->splitCommentIntoLines($comment) as $line) {
+                $commentLines[] = '-- ' . $line;
+            }
+        }
+
+        return implode("\n", $commentLines) . "\n\n" . $sql;
+    }
+
+    /**
+     * Splits a comment into the lines it is rendered on.
+     *
+     * A double-hyphen comment terminates at the end of the line, so every line terminator has to
+     * start a new comment line. Line terminators are normalized to "\n" first, otherwise a lone
+     * carriage return would end the comment on the platforms that treat it as one while leaving
+     * the rest of the line uncommented.
+     *
+     * @return non-empty-list<string>
+     */
+    private function splitCommentIntoLines(string $comment): array
+    {
+        return explode("\n", str_replace(["\r\n", "\r"], "\n", $comment));
     }
 }
