@@ -711,7 +711,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
 
     private function buildNamespaceNamePredicate(string $columnName): string
     {
-        return sprintf("%1\$s NOT LIKE 'pg\_%%' AND %1\$s != 'information_schema'", $columnName);
+        return sprintf("%1\$s NOT LIKE 'pg\$_%%' ESCAPE '\$' AND %1\$s != 'information_schema'", $columnName);
     }
 
     /**

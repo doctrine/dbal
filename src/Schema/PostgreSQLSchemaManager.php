@@ -42,7 +42,7 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
             <<<'SQL'
 SELECT schema_name
 FROM   information_schema.schemata
-WHERE  schema_name NOT LIKE 'pg\_%'
+WHERE  schema_name NOT LIKE 'pg$_%' ESCAPE '$'
 AND    schema_name != 'information_schema'
 SQL,
         );
@@ -338,7 +338,7 @@ SELECT quote_ident(table_name) AS table_name,
        table_schema AS schema_name
 FROM information_schema.tables
 WHERE table_catalog = ?
-  AND table_schema NOT LIKE 'pg\_%'
+  AND table_schema NOT LIKE 'pg$_%' ESCAPE '$'
   AND table_schema != 'information_schema'
   AND table_name != 'geometry_columns'
   AND table_name != 'spatial_ref_sys'
