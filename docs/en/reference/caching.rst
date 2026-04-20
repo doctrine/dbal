@@ -4,7 +4,7 @@ Caching
 A ``Doctrine\DBAL\Connection`` can automatically cache result sets. The
 feature is optional though, and by default, no result set is cached.
 
-To use the result cache, there are three mandatory steps:
+To use the result cache, there are two mandatory steps:
 
 1. Configure a global result cache, or provide one at query time.
 2. Provide a cache profile for the result set you want to cache when

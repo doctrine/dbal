@@ -11,16 +11,14 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Override;
 use stdClass;
 
 use function is_resource;
 use function json_decode;
 use function stream_get_contents;
 
-class JsonObjectTest extends FunctionalTestCase
+class JsonbObjectTest extends FunctionalTestCase
 {
-    #[Override]
     protected function setUp(): void
     {
         $table = Table::editor()
@@ -32,7 +30,7 @@ class JsonObjectTest extends FunctionalTestCase
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('val')
-                    ->setTypeName(Types::JSON_OBJECT)
+                    ->setTypeName(Types::JSONB_OBJECT)
                     ->create(),
             )
             ->setPrimaryKeyConstraint(
@@ -76,7 +74,7 @@ class JsonObjectTest extends FunctionalTestCase
             'val' => $value,
         ], [
             ParameterType::INTEGER,
-            Type::getType(Types::JSON_OBJECT),
+            Type::getType(Types::JSONB_OBJECT),
         ]);
 
         self::assertSame(1, $result);
@@ -96,7 +94,7 @@ class JsonObjectTest extends FunctionalTestCase
 
         self::assertIsString($value);
 
-        $value = $this->connection->convertToPHPValue($value, Types::JSON_OBJECT);
+        $value = $this->connection->convertToPHPValue($value, Types::JSONB_OBJECT);
 
         self::assertIsObject($value);
 

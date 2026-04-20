@@ -312,7 +312,7 @@ jobs:
         working-directory: reports
 
       - name: "Upload to Codecov"
-        uses: "codecov/codecov-action@v5"
+        uses: "codecov/codecov-action@v6"
         with:
           directory: reports
           fail_ci_if_error: true
