@@ -929,4 +929,9 @@ SQL;
     {
         return new Parser(true);
     }
+
+    public function getJoinLateralSQL(): string
+    {
+        return 'LEFT OUTER JOIN LATERAL';
+    }
 }
