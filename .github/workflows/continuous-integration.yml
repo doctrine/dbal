@@ -117,16 +117,16 @@ jobs:
         postgres-version:
           - "9.4"
           - "11" # We have code specific to 10.0-12.0
-          - "17"
+          - "18"
         extension:
           - "pgsql"
           - "pdo_pgsql"
         include:
           - php-version: "7.4"
-            postgres-version: "17"
+            postgres-version: "18"
             extension: "pgsql"
           - php-version: "7.4"
-            postgres-version: "17"
+            postgres-version: "18"
             extension: "pdo_pgsql"
 
   phpunit-mariadb:
