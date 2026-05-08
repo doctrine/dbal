@@ -17,6 +17,7 @@ parameters:
             - LogicException
             - RuntimeException
             - ValueError
+            - Psr\Cache\InvalidArgumentException
     ignoreErrors:
         - identifier: missingType.generics
 

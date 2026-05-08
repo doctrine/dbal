@@ -49,10 +49,7 @@ final readonly class Connection implements ConnectionInterface
         return $matches[1];
     }
 
-    /**
-     * @throws Parser\Exception
-     * @throws Error
-     */
+    /** @throws Error */
     #[Override]
     public function prepare(string $sql): Statement
     {
@@ -69,10 +66,7 @@ final readonly class Connection implements ConnectionInterface
         return new Statement($this->connection, $statement, $visitor->getParameterMap(), $this->executionMode);
     }
 
-    /**
-     * @throws Exception
-     * @throws Parser\Exception
-     */
+    /** @throws Exception */
     #[Override]
     public function query(string $sql): Result
     {
@@ -85,10 +79,7 @@ final readonly class Connection implements ConnectionInterface
         return "'" . addcslashes(str_replace("'", "''", $value), "\000\n\r\\\032") . "'";
     }
 
-    /**
-     * @throws Exception
-     * @throws Parser\Exception
-     */
+    /** @throws Exception */
     #[Override]
     public function exec(string $sql): int|string
     {

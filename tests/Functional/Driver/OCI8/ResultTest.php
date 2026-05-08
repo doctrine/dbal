@@ -44,6 +44,10 @@ class ResultTest extends FunctionalTestCase
     #[Override]
     protected function tearDown(): void
     {
+        if (! TestUtil::isDriverOneOf('oci8')) {
+            return;
+        }
+
         $this->connection->executeQuery('DROP FUNCTION test_oracle_fetch_failure');
         $this->connection->executeQuery('DROP TYPE return_numbers');
     }

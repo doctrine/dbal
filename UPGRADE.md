@@ -434,6 +434,13 @@ all drivers and middleware.
 
 # Upgrade to 4.5
 
+## Deprecated `Doctrine\DBAL\SQL\Parser\Exception`
+
+The SQL parser does not raise checked exceptions: the only thing it ever throws is
+`Doctrine\DBAL\SQL\Parser\Exception\RegularExpressionError`, an unchecked `RuntimeException`
+subclass that signals an exhausted PCRE engine limit. The `Parser\Exception` interface has
+been deprecated and will be removed in 5.0.
+
 ## Deprecated not specifying either of the `host` and `connectstring` parameters for `oci8` and `pdo_oci` connections.
 
 Not specifying either of the `host` and `connectstring` parameters for `oci8` and `pdo_oci` connections has been
