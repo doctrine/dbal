@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\SQL\Parser\Exception;
 
-use Doctrine\DBAL\SQL\Parser\Exception;
 use RuntimeException;
 
 use function preg_last_error;
 use function preg_last_error_msg;
 
-class RegularExpressionError extends RuntimeException implements Exception
+class RegularExpressionError extends RuntimeException
 {
     public static function new(): self
     {

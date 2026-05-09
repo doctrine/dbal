@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `Doctrine\DBAL\SQL\Parser\Exception`
+
+The `Doctrine\DBAL\SQL\Parser\Exception` interface has been removed.
+
 ## BC BREAK: Removed `AbstractPlatform::getPreAlterTableIndexForeignKeySQL()` and `AbstractPlatform::getPostAlterTableIndexForeignKeySQL()`
 
 The `getPreAlterTableIndexForeignKeySQL()` and `getPostAlterTableIndexForeignKeySQL()` methods of the `AbstractPlatform`
