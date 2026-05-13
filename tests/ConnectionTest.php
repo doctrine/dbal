@@ -471,7 +471,7 @@ class ConnectionTest extends TestCase
             ->method($method)
             ->willReturn($expected);
 
-        $driver = $this->createConfiguredMock(Driver::class, [
+        $driver = self::createConfiguredStub(Driver::class, [
             'connect' => self::createStub(DriverConnection::class),
         ]);
 

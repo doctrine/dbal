@@ -65,7 +65,7 @@ final class AbstractConnectionMiddlewareTest extends TestCase
         $nativeConnection = new class () {
         };
 
-        $connection = $this->createMock(Connection::class);
+        $connection = self::createStub(Connection::class);
         $connection->method('getNativeConnection')
             ->willReturn($nativeConnection);
 

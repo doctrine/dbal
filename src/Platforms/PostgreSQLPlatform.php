@@ -40,6 +40,9 @@ use function trim;
  */
 class PostgreSQLPlatform extends AbstractPlatform
 {
+    /** @see https://www.postgresql.org/docs/current/collation.html */
+    private const string DEFAULT_COLLATION = 'default';
+
     private bool $useBooleanTrueFalseStrings = true;
 
     /** @var string[][] PostgreSQL booleans literals */
@@ -245,8 +248,18 @@ class PostgreSQLPlatform extends AbstractPlatform
 
             $newTypeSQLDeclaration = $this->getTypeSQLDeclaration($newColumn);
             $oldTypeSQLDeclaration = $this->getTypeSQLDeclaration($oldColumn);
-            if ($oldTypeSQLDeclaration !== $newTypeSQLDeclaration) {
+
+            $newCollation = $newColumn->getCollation() ?? self::DEFAULT_COLLATION;
+            $oldCollation = $oldColumn->getCollation() ?? self::DEFAULT_COLLATION;
+
+            $typeChanged      = $oldTypeSQLDeclaration !== $newTypeSQLDeclaration;
+            $collationChanged = $oldCollation !== $newCollation;
+            if ($typeChanged || $collationChanged) {
                 $query = 'ALTER ' . $newColumnName . ' TYPE ' . $newTypeSQLDeclaration;
+                if (! $typeChanged || $newCollation !== self::DEFAULT_COLLATION) {
+                    $query .= ' ' . $this->getColumnCollationDeclarationSQL($newCollation);
+                }
+
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 

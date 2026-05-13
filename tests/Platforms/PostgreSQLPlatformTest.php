@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Generator;
 use Override;
@@ -23,7 +24,10 @@ use UnexpectedValueException;
 
 use function sprintf;
 
-/** @extends AbstractPlatformTestCase<PostgreSQLPlatform> */
+/**
+ * @extends AbstractPlatformTestCase<PostgreSQLPlatform>
+ * @phpstan-import-type PlatformOptions from Column
+ */
 class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 {
     #[Override]
@@ -387,6 +391,107 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'CREATE SCHEMA "schema"',
             $this->platform->getCreateSchemaSQL('schema'),
         );
+    }
+
+    /**
+     * @param array{platformOptions?: PlatformOptions} $oldOptions
+     * @param array{platformOptions?: PlatformOptions} $newOptions
+     * @param ?non-empty-string                        $newType
+     * @param list<string>                             $expectedSql
+     */
+    #[DataProvider('provideAlterColumnCollation')]
+    public function testAlterColumnCollation(
+        array $oldOptions,
+        array $newOptions,
+        ?string $newType,
+        array $expectedSql,
+    ): void {
+        $table = new Table('mytable');
+
+        $oldColumn = $table->addColumn('foo', Types::STRING, $oldOptions);
+        $newColumn = new Column('foo', Type::getType($newType ?? Types::STRING), $newOptions);
+
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'foo' => new ColumnDiff(
+                $oldColumn,
+                $newColumn,
+            ),
+        ]);
+
+        $sql = $this->platform->getAlterTableSQL($tableDiff);
+
+        self::assertSame($expectedSql, $sql);
+    }
+
+    /**
+     * @return iterable<string, array{
+     *     array{platformOptions?: PlatformOptions},
+     *     array{platformOptions?: PlatformOptions},
+     *     ?string,
+     *     list<string>
+     * }>
+     */
+    public static function provideAlterColumnCollation(): iterable
+    {
+        $default  = ['platformOptions' => ['collation' => 'default']];
+        $unicode  = ['platformOptions' => ['collation' => 'unicode']];
+        $ucsBasic = ['platformOptions' => ['collation' => 'ucs_basic']];
+
+        yield 'implicit default to implicit default' => [
+            [],
+            [],
+            null,
+            [],
+        ];
+
+        yield 'implicit default to explicit default' => [
+            [],
+            $default,
+            null,
+            [],
+        ];
+
+        yield 'implicit default to unicode' => [
+            [],
+            $unicode,
+            null,
+            ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR COLLATE "unicode"'],
+        ];
+
+        yield 'unicode to implicit default' => [
+            $unicode,
+            [],
+            null,
+            ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR COLLATE "default"'],
+        ];
+
+        yield 'unicode to explicit default' => [
+            $unicode,
+            $default,
+            null,
+            ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR COLLATE "default"'],
+        ];
+
+        yield 'unicode to ucs_basic' => [
+            $unicode,
+            $ucsBasic,
+            null,
+            ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR COLLATE "ucs_basic"'],
+        ];
+
+        yield 'collated string to non-collatable type' => [
+            [],
+            [],
+            Types::INTEGER,
+            ['ALTER TABLE "mytable" ALTER "foo" TYPE INT'],
+        ];
+
+        yield 'length change preserves non-default collation' => [
+            ['length' => 50, 'platformOptions' => ['collation' => 'C']],
+            ['length' => 100, 'platformOptions' => ['collation' => 'C']],
+            null,
+            ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR(100) COLLATE "C"'],
+        ];
     }
 
     public function testDroppingConstraintsBeforeColumns(): void

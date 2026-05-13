@@ -10,7 +10,7 @@ use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 use function base64_encode;
@@ -18,13 +18,13 @@ use function fopen;
 
 class JsonTest extends TestCase
 {
-    protected AbstractPlatform&MockObject $platform;
+    protected AbstractPlatform&Stub $platform;
     protected JsonType $type;
 
     #[Override]
     protected function setUp(): void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->platform = self::createStub(AbstractPlatform::class);
         $this->type     = new JsonType();
     }
 
@@ -35,11 +35,12 @@ class JsonTest extends TestCase
 
     public function testReturnsSQLDeclaration(): void
     {
-        $this->platform->expects(self::once())
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform->expects(self::once())
             ->method('getJsonTypeDeclarationSQL')
             ->willReturn('TEST_JSON');
 
-        self::assertSame('TEST_JSON', $this->type->getSQLDeclaration([], $this->platform));
+        self::assertSame('TEST_JSON', $this->type->getSQLDeclaration([], $platform));
     }
 
     public function testJsonNullConvertsToPHPValue(): void

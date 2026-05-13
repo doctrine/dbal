@@ -12,18 +12,18 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\VarDateTimeImmutableType;
 use Override;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class VarDateTimeImmutableTypeTest extends TestCase
 {
-    private AbstractPlatform&MockObject $platform;
+    private AbstractPlatform&Stub $platform;
     private VarDateTimeImmutableType $type;
 
     #[Override]
     protected function setUp(): void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->platform = self::createStub(AbstractPlatform::class);
         $this->type     = new VarDateTimeImmutableType();
     }
 
@@ -34,7 +34,7 @@ class VarDateTimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue(): void
     {
-        $this->platform->expects(self::any())
+        $this->platform
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
 

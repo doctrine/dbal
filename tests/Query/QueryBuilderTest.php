@@ -1387,7 +1387,7 @@ class QueryBuilderTest extends TestCase
         string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
-        $mockedResult = $this->createMock(Result::class);
+        $mockedResult = self::createStub(Result::class);
 
         $this->conn->expects(self::once())
             ->method('executeQuery')
@@ -1421,7 +1421,7 @@ class QueryBuilderTest extends TestCase
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $qcp          = new QueryCacheProfile(300);
-        $mockedResult = $this->createMock(Result::class);
+        $mockedResult = self::createStub(Result::class);
 
         $this->conn->expects(self::once())
             ->method('executeQuery')

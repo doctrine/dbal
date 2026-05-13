@@ -12,18 +12,18 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeImmutableType;
 use Override;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class DateTimeImmutableTypeTest extends TestCase
 {
-    private AbstractPlatform&MockObject $platform;
+    private AbstractPlatform&Stub $platform;
     private DateTimeImmutableType $type;
 
     #[Override]
     protected function setUp(): void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->platform = self::createStub(AbstractPlatform::class);
         $this->type     = new DateTimeImmutableType();
     }
 
@@ -41,13 +41,14 @@ class DateTimeImmutableTypeTest extends TestCase
     {
         $date = new DateTimeImmutable('2016-01-01 15:58:59', new DateTimeZone('UTC'));
 
-        $this->platform->expects(self::once())
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform->expects(self::once())
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
 
         self::assertSame(
             '2016-01-01 15:58:59',
-            $this->type->convertToDatabaseValue($date, $this->platform),
+            $this->type->convertToDatabaseValue($date, $platform),
         );
     }
 
@@ -77,11 +78,12 @@ class DateTimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeStringToPHPValue(): void
     {
-        $this->platform->expects(self::once())
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform->expects(self::once())
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
 
-        $date = $this->type->convertToPHPValue('2016-01-01 15:58:59', $this->platform);
+        $date = $this->type->convertToPHPValue('2016-01-01 15:58:59', $platform);
 
         self::assertInstanceOf(DateTimeImmutable::class, $date);
         self::assertSame('2016-01-01 15:58:59', $date->format('Y-m-d H:i:s'));
@@ -101,12 +103,13 @@ class DateTimeImmutableTypeTest extends TestCase
 
     public function testThrowsExceptionDuringConversionToPHPValueWithInvalidDateTimeString(): void
     {
-        $this->platform->expects(self::atLeastOnce())
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform->expects(self::atLeastOnce())
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
 
         $this->expectException(ConversionException::class);
 
-        $this->type->convertToPHPValue('invalid datetime string', $this->platform);
+        $this->type->convertToPHPValue('invalid datetime string', $platform);
     }
 }
