@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider\SingleConnectionProvider;
 use Override;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -33,6 +34,7 @@ class RunSqlCommandTest extends TestCase
         $this->commandTester = new CommandTester($this->command);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testMissingSqlArgument(): void
     {
         $this->expectException(RuntimeException::class);

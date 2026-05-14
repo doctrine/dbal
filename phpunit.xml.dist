@@ -19,6 +19,7 @@
          failOnWarning="true"
          failOnNotice="true"
          failOnPhpunitDeprecation="true"
+         failOnPhpunitNotice="true"
          displayDetailsOnTestsThatTriggerErrors="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
 >

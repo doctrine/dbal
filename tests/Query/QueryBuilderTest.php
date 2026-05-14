@@ -19,6 +19,7 @@ use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
 use Doctrine\DBAL\Types\Types;
 use Override;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +27,7 @@ use PHPUnit\Framework\TestCase;
 use function hex2bin;
 
 /** @phpstan-import-type WrapperParameterTypeArray from Connection */
+#[AllowMockObjectsWithoutExpectations]
 class QueryBuilderTest extends TestCase
 {
     protected Connection&MockObject $conn;
