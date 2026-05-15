@@ -639,10 +639,14 @@ SQL,
             $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
-        foreach ($diff->getRenamedIndexes() as $oldIndexName => $index) {
+        foreach ($diff->getIndexRenames() as $rename) {
             $sql = array_merge(
                 $sql,
-                $this->getRenameIndexSQL($oldIndexName, $index, $tableNameSQL),
+                $this->getRenameIndexSQL(
+                    $rename->getOldName()->toSQL($this),
+                    $rename->getNewIndex(),
+                    $tableNameSQL,
+                ),
             );
         }
 

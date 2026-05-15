@@ -21,14 +21,14 @@ final readonly class TableDiff
      *
      * @internal The diff can be only instantiated by a {@see Comparator}.
      *
-     * @param array<Column>                  $addedColumns
-     * @param array<string, ColumnDiff>      $changedColumns
-     * @param array<Column>                  $droppedColumns
-     * @param array<Index>                   $addedIndexes
-     * @param array<Index>                   $droppedIndexes
-     * @param array<non-empty-string, Index> $renamedIndexes
-     * @param array<ForeignKeyConstraint>    $addedForeignKeys
-     * @param array<UnqualifiedName>         $droppedForeignKeyConstraintNames
+     * @param array<Column>               $addedColumns
+     * @param array<string, ColumnDiff>   $changedColumns
+     * @param array<Column>               $droppedColumns
+     * @param array<Index>                $addedIndexes
+     * @param array<Index>                $droppedIndexes
+     * @param list<IndexRename>           $indexRenames
+     * @param array<ForeignKeyConstraint> $addedForeignKeys
+     * @param array<UnqualifiedName>      $droppedForeignKeyConstraintNames
      */
     public function __construct(
         private Table $oldTable,
@@ -37,7 +37,7 @@ final readonly class TableDiff
         private array $droppedColumns = [],
         private array $addedIndexes = [],
         private array $droppedIndexes = [],
-        private array $renamedIndexes = [],
+        private array $indexRenames = [],
         private array $addedForeignKeys = [],
         private array $droppedForeignKeyConstraintNames = [],
         private ?PrimaryKeyConstraint $addedPrimaryKeyConstraint = null,
@@ -130,34 +130,10 @@ final readonly class TableDiff
         return $this->droppedIndexes;
     }
 
-    /**
-     * @deprecated Use {@see getIndexRenames()} instead.
-     *
-     * @return array<string,Index>
-     */
-    public function getRenamedIndexes(): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7368',
-            '%s() is deprecated, use getIndexRenames() instead.',
-            __METHOD__,
-        );
-
-        return $this->renamedIndexes;
-    }
-
     /** @return list<IndexRename> */
     public function getIndexRenames(): array
     {
-        $renames = [];
-
-        foreach ($this->renamedIndexes as $oldName => $newIndex) {
-            /** @phpstan-ignore argument.type */
-            $renames[] = new IndexRename(UnqualifiedName::unquoted((string) $oldName), $newIndex);
-        }
-
-        return $renames;
+        return $this->indexRenames;
     }
 
     /** @return array<ForeignKeyConstraint> */
@@ -192,7 +168,7 @@ final readonly class TableDiff
             && count($this->droppedColumns) === 0
             && count($this->addedIndexes) === 0
             && count($this->droppedIndexes) === 0
-            && count($this->renamedIndexes) === 0
+            && count($this->indexRenames) === 0
             && count($this->addedForeignKeys) === 0
             && count($this->droppedForeignKeyConstraintNames) === 0
             && $this->addedPrimaryKeyConstraint === null
