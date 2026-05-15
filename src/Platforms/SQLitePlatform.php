@@ -699,7 +699,7 @@ class SQLitePlatform extends AbstractPlatform
             || count($diff->getDroppedColumns()) > 0
             || count($diff->getAddedIndexes()) > 0
             || count($diff->getDroppedIndexes()) > 0
-            || count($diff->getRenamedIndexes()) > 0
+            || count($diff->getIndexRenames()) > 0
             || count($diff->getAddedForeignKeys()) > 0
             || count($diff->getDroppedForeignKeyConstraintNames()) > 0
             || $diff->getDroppedPrimaryKeyConstraint() !== null
@@ -783,8 +783,11 @@ class SQLitePlatform extends AbstractPlatform
 
         foreach ($indexes as $index) {
             $indexName = $index->getObjectName();
-            foreach ($diff->getRenamedIndexes() as $oldIndexName => $renamedIndex) {
-                if (strtolower($indexName->getIdentifier()->getValue()) !== strtolower($oldIndexName)) {
+            foreach ($diff->getIndexRenames() as $rename) {
+                if (
+                    strtolower($indexName->getIdentifier()->getValue())
+                    !== strtolower($rename->getOldName()->getIdentifier()->getValue())
+                ) {
                     continue;
                 }
 
@@ -822,13 +825,12 @@ class SQLitePlatform extends AbstractPlatform
             $indexes->remove($index->getObjectName());
         }
 
-        foreach (
-            array_merge(
-                $diff->getAddedIndexes(),
-                $diff->getRenamedIndexes(),
-            ) as $index
-        ) {
+        foreach ($diff->getAddedIndexes() as $index) {
             $indexes->add($index);
+        }
+
+        foreach ($diff->getIndexRenames() as $rename) {
+            $indexes->add($rename->getNewIndex());
         }
 
         return $indexes->toList();

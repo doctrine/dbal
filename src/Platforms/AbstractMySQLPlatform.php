@@ -370,10 +370,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $queryParts[] = 'ADD ' . $this->getIndexDeclarationSQL($index);
         }
 
-        foreach ($diff->getRenamedIndexes() as $oldIndexName => $index) {
-            $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
-            $queryParts[]       = 'RENAME INDEX ' . $parsedOldIndexName->toSQL($this) . ' TO '
-                . $index->getObjectName()->toSQL($this);
+        foreach ($diff->getIndexRenames() as $rename) {
+            $queryParts[] = 'RENAME INDEX ' . $rename->getOldName()->toSQL($this) . ' TO '
+                . $rename->getNewIndex()->getObjectName()->toSQL($this);
         }
 
         if (count($queryParts) > 0) {

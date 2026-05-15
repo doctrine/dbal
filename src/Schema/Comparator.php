@@ -133,7 +133,7 @@ class Comparator
         $droppedColumns                   = [];
         $addedIndexes                     = [];
         $droppedIndexes                   = [];
-        $renamedIndexes                   = [];
+        $indexRenames                     = [];
         $addedForeignKeys                 = [];
         $droppedForeignKeyConstraintNames = [];
         $addedPrimaryKeyConstraint        = null;
@@ -261,7 +261,7 @@ class Comparator
         }
 
         if ($this->config->getDetectRenamedIndexes()) {
-            $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes, $folding);
+            $indexRenames = $this->detectIndexRenames($addedIndexes, $droppedIndexes, $folding);
         }
 
         $oldForeignKeys = $oldTable->getForeignKeys();
@@ -309,7 +309,7 @@ class Comparator
             droppedColumns: $droppedColumns,
             addedIndexes: $addedIndexes,
             droppedIndexes: $droppedIndexes,
-            renamedIndexes: $renamedIndexes,
+            indexRenames: $indexRenames,
             addedForeignKeys: $addedForeignKeys,
             droppedForeignKeyConstraintNames: $droppedForeignKeyConstraintNames,
             addedPrimaryKeyConstraint: $addedPrimaryKeyConstraint,
@@ -389,9 +389,9 @@ class Comparator
      * @param array<Index> $addedIndexes
      * @param array<Index> $removedIndexes
      *
-     * @return array<non-empty-string, Index>
+     * @return list<IndexRename>
      */
-    private function detectRenamedIndexes(
+    private function detectIndexRenames(
         array &$addedIndexes,
         array &$removedIndexes,
         UnquotedIdentifierFolding $folding,
@@ -411,7 +411,8 @@ class Comparator
             }
         }
 
-        $renamedIndexes = [];
+        $indexRenames = [];
+        $seen         = [];
 
         foreach ($candidatesByName as $candidates) {
             // If the current rename candidate contains exactly one semantically equal index,
@@ -431,20 +432,20 @@ class Comparator
                     ->getValue(),
             );
 
-            if (isset($renamedIndexes[$removedIndexName])) {
+            if (isset($seen[$removedIndexName])) {
                 continue;
             }
 
-            $addedIndex = $addedIndexes[$addedIndexKey];
+            $seen[$removedIndexName] = true;
 
-            $renamedIndexes[$removedIndexName] = $addedIndex;
+            $indexRenames[] = new IndexRename($removedIndex->getObjectName(), $addedIndexes[$addedIndexKey]);
             unset(
                 $addedIndexes[$addedIndexKey],
                 $removedIndexes[$removedIndexKey],
             );
         }
 
-        return $renamedIndexes;
+        return $indexRenames;
     }
 
     /**

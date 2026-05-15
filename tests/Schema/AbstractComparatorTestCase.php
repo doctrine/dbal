@@ -557,11 +557,14 @@ abstract class AbstractComparatorTestCase extends TestCase
             ->create();
 
         self::assertEquals(
-            new TableDiff($tableA, renamedIndexes: [
-                'foo_bar_idx' => Index::editor()
-                    ->setUnquotedName('bar_foo_idx')
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
+            new TableDiff($tableA, indexRenames: [
+                new IndexRename(
+                    UnqualifiedName::unquoted('foo_bar_idx'),
+                    Index::editor()
+                        ->setUnquotedName('bar_foo_idx')
+                        ->setUnquotedColumnNames('id')
+                        ->create(),
+                ),
             ]),
             $this->comparator->compareTables($tableA, $tableB),
         );
@@ -746,10 +749,6 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertCount(0, $tableDiff->getAddedColumns());
         self::assertCount(0, $tableDiff->getDroppedIndexes());
 
-        $renamedIndexes = $tableDiff->getRenamedIndexes();
-        self::assertArrayHasKey('idx_foo', $renamedIndexes);
-        self::assertEquals('idx_bar', $renamedIndexes['idx_foo']->getObjectName()->toString());
-
         self::assertEquals([
             new IndexRename(
                 UnqualifiedName::unquoted('idx_foo'),
@@ -796,7 +795,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         self::assertCount(1, $tableDiff->getAddedIndexes());
         self::assertCount(1, $tableDiff->getDroppedIndexes());
-        self::assertCount(0, $tableDiff->getRenamedIndexes());
+        self::assertCount(0, $tableDiff->getIndexRenames());
     }
 
     /**
@@ -844,7 +843,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         self::assertEquals(['idx_baz'], $this->getObjectNames($tableDiff->getAddedIndexes()));
         self::assertEquals(['idx_foo', 'idx_bar'], $this->getObjectNames($tableDiff->getDroppedIndexes()));
-        self::assertCount(0, $tableDiff->getRenamedIndexes());
+        self::assertCount(0, $tableDiff->getIndexRenames());
     }
 
     public function testDetectChangeIdentifierType(): void

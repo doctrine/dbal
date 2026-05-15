@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\IndexRename;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -623,11 +624,14 @@ abstract class AbstractPlatformTestCase extends TestCase
             )
             ->create();
 
-        $tableDiff = new TableDiff($table, renamedIndexes: [
-            'idx_foo' => Index::editor()
-                ->setUnquotedName('idx_bar')
-                ->setUnquotedColumnNames('id')
-                ->create(),
+        $tableDiff = new TableDiff($table, indexRenames: [
+            new IndexRename(
+                UnqualifiedName::unquoted('idx_foo'),
+                Index::editor()
+                    ->setUnquotedName('idx_bar')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            ),
         ]);
 
         self::assertSame(
@@ -662,15 +666,21 @@ abstract class AbstractPlatformTestCase extends TestCase
             )
             ->create();
 
-        $tableDiff = new TableDiff($table, renamedIndexes: [
-            'create' => Index::editor()
-                ->setUnquotedName('select')
-                ->setUnquotedColumnNames('id')
-                ->create(),
-            'foo' => Index::editor()
-                ->setUnquotedName('bar')
-                ->setUnquotedColumnNames('id')
-                ->create(),
+        $tableDiff = new TableDiff($table, indexRenames: [
+            new IndexRename(
+                UnqualifiedName::unquoted('create'),
+                Index::editor()
+                    ->setUnquotedName('select')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            ),
+            new IndexRename(
+                UnqualifiedName::unquoted('foo'),
+                Index::editor()
+                    ->setUnquotedName('bar')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            ),
         ]);
 
         self::assertSame(
@@ -707,11 +717,14 @@ abstract class AbstractPlatformTestCase extends TestCase
             )
             ->create();
 
-        $tableDiff = new TableDiff($table, renamedIndexes: [
-            'idx_foo' => Index::editor()
-                ->setUnquotedName('idx_bar')
-                ->setUnquotedColumnNames('id')
-                ->create(),
+        $tableDiff = new TableDiff($table, indexRenames: [
+            new IndexRename(
+                UnqualifiedName::unquoted('idx_foo'),
+                Index::editor()
+                    ->setUnquotedName('idx_bar')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            ),
         ]);
 
         self::assertSame(
@@ -751,15 +764,21 @@ abstract class AbstractPlatformTestCase extends TestCase
             )
             ->create();
 
-        $tableDiff = new TableDiff($table, renamedIndexes: [
-            'create' => Index::editor()
-                ->setUnquotedName('select')
-                ->setUnquotedColumnNames('id')
-                ->create(),
-            'foo' => Index::editor()
-                ->setUnquotedName('bar')
-                ->setUnquotedColumnNames('id')
-                ->create(),
+        $tableDiff = new TableDiff($table, indexRenames: [
+            new IndexRename(
+                UnqualifiedName::unquoted('create'),
+                Index::editor()
+                    ->setUnquotedName('select')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            ),
+            new IndexRename(
+                UnqualifiedName::unquoted('foo'),
+                Index::editor()
+                    ->setUnquotedName('bar')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            ),
         ]);
 
         self::assertSame(
@@ -925,11 +944,14 @@ abstract class AbstractPlatformTestCase extends TestCase
             )
             ->create();
 
-        $tableDiff = new TableDiff($primaryTable, renamedIndexes: [
-            'idx_foo' => Index::editor()
-                ->setUnquotedName('idx_foo_renamed')
-                ->setUnquotedColumnNames('foo')
-                ->create(),
+        $tableDiff = new TableDiff($primaryTable, indexRenames: [
+            new IndexRename(
+                UnqualifiedName::unquoted('idx_foo'),
+                Index::editor()
+                    ->setUnquotedName('idx_foo_renamed')
+                    ->setUnquotedColumnNames('foo')
+                    ->create(),
+            ),
         ]);
 
         self::assertSame(
