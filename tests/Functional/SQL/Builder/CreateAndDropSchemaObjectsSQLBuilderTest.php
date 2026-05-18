@@ -41,7 +41,9 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
         $this->assertForeignKey($table1, $name2);
         $this->assertForeignKey($table2, $name1);
 
-        $schema = new Schema([$table1, $table2]);
+        $schema = Schema::editor()
+            ->setTables($table1, $table2)
+            ->create();
 
         $schemaManager->dropSchemaObjects($schema);
 

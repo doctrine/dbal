@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
 use Doctrine\DBAL\Schema\Exception\InvalidSchemaModification;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Schema;
@@ -29,6 +30,81 @@ class SchemaEditorTest extends TestCase
 
         self::assertSame([], $schema->getTables());
         self::assertSame([], $schema->getSequences());
+    }
+
+    public function testEditorMutationAfterCreateDoesNotAffectSchema(): void
+    {
+        $editor = Schema::editor()
+            ->addTable($this->createTable('foo'))
+            ->addTable($this->createTable('bar'));
+
+        $schema = $editor->create();
+
+        $editor->addTable($this->createTable('baz'))
+            ->dropTableByUnquotedName('foo');
+
+        self::assertTrue($schema->hasTable('foo'));
+        self::assertTrue($schema->hasTable('bar'));
+        self::assertFalse($schema->hasTable('baz'));
+        self::assertCount(2, $schema->getTables());
+    }
+
+    public function testEditReturnsEditorIndependentOfSourceSchema(): void
+    {
+        $schema = Schema::editor()
+            ->addTable($this->createTable('foo'))
+            ->addTable($this->createTable('bar'))
+            ->create();
+
+        $derived = $schema->edit();
+        $derived->addTable($this->createTable('baz'))
+            ->dropTableByUnquotedName('foo');
+
+        self::assertTrue($schema->hasTable('foo'));
+        self::assertTrue($schema->hasTable('bar'));
+        self::assertFalse($schema->hasTable('baz'));
+        self::assertCount(2, $schema->getTables());
+    }
+
+    public function testDropAllTablesAllowsModeSwitch(): void
+    {
+        $editor = Schema::editor()
+            ->addTable($this->createTable('foo'))
+            ->dropTableByUnquotedName('foo');
+
+        $editor->addTable($this->createTable('bar', 'public'));
+
+        $schema = $editor->create();
+        self::assertTrue($schema->hasTable('public.bar'));
+    }
+
+    public function testDropTableByWrongFormThrows(): void
+    {
+        $editor = Schema::editor()
+            ->addTable($this->createTable('foo'));
+
+        $this->expectException(ImproperlyQualifiedName::class);
+
+        $editor->dropTableByUnquotedName('foo', 'public');
+    }
+
+    public function testQualifiedNamesWithDotsAreDistinct(): void
+    {
+        // The default namespace is set to 'a.b' so the qualifier of the first table matches it and
+        // bypasses the namespace registry, which would otherwise reject 'a.b' as a parsable name.
+        $schema = Schema::editor()
+            ->setDefaultNamespace('a.b')
+            ->addTable($this->createTableWithName(
+                Identifier::quoted('a.b'),
+                Identifier::quoted('c'),
+            ))
+            ->addTable($this->createTableWithName(
+                Identifier::quoted('a'),
+                Identifier::quoted('b.c'),
+            ))
+            ->create();
+
+        self::assertCount(2, $schema->getTables());
     }
 
     public function testEditRoundTripPreservesTablesAndSequences(): void
@@ -319,23 +395,21 @@ class SchemaEditorTest extends TestCase
     public function testMixingQualifiedAndUnqualifiedThrows(): void
     {
         $editor = Schema::editor()
-            ->addTable($this->createTable('a'))
-            ->addTable($this->createTable('b', 'public'));
+            ->addTable($this->createTable('a'));
 
         $this->expectException(ImproperlyQualifiedName::class);
 
-        $editor->create();
+        $editor->addTable($this->createTable('b', 'public'));
     }
 
     public function testMixingUnqualifiedAfterQualifiedThrows(): void
     {
         $editor = Schema::editor()
-            ->addTable($this->createTable('a', 'public'))
-            ->addTable($this->createTable('b'));
+            ->addTable($this->createTable('a', 'public'));
 
         $this->expectException(ImproperlyQualifiedName::class);
 
-        $editor->create();
+        $editor->addTable($this->createTable('b'));
     }
 
     public function testMixedQualificationUnderDefaultNamespaceIsAccepted(): void
@@ -421,6 +495,19 @@ class SchemaEditorTest extends TestCase
     {
         return Table::editor()
             ->setUnquotedName($unqualifiedName, $qualifier)
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+    }
+
+    private function createTableWithName(Identifier $qualifier, Identifier $unqualified): Table
+    {
+        return Table::editor()
+            ->setName(new OptionallyQualifiedName($unqualified, $qualifier))
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('id')

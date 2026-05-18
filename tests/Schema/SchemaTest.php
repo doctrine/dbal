@@ -9,7 +9,6 @@ use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -68,16 +67,6 @@ class SchemaTest extends TestCase
         $schema->getTable('unknown');
     }
 
-    public function testCreateTableTwiceThrowsException(): void
-    {
-        $this->expectException(SchemaException::class);
-
-        $table  = $this->createTable('foo');
-        $tables = [$table, $table];
-
-        new Schema($tables);
-    }
-
     public function testAddSequences(): void
     {
         $sequence = Sequence::editor()
@@ -124,17 +113,6 @@ class SchemaTest extends TestCase
         $this->expectException(SchemaException::class);
 
         $schema->getSequence('unknown');
-    }
-
-    public function testAddSequenceTwiceThrowsException(): void
-    {
-        $this->expectException(SchemaException::class);
-
-        $sequence = Sequence::editor()
-            ->setUnquotedName('a_seq')
-            ->create();
-
-        new Schema([], [$sequence, $sequence]);
     }
 
     public function testDeepClone(): void
@@ -310,20 +288,6 @@ class SchemaTest extends TestCase
         self::assertFalse($schema->hasNamespace('moo'));
     }
 
-    public function testAddObjectWithQualifiedNameAfterUnqualifiedName(): void
-    {
-        $this->expectException(ImproperlyQualifiedName::class);
-
-        new Schema([$this->createTable('t'), $this->createTable('t', 'public')]);
-    }
-
-    public function testAddObjectWithUnqualifiedNameAfterQualifiedName(): void
-    {
-        $this->expectException(ImproperlyQualifiedName::class);
-
-        new Schema([$this->createTable('t', 'public'), $this->createTable('t')]);
-    }
-
     public function testReferenceByQualifiedNameAmongUnqualifiedNames(): void
     {
         $schema = Schema::editor()
@@ -350,11 +314,8 @@ class SchemaTest extends TestCase
 
     public function testAddObjectWithQualifiedNameAfterUnqualifiedNameWithDefaultNamespace(): void
     {
-        $schemaConfig = new SchemaConfig();
-        $schemaConfig->setName('public');
-
         $schema = Schema::editor()
-            ->setSchemaConfig($schemaConfig)
+            ->setDefaultNamespace('public')
             ->setTables(
                 $this->createTable('t'),
                 $this->createTable('s', 'public'),
@@ -367,11 +328,8 @@ class SchemaTest extends TestCase
 
     public function testAddObjectWithUnqualifiedNameAfterQualifiedNameWithDefaultNamespace(): void
     {
-        $schemaConfig = new SchemaConfig();
-        $schemaConfig->setName('public');
-
         $schema = Schema::editor()
-            ->setSchemaConfig($schemaConfig)
+            ->setDefaultNamespace('public')
             ->setTables(
                 $this->createTable('t', 'public'),
                 $this->createTable('s'),

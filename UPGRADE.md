@@ -166,7 +166,9 @@ The following classes have been marked as read-only:
 - `Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder`
 - `Doctrine\DBAL\Schema\ColumnDiff`
 - `Doctrine\DBAL\Schema\ComparatorConfig`
+- `Doctrine\DBAL\Schema\Schema`
 - `Doctrine\DBAL\Schema\SchemaDiff`
+- `Doctrine\DBAL\Schema\SchemaEditor`
 - `Doctrine\DBAL\Tools\Console\ConnectionProvider\SingleConnectionProvider`
 - `Doctrine\DBAL\Tools\DsnParser`
 
