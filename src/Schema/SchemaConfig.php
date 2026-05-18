@@ -51,8 +51,7 @@ class SchemaConfig
     }
 
     /**
-     * Gets the default options that are passed to Table instances created with
-     * Schema#createTable().
+     * Gets the default table options held by this schema configuration.
      *
      * @return array<string, mixed>
      */

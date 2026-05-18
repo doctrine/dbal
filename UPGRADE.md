@@ -36,6 +36,17 @@ corresponding defaults are now introspected as `CurrentDate`, `CurrentTime`, and
 
 The `Schema::createNamespace()` method and the `$namespaces` constructor parameter have been removed.
 
+## BC BREAK: Removed mutating `Schema` methods
+
+The following `Schema` methods have been removed. Use `Schema::editor()` for new schemas or `Schema::edit()`
+for derived ones, then call `SchemaEditor::create()` to produce the resulting schema:
+
+- `Schema::createTable()` — use `SchemaEditor::addTable()` instead.
+- `Schema::renameTable()` — use `SchemaEditor::renameTable()` instead.
+- `Schema::dropTable()` — use `SchemaEditor::dropTable()` instead.
+- `Schema::createSequence()` — use `SchemaEditor::addSequence()` instead.
+- `Schema::dropSequence()` — use `SchemaEditor::dropSequence()` instead.
+
 ## BC BREAK: Removed `TableDiff::getDroppedForeignKeys()`
 
 The `TableDiff::getDroppedForeignKeys()` method has been removed.

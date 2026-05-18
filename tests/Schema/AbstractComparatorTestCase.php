@@ -1061,13 +1061,27 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     public function testComparesNamespaces(): void
     {
-        $oldSchema = new Schema();
-        $oldSchema->createTable('foo.users');
-        $oldSchema->createSequence('bar.users');
+        $oldSchema = Schema::editor()
+            ->addTable(
+                Table::editor()
+                    ->setUnquotedName('users', 'foo')
+                    ->setColumns(
+                        Column::editor()
+                            ->setUnquotedName('id')
+                            ->setTypeName(Types::INTEGER)
+                            ->create(),
+                    )
+                    ->create(),
+            )
+            ->create();
 
-        $newSchema = new Schema();
-        $newSchema->createTable('bar.users');
-        $newSchema->createSequence('baz.users');
+        $newSchema = Schema::editor()
+            ->addSequence(
+                Sequence::editor()
+                    ->setUnquotedName('users', 'baz')
+                    ->create(),
+            )
+            ->create();
 
         $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
 

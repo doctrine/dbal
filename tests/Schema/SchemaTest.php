@@ -16,9 +16,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
-use function array_shift;
-use function strlen;
-
 class SchemaTest extends TestCase
 {
     public function testAddTable(): void
@@ -81,56 +78,6 @@ class SchemaTest extends TestCase
         new Schema($tables);
     }
 
-    public function testRenameTable(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $schema = Schema::editor()
-            ->addTable($table)
-            ->create();
-
-        self::assertTrue($schema->hasTable('foo'));
-        $schema->renameTable('foo', 'bar');
-        self::assertFalse($schema->hasTable('foo'));
-        self::assertTrue($schema->hasTable('bar'));
-    }
-
-    public function testDropTable(): void
-    {
-        $table = $this->createTable('foo');
-
-        $schema = Schema::editor()
-            ->addTable($table)
-            ->create();
-
-        self::assertTrue($schema->hasTable('foo'));
-
-        $schema->dropTable('foo');
-
-        self::assertFalse($schema->hasTable('foo'));
-    }
-
-    public function testCreateTable(): void
-    {
-        $schema = Schema::editor()
-            ->create();
-
-        self::assertFalse($schema->hasTable('foo'));
-
-        $table = $schema->createTable('foo');
-
-        self::assertEquals(OptionallyQualifiedName::unquoted('foo'), $table->getObjectName());
-        self::assertTrue($schema->hasTable('foo'));
-    }
-
     public function testAddSequences(): void
     {
         $sequence = Sequence::editor()
@@ -179,43 +126,6 @@ class SchemaTest extends TestCase
         $schema->getSequence('unknown');
     }
 
-    public function testCreateSequence(): void
-    {
-        $schema = Schema::editor()
-            ->create();
-
-        $sequence = $schema->createSequence('a_seq', 10, 20);
-
-        self::assertEquals(
-            OptionallyQualifiedName::unquoted('a_seq'),
-            $sequence->getObjectName(),
-        );
-        self::assertEquals(10, $sequence->getAllocationSize());
-        self::assertEquals(20, $sequence->getInitialValue());
-
-        self::assertTrue($schema->hasSequence('a_seq'));
-        self::assertEquals(
-            OptionallyQualifiedName::unquoted('a_seq'),
-            $schema->getSequence('a_seq')->getObjectName(),
-        );
-
-        self::assertEquals([$sequence], $schema->getSequences());
-    }
-
-    public function testDropSequence(): void
-    {
-        $sequence = Sequence::editor()
-            ->setUnquotedName('a_seq')
-            ->create();
-
-        $schema = Schema::editor()
-            ->addSequence($sequence)
-            ->create();
-
-        $schema->dropSequence('a_seq');
-        self::assertFalse($schema->hasSequence('a_seq'));
-    }
-
     public function testAddSequenceTwiceThrowsException(): void
     {
         $this->expectException(SchemaException::class);
@@ -225,25 +135,6 @@ class SchemaTest extends TestCase
             ->create();
 
         new Schema([], [$sequence, $sequence]);
-    }
-
-    public function testConfigMaxIdentifierLength(): void
-    {
-        $schemaConfig = new SchemaConfig();
-        $schemaConfig->setMaxIdentifierLength(5);
-
-        $schema = new Schema([], [], $schemaConfig);
-
-        $table = $schema->createTable('smalltable');
-        $table->addColumn('long_id', Types::INTEGER);
-        $table->addIndex(['long_id']);
-
-        $indexes = $table->getIndexes();
-        self::assertCount(1, $indexes);
-
-        $index = array_shift($indexes);
-        self::assertNotNull($index);
-        self::assertEquals(5, strlen($index->getObjectName()->toString()));
     }
 
     public function testDeepClone(): void
@@ -462,10 +353,13 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $schema = new Schema([
-            $this->createTable('t'),
-            $this->createTable('s', 'public'),
-        ], [], $schemaConfig);
+        $schema = Schema::editor()
+            ->setSchemaConfig($schemaConfig)
+            ->setTables(
+                $this->createTable('t'),
+                $this->createTable('s', 'public'),
+            )
+            ->create();
 
         self::assertTrue($schema->hasTable('t'));
         self::assertTrue($schema->hasTable('public.s'));
@@ -476,10 +370,13 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $schema = new Schema([
-            $this->createTable('t', 'public'),
-            $this->createTable('s'),
-        ], [], $schemaConfig);
+        $schema = Schema::editor()
+            ->setSchemaConfig($schemaConfig)
+            ->setTables(
+                $this->createTable('t', 'public'),
+                $this->createTable('s'),
+            )
+            ->create();
 
         self::assertTrue($schema->hasTable('public.t'));
         self::assertTrue($schema->hasTable('s'));
@@ -503,18 +400,24 @@ class SchemaTest extends TestCase
 
     public function testGetNamespaces(): void
     {
-        $schema = new Schema();
-
-        $schema->createTable('public.t');
+        $schema = Schema::editor()
+            ->addTable($this->createTable('t', 'public'))
+            ->create();
         self::assertEquals(['public'], $schema->getNamespaces());
 
-        $schema->createSequence('public.s');
+        $schema = $schema->edit()
+            ->addSequence($this->createSequence('s', 'public'))
+            ->create();
         self::assertEquals(['public'], $schema->getNamespaces());
 
-        $schema->dropTable('public.t');
+        $schema = $schema->edit()
+            ->dropTableByUnquotedName('t', 'public')
+            ->create();
         self::assertEquals(['public'], $schema->getNamespaces());
 
-        $schema->dropSequence('public.s');
+        $schema = $schema->edit()
+            ->dropSequenceByUnquotedName('s', 'public')
+            ->create();
         self::assertEmpty(
             $schema->getNamespaces(),
             'Dropping all objects inside a schema should result in the schema being dropped as well.',

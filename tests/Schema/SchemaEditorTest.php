@@ -183,6 +183,17 @@ class SchemaEditorTest extends TestCase
         );
     }
 
+    public function testRenameTable(): void
+    {
+        $schema = Schema::editor()
+            ->addTable($this->createTable('foo'))
+            ->renameTableByUnquotedName('foo', 'bar')
+            ->create();
+
+        self::assertFalse($schema->hasTable('foo'));
+        self::assertTrue($schema->hasTable('bar'));
+    }
+
     public function testRenameTablePreservesQualifier(): void
     {
         $schema = Schema::editor()
