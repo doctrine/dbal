@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
 use Doctrine\DBAL\Schema\Collections\OptionallyUnqualifiedNamedObjectSet;
@@ -19,6 +20,7 @@ use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
+use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
@@ -29,7 +31,6 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
 
@@ -282,7 +283,15 @@ final class Table extends AbstractNamedObject
      */
     public function addColumn(string $name, string $typeName, array $options = []): Column
     {
-        $column = new Column($name, Type::getType($typeName), $options);
+        $parsedName = $this->parseUnqualifiedName($name);
+
+        $editor = Column::editor()
+            ->setName($parsedName)
+            ->setTypeName($typeName);
+
+        $this->applyColumnOptionsToEditor($editor, $options);
+
+        $column = $editor->create();
 
         $this->_addColumn($column);
 
@@ -318,11 +327,9 @@ final class Table extends AbstractNamedObject
         }
 
         $oldColumn = $this->getColumn($oldName);
-        $options   = $oldColumn->toArray();
-
-        unset($options['name'], $options['type']);
-
-        $newColumn = new Column($parsedNewName->toString(), $oldColumn->getType(), $options);
+        $newColumn = $oldColumn->edit()
+            ->setName($parsedNewName)
+            ->create();
 
         $this->columns->remove($parsedOldName);
         $this->_addColumn($newColumn);
@@ -348,10 +355,58 @@ final class Table extends AbstractNamedObject
     /** @param array<string, mixed> $options */
     public function modifyColumn(string $name, array $options): self
     {
-        $column = $this->getColumn($name);
-        $column->setOptions($options);
+        $oldColumn = $this->getColumn($name);
+
+        $editor = $oldColumn->edit();
+        $this->applyColumnOptionsToEditor($editor, $options);
+        $newColumn = $editor->create();
+
+        $this->columns->modify(
+            $oldColumn->getObjectName(),
+            static fn (): Column => $newColumn,
+        );
 
         return $this;
+    }
+
+    /** @param array<string, mixed> $options */
+    private function applyColumnOptionsToEditor(ColumnEditor $editor, array $options): void
+    {
+        foreach ($options as $name => $value) {
+            match ($name) {
+                'type'             => $editor->setType($value),
+                'length'           => $editor->setLength($value),
+                'precision'        => $editor->setPrecision($value),
+                'scale'            => $editor->setScale($value),
+                'unsigned'         => $editor->setUnsigned($value),
+                'fixed'            => $editor->setFixed($value),
+                'notnull'          => $editor->setNotNull($value),
+                'default'          => $editor->setDefaultValue($value),
+                'autoincrement'    => $editor->setAutoincrement($value),
+                'values'           => $editor->setValues($value),
+                'comment'          => $editor->setComment($value),
+                'columnDefinition' => $editor->setColumnDefinition($value),
+                'platformOptions'  => $this->applyPlatformOptionsToEditor($editor, $value),
+                default            => throw UnknownColumnOption::new($name),
+            };
+        }
+    }
+
+    /** @param array<string, mixed> $platformOptions */
+    private function applyPlatformOptionsToEditor(ColumnEditor $editor, array $platformOptions): void
+    {
+        foreach ($platformOptions as $name => $value) {
+            match ($name) {
+                'charset'   => $editor->setCharset($value),
+                'collation' => $editor->setCollation($value),
+                'min'       => $editor->setMinimumValue($value),
+                'max'       => $editor->setMaximumValue($value),
+                'enumType'  => $editor->setEnumType($value),
+                SQLServerPlatform::OPTION_DEFAULT_CONSTRAINT_NAME
+                            => $editor->setDefaultConstraintName($value),
+                default     => throw UnknownColumnOption::new($name),
+            };
+        }
     }
 
     /**

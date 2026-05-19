@@ -265,22 +265,20 @@ final class ColumnEditor
         }
 
         return new Column(
-            $this->name->toString(),
+            $this->name,
             $this->type,
-            [
-                'length' => $this->length,
-                'precision' => $this->precision,
-                'scale' => $this->scale,
-                'unsigned' => $this->unsigned,
-                'fixed' => $this->fixed,
-                'notnull' => $this->notNull,
-                'default' => $this->defaultValue,
-                'autoincrement' => $this->autoincrement,
-                'comment' => $this->comment,
-                'values' => $this->values,
-                'platformOptions' => $platformOptions,
-                'columnDefinition' => $this->columnDefinition,
-            ],
+            $this->length,
+            $this->precision,
+            $this->scale,
+            $this->unsigned,
+            $this->fixed,
+            $this->notNull,
+            $this->defaultValue,
+            $this->autoincrement,
+            $this->values,
+            $platformOptions,
+            $this->columnDefinition,
+            $this->comment,
         );
     }
 }
