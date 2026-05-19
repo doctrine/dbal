@@ -270,19 +270,6 @@ final class SchemaObjects implements ReadableSchemaObjects
         return $copy;
     }
 
-    public function __clone()
-    {
-        if ($this->tables !== null) {
-            $this->tables = clone $this->tables;
-        }
-
-        if ($this->sequences === null) {
-            return;
-        }
-
-        $this->sequences = clone $this->sequences;
-    }
-
     private function resolve(OptionallyQualifiedName $name): OptionallyQualifiedName
     {
         if ($name->getQualifier() !== null || $this->defaultNamespaceName === null) {

@@ -33,7 +33,7 @@ use function array_merge;
  *     enumType?: class-string,
  * }
  */
-final class Column implements NamedObject
+final readonly class Column implements NamedObject
 {
     /**
      * @internal Use {@link Column::editor()} to instantiate an editor and {@link ColumnEditor::create()} to create a
@@ -44,20 +44,20 @@ final class Column implements NamedObject
      * @param ?non-empty-string $columnDefinition
      */
     public function __construct(
-        private readonly UnqualifiedName $name,
-        private readonly Type $type,
-        private readonly ?int $length,
-        private readonly ?int $precision,
-        private readonly int $scale,
-        private readonly bool $unsigned,
-        private readonly bool $fixed,
-        private readonly bool $notnull,
-        private readonly mixed $default,
-        private readonly bool $autoincrement,
-        private readonly array $values,
-        private readonly array $platformOptions,
-        private readonly ?string $columnDefinition,
-        private readonly string $comment,
+        private UnqualifiedName $name,
+        private Type $type,
+        private ?int $length,
+        private ?int $precision,
+        private int $scale,
+        private bool $unsigned,
+        private bool $fixed,
+        private bool $notnull,
+        private mixed $default,
+        private bool $autoincrement,
+        private array $values,
+        private array $platformOptions,
+        private ?string $columnDefinition,
+        private string $comment,
     ) {
     }
 

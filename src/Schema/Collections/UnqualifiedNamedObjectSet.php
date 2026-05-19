@@ -13,7 +13,6 @@ use Traversable;
 
 use function array_combine;
 use function array_keys;
-use function array_map;
 use function array_search;
 use function array_values;
 use function assert;
@@ -112,18 +111,6 @@ final class UnqualifiedNamedObjectSet implements ObjectSet
         foreach ($this->elements as $element) {
             yield $element;
         }
-    }
-
-    /**
-     * As long as there are mutable implementations of <code>NamedObject<UnqualifiedName></code>, cloning the set will
-     * require cloning its elements as well.
-     */
-    public function __clone()
-    {
-        $this->elements = array_map(
-            static fn (NamedObject $element): NamedObject => clone $element,
-            $this->elements,
-        );
     }
 
     /**

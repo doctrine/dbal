@@ -15,7 +15,7 @@ use function count;
  *
  * @implements OptionallyNamedObject<UnqualifiedName>
  */
-final class UniqueConstraint implements OptionallyNamedObject
+final readonly class UniqueConstraint implements OptionallyNamedObject
 {
     /**
      * @internal Use {@link UniqueConstraint::editor()} to instantiate an editor and
@@ -28,9 +28,9 @@ final class UniqueConstraint implements OptionallyNamedObject
      * @param non-empty-list<UnqualifiedName> $columnNames Names of the columns covered by the unique constraint.
      */
     public function __construct(
-        private readonly ?UnqualifiedName $name,
-        private readonly array $columnNames,
-        private readonly bool $isClustered,
+        private ?UnqualifiedName $name,
+        private array $columnNames,
+        private bool $isClustered,
     ) {
         if (count($columnNames) < 1) {
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($name);

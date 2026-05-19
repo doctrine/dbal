@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\NamedObject;
 
-use function array_map;
 use function array_values;
 
 /**
@@ -122,15 +121,6 @@ abstract class SchemaObjectSet
 
         /** @phpstan-ignore return.type */
         return $copy;
-    }
-
-    /** Deep-clones contained elements while their classes retain mutators. */
-    public function __clone()
-    {
-        $this->elements = array_map(
-            static fn (NamedObject $element): NamedObject => clone $element,
-            $this->elements,
-        );
     }
 
     /** @throws ImproperlyQualifiedName If the name's qualification form is not the one this set holds. */

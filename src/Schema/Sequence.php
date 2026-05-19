@@ -13,7 +13,7 @@ use Override;
  *
  * @implements NamedObject<OptionallyQualifiedName>
  */
-final class Sequence implements NamedObject
+final readonly class Sequence implements NamedObject
 {
     /**
      * @internal Use {@link Sequence::editor()} to instantiate an editor and {@link SequenceEditor::create()} to create
@@ -22,10 +22,10 @@ final class Sequence implements NamedObject
      * @param ?non-negative-int $cacheSize
      */
     public function __construct(
-        private readonly OptionallyQualifiedName $name,
-        private readonly int $allocationSize,
-        private readonly int $initialValue,
-        private readonly ?int $cacheSize = null,
+        private OptionallyQualifiedName $name,
+        private int $allocationSize,
+        private int $initialValue,
+        private ?int $cacheSize = null,
     ) {
         if ($cacheSize < 0) {
             throw InvalidSequenceDefinition::fromNegativeCacheSize($cacheSize);

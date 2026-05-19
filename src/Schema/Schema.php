@@ -171,15 +171,6 @@ final readonly class Schema
             ->setSequences(...$this->getSequences());
     }
 
-    /**
-     * Cloning a Schema triggers a deep clone of all related assets.
-     */
-    public function __clone()
-    {
-        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
-        $this->objects = clone $this->objects;
-    }
-
     private function parseUnqualifiedName(string $input): UnqualifiedName
     {
         $parser = Parsers::getUnqualifiedNameParser();
