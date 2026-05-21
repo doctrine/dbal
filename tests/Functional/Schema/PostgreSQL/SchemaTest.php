@@ -39,7 +39,11 @@ final class SchemaTest extends FunctionalTestCase
             ->setUnquotedName('my_table_id_seq')
             ->create();
 
-        $schema = new Schema([$table], [$sequence]);
+        $schema = Schema::editor()
+            ->addTable($table)
+            ->addSequence($sequence)
+            ->create();
+
         foreach ($schema->toSql($platform) as $sql) {
             $this->connection->executeStatement($sql);
         }

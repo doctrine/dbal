@@ -34,7 +34,9 @@ class SchemaTest extends TestCase
             )
             ->create();
 
-        $schema = new Schema([$table]);
+        $schema = Schema::editor()
+            ->addTable($table)
+            ->create();
 
         self::assertTrue($schema->hasTable($tableName));
 
@@ -47,7 +49,10 @@ class SchemaTest extends TestCase
     {
         $table = $this->createTable('Foo');
 
-        $schema = new Schema([$table]);
+        $schema = Schema::editor()
+            ->addTable($table)
+            ->create();
+
         self::assertTrue($schema->hasTable('foo'));
         self::assertTrue($schema->hasTable('FOO'));
 
@@ -58,9 +63,11 @@ class SchemaTest extends TestCase
 
     public function testGetUnknownTableThrowsException(): void
     {
+        $schema = Schema::editor()
+            ->create();
+
         $this->expectException(SchemaException::class);
 
-        $schema = new Schema();
         $schema->getTable('unknown');
     }
 
@@ -86,7 +93,9 @@ class SchemaTest extends TestCase
             )
             ->create();
 
-        $schema = new Schema([$table]);
+        $schema = Schema::editor()
+            ->addTable($table)
+            ->create();
 
         self::assertTrue($schema->hasTable('foo'));
         $schema->renameTable('foo', 'bar');
@@ -96,8 +105,11 @@ class SchemaTest extends TestCase
 
     public function testDropTable(): void
     {
-        $table  = $this->createTable('foo');
-        $schema = new Schema([$table]);
+        $table = $this->createTable('foo');
+
+        $schema = Schema::editor()
+            ->addTable($table)
+            ->create();
 
         self::assertTrue($schema->hasTable('foo'));
 
@@ -108,7 +120,8 @@ class SchemaTest extends TestCase
 
     public function testCreateTable(): void
     {
-        $schema = new Schema();
+        $schema = Schema::editor()
+            ->create();
 
         self::assertFalse($schema->hasTable('foo'));
 
@@ -124,7 +137,9 @@ class SchemaTest extends TestCase
             ->setUnquotedName('a_seq')
             ->create();
 
-        $schema = new Schema([], [$sequence]);
+        $schema = Schema::editor()
+            ->addSequence($sequence)
+            ->create();
 
         self::assertTrue($schema->hasSequence('a_seq'));
         self::assertEquals(
@@ -141,7 +156,10 @@ class SchemaTest extends TestCase
             ->setUnquotedName('a_Seq')
             ->create();
 
-        $schema = new Schema([], [$sequence]);
+        $schema = Schema::editor()
+            ->addSequence($sequence)
+            ->create();
+
         self::assertTrue($schema->hasSequence('a_seq'));
         self::assertTrue($schema->hasSequence('a_Seq'));
         self::assertTrue($schema->hasSequence('A_SEQ'));
@@ -153,15 +171,19 @@ class SchemaTest extends TestCase
 
     public function testGetUnknownSequenceThrowsException(): void
     {
+        $schema = Schema::editor()
+            ->create();
+
         $this->expectException(SchemaException::class);
 
-        $schema = new Schema();
         $schema->getSequence('unknown');
     }
 
     public function testCreateSequence(): void
     {
-        $schema   = new Schema();
+        $schema = Schema::editor()
+            ->create();
+
         $sequence = $schema->createSequence('a_seq', 10, 20);
 
         self::assertEquals(
@@ -186,7 +208,9 @@ class SchemaTest extends TestCase
             ->setUnquotedName('a_seq')
             ->create();
 
-        $schema = new Schema([], [$sequence]);
+        $schema = Schema::editor()
+            ->addSequence($sequence)
+            ->create();
 
         $schema->dropSequence('a_seq');
         self::assertFalse($schema->hasSequence('a_seq'));
@@ -208,8 +232,11 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setMaxIdentifierLength(5);
 
-        $schema = new Schema([], [], $schemaConfig);
-        $table  = $schema->createTable('smalltable');
+        $schema = Schema::editor()
+            ->setSchemaConfig($schemaConfig)
+            ->create();
+
+        $table = $schema->createTable('smalltable');
         $table->addColumn('long_id', Types::INTEGER);
         $table->addIndex(['long_id']);
 
@@ -254,8 +281,12 @@ class SchemaTest extends TestCase
             )
             ->create();
 
-        $schema   = new Schema([$tableA, $tableB]);
-        $sequence = $schema->createSequence('baz');
+        $sequence = Sequence::editor()->setUnquotedName('baz')->create();
+
+        $schema = Schema::editor()
+            ->setTables($tableA, $tableB)
+            ->addSequence($sequence)
+            ->create();
 
         $schemaNew = clone $schema;
 
@@ -280,7 +311,9 @@ class SchemaTest extends TestCase
             )
             ->create();
 
-        $schema = new Schema([$tableA]);
+        $schema = Schema::editor()
+            ->addTable($tableA)
+            ->create();
 
         self::assertTrue($schema->hasTable('`foo`'));
     }
@@ -290,21 +323,29 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $schema = new Schema([], [], $schemaConfig);
+        $schema = Schema::editor()
+            ->setSchemaConfig($schemaConfig)
+            ->create();
 
         self::assertFalse($schema->hasNamespace('foo'));
 
-        $schema->createTable('foo');
+        $schema = $schema->edit()
+            ->addTable($this->createTable('foo'))
+            ->create();
 
         self::assertFalse($schema->hasNamespace('foo'));
 
-        $schema->createTable('bar.baz');
+        $schema = $schema->edit()
+            ->addTable($this->createTable('baz', 'bar'))
+            ->create();
 
         self::assertFalse($schema->hasNamespace('baz'));
         self::assertTrue($schema->hasNamespace('bar'));
         self::assertFalse($schema->hasNamespace('tab'));
 
-        $schema->createTable('tab.taz');
+        $schema = $schema->edit()
+            ->addTable($this->createTable('taz', 'tab'))
+            ->create();
 
         self::assertTrue($schema->hasNamespace('tab'));
     }
@@ -314,26 +355,36 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $schema = new Schema([], [], $schemaConfig);
+        $schema = Schema::editor()
+            ->setSchemaConfig($schemaConfig)
+            ->create();
 
         self::assertFalse($schema->hasNamespace('foo'));
 
-        $schema->createTable('baz');
+        $schema = $schema->edit()
+            ->addTable($this->createTable('baz'))
+            ->create();
 
         self::assertFalse($schema->hasNamespace('foo'));
         self::assertFalse($schema->hasNamespace('baz'));
 
-        $schema->createTable('foo.bar');
+        $schema = $schema->edit()
+            ->addTable($this->createTable('bar', 'foo'))
+            ->create();
 
         self::assertTrue($schema->hasNamespace('foo'));
         self::assertFalse($schema->hasNamespace('bar'));
 
-        $schema->createTable('`baz`.bloo');
+        $schema = $schema->edit()
+            ->addTable($this->createTable('bloo', 'baz'))
+            ->create();
 
         self::assertTrue($schema->hasNamespace('baz'));
         self::assertFalse($schema->hasNamespace('bloo'));
 
-        $schema->createTable('`baz`.moo');
+        $schema = $schema->edit()
+            ->addTable($this->createTable('moo', 'baz'))
+            ->create();
 
         self::assertTrue($schema->hasNamespace('baz'));
         self::assertFalse($schema->hasNamespace('moo'));
@@ -344,26 +395,36 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $schema = new Schema([], [], $schemaConfig);
+        $schema = Schema::editor()
+            ->setSchemaConfig($schemaConfig)
+            ->create();
 
         self::assertFalse($schema->hasNamespace('foo'));
 
-        $schema->createSequence('baz');
+        $schema = $schema->edit()
+            ->addSequence($this->createSequence('baz'))
+            ->create();
 
         self::assertFalse($schema->hasNamespace('foo'));
         self::assertFalse($schema->hasNamespace('baz'));
 
-        $schema->createSequence('foo.bar');
+        $schema = $schema->edit()
+            ->addSequence($this->createSequence('bar', 'foo'))
+            ->create();
 
         self::assertTrue($schema->hasNamespace('foo'));
         self::assertFalse($schema->hasNamespace('bar'));
 
-        $schema->createSequence('`baz`.bloo');
+        $schema = $schema->edit()
+            ->addSequence($this->createSequence('bloo', 'baz'))
+            ->create();
 
         self::assertTrue($schema->hasNamespace('baz'));
         self::assertFalse($schema->hasNamespace('bloo'));
 
-        $schema->createSequence('`baz`.moo');
+        $schema = $schema->edit()
+            ->addSequence($this->createSequence('moo', 'baz'))
+            ->create();
 
         self::assertTrue($schema->hasNamespace('baz'));
         self::assertFalse($schema->hasNamespace('moo'));
@@ -385,7 +446,10 @@ class SchemaTest extends TestCase
 
     public function testReferenceByQualifiedNameAmongUnqualifiedNames(): void
     {
-        $schema = new Schema([$this->createTable('t')]);
+        $schema = Schema::editor()
+            ->addTable(
+                $this->createTable('t'),
+            )->create();
 
         $this->expectException(ImproperlyQualifiedName::class);
 
@@ -394,7 +458,10 @@ class SchemaTest extends TestCase
 
     public function testReferenceByUnqualifiedNameAmongQualifiedNames(): void
     {
-        $schema = new Schema([$this->createTable('t', 'public')]);
+        $schema = Schema::editor()
+            ->addTable(
+                $this->createTable('t', 'public'),
+            )->create();
 
         $this->expectException(ImproperlyQualifiedName::class);
 
@@ -434,9 +501,12 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $schema = new Schema([
-            $this->createTable('t', 'public'),
-        ], [], $schemaConfig);
+        $schema = Schema::editor()
+            ->setSchemaConfig($schemaConfig)
+            ->addTable(
+                $this->createTable('t', 'public'),
+            )
+            ->create();
 
         self::assertTrue($schema->hasTable('t'));
         self::assertTrue($schema->hasTable('public.t'));
@@ -479,6 +549,17 @@ class SchemaTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->create();
+    }
+
+    /**
+     * @param non-empty-string  $unqualifiedName
+     * @param ?non-empty-string $qualifier
+     */
+    private function createSequence(string $unqualifiedName, ?string $qualifier = null): Sequence
+    {
+        return Sequence::editor()
+            ->setUnquotedName($unqualifiedName, $qualifier)
             ->create();
     }
 }

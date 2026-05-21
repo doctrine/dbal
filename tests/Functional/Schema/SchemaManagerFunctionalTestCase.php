@@ -29,6 +29,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -615,21 +616,44 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->createTestTable('table_to_alter');
         $this->createTestTable('table_to_drop');
 
-        $schema = $this->schemaManager->introspectSchema();
+        $schema       = $this->schemaManager->introspectSchema();
+        $schemaConfig = $this->schemaManager->createSchemaConfig();
 
-        $tableToAlter = $schema->getTable('table_to_alter');
-        $tableToAlter->dropColumn('foreign_key_test');
-        $tableToAlter->addColumn('number', Types::INTEGER);
+        $tableToCreate = Table::editor()
+            ->setConfiguration($schemaConfig->toTableConfiguration())
+            ->setUnquotedName('table_to_create')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setNotNull(true)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions($schemaConfig->getDefaultTableOptions())
+            ->create();
 
-        $schema->dropTable('table_to_drop');
-
-        $tableToCreate = $schema->createTable('table_to_create');
-        $tableToCreate->addColumn('id', Types::INTEGER, ['notnull' => true]);
-        $tableToCreate->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create(),
-        );
+        $schema = $schema->edit()
+            ->modifyTableByUnquotedName(
+                'table_to_alter',
+                static function (TableEditor $editor): void {
+                    $editor
+                        ->dropColumnByUnquotedName('foreign_key_test')
+                        ->addColumn(
+                            Column::editor()
+                                ->setUnquotedName('number')
+                                ->setTypeName(Types::INTEGER)
+                                ->create(),
+                        );
+                },
+            )
+            ->dropTableByUnquotedName('table_to_drop')
+            ->addTable($tableToCreate)
+            ->create();
 
         $this->schemaManager->migrateSchema($schema);
 
@@ -1731,7 +1755,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->dropTableIfExists($user->getObjectName()->toSQL($platform));
         $this->dropTableIfExists($group->getObjectName()->toSQL($platform));
 
-        $schema = new Schema([$user, $group]);
+        $schema = Schema::editor()
+            ->setTables($user, $group)
+            ->create();
 
         $schemaManager = $this->connection->createSchemaManager();
         $schemaManager->createSchemaObjects($schema);
@@ -1935,7 +1961,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             )
             ->create();
 
-        $schema = new Schema([$parent, $child]);
+        $schema = Schema::editor()
+            ->setTables($parent, $child)
+            ->create();
 
         $schemaManager = $this->connection->createSchemaManager();
         $schemaManager->createSchemaObjects($schema);

@@ -442,6 +442,19 @@ all drivers and middleware.
 
 # Upgrade to 4.5
 
+## Deprecated `Schema` features
+
+The `Schema` constructor has been marked as internal. Use `Schema::editor()` to instantiate an editor and
+`SchemaEditor::create()` to create a schema.
+
+The following `Schema` methods have been deprecated:
+
+- `Schema::createTable()` - use `Schema::edit()` and `SchemaEditor::addTable()` instead.
+- `Schema::renameTable()` - use `Schema::edit()` and `SchemaEditor::renameTable()` instead.
+- `Schema::dropTable()` - use `Schema::edit()` and `SchemaEditor::dropTable()` instead.
+- `Schema::createSequence()` - use `Schema::edit()` and `SchemaEditor::addSequence()` instead.
+- `Schema::dropSequence()` - use `Schema::edit()` and `SchemaEditor::dropSequence()` instead.
+
 ## Deprecated `TableDiff::getRenamedIndexes()`
 
 The `TableDiff::getRenamedIndexes()` method has been deprecated. Use `TableDiff::getIndexRenames()` instead, which

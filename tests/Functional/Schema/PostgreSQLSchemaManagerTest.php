@@ -340,7 +340,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             )
             ->create();
 
-        $schema = new Schema([$table]);
+        $schema = Schema::editor()
+            ->addTable($table)
+            ->create();
 
         $schemaManager = $this->connection->createSchemaManager();
         $schemaManager->createSchemaObjects($schema);

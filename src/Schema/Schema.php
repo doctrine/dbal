@@ -17,6 +17,7 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_column;
 use function array_values;
@@ -89,6 +90,9 @@ final class Schema
     private bool $usesUnqualifiedNames = false;
 
     /**
+     * @internal since doctrine/dbal 4.5. Use {@link Schema::editor()} to instantiate an editor
+     *           and {@link SchemaEditor::create()} to create a schema.
+     *
      * @param array<Table>    $tables
      * @param array<Sequence> $sequences
      */
@@ -315,9 +319,18 @@ final class Schema
 
     /**
      * Creates a new table.
+     *
+     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::addTable()} instead.
      */
     public function createTable(string $name): Table
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7373',
+            '%s is deprecated. Use Schema::edit() and SchemaEditor::addTable() instead.',
+            __METHOD__,
+        );
+
         $table = new Table($name, [], [], [], [], [], $this->schemaConfig->toTableConfiguration());
         $this->addTable($table);
 
@@ -331,10 +344,19 @@ final class Schema
     /**
      * Renames a table.
      *
+     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::renameTable()} instead.
+     *
      * @return $this
      */
     public function renameTable(string $oldName, string $newName): self
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7373',
+            '%s is deprecated. Use Schema::edit() and SchemaEditor::renameTable() instead.',
+            __METHOD__,
+        );
+
         $parsedName = $this->parseOptionallyQualifiedName($newName);
 
         $table = $this->getTable($oldName)
@@ -351,10 +373,19 @@ final class Schema
     /**
      * Drops a table from the schema.
      *
+     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::dropTable()} instead.
+     *
      * @return $this
      */
     public function dropTable(string $name): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7373',
+            '%s is deprecated. Use Schema::edit() and SchemaEditor::dropTable() instead.',
+            __METHOD__,
+        );
+
         $key = $this->getKeyFromName($name);
         if (! isset($this->tables[$key])) {
             throw TableDoesNotExist::new($name);
@@ -371,9 +402,18 @@ final class Schema
 
     /**
      * Creates a new sequence.
+     *
+     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::addSequence()} instead.
      */
     public function createSequence(string $name, int $allocationSize = 1, int $initialValue = 1): Sequence
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7373',
+            '%s is deprecated. Use Schema::edit() and SchemaEditor::addSequence() instead.',
+            __METHOD__,
+        );
+
         $parser = Parsers::getOptionallyQualifiedNameParser();
 
         try {
@@ -393,9 +433,20 @@ final class Schema
         return $seq;
     }
 
-    /** @return $this */
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::dropSequence()} instead.
+     *
+     * @return $this
+     */
     public function dropSequence(string $name): self
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7373',
+            '%s is deprecated. Use Schema::edit() and SchemaEditor::dropSequence() instead.',
+            __METHOD__,
+        );
+
         $key = $this->getKeyFromName($name);
         unset($this->sequences[$key]);
 
@@ -447,6 +498,25 @@ final class Schema
         $builder = new DropSchemaObjectsSQLBuilder($platform);
 
         return $builder->buildSQL($this);
+    }
+
+    /**
+     * Instantiates a new schema editor.
+     */
+    public static function editor(): SchemaEditor
+    {
+        return new SchemaEditor();
+    }
+
+    /**
+     * Instantiates a new schema editor seeded with this schema's tables, sequences, and configuration.
+     */
+    public function edit(): SchemaEditor
+    {
+        return self::editor()
+            ->setSchemaConfig($this->schemaConfig)
+            ->setTables(...$this->getTables())
+            ->setSequences(...$this->getSequences());
     }
 
     /**

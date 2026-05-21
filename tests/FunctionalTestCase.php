@@ -165,7 +165,12 @@ abstract class FunctionalTestCase extends TestCase
         }
 
         if (count($sequencesToDrop) > 0 || count($tablesToDrop) > 0) {
-            $schemaManager->dropSchemaObjects(new Schema($tablesToDrop, $sequencesToDrop));
+            $schemaManager->dropSchemaObjects(
+                Schema::editor()
+                    ->setTables(...$tablesToDrop)
+                    ->setSequences(...$sequencesToDrop)
+                    ->create(),
+            );
         }
 
         try {
