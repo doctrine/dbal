@@ -851,15 +851,15 @@ abstract class AbstractSchemaManager
      */
     public function introspectSchema(): Schema
     {
-        $sequences = [];
+        $editor = Schema::editor()
+            ->setDefaultNamespace($this->getCurrentSchemaName())
+            ->setTables(...$this->introspectTables());
 
         if ($this->platform->supportsSequences()) {
-            $sequences = $this->introspectSequences();
+            $editor->setSequences(...$this->introspectSequences());
         }
 
-        $tables = $this->introspectTables();
-
-        return new Schema($tables, $sequences, $this->createSchemaConfig());
+        return $editor->create();
     }
 
     /**

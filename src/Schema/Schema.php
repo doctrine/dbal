@@ -5,24 +5,15 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\SequenceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceDoesNotExist;
-use Doctrine\DBAL\Schema\Exception\TableAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
-use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
-use Doctrine\Deprecations\Deprecation;
-
-use function array_column;
-use function array_values;
-use function count;
-use function strtolower;
 
 /**
  * Object representation of a database schema.
@@ -54,119 +45,18 @@ use function strtolower;
  * execute them. Only the queries for the currently connected database are
  * executed.
  */
-final class Schema
+final readonly class Schema
 {
     /**
-     * The namespaces in this schema.
+     * @internal Use {@link Schema::editor()} to instantiate an editor and {@link SchemaEditor::create()}
+     *           to create a schema.
      *
-     * The array key is the lower-cased namespace name. The value is a tuple of the original namespace name and the
-     * number that indicates how many objects in the schema are located in this namespace.
-     *
-     * @var array<string, array{non-empty-string, int}>
-     */
-    private array $namespaces = [];
-
-    /** @var array<string, Table> */
-    private array $tables = [];
-
-    /** @var array<string, Sequence> */
-    private array $sequences = [];
-
-    private readonly SchemaConfig $schemaConfig;
-
-    /**
-     * The default namespace name that the schema will use as a qualifier to resolve unqualified names.
-     *
-     * The name is assumed to be always set in its original case and thus will be represented as a quoted identifier.
-     *
-     * @var ?non-empty-string
-     */
-    private readonly ?string $defaultNamespaceName;
-
-    /**
-     * Indicates whether the schema uses unqualified names for its objects. Once this flag is set to true, it won't be
-     * unset even after the objects with unqualified names have been dropped from the schema.
-     */
-    private bool $usesUnqualifiedNames = false;
-
-    /**
-     * @internal since doctrine/dbal 4.5. Use {@link Schema::editor()} to instantiate an editor
-     *           and {@link SchemaEditor::create()} to create a schema.
-     *
-     * @param array<Table>    $tables
-     * @param array<Sequence> $sequences
+     * @param ?non-empty-string $defaultNamespaceName
      */
     public function __construct(
-        array $tables = [],
-        array $sequences = [],
-        ?SchemaConfig $schemaConfig = null,
+        private ReadableSchemaObjects $objects,
+        private ?string $defaultNamespaceName = null,
     ) {
-        $schemaConfig ??= new SchemaConfig();
-
-        $this->schemaConfig = $schemaConfig;
-
-        $this->defaultNamespaceName = $schemaConfig->getName();
-
-        foreach ($tables as $table) {
-            $this->addTable($table);
-        }
-
-        foreach ($sequences as $sequence) {
-            $this->addSequence($sequence);
-        }
-    }
-
-    private function addTable(Table $table): void
-    {
-        $resolvedName = $this->resolveName($table->getObjectName());
-
-        $key = $this->getKeyFromResolvedName($resolvedName);
-
-        if (isset($this->tables[$key])) {
-            throw TableAlreadyExists::new($resolvedName->toString());
-        }
-
-        $this->registerQualifier($resolvedName->getQualifier());
-
-        $this->tables[$key] = $table;
-    }
-
-    private function addSequence(Sequence $sequence): void
-    {
-        $resolvedName = $this->resolveName($sequence->getObjectName());
-
-        $key = $this->getKeyFromResolvedName($resolvedName);
-
-        if (isset($this->sequences[$key])) {
-            throw SequenceAlreadyExists::new($resolvedName->toString());
-        }
-
-        $this->registerQualifier($resolvedName->getQualifier());
-
-        $this->sequences[$key] = $sequence;
-    }
-
-    private function registerQualifier(?Identifier $qualifier): void
-    {
-        if ($qualifier === null) {
-            $this->usesUnqualifiedNames = true;
-
-            return;
-        }
-
-        $namespaceName = $qualifier->getValue();
-
-        if ($namespaceName === $this->defaultNamespaceName) {
-            return;
-        }
-
-        $key = $this->getNamespaceKey($namespaceName);
-
-        if (! isset($this->namespaces[$key])) {
-            $this->namespaces[$key] = [$namespaceName, 1];
-        } else {
-            $this->namespaces[$key][1]++;
-        }
     }
 
     /**
@@ -176,7 +66,7 @@ final class Schema
      */
     public function getNamespaces(): array
     {
-        return array_column(array_values($this->namespaces), 0);
+        return $this->objects->getNamespaces();
     }
 
     /**
@@ -186,76 +76,18 @@ final class Schema
      */
     public function getTables(): array
     {
-        return array_values($this->tables);
+        return $this->objects->getTables();
     }
 
     public function getTable(string $name): Table
     {
-        $key = $this->getKeyFromName($name);
-        if (! isset($this->tables[$key])) {
+        $table = $this->objects->getTable($this->parseOptionallyQualifiedName($name));
+
+        if ($table === null) {
             throw TableDoesNotExist::new($name);
         }
 
-        return $this->tables[$key];
-    }
-
-    /**
-     * Returns the key that will be used to store the given object in a collection of such objects based on its name.
-     *
-     * If the schema uses unqualified names, the object name must be unqualified. If the schema uses qualified names,
-     * the object name must be qualified.
-     *
-     * The resulting key is the lower-cased full object name. Lower-casing is
-     * actually wrong, but we have to do it to keep our sanity. If you are
-     * using database objects that only differentiate in the casing (FOO vs
-     * Foo) then you will NOT be able to use Doctrine Schema abstraction.
-     */
-    private function getKeyFromResolvedName(OptionallyQualifiedName $name): string
-    {
-        $key       = $name->getUnqualifiedName()->getValue();
-        $qualifier = $name->getQualifier();
-
-        if ($qualifier !== null) {
-            if ($this->usesUnqualifiedNames) {
-                throw ImproperlyQualifiedName::fromQualifiedName($name);
-            }
-
-            $key = $qualifier->getValue() . '.' . $key;
-        } elseif (count($this->namespaces) > 0) {
-            throw ImproperlyQualifiedName::fromUnqualifiedName($name);
-        }
-
-        return strtolower($key);
-    }
-
-    /**
-     * Returns the key that will be used to store the given object with the given name in a collection of such objects.
-     *
-     * If the schema configuration has the default namespace, an unqualified name will be resolved to qualified against
-     * that namespace.
-     */
-    private function getKeyFromName(string $input): string
-    {
-        $name = $this->parseOptionallyQualifiedName($input);
-
-        return $this->getKeyFromResolvedName(
-            $this->resolveName($name),
-        );
-    }
-
-    /**
-     * Resolves the qualified or unqualified name against the current schema name and returns a qualified name.
-     */
-    private function resolveName(OptionallyQualifiedName $name): OptionallyQualifiedName
-    {
-        if ($name->getQualifier() === null && $this->defaultNamespaceName !== null) {
-            return new OptionallyQualifiedName(
-                $name->getUnqualifiedName(),
-                Identifier::quoted($this->defaultNamespaceName),
-            );
-        }
-
-        return $name;
+        return $table;
     }
 
     /**
@@ -263,9 +95,7 @@ final class Schema
      */
     public function hasNamespace(string $name): bool
     {
-        $key = $this->getNamespaceKey($name);
-
-        return isset($this->namespaces[$key]);
+        return $this->objects->hasNamespace($this->parseUnqualifiedName($name));
     }
 
     /**
@@ -273,207 +103,29 @@ final class Schema
      */
     public function hasTable(string $name): bool
     {
-        $key = $this->getKeyFromName($name);
-
-        return isset($this->tables[$key]);
+        return $this->objects->hasTable($this->parseOptionallyQualifiedName($name));
     }
 
     public function hasSequence(string $name): bool
     {
-        $key = $this->getKeyFromName($name);
-
-        return isset($this->sequences[$key]);
+        return $this->objects->hasSequence($this->parseOptionallyQualifiedName($name));
     }
 
     public function getSequence(string $name): Sequence
     {
-        $key = $this->getKeyFromName($name);
-        if (! isset($this->sequences[$key])) {
+        $sequence = $this->objects->getSequence($this->parseOptionallyQualifiedName($name));
+
+        if ($sequence === null) {
             throw SequenceDoesNotExist::new($name);
         }
 
-        return $this->sequences[$key];
+        return $sequence;
     }
 
     /** @return list<Sequence> */
     public function getSequences(): array
     {
-        return array_values($this->sequences);
-    }
-
-    /**
-     * Returns the key that will be used to store the given namespace name in the collection of namespaces.
-     */
-    private function getNamespaceKey(string $name): string
-    {
-        $parser = Parsers::getUnqualifiedNameParser();
-
-        try {
-            $parsedName = $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($name, $e);
-        }
-
-        return strtolower($parsedName->getIdentifier()->getValue());
-    }
-
-    /**
-     * Creates a new table.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::addTable()} instead.
-     */
-    public function createTable(string $name): Table
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7373',
-            '%s is deprecated. Use Schema::edit() and SchemaEditor::addTable() instead.',
-            __METHOD__,
-        );
-
-        $table = new Table($name, [], [], [], [], [], $this->schemaConfig->toTableConfiguration());
-        $this->addTable($table);
-
-        foreach ($this->schemaConfig->getDefaultTableOptions() as $option => $value) {
-            $table->addOption($option, $value);
-        }
-
-        return $table;
-    }
-
-    /**
-     * Renames a table.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::renameTable()} instead.
-     *
-     * @return $this
-     */
-    public function renameTable(string $oldName, string $newName): self
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7373',
-            '%s is deprecated. Use Schema::edit() and SchemaEditor::renameTable() instead.',
-            __METHOD__,
-        );
-
-        $parsedName = $this->parseOptionallyQualifiedName($newName);
-
-        $table = $this->getTable($oldName)
-            ->edit()
-            ->setName($parsedName)
-            ->create();
-
-        $this->dropTable($oldName);
-        $this->addTable($table);
-
-        return $this;
-    }
-
-    /**
-     * Drops a table from the schema.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::dropTable()} instead.
-     *
-     * @return $this
-     */
-    public function dropTable(string $name): self
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7373',
-            '%s is deprecated. Use Schema::edit() and SchemaEditor::dropTable() instead.',
-            __METHOD__,
-        );
-
-        $key = $this->getKeyFromName($name);
-        if (! isset($this->tables[$key])) {
-            throw TableDoesNotExist::new($name);
-        }
-
-        $parsedName = $this->parseOptionallyQualifiedName($name);
-
-        $this->unregisterQualifier($parsedName->getQualifier());
-
-        unset($this->tables[$key]);
-
-        return $this;
-    }
-
-    /**
-     * Creates a new sequence.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::addSequence()} instead.
-     */
-    public function createSequence(string $name, int $allocationSize = 1, int $initialValue = 1): Sequence
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7373',
-            '%s is deprecated. Use Schema::edit() and SchemaEditor::addSequence() instead.',
-            __METHOD__,
-        );
-
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
-        try {
-            $parsedName = $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($name, $e);
-        }
-
-        $seq = Sequence::editor()
-            ->setName($parsedName)
-            ->setAllocationSize($allocationSize)
-            ->setInitialValue($initialValue)
-            ->create();
-
-        $this->addSequence($seq);
-
-        return $seq;
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see SchemaEditor::dropSequence()} instead.
-     *
-     * @return $this
-     */
-    public function dropSequence(string $name): self
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7373',
-            '%s is deprecated. Use Schema::edit() and SchemaEditor::dropSequence() instead.',
-            __METHOD__,
-        );
-
-        $key = $this->getKeyFromName($name);
-        unset($this->sequences[$key]);
-
-        $parsedName = $this->parseOptionallyQualifiedName($name);
-
-        $this->unregisterQualifier($parsedName->getQualifier());
-
-        return $this;
-    }
-
-    private function unregisterQualifier(?Identifier $qualifier): void
-    {
-        if ($qualifier === null) {
-            return;
-        }
-
-        $namespaceName = $qualifier->getValue();
-
-        $key = $this->getNamespaceKey($namespaceName);
-
-        $this->namespaces[$key][1]--;
-
-        if ($this->namespaces[$key][1] !== 0) {
-            return;
-        }
-
-        unset($this->namespaces[$key]);
+        return $this->objects->getSequences();
     }
 
     /**
@@ -509,12 +161,12 @@ final class Schema
     }
 
     /**
-     * Instantiates a new schema editor seeded with this schema's tables, sequences, and configuration.
+     * Instantiates a new schema editor seeded with this schema's tables, sequences, and default namespace.
      */
     public function edit(): SchemaEditor
     {
         return self::editor()
-            ->setDefaultNamespace($this->schemaConfig->getName())
+            ->setDefaultNamespace($this->defaultNamespaceName)
             ->setTables(...$this->getTables())
             ->setSequences(...$this->getSequences());
     }
@@ -524,12 +176,18 @@ final class Schema
      */
     public function __clone()
     {
-        foreach ($this->tables as $k => $table) {
-            $this->tables[$k] = clone $table;
-        }
+        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
+        $this->objects = clone $this->objects;
+    }
 
-        foreach ($this->sequences as $k => $sequence) {
-            $this->sequences[$k] = clone $sequence;
+    private function parseUnqualifiedName(string $input): UnqualifiedName
+    {
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            return $parser->parse($input);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($input, $e);
         }
     }
 

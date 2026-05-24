@@ -67,12 +67,6 @@ parameters:
 			path: src/Schema/ColumnDiff.php
 
 		-
-			rawMessage: 'Property Doctrine\DBAL\Schema\Schema::$namespaces (array<string, array{non-empty-string, int}>) does not accept array<string, array{0?: non-empty-string, 1: int}>.'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Schema/Schema.php
-
-		-
 			rawMessage: 'Call to new Doctrine\DBAL\Driver\PgSQL\Result() on a separate line has no effect.'
 			identifier: new.resultUnused
 			count: 1
