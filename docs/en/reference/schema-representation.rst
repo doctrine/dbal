@@ -29,6 +29,7 @@ shows:
     use Doctrine\DBAL\Schema\Index\IndexType;
     use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
     use Doctrine\DBAL\Schema\Schema;
+    use Doctrine\DBAL\Schema\Sequence;
     use Doctrine\DBAL\Schema\Table;
 
     $user = Table::editor()
@@ -87,8 +88,14 @@ shows:
         )
         ->create();
 
-    $schema = new Schema([$user, $post]);
-    $schema->createSequence('my_table_seq');
+    $schema = Schema::editor()
+        ->setTables($user, $post)
+        ->addSequence(
+            Sequence::editor()
+                ->setUnquotedName('my_table_seq')
+                ->create()
+        )
+        ->create();
 
     $createSQL = $schema->toSql($myPlatform);     // get queries to create this schema
     $dropSQL   = $schema->toDropSql($myPlatform); // get queries to drop this schema

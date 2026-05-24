@@ -140,12 +140,10 @@ abstract class AbstractComparatorTestCase extends TestCase
             ->create();
 
         $schema1 = Schema::editor()
-            ->setSchemaConfig($schemaConfig)
             ->addTable($table)
             ->create();
 
         $schema2 = Schema::editor()
-            ->setSchemaConfig($schemaConfig)
             ->create();
 
         self::assertEquals(
@@ -170,11 +168,9 @@ abstract class AbstractComparatorTestCase extends TestCase
             ->create();
 
         $schema1 = Schema::editor()
-            ->setSchemaConfig($schemaConfig)
             ->create();
 
         $schema2 = Schema::editor()
-            ->setSchemaConfig($schemaConfig)
             ->addTable($table)
             ->create();
 
@@ -1005,16 +1001,13 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     public function testFqnSchemaComparison(): void
     {
-        $config = new SchemaConfig();
-        $config->setName('foo');
-
         $oldSchema = Schema::editor()
-            ->setSchemaConfig($config)
+            ->setDefaultNamespace('foo')
             ->addTable($this->createTable('bar'))
             ->create();
 
         $newSchema = Schema::editor()
-            ->setSchemaConfig($config)
+            ->setDefaultNamespace('foo')
             ->addTable($this->createTable('foo.bar'))
             ->create();
 
@@ -1026,11 +1019,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     public function testNamespacesComparison(): void
     {
-        $config = new SchemaConfig();
-        $config->setName('schemaName');
-
         $oldSchema = Schema::editor()
-            ->setSchemaConfig($config)
+            ->setDefaultNamespace('schemaName')
             ->setTables(
                 $this->createTable('taz'),
                 $this->createTable('war.tab'),
@@ -1038,7 +1028,7 @@ abstract class AbstractComparatorTestCase extends TestCase
             ->create();
 
         $newSchema = Schema::editor()
-            ->setSchemaConfig($config)
+            ->setDefaultNamespace('schemaName')
             ->setTables(
                 $this->createTable('bar.tab'),
                 $this->createTable('baz.tab'),
@@ -1054,11 +1044,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     public function testFqnSchemaComparisonNoSchemaSame(): void
     {
-        $config = new SchemaConfig();
-        $config->setName('foo');
-
         $oldSchema = Schema::editor()
-            ->setSchemaConfig($config)
+            ->setDefaultNamespace('foo')
             ->addTable($this->createTable('bar'))
             ->create();
 

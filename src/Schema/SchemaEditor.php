@@ -10,11 +10,13 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
+use function strcasecmp;
 use function strtolower;
 
 final class SchemaEditor
 {
-    private SchemaConfig $schemaConfig;
+    /** @var ?non-empty-string */
+    private ?string $defaultNamespaceName = null;
 
     /** @var array<string, Table> */
     private array $tables = [];
@@ -25,16 +27,16 @@ final class SchemaEditor
     /** @internal Use {@link Schema::editor()} or {@link Schema::edit()} to create an instance */
     public function __construct()
     {
-        $this->schemaConfig = new SchemaConfig();
     }
 
-    public function setSchemaConfig(SchemaConfig $schemaConfig): self
+    /** @param ?non-empty-string $name */
+    public function setDefaultNamespace(?string $name): self
     {
         if ($this->tables !== [] || $this->sequences !== []) {
-            throw InvalidSchemaModification::schemaConfigMustBeSetBeforeAddingObjects();
+            throw InvalidSchemaModification::defaultNamespaceCanOnlyBeSetOnEmptyEditor();
         }
 
-        $this->schemaConfig = $schemaConfig;
+        $this->defaultNamespaceName = $name;
 
         return $this;
     }
@@ -77,8 +79,15 @@ final class SchemaEditor
         $modification($editor);
         $newTable = $editor->create();
 
-        $newName = $newTable->getObjectName();
-        $newKey  = $this->getKey($newName);
+        $newName     = $newTable->getObjectName();
+        $oldResolved = $this->resolveName($tableName);
+        $newResolved = $this->resolveName($newName);
+
+        if (! $this->qualifiersEqual($oldResolved->getQualifier(), $newResolved->getQualifier())) {
+            throw InvalidSchemaModification::cannotChangeTableQualifier($oldResolved, $newResolved);
+        }
+
+        $newKey = $this->getKey($newName);
 
         if ($newKey === $key) {
             $this->tables[$key] = $newTable;
@@ -94,6 +103,15 @@ final class SchemaEditor
         $this->tables[$newKey] = $newTable;
 
         return $this;
+    }
+
+    private function qualifiersEqual(?Identifier $a, ?Identifier $b): bool
+    {
+        if ($a === null || $b === null) {
+            return $a === $b;
+        }
+
+        return strcasecmp($a->getValue(), $b->getValue()) === 0;
     }
 
     /**
@@ -210,7 +228,12 @@ final class SchemaEditor
     {
         $this->ensureUniformQualification();
 
-        return new Schema($this->tables, $this->sequences, $this->schemaConfig);
+        $schemaConfig = new SchemaConfig();
+        if ($this->defaultNamespaceName !== null) {
+            $schemaConfig->setName($this->defaultNamespaceName);
+        }
+
+        return new Schema($this->tables, $this->sequences, $schemaConfig);
     }
 
     private function getKey(OptionallyQualifiedName $name): string
@@ -241,15 +264,13 @@ final class SchemaEditor
             return $name;
         }
 
-        $defaultNamespace = $this->schemaConfig->getName();
-
-        if ($defaultNamespace === null) {
+        if ($this->defaultNamespaceName === null) {
             return $name;
         }
 
         return new OptionallyQualifiedName(
             $name->getUnqualifiedName(),
-            Identifier::quoted($defaultNamespace),
+            Identifier::quoted($this->defaultNamespaceName),
         );
     }
 

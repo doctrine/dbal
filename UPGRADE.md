@@ -455,6 +455,10 @@ The following `Schema` methods have been deprecated:
 - `Schema::createSequence()` - use `Schema::edit()` and `SchemaEditor::addSequence()` instead.
 - `Schema::dropSequence()` - use `Schema::edit()` and `SchemaEditor::dropSequence()` instead.
 
+`Schema::createTable()` applies the default table options from `SchemaConfig` to the table it constructs. Callers
+migrating to `SchemaEditor::addTable()` must apply those options themselves, e.g. via
+`Table::editor()->setOptions($schemaConfig->getDefaultTableOptions())`.
+
 ## Deprecated `TableDiff::getRenamedIndexes()`
 
 The `TableDiff::getRenamedIndexes()` method has been deprecated. Use `TableDiff::getIndexRenames()` instead, which

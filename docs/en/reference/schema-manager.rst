@@ -217,14 +217,15 @@ with a schema comparator.
     <?php
     $fromSchema = $schemaManager->introspectSchema();
 
-Now we can clone the ``$fromSchema`` to ``$toSchema`` and drop a
+Now we can derive ``$toSchema`` from ``$fromSchema`` and drop a
 table:
 
 .. code-block:: php
 
     <?php
-    $toSchema = clone $fromSchema;
-    $toSchema->dropTable('user');
+    $toSchema = $fromSchema->edit()
+        ->dropTableByUnquotedName('user')
+        ->create();
 
 Now we can compare the two schema instances in order to calculate
 the differences between them and return the SQL required to make

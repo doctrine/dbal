@@ -514,7 +514,7 @@ final class Schema
     public function edit(): SchemaEditor
     {
         return self::editor()
-            ->setSchemaConfig($this->schemaConfig)
+            ->setDefaultNamespace($this->schemaConfig->getName())
             ->setTables(...$this->getTables())
             ->setSequences(...$this->getSequences());
     }

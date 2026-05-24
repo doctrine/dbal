@@ -13,10 +13,10 @@ use function sprintf;
 /** @internal */
 final class InvalidSchemaModification extends LogicException implements SchemaException
 {
-    public static function schemaConfigMustBeSetBeforeAddingObjects(): self
+    public static function defaultNamespaceCanOnlyBeSetOnEmptyEditor(): self
     {
         return new self(
-            'The schema config must be set before any tables or sequences are added to the editor.',
+            'The default namespace can only be set on an empty editor.',
         );
     }
 
@@ -38,5 +38,17 @@ final class InvalidSchemaModification extends LogicException implements SchemaEx
     public static function sequenceDoesNotExist(OptionallyQualifiedName $name): self
     {
         return new self(sprintf('Sequence %s does not exist in the schema.', $name->toString()));
+    }
+
+    public static function cannotChangeTableQualifier(
+        OptionallyQualifiedName $oldName,
+        OptionallyQualifiedName $newName,
+    ): self {
+        return new self(sprintf(
+            'A table\'s namespace cannot be changed through modifyTable (attempted to move %s to %s). '
+            . 'Drop and re-add the table to move it across namespaces.',
+            $oldName->toString(),
+            $newName->toString(),
+        ));
     }
 }
