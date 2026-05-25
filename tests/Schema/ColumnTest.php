@@ -128,11 +128,13 @@ class ColumnTest extends TestCase
     {
         $column = Column::editor()
             ->setUnquotedName('bar')
-            ->setType(Type::getType(Types::STRING))
+            ->setTypeName(Types::STRING)
             ->create();
         self::assertSame('', $column->getComment());
 
-        $column->setComment('foo');
+        $column = $column->edit()
+            ->setComment('foo')
+            ->create();
         self::assertEquals('foo', $column->getComment());
 
         $columnArray = $column->toArray();
@@ -164,7 +166,7 @@ class ColumnTest extends TestCase
     {
         $column = Column::editor()
             ->setUnquotedName('id')
-            ->setType(Type::getType(Types::INTEGER))
+            ->setTypeName(Types::INTEGER)
             ->create();
 
         self::assertEquals(Identifier::unquoted('id'), $column->getObjectName()->getIdentifier());

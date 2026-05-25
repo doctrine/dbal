@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function method_exists;
@@ -91,9 +92,20 @@ class Column extends AbstractNamedObject
         $this->setOptions($options);
     }
 
-    /** @param array<string, mixed> $options */
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} instead.
+     *
+     * @param array<string, mixed> $options
+     */
     public function setOptions(array $options): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() instead.',
+            __METHOD__,
+        );
+
         foreach ($options as $name => $value) {
             $method = 'set' . $name;
 
@@ -107,81 +119,194 @@ class Column extends AbstractNamedObject
         return $this;
     }
 
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setType()} or
+     *             {@see ColumnEditor::setTypeName()} instead.
+     */
     public function setType(Type $type): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setType() or ColumnEditor::setTypeName()'
+                . ' instead.',
+            __METHOD__,
+        );
+
         $this->_type = $type;
 
         return $this;
     }
 
+    /** @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setLength()} instead. */
     public function setLength(?int $length): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setLength() instead.',
+            __METHOD__,
+        );
+
         $this->_length = $length;
 
         return $this;
     }
 
+    /** @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setPrecision()} instead. */
     public function setPrecision(?int $precision): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setPrecision() instead.',
+            __METHOD__,
+        );
+
         $this->_precision = $precision;
 
         return $this;
     }
 
+    /** @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setScale()} instead. */
     public function setScale(int $scale): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setScale() instead.',
+            __METHOD__,
+        );
+
         $this->_scale = $scale;
 
         return $this;
     }
 
+    /** @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setUnsigned()} instead. */
     public function setUnsigned(bool $unsigned): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setUnsigned() instead.',
+            __METHOD__,
+        );
+
         $this->_unsigned = $unsigned;
 
         return $this;
     }
 
+    /** @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setFixed()} instead. */
     public function setFixed(bool $fixed): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setFixed() instead.',
+            __METHOD__,
+        );
+
         $this->_fixed = $fixed;
 
         return $this;
     }
 
+    /** @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setNotNull()} instead. */
     public function setNotnull(bool $notnull): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setNotNull() instead.',
+            __METHOD__,
+        );
+
         $this->_notnull = $notnull;
 
         return $this;
     }
 
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setDefaultValue()}
+     *             instead.
+     */
     public function setDefault(mixed $default): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setDefaultValue() instead.',
+            __METHOD__,
+        );
+
         $this->_default = $default;
 
         return $this;
     }
 
-    /** @param PlatformOptions $platformOptions */
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and the option-specific {@see ColumnEditor}
+     *             methods ({@see ColumnEditor::setCharset()}, {@see ColumnEditor::setCollation()},
+     *             {@see ColumnEditor::setMinimumValue()}, {@see ColumnEditor::setMaximumValue()},
+     *             {@see ColumnEditor::setEnumType()}) instead.
+     *
+     * @param PlatformOptions $platformOptions
+     */
     public function setPlatformOptions(array $platformOptions): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and the option-specific ColumnEditor methods'
+                . ' (setCharset(), setCollation(), setMinimumValue(), setMaximumValue(), setEnumType()) instead.',
+            __METHOD__,
+        );
+
         $this->_platformOptions = $platformOptions;
 
         return $this;
     }
 
-    /** @param key-of<PlatformOptions> $name */
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and the option-specific {@see ColumnEditor}
+     *             methods ({@see ColumnEditor::setCharset()}, {@see ColumnEditor::setCollation()},
+     *             {@see ColumnEditor::setMinimumValue()}, {@see ColumnEditor::setMaximumValue()},
+     *             {@see ColumnEditor::setEnumType()}) instead.
+     *
+     * @param key-of<PlatformOptions> $name
+     */
     public function setPlatformOption(string $name, mixed $value): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and the option-specific ColumnEditor methods'
+                . ' (setCharset(), setCollation(), setMinimumValue(), setMaximumValue(), setEnumType()) instead.',
+            __METHOD__,
+        );
+
         $this->_platformOptions[$name] = $value;
 
         return $this;
     }
 
-    /** @param  ?non-empty-string $value */
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setColumnDefinition()}
+     *             instead.
+     *
+     * @param ?non-empty-string $value
+     */
     public function setColumnDefinition(?string $value): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setColumnDefinition() instead.',
+            __METHOD__,
+        );
+
         $this->_columnDefinition = $value;
 
         return $this;
@@ -295,15 +420,34 @@ class Column extends AbstractNamedObject
         return $this->_autoincrement;
     }
 
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setAutoincrement()}
+     *             instead.
+     */
     public function setAutoincrement(bool $flag): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setAutoincrement() instead.',
+            __METHOD__,
+        );
+
         $this->_autoincrement = $flag;
 
         return $this;
     }
 
+    /** @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setComment()} instead. */
     public function setComment(string $comment): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setComment() instead.',
+            __METHOD__,
+        );
+
         $this->_comment = $comment;
 
         return $this;
@@ -315,12 +459,21 @@ class Column extends AbstractNamedObject
     }
 
     /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Column::editor()} and {@see ColumnEditor::setValues()} instead.
+     *
      * @param list<string> $values
      *
      * @return $this
      */
     public function setValues(array $values): static
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7381',
+            '%s is deprecated. Use Column::editor() and ColumnEditor::setValues() instead.',
+            __METHOD__,
+        );
+
         $this->_values = $values;
 
         return $this;

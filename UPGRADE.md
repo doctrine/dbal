@@ -472,6 +472,27 @@ The following `Schema` methods have been deprecated:
 migrating to `SchemaEditor::addTable()` must apply those options themselves, e.g. via
 `Table::editor()->setOptions($schemaConfig->getDefaultTableOptions())`.
 
+## Deprecated `Column` mutators
+
+The following `Column` methods have been deprecated. Use `Column::editor()` and the corresponding `ColumnEditor`
+method instead:
+
+- `Column::setOptions()` - use `Column::editor()` and configure the editor via the option-specific methods.
+- `Column::setType()` - use `ColumnEditor::setType()` or `ColumnEditor::setTypeName()`.
+- `Column::setLength()` - use `ColumnEditor::setLength()`.
+- `Column::setPrecision()` - use `ColumnEditor::setPrecision()`.
+- `Column::setScale()` - use `ColumnEditor::setScale()`.
+- `Column::setUnsigned()` - use `ColumnEditor::setUnsigned()`.
+- `Column::setFixed()` - use `ColumnEditor::setFixed()`.
+- `Column::setNotnull()` - use `ColumnEditor::setNotNull()`.
+- `Column::setDefault()` - use `ColumnEditor::setDefaultValue()`.
+- `Column::setPlatformOptions()` and `Column::setPlatformOption()` - use the option-specific `ColumnEditor` methods
+  (`setCharset()`, `setCollation()`, `setMinimumValue()`, `setMaximumValue()`, `setEnumType()`).
+- `Column::setColumnDefinition()` - use `ColumnEditor::setColumnDefinition()`.
+- `Column::setAutoincrement()` - use `ColumnEditor::setAutoincrement()`.
+- `Column::setComment()` - use `ColumnEditor::setComment()`.
+- `Column::setValues()` - use `ColumnEditor::setValues()`.
+
 ## Deprecated `TableDiff::getRenamedIndexes()`
 
 The `TableDiff::getRenamedIndexes()` method has been deprecated. Use `TableDiff::getIndexRenames()` instead, which
