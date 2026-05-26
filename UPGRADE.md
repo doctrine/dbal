@@ -118,6 +118,26 @@ The following `Column` methods have been removed:
 - `Column::getPlatformOptions()`
 - `Column::hasPlatformOption()`
 
+## BC BREAK: Removed mutating `Column` methods
+
+The following `Column` methods have been removed:
+
+- `Column::setType()`
+- `Column::setLength()`
+- `Column::setPrecision()`
+- `Column::setScale()`
+- `Column::setUnsigned()`
+- `Column::setFixed()`
+- `Column::setNotnull()`
+- `Column::setDefault()`
+- `Column::setPlatformOptions()`
+- `Column::setPlatformOption()`
+- `Column::setColumnDefinition()`
+- `Column::setAutoincrement()`
+- `Column::setComment()`
+- `Column::setValues()`
+- `Column::setOptions()`
+
 ## BC BREAK: Removed support for the `version` column platform option
 
 The `version` column platform option is no longer supported.
@@ -177,6 +197,7 @@ The following classes have been marked as read-only:
 The following classes have been marked as final:
 
 - `StaticServerVersionProvider`
+- `Column`
 - `ColumnDiff`
 - `Table`
 - `TableDiff`

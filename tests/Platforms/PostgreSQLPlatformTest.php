@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
@@ -15,7 +16,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Generator;
 use Override;
@@ -394,22 +394,32 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @param array{platformOptions?: PlatformOptions} $oldOptions
-     * @param array{platformOptions?: PlatformOptions} $newOptions
-     * @param ?non-empty-string                        $newType
-     * @param list<string>                             $expectedSql
+     * @param callable(ColumnEditor): void $initializeOldColumn
+     * @param callable(ColumnEditor): void $initializeNewColumn
+     * @param list<string>                 $expectedSql
      */
     #[DataProvider('provideAlterColumnCollation')]
     public function testAlterColumnCollation(
-        array $oldOptions,
-        array $newOptions,
-        ?string $newType,
+        callable $initializeOldColumn,
+        callable $initializeNewColumn,
         array $expectedSql,
     ): void {
-        $table = new Table('mytable');
+        $oldColumnEditor = Column::editor()
+            ->setUnquotedName('foo')
+            ->setTypeName(Types::STRING);
+        $initializeOldColumn($oldColumnEditor);
+        $oldColumn = $oldColumnEditor->create();
 
-        $oldColumn = $table->addColumn('foo', Types::STRING, $oldOptions);
-        $newColumn = new Column('foo', Type::getType($newType ?? Types::STRING), $newOptions);
+        $newColumnEditor = Column::editor()
+            ->setUnquotedName('foo')
+            ->setTypeName(Types::STRING);
+        $initializeNewColumn($newColumnEditor);
+        $newColumn = $newColumnEditor->create();
+
+        $table = Table::editor()
+            ->setUnquotedName('mytable')
+            ->addColumn($oldColumn)
+            ->create();
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'foo' => new ColumnDiff(
@@ -425,71 +435,86 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     /**
      * @return iterable<string, array{
-     *     array{platformOptions?: PlatformOptions},
-     *     array{platformOptions?: PlatformOptions},
-     *     ?string,
+     *     callable(ColumnEditor): void,
+     *     callable(ColumnEditor): void,
      *     list<string>
      * }>
      */
     public static function provideAlterColumnCollation(): iterable
     {
-        $default  = ['platformOptions' => ['collation' => 'default']];
-        $unicode  = ['platformOptions' => ['collation' => 'unicode']];
-        $ucsBasic = ['platformOptions' => ['collation' => 'ucs_basic']];
-
         yield 'implicit default to implicit default' => [
-            [],
-            [],
-            null,
+            static function (ColumnEditor $editor): void {
+            },
+            static function (ColumnEditor $editor): void {
+            },
             [],
         ];
 
         yield 'implicit default to explicit default' => [
-            [],
-            $default,
-            null,
+            static function (ColumnEditor $editor): void {
+            },
+            static function (ColumnEditor $editor): void {
+                $editor->setCollation('default');
+            },
             [],
         ];
 
         yield 'implicit default to unicode' => [
-            [],
-            $unicode,
-            null,
+            static function (ColumnEditor $editor): void {
+            },
+            static function (ColumnEditor $editor): void {
+                $editor->setCollation('unicode');
+            },
             ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR COLLATE "unicode"'],
         ];
 
         yield 'unicode to implicit default' => [
-            $unicode,
-            [],
-            null,
+            static function (ColumnEditor $editor): void {
+                $editor->setCollation('unicode');
+            },
+            static function (ColumnEditor $editor): void {
+            },
             ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR COLLATE "default"'],
         ];
 
         yield 'unicode to explicit default' => [
-            $unicode,
-            $default,
-            null,
+            static function (ColumnEditor $editor): void {
+                $editor->setCollation('unicode');
+            },
+            static function (ColumnEditor $editor): void {
+                $editor->setCollation('default');
+            },
             ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR COLLATE "default"'],
         ];
 
         yield 'unicode to ucs_basic' => [
-            $unicode,
-            $ucsBasic,
-            null,
+            static function (ColumnEditor $editor): void {
+                $editor->setCollation('unicode');
+            },
+            static function (ColumnEditor $editor): void {
+                $editor->setCollation('ucs_basic');
+            },
             ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR COLLATE "ucs_basic"'],
         ];
 
         yield 'collated string to non-collatable type' => [
-            [],
-            [],
-            Types::INTEGER,
+            static function (ColumnEditor $editor): void {
+            },
+            static function (ColumnEditor $editor): void {
+                $editor->setTypeName(Types::INTEGER);
+            },
             ['ALTER TABLE "mytable" ALTER "foo" TYPE INT'],
         ];
 
         yield 'length change preserves non-default collation' => [
-            ['length' => 50, 'platformOptions' => ['collation' => 'C']],
-            ['length' => 100, 'platformOptions' => ['collation' => 'C']],
-            null,
+            static function (ColumnEditor $editor): void {
+                $editor->setLength(50)
+                    ->setCollation('C');
+            },
+            static function (ColumnEditor $editor): void {
+                $editor->setLength(100)
+                    ->setCollation('C');
+            },
             ['ALTER TABLE "mytable" ALTER "foo" TYPE VARCHAR(100) COLLATE "C"'],
         ];
     }

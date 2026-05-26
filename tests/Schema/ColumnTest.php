@@ -9,8 +9,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
+use Doctrine\DBAL\Schema\Exception\InvalidIdentifier;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
@@ -60,26 +59,6 @@ class ColumnTest extends TestCase
         ];
 
         self::assertEquals($expected, $this->createColumn()->toArray());
-    }
-
-    public function testSettingUnknownOptionIsStillSupported(): void
-    {
-        $this->expectException(UnknownColumnOption::class);
-        $this->expectExceptionMessage('The "unknown_option" column option is not supported.');
-
-        new Column('foo', self::createStub(Type::class), ['unknown_option' => 'bar']);
-    }
-
-    public function testOptionsShouldNotBeIgnored(): void
-    {
-        $this->expectException(UnknownColumnOption::class);
-        $this->expectExceptionMessage('The "unknown_option" column option is not supported.');
-
-        $col1 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
-        self::assertTrue($col1->getNotnull());
-
-        $col2 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => false]);
-        self::assertFalse($col2->getNotnull());
     }
 
     public function createColumn(): Column
@@ -145,18 +124,10 @@ class ColumnTest extends TestCase
     /** @throws Exception */
     public function testEmptyName(): void
     {
-        $this->expectException(InvalidName::class);
-
-        new Column('', Type::getType(Types::INTEGER));
-    }
-
-    /** @throws Exception */
-    public function testQualifiedName(): void
-    {
-        $this->expectException(InvalidName::class);
+        $this->expectException(InvalidIdentifier::class);
 
         Column::editor()
-            ->setUnquotedName('t.id')
+            ->setUnquotedName('') /** @phpstan-ignore argument.type */
             ->setType(Type::getType(Types::INTEGER))
             ->create();
     }

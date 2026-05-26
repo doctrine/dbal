@@ -100,8 +100,7 @@ class TableTest extends TestCase
 
     public function testRenameColumn(): void
     {
-        $typeTxt = Type::getType(Types::TEXT);
-        $table   = Table::editor()
+        $table = Table::editor()
             ->setUnquotedName('foo')
             ->setColumns(
                 Column::editor()
@@ -114,8 +113,7 @@ class TableTest extends TestCase
         self::assertFalse($table->hasColumn('bar'));
         self::assertTrue($table->hasColumn('foo'));
 
-        $column = $table->renameColumn('foo', 'bar');
-        $column->setType($typeTxt);
+        $table->renameColumn('foo', 'bar');
         self::assertTrue($table->hasColumn('bar'), 'Should now have bar column');
         self::assertFalse($table->hasColumn('foo'), 'Should not have foo column anymore');
         self::assertCount(1, $table->getColumns());

@@ -116,9 +116,11 @@ class RenameColumnTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         // Force a different type to make sure it's not being caught implicitly
-        $table->renameColumn($oldColumnName, $newColumnName)
-            ->setType(Type::getType(Types::BIGINT))
-            ->setLength(32);
+        $table->renameColumn($oldColumnName, $newColumnName);
+        $table->modifyColumn($newColumnName, [
+            'type'   => Type::getType(Types::BIGINT),
+            'length' => 32,
+        ]);
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()

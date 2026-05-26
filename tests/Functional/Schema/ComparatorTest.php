@@ -97,16 +97,19 @@ class ComparatorTest extends FunctionalTestCase
             ->create();
 
         $onlineTable = clone $table;
-        $table->renameColumn('test', 'baz')
-            ->setLength(40)
-            ->setComment('Comment');
+        $table->renameColumn('test', 'baz');
+        $table->modifyColumn('baz', [
+            'length'  => 40,
+            'comment' => 'Comment',
+        ]);
 
         $table->renameColumn('test2', 'foo');
 
-        $table->getColumn('test3')
-            ->setAutoincrement(true)
-            ->setNotnull(false)
-            ->setType(Type::getType(Types::BIGINT));
+        $table->modifyColumn('test3', [
+            'autoincrement' => true,
+            'notnull'       => false,
+            'type'          => Type::getType(Types::BIGINT),
+        ]);
 
         $compareResult  = $comparator->compareTables($onlineTable, $table);
         $renamedColumns = RenameColumnTest::getRenamedColumns($compareResult);
