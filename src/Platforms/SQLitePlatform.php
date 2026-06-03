@@ -28,6 +28,7 @@ use Doctrine\DBAL\Types;
 use Override;
 
 use function array_merge;
+use function array_values;
 use function assert;
 use function count;
 use function implode;
@@ -649,25 +650,22 @@ class SQLitePlatform extends AbstractPlatform
 
         $tableNameSQL = $table->getObjectName()->toSQL($this);
 
-        $dataTable = new Table('__temp__' . $tableName);
+        $dataTableName = OptionallyQualifiedName::unquoted('__temp__' . $tableName);
 
-        $newTable = new Table(
-            $tableNameSQL,
-            $columns,
-            [],
-            [],
-            $this->getForeignKeysInAlteredTable($diff),
-            $table->getOptions(),
-            null,
-            $this->getPrimaryKeyConstraintInAlteredTable($diff, $table),
-        );
-
-        $newTable->addOption('alter', true);
+        $newTable = Table::editor()
+            ->setName($table->getObjectName())
+            ->setColumns(...array_values($columns))
+            ->setForeignKeyConstraints(...$this->getForeignKeysInAlteredTable($diff))
+            ->setPrimaryKeyConstraint($this->getPrimaryKeyConstraintInAlteredTable($diff, $table))
+            ->setOptions(
+                array_merge($table->getOptions(), ['alter' => true]),
+            )
+            ->create();
 
         $sql = [
             sprintf(
                 'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
-                $dataTable->getObjectName()->toSQL($this),
+                $dataTableName->toSQL($this),
                 implode(', ', $oldColumnNames),
                 $table->getObjectName()->toSQL($this),
             ),
@@ -680,9 +678,9 @@ class SQLitePlatform extends AbstractPlatform
             $newTable->getObjectName()->toSQL($this),
             implode(', ', $newColumnNames),
             implode(', ', $oldColumnNames),
-            $dataTable->getObjectName()->toSQL($this),
+            $dataTableName->toSQL($this),
         );
-        $sql[] = $this->getDropTableSQL($dataTable->getObjectName()->toSQL($this));
+        $sql[] = $this->getDropTableSQL($dataTableName->toSQL($this));
 
         foreach ($this->getIndexesInAlteredTable($diff) as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
