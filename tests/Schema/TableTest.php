@@ -4,20 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
-use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
-use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
+use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
-use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -27,24 +21,28 @@ use Doctrine\DBAL\Schema\TableConfiguration;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
-use LogicException;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
-use ValueError;
 
 use function strlen;
 
 class TableTest extends TestCase
 {
-    use VerifyDeprecations;
-
-    public function testCreateWithInvalidTableName(): void
+    public function testEmptyColumns(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidTableDefinition::class);
 
-        new Table('');
+        new Table(
+            OptionallyQualifiedName::unquoted('users'),
+            [], // @phpstan-ignore argument.type
+            [],
+            [],
+            [],
+            [],
+            [],
+            new TableConfiguration(64),
+            null,
+            [],
+        );
     }
 
     public function testGetName(): void
@@ -110,35 +108,6 @@ class TableTest extends TestCase
             )
             ->create();
 
-        self::assertFalse($table->hasColumn('bar'));
-        self::assertTrue($table->hasColumn('foo'));
-
-        $table->renameColumn('foo', 'bar');
-        self::assertTrue($table->hasColumn('bar'), 'Should now have bar column');
-        self::assertFalse($table->hasColumn('foo'), 'Should not have foo column anymore');
-        self::assertCount(1, $table->getColumns());
-
-        self::assertEquals(['bar' => 'foo'], $table->getRenamedColumns());
-        $table->renameColumn('bar', 'baz');
-
-        self::assertTrue($table->hasColumn('baz'), 'Should now have baz column');
-        self::assertFalse($table->hasColumn('bar'), 'Should not have bar column anymore');
-        self::assertEquals(['baz' => 'foo'], $table->getRenamedColumns());
-        self::assertCount(1, $table->getColumns());
-    }
-
-    public function testRenameColumnThroughEditor(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('foo')
-                    ->setTypeName(Types::STRING)
-                    ->create(),
-            )
-            ->create();
-
         $table = $table->edit()
             ->renameColumnByUnquotedName('foo', 'bar')
             ->create();
@@ -154,52 +123,11 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasColumn('baz'), 'Should now have baz column');
         self::assertFalse($table->hasColumn('bar'), 'Should not have bar column anymore');
-
-        // The result of multiple consecutive edit-rename-column-and-create operations is different from
-        // Table::renameColumn(): each edit records the rename relative to the table it started from, so the renames
-        // do not chain across edits.
         self::assertEquals(['baz' => 'bar'], $table->getRenamedColumns());
         self::assertCount(1, $table->getColumns());
     }
 
-    public function testRenameColumnException(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('baz')
-                    ->setTypeName(Types::STRING)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Attempt to rename column "foo.baz" to the same name.');
-
-        $table->renameColumn('baz', '`BaZ`');
-    }
-
     public function testRenameColumnLoop(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('baz')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $table->renameColumn('baz', '`foo`');
-        self::assertCount(1, $table->getRenamedColumns());
-        $table->renameColumn('foo', 'Baz');
-        self::assertCount(1, $table->getColumns());
-        self::assertCount(0, $table->getRenamedColumns());
-    }
-
-    public function testRenameColumnLoopThroughEditor(): void
     {
         $table = Table::editor()
             ->setUnquotedName('foo')
@@ -242,7 +170,9 @@ class TableTest extends TestCase
             )
             ->create();
 
-        $table->renameColumn('c1', 'c1a');
+        $table = $table->edit()
+            ->renameColumnByUnquotedName('c1', 'c1a')
+            ->create();
 
         self::assertEquals([
             new IndexedColumn(UnqualifiedName::unquoted('c1a'), null),
@@ -274,7 +204,9 @@ class TableTest extends TestCase
             )
             ->create();
 
-        $table->renameColumn('c2', 'c2a');
+        $table = $table->edit()
+            ->renameColumnByUnquotedName('c2', 'c2a')
+            ->create();
 
         self::assertEquals([
             UnqualifiedName::unquoted('c1'),
@@ -304,7 +236,9 @@ class TableTest extends TestCase
             )
             ->create();
 
-        $table->renameColumn('c1', 'c1a');
+        $table = $table->edit()
+            ->renameColumnByUnquotedName('c1', 'c1a')
+            ->create();
 
         self::assertEquals([
             UnqualifiedName::unquoted('c1a'),
@@ -369,30 +303,6 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasColumn('foo'));
         self::assertTrue($table->hasColumn('bar'));
-
-        $table = $table->edit()
-            ->dropColumnByUnquotedName('foo')
-            ->create();
-
-        self::assertFalse($table->hasColumn('foo'));
-        self::assertTrue($table->hasColumn('bar'));
-    }
-
-    public function testDropColumnThroughEditor(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('foo')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('bar')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
 
         $table = $table->edit()
             ->dropColumnByUnquotedName('foo')
@@ -587,6 +497,71 @@ class TableTest extends TestCase
             ->create();
     }
 
+    public function testAddIndexWithUnknownColumnThrowsException(): void
+    {
+        $editor = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('invalidName')
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            );
+
+        $this->expectException(SchemaException::class);
+
+        $editor->create();
+    }
+
+    public function testAddPrimaryKeyConstraintWithUnknownColumnThrowsException(): void
+    {
+        $editor = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            );
+
+        $this->expectException(SchemaException::class);
+
+        $editor->create();
+    }
+
+    public function testAddUniqueConstraintWithUnknownColumnThrowsException(): void
+    {
+        $editor = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uq_bar')
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            );
+
+        $this->expectException(SchemaException::class);
+
+        $editor->create();
+    }
+
     public function testOptions(): void
     {
         $table = Table::editor()
@@ -649,40 +624,6 @@ class TableTest extends TestCase
         self::assertSame(IndexType::REGULAR, $table->getIndex('my_idx')->getType());
     }
 
-    public function testBuilderAddIndexWithInvalidNameThrowsException(): void
-    {
-        $this->expectException(SchemaException::class);
-
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('bar')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $table->addIndex(['bar'], 'invalid name %&/');
-    }
-
-    public function testBuilderAddIndexWithUnknownColumnThrowsException(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(SchemaException::class);
-
-        $table->addIndex(['bar'], 'invalidName');
-    }
-
     public function testAddIndexTruncatesAutoGeneratedNameToMaxIdentifierLength(): void
     {
         $table = Table::editor()
@@ -694,9 +635,11 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedColumnNames('long_id'),
+            )
             ->create();
-
-        $table->addIndex(['long_id']);
 
         $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
@@ -720,103 +663,6 @@ class TableTest extends TestCase
         self::assertEquals('bar', $table->getOption('foo'));
     }
 
-    public function testAddForeignKeyConstraintUnknownLocalColumnThrowsException(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(SchemaException::class);
-
-        $table->addForeignKeyConstraint('bar', ['foo'], ['id']);
-    }
-
-    /** @throws Exception */
-    public function testAddForeignKeyConstraintWithInvalidMatchType(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('bar_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(ValueError::class);
-
-        $table->addForeignKeyConstraint('bar', ['bar_id'], ['id'], ['match' => 'MAYBE']);
-    }
-
-    /** @throws Exception */
-    public function testAddForeignKeyConstraintWithInvalidOnUpdateAction(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('bar_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(ValueError::class);
-
-        $table->addForeignKeyConstraint('bar', ['bar_id'], ['id'], ['onUpdate' => 'DROP']);
-    }
-
-    /** @throws Exception */
-    public function testAddForeignKeyConstraintWithInvalidOnDeleteAction(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('bar_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setIndexes(
-                Index::editor()
-                    ->setUnquotedName('my_idx')
-                    ->setUnquotedColumnNames('ID')
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(ValueError::class);
-
-        $table->addForeignKeyConstraint('bar', ['bar_id'], ['id'], ['onDelete' => 'DROP']);
-    }
-
-    public function testAddForeignKeyConstraintWithInvalidDeferrability(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('bar_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(InvalidForeignKeyConstraintDefinition::class);
-
-        $table->addForeignKeyConstraint('bar', ['bar_id'], ['id'], [
-            'deferrable' => false,
-            'deferred' => true,
-        ]);
-    }
-
     public function testAllowImplicitSchemaTableInAutogeneratedIndexNames(): void
     {
         $table = Table::editor()
@@ -836,44 +682,7 @@ class TableTest extends TestCase
         self::assertCount(1, $table->getIndexes());
     }
 
-    public function testAddIndexViaEditorGeneratesSameNamesAsMutators(): void
-    {
-        $columns = [
-            Column::editor()
-                ->setUnquotedName('a')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-            Column::editor()
-                ->setUnquotedName('b')
-                ->setTypeName(Types::INTEGER)
-                ->create(),
-        ];
-
-        $viaEditor = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(...$columns)
-            ->addIndex(
-                Index::editor()
-                    ->setUnquotedColumnNames('a', 'b'),
-            )
-            ->addIndex(
-                Index::editor()
-                    ->setType(IndexType::UNIQUE)
-                    ->setUnquotedColumnNames('a', 'b'),
-            )
-            ->create();
-
-        $viaMutators = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(...$columns)
-            ->create();
-        $viaMutators->addIndex(['a', 'b']);
-        $viaMutators->addUniqueIndex(['a', 'b']);
-
-        self::assertEquals($viaMutators->getIndexes(), $viaEditor->getIndexes());
-    }
-
-    public function testAddIndexEditorWithExplicitNameKeepsIt(): void
+    public function testAddIndexViaEditorKeepsItsName(): void
     {
         $table = Table::editor()
             ->setUnquotedName('foo')
@@ -891,6 +700,29 @@ class TableTest extends TestCase
             ->create();
 
         self::assertTrue($table->hasIndex('my_idx'));
+    }
+
+    public function testAddForeignKeyConstraintWithUnknownReferencingColumnThrowsException(): void
+    {
+        $editor = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('bar')
+                    ->setUnquotedReferencedTableName('baz')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            );
+
+        $this->expectException(SchemaException::class);
+
+        $editor->create();
     }
 
     public function testAddForeignKeyIndexImplicitly(): void
@@ -1389,106 +1221,6 @@ class TableTest extends TestCase
                     ->setUnquotedName('id')
                     ->setTypeName(Types::INTEGER)
                     ->create(),
-                Column::editor()
-                    ->setUnquotedName('foo')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('bar')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('baz')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setIndexes(
-                Index::editor()
-                    ->setUnquotedName('idx')
-                    ->setUnquotedColumnNames('foo')
-                    ->setIsClustered(true)
-                    ->create(),
-                Index::editor()
-                    ->setUnquotedName('uniq')
-                    ->setType(IndexType::UNIQUE)
-                    ->setUnquotedColumnNames('bar', 'baz')
-                    ->create(),
-            )
-            ->create();
-
-        // Rename to custom name.
-        self::assertSame($table, $table->renameIndex('idx', 'idx_new'));
-        self::assertSame($table, $table->renameIndex('uniq', 'uniq_new'));
-
-        self::assertTrue($table->hasIndex('idx_new'));
-        self::assertTrue($table->hasIndex('uniq_new'));
-
-        self::assertFalse($table->hasIndex('idx'));
-        self::assertFalse($table->hasIndex('uniq'));
-
-        self::assertEquals(
-            Index::editor()
-                ->setUnquotedName('idx_new')
-                ->setUnquotedColumnNames('foo')
-                ->setIsClustered(true)
-                ->create(),
-            $table->getIndex('idx_new'),
-        );
-
-        self::assertEquals(
-            Index::editor()
-                ->setUnquotedName('uniq_new')
-                ->setUnquotedColumnNames('bar', 'baz')
-                ->setType(IndexType::UNIQUE)
-                ->create(),
-            $table->getIndex('uniq_new'),
-        );
-
-        // Rename to auto-generated name.
-        self::assertSame($table, $table->renameIndex('idx_new', null));
-        self::assertSame($table, $table->renameIndex('uniq_new', null));
-
-        self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
-        self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
-
-        self::assertFalse($table->hasIndex('idx_new'));
-        self::assertFalse($table->hasIndex('uniq_new'));
-
-        self::assertEquals(
-            Index::editor()
-                ->setUnquotedName('IDX_D87F7E0C8C736521')
-                ->setUnquotedColumnNames('foo')
-                ->setIsClustered(true)
-                ->create(),
-            $table->getIndex('IDX_D87F7E0C8C736521'),
-        );
-
-        self::assertEquals(
-            Index::editor()
-                ->setUnquotedName('UNIQ_D87F7E0C76FF8CAA78240498')
-                ->setUnquotedColumnNames('bar', 'baz')
-                ->setType(IndexType::UNIQUE)
-                ->create(),
-            $table->getIndex('UNIQ_D87F7E0C76FF8CAA78240498'),
-        );
-
-        // Rename to same name (changed case).
-        self::assertSame($table, $table->renameIndex('IDX_D87F7E0C8C736521', 'idx_D87F7E0C8C736521'));
-        self::assertSame($table, $table->renameIndex('UNIQ_D87F7E0C76FF8CAA78240498', 'uniq_D87F7E0C76FF8CAA78240498'));
-
-        self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
-        self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
-    }
-
-    public function testRenameIndexThroughEditor(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('test')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
             )
             ->setIndexes(
                 Index::editor()
@@ -1504,22 +1236,6 @@ class TableTest extends TestCase
 
         self::assertFalse($table->hasIndex('idx'));
         self::assertTrue($table->hasIndex('idx_new'));
-    }
-
-    public function testRenameNonExistingIndexToTheSameName(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('test')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(IndexDoesNotExist::class);
-        $table->renameIndex('test', 'test');
     }
 
     public function testKeepsPredicateOnRenamingRegularIndex(): void
@@ -1541,7 +1257,9 @@ class TableTest extends TestCase
             )
             ->create();
 
-        $table->renameIndex('idx_bar', 'idx_baz');
+        $table = $table->edit()
+            ->renameIndexByUnquotedName('idx_bar', 'idx_baz')
+            ->create();
 
         self::assertSame('1 = 1', $table->getIndex('idx_baz')->getPredicate());
     }
@@ -1566,127 +1284,11 @@ class TableTest extends TestCase
             )
             ->create();
 
-        $table->renameIndex('idx_bar', 'idx_baz');
+        $table = $table->edit()
+            ->renameIndexByUnquotedName('idx_bar', 'idx_baz')
+            ->create();
 
         self::assertSame('1 = 1', $table->getIndex('idx_baz')->getPredicate());
-    }
-
-    public function testThrowsExceptionOnRenamingNonExistingIndex(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('test')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setIndexes(
-                Index::editor()
-                    ->setUnquotedName('idx')
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(SchemaException::class);
-
-        $table->renameIndex('foo', 'bar');
-    }
-
-    public function testThrowsExceptionOnRenamingToAlreadyExistingIndex(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('test')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('foo')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setIndexes(
-                Index::editor()
-                    ->setUnquotedName('idx_id')
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-                Index::editor()
-                    ->setUnquotedName('idx_foo')
-                    ->setUnquotedColumnNames('foo')
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(SchemaException::class);
-
-        $table->renameIndex('idx_id', 'idx_foo');
-    }
-
-    #[DataProvider('getNormalizesAssetNames')]
-    public function testNormalizesColumnNames(string $assetName): void
-    {
-        $table = new Table('test');
-
-        $table->addColumn($assetName, Types::INTEGER);
-        $table->addIndex([$assetName], $assetName);
-        $table->addForeignKeyConstraint('test', [$assetName], [$assetName], [], $assetName);
-
-        self::assertTrue($table->hasColumn($assetName));
-        self::assertTrue($table->hasColumn('foo'));
-
-        self::assertTrue($table->hasIndex($assetName));
-        self::assertTrue($table->hasIndex('foo'));
-
-        self::assertTrue($table->hasForeignKey($assetName));
-        self::assertTrue($table->hasForeignKey('foo'));
-
-        $table->renameIndex($assetName, $assetName);
-        self::assertTrue($table->hasIndex($assetName));
-        self::assertTrue($table->hasIndex('foo'));
-
-        $table->renameIndex($assetName, 'foo');
-        self::assertTrue($table->hasIndex($assetName));
-        self::assertTrue($table->hasIndex('foo'));
-
-        $table->renameIndex('foo', $assetName);
-        self::assertTrue($table->hasIndex($assetName));
-        self::assertTrue($table->hasIndex('foo'));
-
-        $table->renameIndex($assetName, 'bar');
-        self::assertFalse($table->hasIndex($assetName));
-        self::assertFalse($table->hasIndex('foo'));
-        self::assertTrue($table->hasIndex('bar'));
-
-        $table->renameIndex('bar', $assetName);
-
-        $table->dropColumn($assetName);
-        $table->dropIndex($assetName);
-        $table->dropForeignKey($assetName);
-
-        self::assertFalse($table->hasColumn($assetName));
-        self::assertFalse($table->hasColumn('foo'));
-        self::assertFalse($table->hasIndex($assetName));
-        self::assertFalse($table->hasIndex('foo'));
-        self::assertFalse($table->hasForeignKey($assetName));
-        self::assertFalse($table->hasForeignKey('foo'));
-    }
-
-    /** @return mixed[][] */
-    public static function getNormalizesAssetNames(): iterable
-    {
-        return [
-            ['foo'],
-            ['FOO'],
-            ['`foo`'],
-            ['`FOO`'],
-            ['"foo"'],
-            ['"FOO"'],
-            ['"foo"'],
-            ['"FOO"'],
-        ];
     }
 
     public function testTableComment(): void
@@ -1703,7 +1305,10 @@ class TableTest extends TestCase
 
         self::assertNull($table->getComment());
 
-        $table->setComment('foo');
+        $table = $table->edit()
+            ->setComment('foo')
+            ->create();
+
         self::assertEquals('foo', $table->getComment());
     }
 
@@ -1746,268 +1351,80 @@ class TableTest extends TestCase
         self::assertSame($uniqueConstraints, $table->getUniqueConstraints());
     }
 
-    public function testDropUniqueConstraint(): void
+    public function testAddIndexByColumnsAutoGeneratesName(): void
     {
         $table = Table::editor()
             ->setUnquotedName('foo')
             ->setColumns(
                 Column::editor()
-                    ->setUnquotedName('bar')
+                    ->setUnquotedName('a')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('b')
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
-            ->setUniqueConstraints(
-                UniqueConstraint::editor()
-                    ->setUnquotedName('unique_constraint')
-                    ->setUnquotedColumnNames('bar')
-                    ->create(),
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedColumnNames('a', 'b'),
             )
             ->create();
 
-        $table->dropUniqueConstraint('unique_constraint');
+        self::assertTrue($table->hasIndex('IDX_8C736521E8B7BE4371BEEFF9'));
 
-        self::assertFalse($table->hasUniqueConstraint('unique_constraint'));
+        self::assertEquals([
+            new IndexedColumn(UnqualifiedName::unquoted('a'), null),
+            new IndexedColumn(UnqualifiedName::unquoted('b'), null),
+        ], $table->getIndex('IDX_8C736521E8B7BE4371BEEFF9')->getIndexedColumns());
     }
 
-    public function testDropUniqueConstraintUnknownNameThrowsException(): void
+    public function testAddUniqueIndexByColumnsAutoGeneratesName(): void
     {
         $table = Table::editor()
             ->setUnquotedName('foo')
             ->setColumns(
                 Column::editor()
-                    ->setUnquotedName('bar')
+                    ->setUnquotedName('a')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('b')
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('a', 'b'),
+            )
             ->create();
 
-        $this->expectException(InvalidTableModification::class);
-
-        $table->dropUniqueConstraint('unique_constraint');
+        self::assertTrue($table->hasIndex('UNIQ_8C736521E8B7BE4371BEEFF9'));
+        self::assertSame(IndexType::UNIQUE, $table->getIndex('UNIQ_8C736521E8B7BE4371BEEFF9')->getType());
     }
 
-    public function testDropColumnWithForeignKeyConstraint(): void
+    public function testAddIndexEditorWithExplicitNameKeepsIt(): void
     {
         $table = Table::editor()
-            ->setUnquotedName('t1')
+            ->setUnquotedName('foo')
             ->setColumns(
                 Column::editor()
-                    ->setUnquotedName('id')
+                    ->setUnquotedName('a')
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('t2')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('my_index')
+                    ->setUnquotedColumnNames('a'),
             )
             ->create();
 
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6559');
-        $table->dropColumn('id');
+        self::assertTrue($table->hasIndex('my_index'));
     }
 
-    public function testDropColumnWithUniqueConstraint(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('t')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setUniqueConstraints(
-                UniqueConstraint::editor()
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6559');
-        $table->dropColumn('id');
-    }
-
-    public function testDropColumnWithoutConstraints(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('t')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6559');
-        $table->dropColumn('id');
-    }
-
-    public function testOverqualifiedName(): void
-    {
-        $this->expectException(InvalidName::class);
-
-        new Table('warehouse.inventory.products');
-    }
-
-    /** @throws Exception */
-    public function testGetUnqualifiedObjectName(): void
-    {
-        $table = new Table('products');
-        $name  = $table->getObjectName();
-
-        self::assertEquals(Identifier::unquoted('products'), $name->getUnqualifiedName());
-        self::assertNull($name->getQualifier());
-    }
-
-    /** @throws Exception */
-    public function testGetQualifiedObjectName(): void
-    {
-        $table = new Table('inventory.products');
-        $name  = $table->getObjectName();
-
-        self::assertEquals(Identifier::unquoted('products'), $name->getUnqualifiedName());
-        self::assertEquals(Identifier::unquoted('inventory'), $name->getQualifier());
-    }
-
-    public function testAddIndexWithNonIntegerColumnLength(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('users')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('name')
-                    ->setTypeName(Types::STRING)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(InvalidIndexDefinition::class);
-        $table->addIndex(['name'], null, [], ['lengths' => ['8']]);
-    }
-
-    public function testAddIndexWithNonPositiveColumnLength(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('users')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('name')
-                    ->setTypeName(Types::STRING)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(InvalidIndexDefinition::class);
-        $table->addIndex(['name'], null, [], ['lengths' => [-1]]);
-    }
-
-    public function testAddIndexWithColumnLength(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('users')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('first_name')
-                    ->setTypeName(Types::STRING)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('last_name')
-                    ->setTypeName(Types::STRING)
-                    ->create(),
-            )
-            ->create();
-
-        $table->addIndex(['first_name', 'last_name'], 'idx_user_name', [], ['lengths' => [16]]);
-
-        $indexedColumns = $table->getIndex('idx_user_name')->getIndexedColumns();
-
-        self::assertCount(2, $indexedColumns);
-
-        self::assertEquals(UnqualifiedName::unquoted('first_name'), $indexedColumns[0]->getColumnName());
-        self::assertEquals(16, $indexedColumns[0]->getLength());
-
-        self::assertEquals(UnqualifiedName::unquoted('last_name'), $indexedColumns[1]->getColumnName());
-        self::assertNull($indexedColumns[1]->getLength());
-    }
-
-    /** @param list<string> $flags */
-    #[TestWith([[], IndexType::REGULAR])]
-    #[TestWith([['fulltext'], IndexType::FULLTEXT])]
-    #[TestWith([['spatial'], IndexType::SPATIAL])]
-    public function testParseNonUniqueIndexType(array $flags, IndexType $expectedType): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('users')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('user_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $table->addIndex(['user_id'], 'idx_user_id', $flags);
-
-        $index = $table->getIndex('idx_user_id');
-        self::assertEquals($expectedType, $index->getType());
-    }
-
-    public function testAddIndexWithInvalidFlag(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('users')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('user_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(InvalidIndexDefinition::class);
-        $table->addIndex(['user_id'], null, ['banana']);
-    }
-
-    public function testAddIndexWithInvalidOption(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('users')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('user_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(InvalidIndexDefinition::class);
-        $table->addIndex(['user_id'], null, [], ['potato' => true]);
-    }
-
-    /** @param list<string> $flags */
-    #[TestWith([['nonclustered', 'clustered']])]
-    #[TestWith([['fulltext', 'spatial']])]
-    public function testAddIndexWithConflictingFlags(array $flags): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('users')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('user_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $this->expectException(InvalidIndexDefinition::class);
-        $table->addIndex(['user_id'], null, $flags);
-    }
-
-    public function testOverwritingForeignKeyConstraint(): void
+    public function testAddIndexEditorNamesAfterRenamedTable(): void
     {
         $table = Table::editor()
             ->setUnquotedName('foo')
@@ -2017,11 +1434,14 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedColumnNames('id'),
+            )
+            ->setUnquotedName('bar')
             ->create();
 
-        $table->addForeignKeyConstraint('bar', ['id'], ['id']);
-
-        $this->expectException(InvalidTableModification::class);
-        $table->addForeignKeyConstraint('baz', ['id'], ['id']);
+        // The index is named after the table's final name, not the one set when the index was added.
+        self::assertTrue($table->hasIndex('IDX_76FF8CAABF396750'));
     }
 }

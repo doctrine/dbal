@@ -75,6 +75,27 @@ The following `AbstractSchemaManager` methods have been removed:
 The `Table` class no longer accepts `foreignKeyConstraints`
 with duplicate names.
 
+## BC BREAK: Removed mutating `Table` methods
+
+The following `Table` methods have been removed. Use `Table::editor()` for new tables or `Table::edit()` for derived
+ones, then call `TableEditor::create()` to produce the resulting table:
+
+- `Table::addColumn()` — use `TableEditor::addColumn()` instead.
+- `Table::renameColumn()` — use `TableEditor::renameColumn()` instead.
+- `Table::modifyColumn()` — use `TableEditor::modifyColumn()` instead.
+- `Table::dropColumn()` — use `TableEditor::dropColumn()` instead.
+- `Table::addIndex()` and `Table::addUniqueIndex()` — use `TableEditor::addIndex()` instead.
+- `Table::renameIndex()` — use `TableEditor::renameIndex()` instead.
+- `Table::dropIndex()` — use `TableEditor::dropIndex()` instead.
+- `Table::addPrimaryKeyConstraint()` — use `TableEditor::addPrimaryKeyConstraint()` instead.
+- `Table::dropPrimaryKey()` — use `TableEditor::dropPrimaryKeyConstraint()` instead.
+- `Table::addUniqueConstraint()` — use `TableEditor::addUniqueConstraint()` instead.
+- `Table::dropUniqueConstraint()` — use `TableEditor::dropUniqueConstraint()` instead.
+- `Table::addForeignKeyConstraint()` — use `TableEditor::addForeignKeyConstraint()` instead.
+- `Table::dropForeignKey()` — use `TableEditor::dropForeignKeyConstraint()` instead.
+- `Table::addOption()` — use `TableEditor::setOptions()` instead.
+- `Table::setComment()` — use `TableEditor::setComment()` instead.
+
 ## BC BREAK: changes in `TableDiff` constructor
 
 The `TableDiff` class constructor no longer accepts `droppedForeignKeys`

@@ -4,51 +4,25 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
-use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
 use Doctrine\DBAL\Schema\Collections\OptionallyUnqualifiedNamedObjectSet;
+use Doctrine\DBAL\Schema\Collections\ReadableObjectSet;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNameSet;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
-use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
-use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
-use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
-use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
+use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
-use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
-use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
-use Doctrine\DBAL\Types\Exception\TypesException;
-use Doctrine\Deprecations\Deprecation;
-use LogicException;
 use Override;
 
-use function array_keys;
 use function array_map;
 use function array_merge;
-use function array_shift;
-use function count;
-use function crc32;
-use function dechex;
-use function implode;
-use function in_array;
-use function is_int;
-use function sprintf;
-use function strtolower;
-use function strtoupper;
-use function substr;
 
 /**
  * Object Representation of a table.
@@ -57,111 +31,80 @@ use function substr;
  */
 final class Table implements NamedObject
 {
-    private readonly OptionallyQualifiedName $name;
+    /** @var ReadableObjectSet<Column> */
+    private readonly ReadableObjectSet $columns;
 
-    /** @var UnqualifiedNamedObjectSet<Column> */
-    private UnqualifiedNamedObjectSet $columns;
-
-    /** @var array<string, string> keys are new names, values are old names */
-    private array $renamedColumns;
-
-    /** @var UnqualifiedNamedObjectSet<Index> */
-    private UnqualifiedNamedObjectSet $indexes;
+    /** @var ReadableObjectSet<Index> */
+    private readonly ReadableObjectSet $indexes;
 
     /**
      * The names of the indexes that were implicitly created as backing for foreign key constraints.
      */
     private readonly UnqualifiedNameSet $implicitIndexNames;
 
-    /** @var OptionallyUnqualifiedNamedObjectSet<UniqueConstraint> */
-    private OptionallyUnqualifiedNamedObjectSet $uniqueConstraints;
+    /** @var ReadableObjectSet<UniqueConstraint> */
+    private readonly ReadableObjectSet $uniqueConstraints;
 
-    /** @var OptionallyUnqualifiedNamedObjectSet<ForeignKeyConstraint> */
-    private OptionallyUnqualifiedNamedObjectSet $foreignKeyConstraints;
+    /** @var ReadableObjectSet<ForeignKeyConstraint> */
+    private readonly ReadableObjectSet $foreignKeyConstraints;
 
     /** @var mixed[] */
-    private array $options = [
-        'create_options' => [],
-    ];
-
-    /** @var positive-int */
-    private readonly int $maxIdentifierLength;
-
-    private ?PrimaryKeyConstraint $primaryKeyConstraint = null;
+    private array $options;
 
     /**
-     * @internal since doctrine/dbal 4.5. Use {@link Table::editor()} to instantiate an editor and
-     *           {@link TableEditor::create()} to create a table.
+     * @internal Use {@link Table::editor()} to instantiate an editor and {@link TableEditor::create()} to create a
+     *           table.
      *
-     * @param array<Column>               $columns
-     * @param array<Index>                $indexes
-     * @param array<UniqueConstraint>     $uniqueConstraints
-     * @param array<ForeignKeyConstraint> $fkConstraints
-     * @param array<string, mixed>        $options
-     * @param array<string, string>       $renamedColumns
+     * @param non-empty-list<Column>     $columns
+     * @param list<Index>                $indexes
+     * @param list<UnqualifiedName>      $implicitIndexNames
+     * @param list<UniqueConstraint>     $uniqueConstraints
+     * @param list<ForeignKeyConstraint> $foreignKeyConstraints
+     * @param array<string, mixed>       $options
+     * @param array<string, string>      $renamedColumns
      */
     public function __construct(
-        string $name,
-        array $columns = [],
-        array $indexes = [],
-        array $uniqueConstraints = [],
-        array $fkConstraints = [],
-        array $options = [],
-        ?TableConfiguration $configuration = null,
-        ?PrimaryKeyConstraint $primaryKeyConstraint = null,
-        array $renamedColumns = [],
+        private readonly OptionallyQualifiedName $name,
+        array $columns,
+        array $indexes,
+        array $implicitIndexNames,
+        array $uniqueConstraints,
+        array $foreignKeyConstraints,
+        array $options,
+        private readonly TableConfiguration $configuration,
+        private readonly ?PrimaryKeyConstraint $primaryKeyConstraint,
+        private readonly array $renamedColumns,
     ) {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
-        try {
-            $parsedName = $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($name, $e);
+        if ($columns === []) {
+            throw InvalidTableDefinition::columnsNotSet($name);
         }
 
-        $this->name = $parsedName;
+        $this->columns               = new UnqualifiedNamedObjectSet(...$columns);
+        $this->indexes               = new UnqualifiedNamedObjectSet(...$indexes);
+        $this->implicitIndexNames    = new UnqualifiedNameSet(...$implicitIndexNames);
+        $this->uniqueConstraints     = new OptionallyUnqualifiedNamedObjectSet(...$uniqueConstraints);
+        $this->foreignKeyConstraints = new OptionallyUnqualifiedNamedObjectSet(...$foreignKeyConstraints);
 
-        $configuration ??= (new SchemaConfig())->toTableConfiguration();
-
-        $this->maxIdentifierLength = $configuration->getMaxIdentifierLength();
-
-        /** @var UnqualifiedNamedObjectSet<Column> $columnsSet */
-        $columnsSet    = new UnqualifiedNamedObjectSet(...$columns);
-        $this->columns = $columnsSet;
-
-        /** @var UnqualifiedNamedObjectSet<Index> $indexSet */
-        $indexSet      = new UnqualifiedNamedObjectSet();
-        $this->indexes = $indexSet;
-
-        /** @var OptionallyUnqualifiedNamedObjectSet<UniqueConstraint> $uniqueConstraintSet */
-        $uniqueConstraintSet     = new OptionallyUnqualifiedNamedObjectSet();
-        $this->uniqueConstraints = $uniqueConstraintSet;
-
-        /** @var OptionallyUnqualifiedNamedObjectSet<ForeignKeyConstraint> $foreignKeyConstraints */
-        $foreignKeyConstraints       = new OptionallyUnqualifiedNamedObjectSet();
-        $this->foreignKeyConstraints = $foreignKeyConstraints;
-
-        $this->implicitIndexNames = new UnqualifiedNameSet();
-
-        foreach ($indexes as $idx) {
-            $this->_addIndex($idx);
+        foreach ($indexes as $index) {
+            $this->ensureColumnsExist(...array_map(
+                static fn (IndexedColumn $column): UnqualifiedName => $column->getColumnName(),
+                $index->getIndexedColumns(),
+            ));
         }
 
         if ($primaryKeyConstraint !== null) {
-            $this->addPrimaryKeyConstraint($primaryKeyConstraint);
+            $this->ensureColumnsExist(...$primaryKeyConstraint->getColumnNames());
         }
 
         foreach ($uniqueConstraints as $uniqueConstraint) {
-            $this->_addUniqueConstraint($uniqueConstraint);
+            $this->ensureColumnsExist(...$uniqueConstraint->getColumnNames());
         }
 
-        foreach ($fkConstraints as $fkConstraint) {
-            $this->_addForeignKeyConstraint($fkConstraint);
+        foreach ($foreignKeyConstraints as $foreignKeyConstraint) {
+            $this->ensureColumnsExist(...$foreignKeyConstraint->getReferencingColumnNames());
         }
 
-        $this->options = array_merge($this->options, $options);
-
-        $this->renamedColumns = $renamedColumns;
+        $this->options = array_merge(['create_options' => []], $options);
     }
 
     #[Override]
@@ -170,476 +113,24 @@ final class Table implements NamedObject
         return $this->name;
     }
 
-    /** @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::addPrimaryKeyConstraint()} instead. */
-    public function addPrimaryKeyConstraint(PrimaryKeyConstraint $primaryKeyConstraint): self
+    /**
+     * Asserts that each of the given columns exists in this table.
+     *
+     * @throws ColumnDoesNotExist if any of the columns is not defined in this table.
+     */
+    private function ensureColumnsExist(UnqualifiedName ...$columnNames): void
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::addPrimaryKeyConstraint() instead.',
-            __METHOD__,
-        );
-
-        if ($this->primaryKeyConstraint !== null) {
-            throw PrimaryKeyAlreadyExists::new($this->name);
-        }
-
-        $this->primaryKeyConstraint = $primaryKeyConstraint;
-
-        return $this;
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::addUniqueConstraint()} instead.
-     *
-     * @param non-empty-list<string> $columnNames
-     * @param array<int, string>     $flags
-     */
-    public function addUniqueConstraint(
-        array $columnNames,
-        ?string $indexName = null,
-        array $flags = [],
-    ): self {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::addUniqueConstraint() instead.',
-            __METHOD__,
-        );
-
-        $indexName ??= $this->generateNameFromStringColumnNames('uniq', $columnNames);
-
-        $isClustered = in_array('clustered', $flags, true);
-
-        return $this->_addUniqueConstraint($this->createUniqueConstraint($columnNames, $indexName, $isClustered));
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::addIndex()} instead.
-     *
-     * @param non-empty-list<string> $columnNames
-     * @param array<int, string>     $flags
-     * @param array<string, mixed>   $options
-     */
-    public function addIndex(
-        array $columnNames,
-        ?string $indexName = null,
-        array $flags = [],
-        array $options = [],
-    ): self {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::addIndex() instead.',
-            __METHOD__,
-        );
-
-        $indexName ??= $this->generateNameFromStringColumnNames('idx', $columnNames);
-
-        return $this->_addIndex($this->createIndex($columnNames, $indexName, false, $flags, $options));
-    }
-
-    /**
-     * Drops the primary key from this table.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::dropPrimaryKeyConstraint()}
-     *             instead.
-     */
-    public function dropPrimaryKey(): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::dropPrimaryKeyConstraint() instead.',
-            __METHOD__,
-        );
-
-        $this->primaryKeyConstraint = null;
-    }
-
-    /**
-     * Drops an index from this table.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::dropIndex()} instead.
-     */
-    public function dropIndex(string $name): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::dropIndex() instead.',
-            __METHOD__,
-        );
-
-        $parsedName = $this->parseUnqualifiedName($name);
-
-        try {
-            $this->indexes->remove($parsedName);
-        } catch (ObjectDoesNotExist $e) {
-            throw InvalidTableModification::indexDoesNotExist($this->name, $e);
-        }
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::addIndex()} instead.
-     *
-     * @param non-empty-list<string> $columnNames
-     * @param array<string, mixed>   $options
-     */
-    public function addUniqueIndex(array $columnNames, ?string $indexName = null, array $options = []): self
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::addIndex() instead.',
-            __METHOD__,
-        );
-
-        $indexName ??= $this->generateNameFromStringColumnNames('uniq', $columnNames);
-
-        return $this->_addIndex($this->createIndex($columnNames, $indexName, true, [], $options));
-    }
-
-    /**
-     * Renames an index.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::renameIndex()} instead.
-     *
-     * @param string      $oldName The name of the index to rename from.
-     * @param string|null $newName The name of the index to rename to. If null is given, the index name
-     *                             will be auto-generated.
-     */
-    public function renameIndex(string $oldName, ?string $newName = null): self
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::renameIndex() instead.',
-            __METHOD__,
-        );
-
-        $parsedOldName = $this->parseUnqualifiedName($oldName);
-
-        $index = $this->indexes->get($parsedOldName);
-
-        if ($index === null) {
-            throw IndexDoesNotExist::new($this->name, $parsedOldName);
-        }
-
-        if ($newName !== null) {
-            $parsedNewName = $this->parseUnqualifiedName($newName);
-
-            if ($this->getObjectKey($parsedOldName) === $this->getObjectKey($parsedNewName)) {
-                return $this;
+        foreach ($columnNames as $columnName) {
+            if ($this->columns->get($columnName) === null) {
+                throw ColumnDoesNotExist::new($this->name, $columnName);
             }
-        } else {
-            $parsedNewName = UnqualifiedName::unquoted(
-                $this->generateNameFromObjectColumnNames(
-                    $index->getType() === IndexType::UNIQUE ? 'uniq' : 'idx',
-                    array_map(
-                        static fn (IndexedColumn $indexedColumn): UnqualifiedName => $indexedColumn->getColumnName(),
-                        $index->getIndexedColumns(),
-                    ),
-                ),
-            );
         }
-
-        $index = $index->edit()
-            ->setName($parsedNewName)
-            ->create();
-
-        $this->_addIndex($index);
-
-        $this->indexes->remove($parsedOldName);
-
-        return $this;
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::addColumn()} instead.
-     *
-     * @param array<string, mixed> $options
-     *
-     * @throws TypesException
-     */
-    public function addColumn(string $name, string $typeName, array $options = []): Column
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::addColumn() instead.',
-            __METHOD__,
-        );
-
-        $parsedName = $this->parseUnqualifiedName($name);
-
-        $editor = Column::editor()
-            ->setName($parsedName)
-            ->setTypeName($typeName);
-
-        $this->applyColumnOptionsToEditor($editor, $options);
-
-        $column = $editor->create();
-
-        $this->_addColumn($column);
-
-        return $column;
     }
 
     /** @return array<string, string> */
     public function getRenamedColumns(): array
     {
         return $this->renamedColumns;
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::renameColumn()} instead.
-     *
-     * @param non-empty-string $oldName
-     * @param non-empty-string $newName
-     *
-     * @throws LogicException
-     */
-    public function renameColumn(string $oldName, string $newName): Column
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::renameColumn() instead.',
-            __METHOD__,
-        );
-
-        $parsedOldName = $this->parseUnqualifiedName($oldName);
-        $parsedNewName = $this->parseUnqualifiedName($newName);
-
-        $oldKey = $this->getObjectKey($parsedOldName);
-        $newKey = $this->getObjectKey($parsedNewName);
-
-        if ($newKey === $oldKey) {
-            throw new LogicException(sprintf(
-                'Attempt to rename column "%s.%s" to the same name.',
-                $this->name->toString(),
-                $oldName,
-            ));
-        }
-
-        $oldColumn = $this->getColumn($oldName);
-        $newColumn = $oldColumn->edit()
-            ->setName($parsedNewName)
-            ->create();
-
-        $this->columns->remove($parsedOldName);
-        $this->_addColumn($newColumn);
-
-        $this->renameColumnInIndexes($oldKey, $parsedNewName);
-        $this->renameColumnInForeignKeyConstraints($oldKey, $parsedNewName);
-        $this->renameColumnInUniqueConstraints($oldKey, $parsedNewName);
-
-        // If a column is renamed multiple times, we only want to know the original and last new name
-        if (isset($this->renamedColumns[$oldKey])) {
-            $keyToRemove = $oldKey;
-            $oldKey      = $this->renamedColumns[$oldKey];
-            unset($this->renamedColumns[$keyToRemove]);
-        }
-
-        if ($newKey !== $oldKey) {
-            $this->renamedColumns[$newKey] = $oldKey;
-        }
-
-        return $newColumn;
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::modifyColumn()} instead.
-     *
-     * @param array<string, mixed> $options
-     */
-    public function modifyColumn(string $name, array $options): self
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::modifyColumn() instead.',
-            __METHOD__,
-        );
-
-        $oldColumn = $this->getColumn($name);
-
-        $editor = $oldColumn->edit();
-        $this->applyColumnOptionsToEditor($editor, $options);
-        $newColumn = $editor->create();
-
-        $this->columns->modify(
-            $oldColumn->getObjectName(),
-            static fn (): Column => $newColumn,
-        );
-
-        return $this;
-    }
-
-    /** @param array<string, mixed> $options */
-    private function applyColumnOptionsToEditor(ColumnEditor $editor, array $options): void
-    {
-        foreach ($options as $name => $value) {
-            match ($name) {
-                'type'             => $editor->setType($value),
-                'length'           => $editor->setLength($value),
-                'precision'        => $editor->setPrecision($value),
-                'scale'            => $editor->setScale($value),
-                'unsigned'         => $editor->setUnsigned($value),
-                'fixed'            => $editor->setFixed($value),
-                'notnull'          => $editor->setNotNull($value),
-                'default'          => $editor->setDefaultValue($value),
-                'autoincrement'    => $editor->setAutoincrement($value),
-                'values'           => $editor->setValues($value),
-                'comment'          => $editor->setComment($value),
-                'columnDefinition' => $editor->setColumnDefinition($value),
-                'platformOptions'  => $this->applyPlatformOptionsToEditor($editor, $value),
-                default            => throw UnknownColumnOption::new($name),
-            };
-        }
-    }
-
-    /** @param array<string, mixed> $platformOptions */
-    private function applyPlatformOptionsToEditor(ColumnEditor $editor, array $platformOptions): void
-    {
-        foreach ($platformOptions as $name => $value) {
-            match ($name) {
-                'charset'   => $editor->setCharset($value),
-                'collation' => $editor->setCollation($value),
-                'min'       => $editor->setMinimumValue($value),
-                'max'       => $editor->setMaximumValue($value),
-                'enumType'  => $editor->setEnumType($value),
-                SQLServerPlatform::OPTION_DEFAULT_CONSTRAINT_NAME
-                            => $editor->setDefaultConstraintName($value),
-                default     => throw UnknownColumnOption::new($name),
-            };
-        }
-    }
-
-    /**
-     * Drops a Column from the Table.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::dropColumn()} instead.
-     */
-    public function dropColumn(string $name): self
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::dropColumn() instead.',
-            __METHOD__,
-        );
-
-        $parsedName = $this->parseUnqualifiedName($name);
-
-        $foreignKeyConstraintNames = $this->getForeignKeyConstraintNamesByLocalColumnName($parsedName);
-        $uniqueConstraintNames     = $this->getUniqueConstraintNamesByColumnName($parsedName);
-
-        if (count($foreignKeyConstraintNames) > 0 || count($uniqueConstraintNames) > 0) {
-            $constraints = [];
-
-            if (count($foreignKeyConstraintNames) > 0) {
-                $constraints[] = 'foreign key constraints: '
-                    . $this->unqualifiedNameListsToString($foreignKeyConstraintNames);
-            }
-
-            if (count($uniqueConstraintNames) > 0) {
-                $constraints[] = 'unique constraints: ' . $this->unqualifiedNameListsToString($uniqueConstraintNames);
-            }
-
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6559',
-                'Dropping columns referenced by constraints is deprecated.'
-                    . ' Column %s is used by the following constraints: %s ',
-                $name,
-                implode('; ', $constraints),
-            );
-        }
-
-        $this->columns->remove($parsedName);
-
-        return $this;
-    }
-
-    /** @param non-empty-list<?UnqualifiedName> $names */
-    private function unqualifiedNameListsToString(array $names): string
-    {
-        return implode(', ', array_map(static function (?UnqualifiedName $name): string {
-            if ($name !== null) {
-                return $name->toString();
-            }
-
-            return '<unnamed>';
-        }, $names));
-    }
-
-    /**
-     * Adds a foreign key constraint.
-     *
-     * Name is inferred from the referencing columns.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::addForeignKeyConstraint()} instead.
-     *
-     * @param non-empty-list<string> $referencingColumnNames
-     * @param non-empty-list<string> $referencedColumnNames
-     * @param array<string, mixed>   $options
-     */
-    public function addForeignKeyConstraint(
-        string $referencedTableName,
-        array $referencingColumnNames,
-        array $referencedColumnNames,
-        array $options = [],
-        ?string $name = null,
-    ): self {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::addForeignKeyConstraint() instead.',
-            __METHOD__,
-        );
-
-        $referencingColumnNames = $this->parseUnqualifiedNames($referencingColumnNames);
-
-        foreach ($referencingColumnNames as $columnName) {
-            if (! $this->hasColumn($columnName->toString())) {
-                throw ColumnDoesNotExist::new($this->name, $columnName);
-            }
-        }
-
-        $referencedTableName   = $this->parseOptionallyQualifiedName($referencedTableName);
-        $referencedColumnNames = $this->parseUnqualifiedNames($referencedColumnNames);
-
-        $matchType      = $this->parseMatchType($options);
-        $onUpdateAction = $this->parseReferentialAction($options, 'onUpdate');
-        $onDeleteAction = $this->parseReferentialAction($options, 'onDelete');
-
-        $deferrability = $this->parseDeferrability($options);
-
-        $editor = ForeignKeyConstraint::editor();
-
-        if ($name !== null) {
-            $editor->setName(
-                $this->parseUnqualifiedName($name),
-            );
-        } else {
-            $editor->setUnquotedName(
-                $this->generateNameFromObjectColumnNames('fk', $referencingColumnNames),
-            );
-        }
-
-        $constraint = $editor
-            ->setReferencingColumnNames(...$referencingColumnNames)
-            ->setReferencedTableName($referencedTableName)
-            ->setReferencedColumnNames(...$referencedColumnNames)
-            ->setMatchType($matchType)
-            ->setOnUpdateAction($onUpdateAction)
-            ->setOnDeleteAction($onDeleteAction)
-            ->setDeferrability($deferrability)
-            ->create();
-
-        return $this->_addForeignKeyConstraint($constraint);
     }
 
     private function parseUnqualifiedName(string $name): UnqualifiedName
@@ -651,100 +142,6 @@ final class Table implements NamedObject
         } catch (Parser\Exception $e) {
             throw InvalidName::fromParserException($name, $e);
         }
-    }
-
-    /**
-     * @param non-empty-list<string> $names
-     *
-     * @return non-empty-list<UnqualifiedName>
-     */
-    private function parseUnqualifiedNames(array $names): array
-    {
-        $parser = Parsers::getUnqualifiedNameParser();
-
-        return array_map(
-            static function (string $name) use ($parser): UnqualifiedName {
-                try {
-                    return $parser->parse($name);
-                } catch (Parser\Exception $e) {
-                    throw InvalidName::fromParserException($name, $e);
-                }
-            },
-            $names,
-        );
-    }
-
-    private function parseOptionallyQualifiedName(string $name): OptionallyQualifiedName
-    {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
-        try {
-            return $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($name, $e);
-        }
-    }
-
-    /** @param array<string, mixed> $options */
-    private function parseMatchType(array $options): MatchType
-    {
-        if (isset($options['match'])) {
-            return MatchType::from(strtoupper($options['match']));
-        }
-
-        return MatchType::SIMPLE;
-    }
-
-    /** @param array<string, mixed> $options */
-    private function parseReferentialAction(array $options, string $option): ReferentialAction
-    {
-        if (isset($options[$option])) {
-            return ReferentialAction::from(strtoupper($options[$option]));
-        }
-
-        return ReferentialAction::NO_ACTION;
-    }
-
-    /** @param array<string, mixed> $options */
-    private function parseDeferrability(array $options): Deferrability
-    {
-        // a constraint is INITIALLY IMMEDIATE unless explicitly declared as INITIALLY DEFERRED
-        $isDeferred = isset($options['deferred']) && $options['deferred'] !== false;
-
-        // a constraint is NOT DEFERRABLE unless explicitly declared as DEFERRABLE or is explicitly or implicitly
-        // INITIALLY DEFERRED
-        $isDeferrable = isset($options['deferrable'])
-            ? $options['deferrable'] !== false
-            : $isDeferred;
-
-        if ($isDeferred) {
-            if (! $isDeferrable) {
-                throw InvalidForeignKeyConstraintDefinition::nonDeferrableInitiallyDeferred();
-            }
-
-            return Deferrability::DEFERRED;
-        }
-
-        return $isDeferrable ? Deferrability::DEFERRABLE : Deferrability::NOT_DEFERRABLE;
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::setOptions()} instead.
-     *
-     * @return $this
-     */
-    public function addOption(string $name, mixed $value): self
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::setOptions() instead.',
-            __METHOD__,
-        );
-
-        $this->options[$name] = $value;
-
-        return $this;
     }
 
     /**
@@ -774,30 +171,6 @@ final class Table implements NamedObject
     }
 
     /**
-     * Drops the foreign key constraint with the given name.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::dropForeignKeyConstraint()}
-     *             instead.
-     */
-    public function dropForeignKey(string $name): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::dropForeignKeyConstraint() instead.',
-            __METHOD__,
-        );
-
-        $parsedName = $this->parseUnqualifiedName($name);
-
-        try {
-            $this->foreignKeyConstraints->remove($parsedName);
-        } catch (ObjectDoesNotExist $e) {
-            throw InvalidTableModification::foreignKeyConstraintDoesNotExist($this->name, $e);
-        }
-    }
-
-    /**
      * Returns whether this table has a unique constraint with the given name.
      */
     public function hasUniqueConstraint(string $name): bool
@@ -821,29 +194,6 @@ final class Table implements NamedObject
         }
 
         return $uniqueConstraint;
-    }
-
-    /**
-     * Drops the unique constraint with the given name.
-     *
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::dropUniqueConstraint()} instead.
-     */
-    public function dropUniqueConstraint(string $name): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::dropUniqueConstraint() instead.',
-            __METHOD__,
-        );
-
-        $parsedName = $this->parseUnqualifiedName($name);
-
-        try {
-            $this->uniqueConstraints->remove($parsedName);
-        } catch (ObjectDoesNotExist $e) {
-            throw InvalidTableModification::uniqueConstraintDoesNotExist($this->name, $e);
-        }
     }
 
     /**
@@ -961,155 +311,14 @@ final class Table implements NamedObject
      */
     public function __clone()
     {
-        $this->columns               = clone $this->columns;
-        $this->indexes               = clone $this->indexes;
-        $this->uniqueConstraints     = clone $this->uniqueConstraints;
+        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
+        $this->columns = clone $this->columns;
+        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
+        $this->indexes = clone $this->indexes;
+        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
+        $this->uniqueConstraints = clone $this->uniqueConstraints;
+        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
         $this->foreignKeyConstraints = clone $this->foreignKeyConstraints;
-    }
-
-    private function _addColumn(Column $column): void
-    {
-        try {
-            $this->columns->add($column);
-        } catch (ObjectAlreadyExists $e) {
-            throw InvalidTableModification::columnAlreadyExists($this->name, $e);
-        }
-    }
-
-    /**
-     * Adds an index to the table.
-     */
-    private function _addIndex(Index $index): self
-    {
-        $indexName = $index->getObjectName();
-
-        $replacedImplicitIndexNames = new UnqualifiedNameSet();
-
-        foreach ($this->implicitIndexNames as $implicitIndexName) {
-            $candidate = $this->indexes->get($implicitIndexName);
-
-            if ($candidate === null) {
-                continue;
-            }
-
-            if (! $candidate->isFulfilledBy($index)) {
-                continue;
-            }
-
-            $replacedImplicitIndexNames->add($implicitIndexName);
-        }
-
-        if ($this->indexes->get($indexName) !== null && ! $replacedImplicitIndexNames->contains($indexName)) {
-            throw IndexAlreadyExists::new($this->name, $indexName);
-        }
-
-        foreach ($replacedImplicitIndexNames as $replacedImplicitIndexName) {
-            $this->indexes->remove($replacedImplicitIndexName);
-            $this->implicitIndexNames->remove($replacedImplicitIndexName);
-        }
-
-        $this->indexes->add($index);
-
-        return $this;
-    }
-
-    private function _addUniqueConstraint(UniqueConstraint $constraint): self
-    {
-        try {
-            $this->uniqueConstraints->add($constraint);
-        } catch (ObjectAlreadyExists $e) {
-            throw InvalidTableModification::uniqueConstraintAlreadyExists($this->name, $e);
-        }
-
-        $columnNames = $constraint->getColumnNames();
-
-        // If there is already an index that fulfills this requirements drop the request. In the case of __construct
-        // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
-        // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = UnqualifiedName::unquoted(
-            $this->generateNameFromObjectColumnNames('idx', $columnNames),
-        );
-
-        $indexCandidate = Index::editor()
-            ->setName($indexName)
-            ->setType(IndexType::UNIQUE)
-            ->setColumnNames(...$columnNames)
-            ->create();
-
-        foreach ($this->indexes as $existingIndex) {
-            if ($indexCandidate->isFulfilledBy($existingIndex)) {
-                return $this;
-            }
-        }
-
-        $this->implicitIndexNames->add($indexName);
-
-        return $this;
-    }
-
-    private function _addForeignKeyConstraint(ForeignKeyConstraint $constraint): self
-    {
-        try {
-            $this->foreignKeyConstraints->add($constraint);
-        } catch (ObjectAlreadyExists $e) {
-            throw InvalidTableModification::foreignKeyConstraintAlreadyExists($this->name, $e);
-        }
-
-        $columnNames = $constraint->getReferencingColumnNames();
-
-        // add an explicit index on the foreign key columns.
-        // If there is already an index that fulfills this requirements drop the request. In the case of __construct
-        // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
-        // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = UnqualifiedName::unquoted(
-            $this->generateNameFromObjectColumnNames('idx', $columnNames),
-        );
-
-        $indexCandidate = Index::editor()
-            ->setName($indexName)
-            ->setColumnNames(...$columnNames)
-            ->create();
-
-        foreach ($this->indexes as $existingIndex) {
-            if ($indexCandidate->isFulfilledBy($existingIndex)) {
-                return $this;
-            }
-        }
-
-        $this->_addIndex($indexCandidate);
-        $this->implicitIndexNames->add($indexName);
-
-        return $this;
-    }
-
-    /**
-     * Returns the key to be used to represent an object with the given name in a collection of objects.
-     *
-     * @return non-empty-string
-     */
-    private function getObjectKey(UnqualifiedName $name): string
-    {
-        return strtolower($name->getIdentifier()->getValue());
-    }
-
-    /**
-     * @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::setComment()} instead.
-     *
-     * @return $this
-     */
-    public function setComment(string $comment): self
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7389',
-            '%s is deprecated. Use Table::edit() and TableEditor::setComment() instead.',
-            __METHOD__,
-        );
-
-        // For keeping backward compatibility with MySQL in previous releases, table comments are stored as options.
-        $this->addOption('comment', $comment);
-
-        return $this;
     }
 
     public function getComment(): ?string
@@ -1157,309 +366,6 @@ final class Table implements NamedObject
 
         return $editor
             ->setOptions($options)
-            ->setConfiguration(
-                new TableConfiguration($this->maxIdentifierLength),
-            );
-    }
-
-    /** @param non-empty-list<string> $columns */
-    private function createUniqueConstraint(
-        array $columns,
-        string $indexName,
-        bool $isClustered,
-    ): UniqueConstraint {
-        $constraintName = $this->parseUnqualifiedName($indexName);
-        $columnNames    = $this->parseUnqualifiedNames($columns);
-
-        foreach ($columnNames as $columnName) {
-            if (! $this->hasColumn($columnName->toString())) {
-                throw ColumnDoesNotExist::new($this->name, $columnName);
-            }
-        }
-
-        return UniqueConstraint::editor()
-            ->setName($constraintName)
-            ->setColumnNames(...$columnNames)
-            ->setIsClustered($isClustered)
-            ->create();
-    }
-
-    /**
-     * @param non-empty-list<string> $columns
-     * @param array<int, string>     $flags
-     * @param array<string, mixed>   $options
-     */
-    private function createIndex(
-        array $columns,
-        string $indexName,
-        bool $isUnique,
-        array $flags = [],
-        array $options = [],
-    ): Index {
-        $parsedName = $this->parseUnqualifiedName($indexName);
-
-        $flagIndex = [];
-        foreach ($flags as $flag) {
-            $flagIndex[strtolower($flag)] = true;
-        }
-
-        $invalidFlags = $flagIndex;
-        unset(
-            $invalidFlags['fulltext'],
-            $invalidFlags['spatial'],
-            $invalidFlags['clustered'],
-            $invalidFlags['nonclustered'],
-        );
-
-        if (count($invalidFlags) > 0) {
-            throw InvalidIndexDefinition::fromInvalidFlags($parsedName, array_keys($invalidFlags));
-        }
-
-        $invalidOptions = $options;
-        unset(
-            $invalidOptions['lengths'],
-            $invalidOptions['where'],
-        );
-
-        if (count($invalidOptions) > 0) {
-            throw InvalidIndexDefinition::fromInvalidOptions($parsedName, array_keys($invalidOptions));
-        }
-
-        if (isset($flagIndex['clustered']) && isset($flagIndex['nonclustered'])) {
-            throw InvalidIndexDefinition::fromNonClusteredClustered($parsedName);
-        }
-
-        $editor = Index::editor()
-            ->setName($parsedName);
-
-        if ($isUnique) {
-            $editor->setType(IndexType::UNIQUE);
-        }
-
-        $matches = [];
-
-        if (isset($flagIndex['fulltext'])) {
-            $editor->setType(IndexType::FULLTEXT);
-            $matches[] = 'fulltext';
-        }
-
-        if (isset($flagIndex['spatial'])) {
-            $editor->setType(IndexType::SPATIAL);
-            $matches[] = 'spatial';
-        }
-
-        if (count($matches) > 1) {
-            throw InvalidIndexDefinition::fromMutuallyExclusiveFlags($parsedName, $matches);
-        }
-
-        if (isset($flagIndex['clustered'])) {
-            $editor->setIsClustered(true);
-        }
-
-        if (isset($options['where'])) {
-            $editor->setPredicate($options['where']);
-        }
-
-        $indexedColumns = $this->parseIndexColumns($columns, $options['lengths'] ?? []);
-
-        foreach ($indexedColumns as $indexedColumn) {
-            $columnName = $indexedColumn->getColumnName();
-
-            if (! $this->hasColumn($columnName->toString())) {
-                throw ColumnDoesNotExist::new($this->name, $columnName);
-            }
-        }
-
-        return $editor->setColumns(...$indexedColumns)
-            ->create();
-    }
-
-    /**
-     * @param non-empty-array<int, string> $columnNames
-     * @param array<int>                   $lengths
-     *
-     * @return non-empty-list<IndexedColumn>
-     */
-    private function parseIndexColumns(array $columnNames, array $lengths): array
-    {
-        $columns = [];
-
-        foreach ($columnNames as $columnName) {
-            $parsedName = $this->parseUnqualifiedName($columnName);
-
-            $length = array_shift($lengths);
-
-            if ($length !== null) {
-                if (! is_int($length)) {
-                    throw InvalidIndexDefinition::fromInvalidColumnLengthType($parsedName, $length);
-                }
-
-                if ($length < 1) {
-                    throw InvalidIndexDefinition::fromNonPositiveColumnLength($parsedName, $length);
-                }
-            }
-
-            $columns[] = new IndexedColumn($parsedName, $length);
-        }
-
-        return $columns;
-    }
-
-    /**
-     * Generates a name from a prefix and a list of column names represented as objects obeying the configured maximum
-     * identifier length.
-     *
-     * @param non-empty-list<UnqualifiedName> $columnNames
-     *
-     * @return non-empty-string
-     */
-    private function generateNameFromObjectColumnNames(string $prefix, array $columnNames): string
-    {
-        return $this->generateNameFromStringColumnNames(
-            $prefix,
-            array_map(static function (UnqualifiedName $columnName): string {
-                return $columnName->getIdentifier()->getValue();
-            }, $columnNames),
-        );
-    }
-
-    /**
-     * Generates a name from a prefix and a list of column names represented as strings obeying the configured maximum
-     * identifier length.
-     *
-     * @param array<int, string> $columnNames
-     *
-     * @return non-empty-string
-     */
-    private function generateNameFromStringColumnNames(string $prefix, array $columnNames): string
-    {
-        $hash = implode('', array_map(static function (string $columnName): string {
-            return dechex(crc32($columnName));
-        }, array_merge([
-            $this->getObjectName()
-                ->getUnqualifiedName()
-                ->getValue(),
-        ], $columnNames)));
-
-        return strtoupper(substr($prefix . '_' . $hash, 0, $this->maxIdentifierLength));
-    }
-
-    private function renameColumnInIndexes(string $oldKey, UnqualifiedName $newName): void
-    {
-        foreach ($this->indexes as $index) {
-            $modified    = false;
-            $columnNames = [];
-            foreach ($index->getIndexedColumns() as $indexedColumn) {
-                $columnName = $indexedColumn->getColumnName();
-                if ($this->getObjectKey($columnName) === $oldKey) {
-                    $columnNames[] = $newName;
-                    $modified      = true;
-                } else {
-                    $columnNames[] = $columnName;
-                }
-            }
-
-            if (! $modified) {
-                continue;
-            }
-
-            $this->indexes->modify($index->getObjectName(), static function (Index $index) use ($columnNames): Index {
-                return $index->edit()
-                    ->setColumnNames(...$columnNames)
-                    ->create();
-            });
-        }
-    }
-
-    private function renameColumnInForeignKeyConstraints(string $oldKey, UnqualifiedName $newName): void
-    {
-        foreach ($this->foreignKeyConstraints as $position => $constraint) {
-            $modified    = false;
-            $columnNames = [];
-            foreach ($constraint->getReferencingColumnNames() as $columnName) {
-                if ($this->getObjectKey($columnName) === $oldKey) {
-                    $columnNames[] = $newName;
-                    $modified      = true;
-                } else {
-                    $columnNames[] = $columnName;
-                }
-            }
-
-            if (! $modified) {
-                continue;
-            }
-
-            $this->foreignKeyConstraints->modifyByPosition(
-                $position,
-                static fn (ForeignKeyConstraint $constraint): ForeignKeyConstraint => $constraint->edit()
-                    ->setReferencingColumnNames(...$columnNames)
-                    ->create(),
-            );
-        }
-    }
-
-    private function renameColumnInUniqueConstraints(string $oldKey, UnqualifiedName $newName): void
-    {
-        foreach ($this->uniqueConstraints->toList() as $position => $constraint) {
-            $modified    = false;
-            $columnNames = [];
-            foreach ($constraint->getColumnNames() as $columnName) {
-                if ($this->getObjectKey($columnName) === $oldKey) {
-                    $columnNames[] = $newName;
-                    $modified      = true;
-                } else {
-                    $columnNames[] = $columnName;
-                }
-            }
-
-            if (! $modified) {
-                continue;
-            }
-
-            $this->uniqueConstraints->modifyByPosition(
-                $position,
-                static fn (UniqueConstraint $constraint): UniqueConstraint => $constraint->edit()
-                    ->setColumnNames(...$columnNames)
-                    ->create(),
-            );
-        }
-    }
-
-    /** @return list<?UnqualifiedName> */
-    private function getForeignKeyConstraintNamesByLocalColumnName(UnqualifiedName $columnName): array
-    {
-        $columnKey = $this->getObjectKey($columnName);
-
-        $names = [];
-
-        foreach ($this->foreignKeyConstraints as $constraint) {
-            foreach ($constraint->getReferencingColumnNames() as $referencingColumnName) {
-                if ($this->getObjectKey($referencingColumnName) === $columnKey) {
-                    $names[] = $constraint->getObjectName();
-                    break;
-                }
-            }
-        }
-
-        return $names;
-    }
-
-    /** @return list<?UnqualifiedName> */
-    private function getUniqueConstraintNamesByColumnName(UnqualifiedName $columnName): array
-    {
-        $columnKey = $this->getObjectKey($columnName);
-
-        $constraintNames = [];
-
-        foreach ($this->uniqueConstraints->toList() as $constraint) {
-            foreach ($constraint->getColumnNames() as $constraintColumnName) {
-                if ($this->getObjectKey($constraintColumnName) === $columnKey) {
-                    $constraintNames[] = $constraint->getObjectName();
-                    break;
-                }
-            }
-        }
-
-        return $constraintNames;
+            ->setConfiguration($this->configuration);
     }
 }

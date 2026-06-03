@@ -7,30 +7,17 @@ namespace Doctrine\DBAL\Schema\Collections;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
-use IteratorAggregate;
 
 /**
- * A set of objects where each object is uniquely identified by its {@link UnqualifiedName}.
+ * A mutable set of objects where each object is uniquely identified by its {@link UnqualifiedName}.
  *
  * @internal
  *
  * @template E of object
- * @template-extends IteratorAggregate<int, E>
+ * @template-extends ReadableObjectSet<E>
  */
-interface ObjectSet extends IteratorAggregate
+interface ObjectSet extends ReadableObjectSet
 {
-    /**
-     * Checks if the set is empty.
-     */
-    public function isEmpty(): bool;
-
-    /**
-     * Returns the element with the given name. If no such element exists, null is returned.
-     *
-     * @phpstan-return E|null
-     */
-    public function get(UnqualifiedName $elementName): ?object;
-
     /**
      * Adds the given element to the set.
      *
@@ -61,11 +48,4 @@ interface ObjectSet extends IteratorAggregate
      * Clears the set, removing all elements.
      */
     public function clear(): void;
-
-    /**
-     * Returns the elements of the set represented as a list.
-     *
-     * @phpstan-return list<E>
-     */
-    public function toList(): array;
 }
