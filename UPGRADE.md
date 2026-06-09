@@ -476,6 +476,11 @@ all drivers and middleware.
 
 # Upgrade to 4.5
 
+## Marked `AbstractNamedObject` and `AbstractOptionallyNamedObject` classes as internal
+
+The `AbstractNamedObject` and `AbstractOptionallyNamedObject` classes have been marked as internal. Use the
+`NamedObject` and `OptionallyNamedObject` interfaces instead.
+
 ## Deprecated `Schema` features
 
 The `Schema` constructor has been marked as internal. Use `Schema::editor()` to instantiate an editor and
@@ -513,6 +518,30 @@ method instead:
 - `Column::setAutoincrement()` - use `ColumnEditor::setAutoincrement()`.
 - `Column::setComment()` - use `ColumnEditor::setComment()`.
 - `Column::setValues()` - use `ColumnEditor::setValues()`.
+
+## Deprecated `Table` features
+
+The `Table` constructor has been marked as internal. Use `Table::editor()` to instantiate an editor and
+`TableEditor::create()` to create a table.
+
+The following `Table` mutators have been deprecated. Use `Table::edit()` and the corresponding `TableEditor` method
+instead:
+
+- `Table::addColumn()` - use `TableEditor::addColumn()`.
+- `Table::renameColumn()` - use `TableEditor::renameColumn()`.
+- `Table::modifyColumn()` - use `TableEditor::modifyColumn()`.
+- `Table::dropColumn()` - use `TableEditor::dropColumn()`.
+- `Table::addIndex()` and `Table::addUniqueIndex()` - use `TableEditor::addIndex()`.
+- `Table::renameIndex()` - use `TableEditor::renameIndex()`.
+- `Table::dropIndex()` - use `TableEditor::dropIndex()`.
+- `Table::addPrimaryKeyConstraint()` - use `TableEditor::addPrimaryKeyConstraint()`.
+- `Table::dropPrimaryKey()` - use `TableEditor::dropPrimaryKeyConstraint()`.
+- `Table::addUniqueConstraint()` - use `TableEditor::addUniqueConstraint()`.
+- `Table::dropUniqueConstraint()` - use `TableEditor::dropUniqueConstraint()`.
+- `Table::addForeignKeyConstraint()` - use `TableEditor::addForeignKeyConstraint()`.
+- `Table::dropForeignKey()` - use `TableEditor::dropForeignKeyConstraint()`.
+- `Table::addOption()` - use `TableEditor::setOptions()`.
+- `Table::setComment()` - use `TableEditor::setComment()`.
 
 ## Deprecated `TableDiff::getRenamedIndexes()`
 

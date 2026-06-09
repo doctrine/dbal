@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tools\DsnParser;
@@ -31,9 +32,11 @@ class OtherSchemaTest extends FunctionalTestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedColumnNames('id'),
+            )
             ->create();
-
-        $table->addIndex(['id']);
 
         $this->dropAndCreateTable($table);
         $this->connection->insert('other.test_other_schema', ['id' => 1]);

@@ -21,7 +21,7 @@ class SchemaTest extends TestCase
     {
         $tableName = 'public.foo';
         $table     = Table::editor()
-            ->setUnquotedName($tableName)
+            ->setUnquotedName('foo', 'public')
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('id')

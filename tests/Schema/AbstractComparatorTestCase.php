@@ -1008,7 +1008,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $newSchema = Schema::editor()
             ->setDefaultNamespace('foo')
-            ->addTable($this->createTable('foo.bar'))
+            ->addTable($this->createTable('bar', 'foo'))
             ->create();
 
         self::assertEquals(
@@ -1023,16 +1023,16 @@ abstract class AbstractComparatorTestCase extends TestCase
             ->setDefaultNamespace('schemaName')
             ->setTables(
                 $this->createTable('taz'),
-                $this->createTable('war.tab'),
+                $this->createTable('tab', 'war'),
             )
             ->create();
 
         $newSchema = Schema::editor()
             ->setDefaultNamespace('schemaName')
             ->setTables(
-                $this->createTable('bar.tab'),
-                $this->createTable('baz.tab'),
-                $this->createTable('war.tab'),
+                $this->createTable('tab', 'bar'),
+                $this->createTable('tab', 'baz'),
+                $this->createTable('tab', 'war'),
             )
             ->create();
 
@@ -1270,11 +1270,14 @@ abstract class AbstractComparatorTestCase extends TestCase
         return $names;
     }
 
-    /** @param non-empty-string $name */
-    private function createTable(string $name): Table
+    /**
+     * @param non-empty-string  $name
+     * @param ?non-empty-string $qualifier
+     */
+    private function createTable(string $name, ?string $qualifier = null): Table
     {
         return Table::editor()
-            ->setUnquotedName($name)
+            ->setUnquotedName($name, $qualifier)
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('id')

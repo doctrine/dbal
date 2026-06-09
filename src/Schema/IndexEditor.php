@@ -145,4 +145,69 @@ final class IndexEditor
 
         return new Index($this->name, $this->type, $this->columns, $this->isClustered, $this->predicate);
     }
+
+    /**
+     * Adds the index described by this editor to the given table, generating its name from the table when no name is
+     * set.
+     *
+     * @internal Used by {@link TableEditor} to add an editor-described index to a table.
+     */
+    public function addToTable(Table $table): void
+    {
+        [$columnNames, $flags, $options] = $this->toIndexParameters($this->name ?? UnqualifiedName::unquoted('index'));
+
+        $indexName = $this->name?->toString();
+
+        if ($this->type === IndexType::UNIQUE) {
+            $table->addUniqueIndex($columnNames, $indexName, $options);
+
+            return;
+        }
+
+        $table->addIndex($columnNames, $indexName, $flags, $options);
+    }
+
+    /**
+     * Maps the editor's columns, flags, and options to the arguments the {@see Table} index methods expect.
+     *
+     * @return array{non-empty-list<string>, list<string>, array<string, mixed>} the column names, flags, and options
+     */
+    private function toIndexParameters(UnqualifiedName $name): array
+    {
+        if (count($this->columns) < 1) {
+            throw InvalidIndexDefinition::columnsNotSet($name);
+        }
+
+        $columnNames = $lengths = $options = $flags = [];
+        foreach ($this->columns as $i => $column) {
+            $columnNames[] = $column->getColumnName()->toString();
+
+            $length = $column->getLength();
+            if ($length === null) {
+                continue;
+            }
+
+            $lengths[$i] = $column->getLength();
+        }
+
+        if (count($lengths) !== 0) {
+            $options['lengths'] = $lengths;
+        }
+
+        if ($this->type === IndexType::FULLTEXT) {
+            $flags[] = 'fulltext';
+        } elseif ($this->type === IndexType::SPATIAL) {
+            $flags[] = 'spatial';
+        }
+
+        if ($this->isClustered) {
+            $flags[] = 'clustered';
+        }
+
+        if ($this->predicate !== null) {
+            $options['where'] = $this->predicate;
+        }
+
+        return [$columnNames, $flags, $options];
+    }
 }

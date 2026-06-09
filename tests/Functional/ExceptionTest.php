@@ -8,6 +8,8 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -184,9 +186,12 @@ class ExceptionTest extends FunctionalTestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id'),
+            )
             ->create();
-
-        $table->addUniqueIndex(['id']);
 
         $this->dropAndCreateTable($table);
 

@@ -127,6 +127,41 @@ class TableTest extends TestCase
         self::assertCount(1, $table->getColumns());
     }
 
+    public function testRenameColumnThroughEditor(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('foo')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+            )
+            ->create();
+
+        $table = $table->edit()
+            ->renameColumnByUnquotedName('foo', 'bar')
+            ->create();
+
+        self::assertTrue($table->hasColumn('bar'), 'Should now have bar column');
+        self::assertFalse($table->hasColumn('foo'), 'Should not have foo column anymore');
+        self::assertCount(1, $table->getColumns());
+        self::assertEquals(['bar' => 'foo'], $table->getRenamedColumns());
+
+        $table = $table->edit()
+            ->renameColumnByUnquotedName('bar', 'baz')
+            ->create();
+
+        self::assertTrue($table->hasColumn('baz'), 'Should now have baz column');
+        self::assertFalse($table->hasColumn('bar'), 'Should not have bar column anymore');
+
+        // The result of multiple consecutive edit-rename-column-and-create operations is different from
+        // Table::renameColumn(): each edit records the rename relative to the table it started from, so the renames
+        // do not chain across edits.
+        self::assertEquals(['baz' => 'bar'], $table->getRenamedColumns());
+        self::assertCount(1, $table->getColumns());
+    }
+
     public function testRenameColumnException(): void
     {
         $table = Table::editor()
@@ -160,6 +195,27 @@ class TableTest extends TestCase
         $table->renameColumn('baz', '`foo`');
         self::assertCount(1, $table->getRenamedColumns());
         $table->renameColumn('foo', 'Baz');
+        self::assertCount(1, $table->getColumns());
+        self::assertCount(0, $table->getRenamedColumns());
+    }
+
+    public function testRenameColumnLoopThroughEditor(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('baz')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $table = $table->edit()
+            ->renameColumnByUnquotedName('baz', 'foo')
+            ->renameColumnByUnquotedName('foo', 'Baz')
+            ->create();
+
         self::assertCount(1, $table->getColumns());
         self::assertCount(0, $table->getRenamedColumns());
     }
@@ -313,6 +369,30 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasColumn('foo'));
         self::assertTrue($table->hasColumn('bar'));
+
+        $table = $table->edit()
+            ->dropColumnByUnquotedName('foo')
+            ->create();
+
+        self::assertFalse($table->hasColumn('foo'));
+        self::assertTrue($table->hasColumn('bar'));
+    }
+
+    public function testDropColumnThroughEditor(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('foo')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
 
         $table = $table->edit()
             ->dropColumnByUnquotedName('foo')
@@ -704,6 +784,12 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('my_idx')
+                    ->setUnquotedColumnNames('ID')
+                    ->create(),
+            )
             ->create();
 
         $this->expectException(ValueError::class);
@@ -741,11 +827,70 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedColumnNames('baz'),
+            )
             ->create();
 
-        $table->addIndex(['baz']);
-
         self::assertCount(1, $table->getIndexes());
+    }
+
+    public function testAddIndexViaEditorGeneratesSameNamesAsMutators(): void
+    {
+        $columns = [
+            Column::editor()
+                ->setUnquotedName('a')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('b')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ];
+
+        $viaEditor = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(...$columns)
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedColumnNames('a', 'b'),
+            )
+            ->addIndex(
+                Index::editor()
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('a', 'b'),
+            )
+            ->create();
+
+        $viaMutators = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(...$columns)
+            ->create();
+        $viaMutators->addIndex(['a', 'b']);
+        $viaMutators->addUniqueIndex(['a', 'b']);
+
+        self::assertEquals($viaMutators->getIndexes(), $viaEditor->getIndexes());
+    }
+
+    public function testAddIndexEditorWithExplicitNameKeepsIt(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('a')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('my_idx')
+                    ->setUnquotedColumnNames('a'),
+            )
+            ->create();
+
+        self::assertTrue($table->hasIndex('my_idx'));
     }
 
     public function testAddForeignKeyIndexImplicitly(): void
@@ -756,6 +901,13 @@ class TableTest extends TestCase
                 Column::editor()
                     ->setUnquotedName('id')
                     ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('id')
+                    ->setUnquotedReferencedTableName('bar')
+                    ->setUnquotedReferencedColumnNames('id')
                     ->create(),
             )
             ->setForeignKeyConstraints(
@@ -880,15 +1032,24 @@ class TableTest extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedColumnNames('baz'),
+            )
             ->create();
-
-        $table->addIndex(['baz']);
 
         $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
         $index = $indexes[0];
 
-        $table->addUniqueIndex(['baz']);
+        $table = $table->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('baz'),
+            )
+            ->create();
+
         self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex($index->getObjectName()->toString()));
     }
@@ -901,6 +1062,16 @@ class TableTest extends TestCase
                 Column::editor()
                     ->setUnquotedName('bar')
                     ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('bar_idx')
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('duplicate_idx')
+                    ->setUnquotedColumnNames('bar')
                     ->create(),
             )
             ->setIndexes(
@@ -1052,6 +1223,13 @@ class TableTest extends TestCase
                 Column::editor()
                     ->setUnquotedName('id')
                     ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('id')
+                    ->setUnquotedReferencedTableName('foreign')
+                    ->setUnquotedReferencedColumnNames('id')
                     ->create(),
             )
             ->setForeignKeyConstraints(
@@ -1300,6 +1478,32 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
         self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
+    }
+
+    public function testRenameIndexThroughEditor(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $table = $table->edit()
+            ->renameIndexByUnquotedName('idx', 'idx_new')
+            ->create();
+
+        self::assertFalse($table->hasIndex('idx'));
+        self::assertTrue($table->hasIndex('idx_new'));
     }
 
     public function testRenameNonExistingIndexToTheSameName(): void

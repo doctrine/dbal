@@ -9,6 +9,8 @@ use Override;
 /**
  * An abstract {@see OptionallyNamedObject}.
  *
+ * @internal since doctrine/dbal 4.5, use {@see OptionallyNamedObject} instead.
+ *
  * @template N of Name
  * @implements OptionallyNamedObject<N>
  */

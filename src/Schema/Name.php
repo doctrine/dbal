@@ -19,7 +19,9 @@ interface Name
     /**
      * Returns the string representation of the name.
      *
-     * If passed to the corresponding parser, the name should be parsed back to an equivalent object.
+     * The representation is intended for display, such as in error messages, not for parsing back into a name:
+     * parsing does not always reproduce the original. If an unquoted part of the name contains whitespace, a dot,
+     * or a quote character (", `, [, ]), parsing it will return a different name or fail.
      */
     public function toString(): string;
 }

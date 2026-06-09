@@ -176,9 +176,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                     ->setUnquotedColumnNames('bar')
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('baz'),
+            )
             ->create();
-
-        $keyTable->addUniqueIndex(['baz']);
 
         $diff = $this->createComparator()
             ->compareTables($oldTable, $keyTable);

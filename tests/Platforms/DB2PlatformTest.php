@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -132,10 +133,16 @@ class DB2PlatformTest extends AbstractPlatformTestCase
                     ->setUnquotedColumnNames('id')
                     ->create(),
             )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedColumnNames('name'),
+            )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('composite_idx')
+                    ->setUnquotedColumnNames('id', 'name'),
+            )
             ->create();
-
-        $table->addIndex(['name']);
-        $table->addIndex(['id', 'name'], 'composite_idx');
 
         self::assertEquals(
             [
