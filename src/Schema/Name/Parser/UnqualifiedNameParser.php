@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Name\Parser;
 
 use Doctrine\DBAL\Schema\Name\Parser;
-use Doctrine\DBAL\Schema\Name\Parser\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Override;
-
-use function count;
 
 /**
  * @internal
@@ -25,12 +22,7 @@ final readonly class UnqualifiedNameParser implements Parser
     #[Override]
     public function parse(string $input): UnqualifiedName
     {
-        $identifiers = $this->genericNameParser->parse($input)
-            ->getIdentifiers();
-
-        if (count($identifiers) > 1) {
-            throw InvalidName::forUnqualifiedName(count($identifiers));
-        }
+        $identifiers = $this->genericNameParser->parse($input, 1);
 
         return new UnqualifiedName($identifiers[0]);
     }

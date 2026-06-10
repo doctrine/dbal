@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Name\Parser;
 
-use Doctrine\DBAL\Schema\Name\GenericName;
 use Doctrine\DBAL\Schema\Name\Identifier;
-use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedDot;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedNextIdentifier;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\UnableToParseIdentifier;
-use Override;
+use Doctrine\DBAL\Schema\Name\Parser\Exception\UnexpectedDot;
 
 use function assert;
 use function count;
@@ -35,10 +33,8 @@ use function strlen;
  * 2. Whitespace is not allowed between identifiers.
  *
  * @internal
- *
- * @implements Parser<GenericName>
  */
-final class GenericNameParser implements Parser
+final class GenericNameParser
 {
     private const string IDENTIFIER_PATTERN = <<<'PATTERN'
         /\G
@@ -51,8 +47,16 @@ final class GenericNameParser implements Parser
         /x
     PATTERN;
 
-    #[Override]
-    public function parse(string $input): GenericName
+    /**
+     * Parses the input into its constituent identifiers.
+     *
+     * @param positive-int $cap The maximum number of identifiers the name may consist of.
+     *
+     * @return non-empty-list<Identifier>
+     *
+     * @throws Exception
+     */
+    public function parse(string $input, int $cap): array
     {
         $offset      = 0;
         $identifiers = [];
@@ -92,11 +96,15 @@ final class GenericNameParser implements Parser
                 throw ExpectedDot::new($offset, $character);
             }
 
+            if (count($identifiers) >= $cap) {
+                throw UnexpectedDot::new($offset);
+            }
+
             $offset++;
         }
 
         assert(count($identifiers) > 0);
 
-        return new GenericName(...$identifiers);
+        return $identifiers;
     }
 }
