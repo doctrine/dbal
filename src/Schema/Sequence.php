@@ -6,13 +6,14 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidSequenceDefinition;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Override;
 
 /**
  * Sequence structure.
  *
- * @extends AbstractNamedObject<OptionallyQualifiedName>
+ * @implements NamedObject<OptionallyQualifiedName>
  */
-final class Sequence extends AbstractNamedObject
+final class Sequence implements NamedObject
 {
     /**
      * @internal Use {@link Sequence::editor()} to instantiate an editor and {@link SequenceEditor::create()} to create
@@ -21,16 +22,20 @@ final class Sequence extends AbstractNamedObject
      * @param ?non-negative-int $cacheSize
      */
     public function __construct(
-        OptionallyQualifiedName $name,
+        private readonly OptionallyQualifiedName $name,
         private readonly int $allocationSize,
         private readonly int $initialValue,
         private readonly ?int $cacheSize = null,
     ) {
-        parent::__construct($name);
-
         if ($cacheSize < 0) {
             throw InvalidSequenceDefinition::fromNegativeCacheSize($cacheSize);
         }
+    }
+
+    #[Override]
+    public function getObjectName(): OptionallyQualifiedName
+    {
+        return $this->name;
     }
 
     public function getAllocationSize(): int

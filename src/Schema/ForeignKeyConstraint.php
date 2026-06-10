@@ -11,15 +11,16 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Override;
 
 use function count;
 
 /**
  * An abstraction class for a foreign key constraint.
  *
- * @extends AbstractOptionallyNamedObject<UnqualifiedName>
+ * @implements OptionallyNamedObject<UnqualifiedName>
  */
-final class ForeignKeyConstraint extends AbstractOptionallyNamedObject
+final class ForeignKeyConstraint implements OptionallyNamedObject
 {
     /**
      * @internal Use {@link ForeignKeyConstraint::editor()} to instantiate an editor and
@@ -41,7 +42,7 @@ final class ForeignKeyConstraint extends AbstractOptionallyNamedObject
      * @param Deferrability                   $deferrability          Whether the constraint is or can be deferred.
      */
     public function __construct(
-        ?UnqualifiedName $name,
+        private readonly ?UnqualifiedName $name,
         private readonly array $referencingColumnNames,
         private readonly OptionallyQualifiedName $referencedTableName,
         private readonly array $referencedColumnNames,
@@ -67,8 +68,12 @@ final class ForeignKeyConstraint extends AbstractOptionallyNamedObject
                 $referencedColumnCount,
             );
         }
+    }
 
-        parent::__construct($name);
+    #[Override]
+    public function getObjectName(): ?UnqualifiedName
+    {
+        return $this->name;
     }
 
     /**

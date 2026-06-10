@@ -6,15 +6,16 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Override;
 
 use function count;
 
 /**
  * Represents unique constraint definition.
  *
- * @extends AbstractOptionallyNamedObject<UnqualifiedName>
+ * @implements OptionallyNamedObject<UnqualifiedName>
  */
-final class UniqueConstraint extends AbstractOptionallyNamedObject
+final class UniqueConstraint implements OptionallyNamedObject
 {
     /**
      * @internal Use {@link UniqueConstraint::editor()} to instantiate an editor and
@@ -27,15 +28,19 @@ final class UniqueConstraint extends AbstractOptionallyNamedObject
      * @param non-empty-list<UnqualifiedName> $columnNames Names of the columns covered by the unique constraint.
      */
     public function __construct(
-        ?UnqualifiedName $name,
+        private readonly ?UnqualifiedName $name,
         private readonly array $columnNames,
         private readonly bool $isClustered,
     ) {
         if (count($columnNames) < 1) {
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($name);
         }
+    }
 
-        parent::__construct($name);
+    #[Override]
+    public function getObjectName(): ?UnqualifiedName
+    {
+        return $this->name;
     }
 
     /**

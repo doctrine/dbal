@@ -9,13 +9,14 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Override;
 
 use function count;
 use function strlen;
 use function strtolower;
 
-/** @extends AbstractNamedObject<UnqualifiedName> */
-final class Index extends AbstractNamedObject
+/** @implements NamedObject<UnqualifiedName> */
+final class Index implements NamedObject
 {
     /**
      * @internal Use {@link Index::editor()} to instantiate an editor and {@link IndexEditor::create()} to create an
@@ -25,7 +26,7 @@ final class Index extends AbstractNamedObject
      * @param ?non-empty-string             $predicate
      */
     public function __construct(
-        UnqualifiedName $name,
+        private readonly UnqualifiedName $name,
         private readonly IndexType $type,
         private readonly array $columns,
         private readonly bool $isClustered,
@@ -51,23 +52,29 @@ final class Index extends AbstractNamedObject
             };
         }
 
-        if ($predicate !== null) {
-            match ($type) {
-                IndexType::REGULAR,
-                IndexType::UNIQUE => null,
-                default => throw InvalidIndexDefinition::fromPartialIndex($name, $type),
-            };
-
-            if ($isClustered) {
-                throw InvalidIndexDefinition::fromPartialClusteredIndex($name);
-            }
-
-            if (strlen($predicate) === 0) {
-                throw InvalidIndexDefinition::fromEmptyPredicate($name);
-            }
+        if ($predicate === null) {
+            return;
         }
 
-        parent::__construct($name);
+        match ($type) {
+            IndexType::REGULAR,
+            IndexType::UNIQUE => null,
+            default => throw InvalidIndexDefinition::fromPartialIndex($name, $type),
+        };
+
+        if ($isClustered) {
+            throw InvalidIndexDefinition::fromPartialClusteredIndex($name);
+        }
+
+        if (strlen($predicate) === 0) {
+            throw InvalidIndexDefinition::fromEmptyPredicate($name);
+        }
+    }
+
+    #[Override]
+    public function getObjectName(): UnqualifiedName
+    {
+        return $this->name;
     }
 
     public function getType(): IndexType
