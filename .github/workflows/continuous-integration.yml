@@ -156,7 +156,7 @@ jobs:
           - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
           - "11.4"  # LTS (May 2029)
           - "11.8"  # LTS (Jun 2028)
-          - "12.1"  # Rolling Release (Q1 2026)
+          - "12.3"  # LTS (EOL TBC) We have code specific to ^12.3
         extension:
           - "mysqli"
           - "pdo_mysql"
