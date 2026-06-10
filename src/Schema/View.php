@@ -5,18 +5,24 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Override;
 
 /**
  * Representation of a Database View.
  *
- * @extends AbstractNamedObject<OptionallyQualifiedName>
+ * @implements NamedObject<OptionallyQualifiedName>
  */
-final class View extends AbstractNamedObject
+final class View implements NamedObject
 {
     /** @internal Use {@link View::editor()} to instantiate an editor and {@link ViewEditor::create()} to create a view. */
-    public function __construct(OptionallyQualifiedName $name, private readonly string $sql)
+    public function __construct(private readonly OptionallyQualifiedName $name, private readonly string $sql)
     {
-        parent::__construct($name);
+    }
+
+    #[Override]
+    public function getObjectName(): OptionallyQualifiedName
+    {
+        return $this->name;
     }
 
     public function getSQL(): string

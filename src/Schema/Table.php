@@ -33,6 +33,7 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
+use Override;
 
 use function array_keys;
 use function array_map;
@@ -52,10 +53,12 @@ use function substr;
 /**
  * Object Representation of a table.
  *
- * @extends AbstractNamedObject<OptionallyQualifiedName>
+ * @implements NamedObject<OptionallyQualifiedName>
  */
-final class Table extends AbstractNamedObject
+final class Table implements NamedObject
 {
+    private readonly OptionallyQualifiedName $name;
+
     /** @var UnqualifiedNamedObjectSet<Column> */
     private UnqualifiedNamedObjectSet $columns;
 
@@ -116,7 +119,7 @@ final class Table extends AbstractNamedObject
             throw InvalidName::fromParserException($name, $e);
         }
 
-        parent::__construct($parsedName);
+        $this->name = $parsedName;
 
         $configuration ??= (new SchemaConfig())->toTableConfiguration();
 
@@ -159,6 +162,12 @@ final class Table extends AbstractNamedObject
         $this->options = array_merge($this->options, $options);
 
         $this->renamedColumns = $renamedColumns;
+    }
+
+    #[Override]
+    public function getObjectName(): OptionallyQualifiedName
+    {
+        return $this->name;
     }
 
     /** @deprecated since doctrine/dbal 4.5. Use {@see edit()} and {@see TableEditor::addPrimaryKeyConstraint()} instead. */

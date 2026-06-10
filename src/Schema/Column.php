@@ -7,13 +7,14 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
+use Override;
 
 use function array_merge;
 
 /**
  * Object representation of a database column.
  *
- * @extends AbstractNamedObject<UnqualifiedName>
+ * @implements NamedObject<UnqualifiedName>
  * @phpstan-type ColumnProperties = array{
  *     name: UnqualifiedName,
  *     type: Type,
@@ -32,7 +33,7 @@ use function array_merge;
  *     enumType?: class-string,
  * }
  */
-final class Column extends AbstractNamedObject
+final class Column implements NamedObject
 {
     /**
      * @internal Use {@link Column::editor()} to instantiate an editor and {@link ColumnEditor::create()} to create a
@@ -43,7 +44,7 @@ final class Column extends AbstractNamedObject
      * @param ?non-empty-string $columnDefinition
      */
     public function __construct(
-        UnqualifiedName $name,
+        private readonly UnqualifiedName $name,
         private readonly Type $type,
         private readonly ?int $length,
         private readonly ?int $precision,
@@ -58,7 +59,12 @@ final class Column extends AbstractNamedObject
         private readonly ?string $columnDefinition,
         private readonly string $comment,
     ) {
-        parent::__construct($name);
+    }
+
+    #[Override]
+    public function getObjectName(): UnqualifiedName
+    {
+        return $this->name;
     }
 
     public function getType(): Type
