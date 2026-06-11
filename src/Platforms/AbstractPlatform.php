@@ -14,7 +14,6 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnPrecisionRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnScaleRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\LockMode;
-use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Exception\UnsupportedIndexDefinition;
 use Doctrine\DBAL\Platforms\Exception\UnsupportedPrimaryKeyConstraintDefinition;
@@ -876,10 +875,6 @@ abstract class AbstractPlatform
     /** @return list<string> */
     private function buildCreateTableSQL(Table $table, bool $createForeignKeys): array
     {
-        if (count($table->getColumns()) === 0) {
-            throw NoColumnsSpecifiedForTable::new($table->getObjectName());
-        }
-
         $tableName                       = $table->getObjectName();
         $parameters                      = $table->getOptions();
         $parameters['primaryKey']        = $table->getPrimaryKeyConstraint();

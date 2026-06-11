@@ -107,9 +107,9 @@ class ColumnRenameTest extends FunctionalTestCase
 
         $modifier($editor);
 
-        $table = $editor->create();
-
-        $table->renameColumn('c1', 'c1a');
+        $table = $editor
+            ->renameColumnByUnquotedName('c1', 'c1a')
+            ->create();
 
         $this->connection->createSchemaManager()->createTable($table);
 

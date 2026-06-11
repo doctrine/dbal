@@ -122,14 +122,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $this->platform->registerDoctrineTypeMapping('foo', 'bar');
     }
 
-    public function testCreateWithNoColumns(): void
-    {
-        $table = new Table('test');
-
-        $this->expectException(Exception::class);
-        $this->platform->getCreateTableSQL($table);
-    }
-
     public function testGeneratesTableCreationSql(): void
     {
         $table = Table::editor()

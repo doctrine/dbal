@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Override;
 use Traversable;
 
+use function array_values;
 use function strtolower;
 
 /**
@@ -24,6 +25,19 @@ final class UnqualifiedNameSet implements NameSet
 {
     /** @var array<string, UnqualifiedName> */
     private array $elements = [];
+
+    public function __construct(UnqualifiedName ...$names)
+    {
+        foreach ($names as $name) {
+            $this->add($name);
+        }
+    }
+
+    /** @return list<UnqualifiedName> */
+    public function toList(): array
+    {
+        return array_values($this->elements);
+    }
 
     #[Override]
     public function contains(Name $name): bool

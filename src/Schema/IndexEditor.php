@@ -7,11 +7,18 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_map;
+use function array_merge;
 use function array_values;
 use function count;
+use function crc32;
+use function dechex;
+use function implode;
+use function strtoupper;
+use function substr;
 
 final class IndexEditor
 {
@@ -147,67 +154,38 @@ final class IndexEditor
     }
 
     /**
-     * Adds the index described by this editor to the given table, generating its name from the table when no name is
-     * set.
+     * Builds the index described by this editor, generating its name from the table when no name is set.
      *
-     * @internal Used by {@link TableEditor} to add an editor-described index to a table.
-     */
-    public function addToTable(Table $table): void
-    {
-        [$columnNames, $flags, $options] = $this->toIndexParameters($this->name ?? UnqualifiedName::unquoted('index'));
-
-        $indexName = $this->name?->toString();
-
-        if ($this->type === IndexType::UNIQUE) {
-            $table->addUniqueIndex($columnNames, $indexName, $options);
-
-            return;
-        }
-
-        $table->addIndex($columnNames, $indexName, $flags, $options);
-    }
-
-    /**
-     * Maps the editor's columns, flags, and options to the arguments the {@see Table} index methods expect.
+     * @internal Used by {@link TableEditor} to build an editor-described index for a table.
      *
-     * @return array{non-empty-list<string>, list<string>, array<string, mixed>} the column names, flags, and options
+     * @param positive-int $maxIdentifierLength
      */
-    private function toIndexParameters(UnqualifiedName $name): array
+    public function createForTable(Identifier $tableName, int $maxIdentifierLength): Index
     {
+        $name = $this->name ?? $this->generateName($tableName, $maxIdentifierLength);
+
         if (count($this->columns) < 1) {
             throw InvalidIndexDefinition::columnsNotSet($name);
         }
 
-        $columnNames = $lengths = $options = $flags = [];
-        foreach ($this->columns as $i => $column) {
-            $columnNames[] = $column->getColumnName()->toString();
+        return new Index($name, $this->type, $this->columns, $this->isClustered, $this->predicate);
+    }
 
-            $length = $column->getLength();
-            if ($length === null) {
-                continue;
-            }
+    /** @param positive-int $maxIdentifierLength */
+    private function generateName(Identifier $tableName, int $maxIdentifierLength): UnqualifiedName
+    {
+        $prefix = $this->type === IndexType::UNIQUE ? 'uniq' : 'idx';
 
-            $lengths[$i] = $column->getLength();
-        }
+        $values = array_map(
+            static fn (IndexedColumn $column): string => $column->getColumnName()->getIdentifier()->getValue(),
+            $this->columns,
+        );
 
-        if (count($lengths) !== 0) {
-            $options['lengths'] = $lengths;
-        }
+        $hash = implode('', array_map(
+            static fn (string $value): string => dechex(crc32($value)),
+            array_merge([$tableName->getValue()], $values),
+        ));
 
-        if ($this->type === IndexType::FULLTEXT) {
-            $flags[] = 'fulltext';
-        } elseif ($this->type === IndexType::SPATIAL) {
-            $flags[] = 'spatial';
-        }
-
-        if ($this->isClustered) {
-            $flags[] = 'clustered';
-        }
-
-        if ($this->predicate !== null) {
-            $options['where'] = $this->predicate;
-        }
-
-        return [$columnNames, $flags, $options];
+        return UnqualifiedName::unquoted(strtoupper(substr($prefix . '_' . $hash, 0, $maxIdentifierLength)));
     }
 }

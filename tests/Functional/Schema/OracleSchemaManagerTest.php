@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\DateTimeType;
@@ -190,9 +191,12 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
 
         $oldSchema = $schemaManager->introspectSchema();
-        $newSchema = clone $oldSchema;
+        $newSchema = $oldSchema->edit()
+            ->modifyTableByUnquotedName('tester', static function (TableEditor $editor): void {
+                $editor->dropColumnByUnquotedName('name');
+            })
+            ->create();
 
-        $newSchema->getTable('"tester"')->dropColumn('"name"');
         $diff = $schemaManager->createComparator()
             ->compareSchemas($oldSchema, $newSchema);
 

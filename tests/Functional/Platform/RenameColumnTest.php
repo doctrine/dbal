@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -116,11 +116,14 @@ class RenameColumnTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         // Force a different type to make sure it's not being caught implicitly
-        $table->renameColumn($oldColumnName, $newColumnName);
-        $table->modifyColumn($newColumnName, [
-            'type'   => Type::getType(Types::BIGINT),
-            'length' => 32,
-        ]);
+        $table = $table->edit()
+            ->renameColumnByUnquotedName($oldColumnName, $newColumnName)
+            ->modifyColumnByUnquotedName($newColumnName, static function (ColumnEditor $editor): void {
+                $editor
+                    ->setTypeName(Types::BIGINT)
+                    ->setLength(32);
+            })
+            ->create();
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()

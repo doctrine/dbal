@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
@@ -18,7 +19,6 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -72,7 +72,7 @@ class ComparatorTest extends FunctionalTestCase
         $platform   = $this->connection->getDatabasePlatform();
         $comparator = new Comparator($platform, new ComparatorConfig());
 
-        $table = Table::editor()
+        $onlineTable = Table::editor()
             ->setUnquotedName('rename_table')
             ->setColumns(
                 Column::editor()
@@ -96,20 +96,21 @@ class ComparatorTest extends FunctionalTestCase
             )
             ->create();
 
-        $onlineTable = clone $table;
-        $table->renameColumn('test', 'baz');
-        $table->modifyColumn('baz', [
-            'length'  => 40,
-            'comment' => 'Comment',
-        ]);
-
-        $table->renameColumn('test2', 'foo');
-
-        $table->modifyColumn('test3', [
-            'autoincrement' => true,
-            'notnull'       => false,
-            'type'          => Type::getType(Types::BIGINT),
-        ]);
+        $table = $onlineTable->edit()
+            ->renameColumnByUnquotedName('test', 'baz')
+            ->modifyColumnByUnquotedName('baz', static function (ColumnEditor $editor): void {
+                $editor
+                    ->setLength(40)
+                    ->setComment('Comment');
+            })
+            ->renameColumnByUnquotedName('test2', 'foo')
+            ->modifyColumnByUnquotedName('test3', static function (ColumnEditor $editor): void {
+                $editor
+                    ->setAutoincrement(true)
+                    ->setNotNull(false)
+                    ->setTypeName(Types::BIGINT);
+            })
+            ->create();
 
         $compareResult  = $comparator->compareTables($onlineTable, $table);
         $renamedColumns = RenameColumnTest::getRenamedColumns($compareResult);
