@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaException;
@@ -113,57 +112,6 @@ class SchemaTest extends TestCase
         $this->expectException(SchemaException::class);
 
         $schema->getSequence('unknown');
-    }
-
-    public function testDeepClone(): void
-    {
-        $tableA = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
-        $tableB = Table::editor()
-            ->setUnquotedName('bar')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('foo_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('foo_id')
-                    ->setUnquotedReferencedTableName('foo')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        $sequence = Sequence::editor()->setUnquotedName('baz')->create();
-
-        $schema = Schema::editor()
-            ->setTables($tableA, $tableB)
-            ->addSequence($sequence)
-            ->create();
-
-        $schemaNew = clone $schema;
-
-        self::assertNotSame($sequence, $schemaNew->getSequence('baz'));
-
-        self::assertNotSame($tableA, $schemaNew->getTable('foo'));
-        self::assertNotSame($tableA->getColumn('id'), $schemaNew->getTable('foo')->getColumn('id'));
-
-        self::assertNotSame($tableB, $schemaNew->getTable('bar'));
-        self::assertNotSame($tableB->getColumn('id'), $schemaNew->getTable('bar')->getColumn('id'));
     }
 
     public function testHasTableForQuotedAsset(): void

@@ -12,10 +12,10 @@ use Override;
  *
  * @implements NamedObject<OptionallyQualifiedName>
  */
-final class View implements NamedObject
+final readonly class View implements NamedObject
 {
     /** @internal Use {@link View::editor()} to instantiate an editor and {@link ViewEditor::create()} to create a view. */
-    public function __construct(private readonly OptionallyQualifiedName $name, private readonly string $sql)
+    public function __construct(private OptionallyQualifiedName $name, private string $sql)
     {
     }
 

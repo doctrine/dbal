@@ -20,7 +20,7 @@ use function count;
  *
  * @implements OptionallyNamedObject<UnqualifiedName>
  */
-final class ForeignKeyConstraint implements OptionallyNamedObject
+final readonly class ForeignKeyConstraint implements OptionallyNamedObject
 {
     /**
      * @internal Use {@link ForeignKeyConstraint::editor()} to instantiate an editor and
@@ -42,14 +42,14 @@ final class ForeignKeyConstraint implements OptionallyNamedObject
      * @param Deferrability                   $deferrability          Whether the constraint is or can be deferred.
      */
     public function __construct(
-        private readonly ?UnqualifiedName $name,
-        private readonly array $referencingColumnNames,
-        private readonly OptionallyQualifiedName $referencedTableName,
-        private readonly array $referencedColumnNames,
-        private readonly MatchType $matchType,
-        private readonly ReferentialAction $onUpdateAction,
-        private readonly ReferentialAction $onDeleteAction,
-        private readonly Deferrability $deferrability,
+        private ?UnqualifiedName $name,
+        private array $referencingColumnNames,
+        private OptionallyQualifiedName $referencedTableName,
+        private array $referencedColumnNames,
+        private MatchType $matchType,
+        private ReferentialAction $onUpdateAction,
+        private ReferentialAction $onDeleteAction,
+        private Deferrability $deferrability,
     ) {
         $referencingColumnCount = count($referencingColumnNames);
         $referencedColumnCount  = count($referencedColumnNames);

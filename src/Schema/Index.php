@@ -16,7 +16,7 @@ use function strlen;
 use function strtolower;
 
 /** @implements NamedObject<UnqualifiedName> */
-final class Index implements NamedObject
+final readonly class Index implements NamedObject
 {
     /**
      * @internal Use {@link Index::editor()} to instantiate an editor and {@link IndexEditor::create()} to create an
@@ -26,11 +26,11 @@ final class Index implements NamedObject
      * @param ?non-empty-string             $predicate
      */
     public function __construct(
-        private readonly UnqualifiedName $name,
-        private readonly IndexType $type,
-        private readonly array $columns,
-        private readonly bool $isClustered,
-        private readonly ?string $predicate,
+        private UnqualifiedName $name,
+        private IndexType $type,
+        private array $columns,
+        private bool $isClustered,
+        private ?string $predicate,
     ) {
         if (count($columns) < 1) {
             throw InvalidIndexDefinition::columnsNotSet($name);

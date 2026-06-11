@@ -29,24 +29,24 @@ use function array_merge;
  *
  * @implements NamedObject<OptionallyQualifiedName>
  */
-final class Table implements NamedObject
+final readonly class Table implements NamedObject
 {
     /** @var ReadableObjectSet<Column> */
-    private readonly ReadableObjectSet $columns;
+    private ReadableObjectSet $columns;
 
     /** @var ReadableObjectSet<Index> */
-    private readonly ReadableObjectSet $indexes;
+    private ReadableObjectSet $indexes;
 
     /**
      * The names of the indexes that were implicitly created as backing for foreign key constraints.
      */
-    private readonly UnqualifiedNameSet $implicitIndexNames;
+    private UnqualifiedNameSet $implicitIndexNames;
 
     /** @var ReadableObjectSet<UniqueConstraint> */
-    private readonly ReadableObjectSet $uniqueConstraints;
+    private ReadableObjectSet $uniqueConstraints;
 
     /** @var ReadableObjectSet<ForeignKeyConstraint> */
-    private readonly ReadableObjectSet $foreignKeyConstraints;
+    private ReadableObjectSet $foreignKeyConstraints;
 
     /** @var mixed[] */
     private array $options;
@@ -64,16 +64,16 @@ final class Table implements NamedObject
      * @param array<string, string>      $renamedColumns
      */
     public function __construct(
-        private readonly OptionallyQualifiedName $name,
+        private OptionallyQualifiedName $name,
         array $columns,
         array $indexes,
         array $implicitIndexNames,
         array $uniqueConstraints,
         array $foreignKeyConstraints,
         array $options,
-        private readonly TableConfiguration $configuration,
-        private readonly ?PrimaryKeyConstraint $primaryKeyConstraint,
-        private readonly array $renamedColumns,
+        private TableConfiguration $configuration,
+        private ?PrimaryKeyConstraint $primaryKeyConstraint,
+        private array $renamedColumns,
     ) {
         if ($columns === []) {
             throw InvalidTableDefinition::columnsNotSet($name);
@@ -304,21 +304,6 @@ final class Table implements NamedObject
     public function getOptions(): array
     {
         return $this->options;
-    }
-
-    /**
-     * Clone of a Table triggers a deep clone of all affected assets.
-     */
-    public function __clone()
-    {
-        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
-        $this->columns = clone $this->columns;
-        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
-        $this->indexes = clone $this->indexes;
-        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
-        $this->uniqueConstraints = clone $this->uniqueConstraints;
-        /** @phpstan-ignore property.readOnlyAssignNotInConstructor */
-        $this->foreignKeyConstraints = clone $this->foreignKeyConstraints;
     }
 
     public function getComment(): ?string
