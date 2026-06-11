@@ -9,10 +9,13 @@ use Doctrine\DBAL\Schema\Name\Parser\Exception;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedDot;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedNextIdentifier;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\UnableToParseIdentifier;
+use Doctrine\DBAL\Schema\Name\Parser\Exception\UnexpectedDot;
 use Doctrine\DBAL\Schema\Name\Parser\GenericNameParser;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+
+use const PHP_INT_MAX;
 
 class GenericNameParserTest extends TestCase
 {
@@ -32,8 +35,7 @@ class GenericNameParserTest extends TestCase
     #[DataProvider('validInputProvider')]
     public function testValidInput(string $input, array $expected): void
     {
-        $name = $this->parser->parse($input);
-        self::assertEquals($expected, $name->getIdentifiers());
+        self::assertEquals($expected, $this->parser->parse($input, PHP_INT_MAX));
     }
 
     /** @return iterable<array{string, list<Identifier>}> */
@@ -119,7 +121,46 @@ class GenericNameParserTest extends TestCase
     public function testInvalidInput(string $input, string $expectedException): void
     {
         $this->expectException($expectedException);
-        $this->parser->parse($input);
+        $this->parser->parse($input, PHP_INT_MAX);
+    }
+
+    /**
+     * @param positive-int $cap
+     *
+     * @throws Exception
+     */
+    #[DataProvider('withinCapProvider')]
+    public function testWithinCap(string $input, int $cap): void
+    {
+        self::assertCount($cap, $this->parser->parse($input, $cap));
+    }
+
+    /** @return iterable<array{string, positive-int}> */
+    public static function withinCapProvider(): iterable
+    {
+        yield 'single identifier, cap of one' => ['table', 1];
+        yield 'two identifiers, cap of two' => ['schema.table', 2];
+    }
+
+    /**
+     * @param positive-int $cap
+     *
+     * @throws Exception
+     */
+    #[DataProvider('exceededCapProvider')]
+    public function testExceededCap(string $input, int $cap, int $expectedOffset): void
+    {
+        $this->expectException(UnexpectedDot::class);
+        $this->expectExceptionMessage('offset ' . $expectedOffset);
+
+        $this->parser->parse($input, $cap);
+    }
+
+    /** @return iterable<array{string, positive-int, int}> */
+    public static function exceededCapProvider(): iterable
+    {
+        yield 'two identifiers, cap of one' => ['schema.table', 1, 6];
+        yield 'three identifiers, cap of two' => ['db.schema.table', 2, 9];
     }
 
     /** @return iterable<array{string, class-string<Exception>}> */
