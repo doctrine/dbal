@@ -27,29 +27,25 @@ final class Parsers
     {
     }
 
-    public static function getUnqualifiedNameParser(): UnqualifiedNameParser
-    {
-        return self::$unqualifiedNameParser ??= new UnqualifiedNameParser(self::getGenericNameParser());
-    }
-
     /** @throws Exception */
     public static function parseUnqualifiedName(string $input): UnqualifiedName
     {
-        return self::getUnqualifiedNameParser()->parse($input);
-    }
+        $parser = self::$unqualifiedNameParser
+              ??= new UnqualifiedNameParser(self::getGenericNameParser());
 
-    public static function getOptionallyQualifiedNameParser(): OptionallyQualifiedNameParser
-    {
-        return self::$optionallyQualifiedNameParser ??= new OptionallyQualifiedNameParser(self::getGenericNameParser());
+        return $parser->parse($input);
     }
 
     /** @throws Exception */
     public static function parseOptionallyQualifiedName(string $input): OptionallyQualifiedName
     {
-        return self::getOptionallyQualifiedNameParser()->parse($input);
+        $parser = self::$optionallyQualifiedNameParser
+              ??= new OptionallyQualifiedNameParser(self::getGenericNameParser());
+
+        return $parser->parse($input);
     }
 
-    public static function getGenericNameParser(): GenericNameParser
+    private static function getGenericNameParser(): GenericNameParser
     {
         return self::$genericNameParser ??= new GenericNameParser();
     }

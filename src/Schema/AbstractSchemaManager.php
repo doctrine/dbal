@@ -894,10 +894,8 @@ abstract class AbstractSchemaManager
 
     protected function parseUnqualifiedName(string $name): UnqualifiedName
     {
-        $parser = Parsers::getUnqualifiedNameParser();
-
         try {
-            return $parser->parse($name);
+            return Parsers::parseUnqualifiedName($name);
         } catch (Parser\Exception $e) {
             throw InvalidName::fromParserException($name, $e);
         }
@@ -905,10 +903,8 @@ abstract class AbstractSchemaManager
 
     protected function parseOptionallyQualifiedName(string $name): OptionallyQualifiedName
     {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
         try {
-            return $parser->parse($name);
+            return Parsers::parseOptionallyQualifiedName($name);
         } catch (Parser\Exception $e) {
             throw InvalidName::fromParserException($name, $e);
         }

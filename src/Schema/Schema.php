@@ -173,10 +173,8 @@ final readonly class Schema
 
     private function parseUnqualifiedName(string $input): UnqualifiedName
     {
-        $parser = Parsers::getUnqualifiedNameParser();
-
         try {
-            return $parser->parse($input);
+            return Parsers::parseUnqualifiedName($input);
         } catch (Parser\Exception $e) {
             throw InvalidName::fromParserException($input, $e);
         }
@@ -184,10 +182,8 @@ final readonly class Schema
 
     private function parseOptionallyQualifiedName(string $input): OptionallyQualifiedName
     {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
         try {
-            return $parser->parse($input);
+            return Parsers::parseOptionallyQualifiedName($input);
         } catch (Parser\Exception $e) {
             throw InvalidName::fromParserException($input, $e);
         }
