@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Name;
 
+use Doctrine\DBAL\Schema\Name\Parser\Exception;
 use Doctrine\DBAL\Schema\Name\Parser\GenericNameParser;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
@@ -31,9 +32,21 @@ final class Parsers
         return self::$unqualifiedNameParser ??= new UnqualifiedNameParser(self::getGenericNameParser());
     }
 
+    /** @throws Exception */
+    public static function parseUnqualifiedName(string $input): UnqualifiedName
+    {
+        return self::getUnqualifiedNameParser()->parse($input);
+    }
+
     public static function getOptionallyQualifiedNameParser(): OptionallyQualifiedNameParser
     {
         return self::$optionallyQualifiedNameParser ??= new OptionallyQualifiedNameParser(self::getGenericNameParser());
+    }
+
+    /** @throws Exception */
+    public static function parseOptionallyQualifiedName(string $input): OptionallyQualifiedName
+    {
+        return self::getOptionallyQualifiedNameParser()->parse($input);
     }
 
     public static function getGenericNameParser(): GenericNameParser
