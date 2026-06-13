@@ -802,10 +802,10 @@ class QueryBuilder
      *         ->join('u', 'phonenumbers', 'p', 'p.is_primary = 1');
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $alias     The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string      $fromAlias The alias that points to a from clause.
+     * @param string      $join      The table name to join.
+     * @param string      $alias     The alias of the join table.
+     * @param string|null $condition The condition for the join.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -824,10 +824,10 @@ class QueryBuilder
      *         ->innerJoin('u', 'phonenumbers', 'p', 'p.is_primary = 1');
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $alias     The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string      $fromAlias The alias that points to a from clause.
+     * @param string      $join      The table name to join.
+     * @param string      $alias     The alias of the join table.
+     * @param string|null $condition The condition for the join.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -850,10 +850,10 @@ class QueryBuilder
      *         ->leftJoin('u', 'phonenumbers', 'p', 'p.is_primary = 1');
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $alias     The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string      $fromAlias The alias that points to a from clause.
+     * @param string      $join      The table name to join.
+     * @param string      $alias     The alias of the join table.
+     * @param string|null $condition The condition for the join.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -876,10 +876,10 @@ class QueryBuilder
      *         ->rightJoin('u', 'phonenumbers', 'p', 'p.is_primary = 1');
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $alias     The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string      $fromAlias The alias that points to a from clause.
+     * @param string      $join      The table name to join.
+     * @param string      $alias     The alias of the join table.
+     * @param string|null $condition The condition for the join.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1246,8 +1246,8 @@ class QueryBuilder
      * Specifies an ordering for the query results.
      * Replaces any previously specified orderings, if any.
      *
-     * @param string $sort  The ordering expression.
-     * @param string $order The ordering direction.
+     * @param string      $sort  The ordering expression.
+     * @param string|null $order The ordering direction.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1269,8 +1269,8 @@ class QueryBuilder
     /**
      * Adds an ordering to the query results.
      *
-     * @param string $sort  The ordering expression.
-     * @param string $order The ordering direction.
+     * @param string      $sort  The ordering expression.
+     * @param string|null $order The ordering direction.
      *
      * @return $this This QueryBuilder instance.
      */

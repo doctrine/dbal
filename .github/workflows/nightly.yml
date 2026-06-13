@@ -66,7 +66,7 @@ jobs:
 
       - name: Tell the MariaDB Folks if it failed
         if: ${{ failure() }}
-        uses: zulip/github-actions-zulip/send-message@v1
+        uses: zulip/github-actions-zulip/send-message@v2
         with:
           api-key: ${{ secrets.MARIADB_ZULIP_API_KEY }}
           email: "doctrine-bot@mariadb.zulipchat.com"
