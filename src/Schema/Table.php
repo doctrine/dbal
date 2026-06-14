@@ -135,10 +135,8 @@ final readonly class Table implements NamedObject
 
     private function parseUnqualifiedName(string $name): UnqualifiedName
     {
-        $parser = Parsers::getUnqualifiedNameParser();
-
         try {
-            return $parser->parse($name);
+            return Parsers::parseUnqualifiedName($name);
         } catch (Parser\Exception $e) {
             throw InvalidName::fromParserException($name, $e);
         }

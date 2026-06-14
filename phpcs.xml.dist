@@ -148,4 +148,9 @@
     <rule ref="Squiz.Arrays.ArrayDeclaration.KeySpecified">
         <exclude-pattern>src/Platforms/SQLServerPlatform.php</exclude-pattern>
     </rule>
+
+    <!-- See https://github.com/PHPCSStandards/PHP_CodeSniffer/issues/1435 -->
+    <rule ref="Generic.Formatting.MultipleStatementAlignment.NotSame">
+        <exclude-pattern>src/Schema/Name/Parsers.php</exclude-pattern>
+    </rule>
 </ruleset>
