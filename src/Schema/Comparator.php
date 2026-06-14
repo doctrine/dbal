@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
+use Doctrine\DBAL\Exception\InvalidColumnType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Deprecations\Deprecation;
 
@@ -193,8 +195,21 @@ class Comparator
 
             $newColumn = $newTable->getColumn($oldColumnName);
 
-            if ($this->columnsEqual($oldColumn, $newColumn)) {
-                continue;
+            try {
+                if ($this->columnsEqual($oldColumn, $newColumn)) {
+                    continue;
+                }
+            } catch (InvalidColumnDeclaration $e) {
+                $newTableName = $newTable->getObjectName()->toString();
+                $e->setTable($newTableName)
+                  ->updateErrorMessage();
+                $prev = $e->getPrevious();
+                if ($prev instanceof InvalidColumnType) {
+                    $prev->setTable($newTableName);
+                    $prev->updateErrorMessage();
+                }
+
+                throw $e;
             }
 
             $modifiedColumns[$oldColumnName] = new ColumnDiff($oldColumn, $newColumn);
