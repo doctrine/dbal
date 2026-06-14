@@ -208,6 +208,7 @@ class Comparator
                     $prev->setTable($newTableName);
                     $prev->updateErrorMessage();
                 }
+
                 throw $e;
             }
 
