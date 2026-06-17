@@ -60,6 +60,23 @@ class DriverTest extends AbstractDriverTestCase
         );
     }
 
+    public function testConnectionWithTcpKeepaliveParameters(): void
+    {
+        self::expectNotToPerformAssertions();
+
+        $this->createDriver()->connect(array_merge(
+            TestUtil::getConnectionParams(),
+            [
+                'connect_timeout' => 5,
+                'keepalives' => 1,
+                'keepalives_idle' => 10,
+                'keepalives_interval' => 5,
+                'keepalives_count' => 3,
+                'tcp_user_timeout' => 15000,
+            ],
+        ));
+    }
+
     public function testUserIsFalse(): void
     {
         $this->expectException(InvalidConfiguration::class);

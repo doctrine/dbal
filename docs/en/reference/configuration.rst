@@ -287,6 +287,24 @@ pdo_pgsql / pgsql
 -  ``persistent`` (boolean): Whether to establish a persistent connection (currently supported only by ``pdo_pgsql``).
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
+-  ``connect_timeout`` (integer): Maximum time to wait while connecting, in seconds.
+   See `www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-CONNECT-TIMEOUT <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-CONNECT-TIMEOUT>`_
+-  ``keepalives`` (integer): Controls whether client-side TCP keepalives are used (``1`` to
+   enable, ``0`` to disable).
+   See `www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-KEEPALIVES <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-KEEPALIVES>`_
+-  ``keepalives_idle`` (integer): Number of seconds of inactivity after which a TCP keepalive
+   message is sent to the server.
+-  ``keepalives_interval`` (integer): Number of seconds after which an unacknowledged TCP
+   keepalive message is retransmitted.
+-  ``keepalives_count`` (integer): Number of TCP keepalives that can be lost before the
+   connection is considered dead.
+-  ``tcp_user_timeout`` (integer): Number of milliseconds that transmitted data may remain
+   unacknowledged before the connection is forcibly closed. Useful to bound how long a
+   query blocks when a connection is silently dropped.
+   See `www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-TCP-USER-TIMEOUT <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-TCP-USER-TIMEOUT>`_
+
+These keepalive and timeout parameters are forwarded to libpq and apply to both the
+``pdo_pgsql`` and ``pgsql`` drivers.
 
 PostgreSQL behaves differently with regard to booleans when you use
 ``PDO::ATTR_EMULATE_PREPARES`` or not. To switch from using ``'true'``

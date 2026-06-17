@@ -126,6 +126,30 @@ final class Driver extends AbstractPostgreSQLDriver
             $dsn .= 'gssencmode=' . $params['gssencmode'] . ';';
         }
 
+        if (isset($params['connect_timeout'])) {
+            $dsn .= 'connect_timeout=' . $params['connect_timeout'] . ';';
+        }
+
+        if (isset($params['keepalives'])) {
+            $dsn .= 'keepalives=' . $params['keepalives'] . ';';
+        }
+
+        if (isset($params['keepalives_idle'])) {
+            $dsn .= 'keepalives_idle=' . $params['keepalives_idle'] . ';';
+        }
+
+        if (isset($params['keepalives_interval'])) {
+            $dsn .= 'keepalives_interval=' . $params['keepalives_interval'] . ';';
+        }
+
+        if (isset($params['keepalives_count'])) {
+            $dsn .= 'keepalives_count=' . $params['keepalives_count'] . ';';
+        }
+
+        if (isset($params['tcp_user_timeout'])) {
+            $dsn .= 'tcp_user_timeout=' . $params['tcp_user_timeout'] . ';';
+        }
+
         return $dsn;
     }
 }
