@@ -472,13 +472,14 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($diff->getIndexRenames() as $rename) {
-            $sql = array_merge(
-                $sql,
-                $this->getRenameIndexSQL(
-                    $rename->getOldName()->toSQL($this),
-                    $rename->getNewIndex(),
-                    $tableNameSQL,
-                ),
+            $sql[] = $this->getRenameSQL(
+                $tableNameSQL . '.' . $rename->getOldName()->toSQL($this),
+                $rename->getNewIndex()->getObjectName()
+                    ->getIdentifier()
+                    ->toNormalizedValue(
+                        $this->getUnquotedIdentifierFolding(),
+                    ),
+                'INDEX',
             );
         }
 
@@ -620,25 +621,6 @@ class SQLServerPlatform extends AbstractPlatform
                 ),
             ]),
         );
-    }
-
-    #[Override]
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
-    {
-        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
-        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
-
-        return [
-            $this->getRenameSQL(
-                $parsedTableName->toSQL($this) . '.' . $parsedOldIndexName->toSQL($this),
-                $index->getObjectName()
-                    ->getIdentifier()
-                    ->toNormalizedValue(
-                        $this->getUnquotedIdentifierFolding(),
-                    ),
-                'INDEX',
-            ),
-        ];
     }
 
     #[Override]

@@ -640,13 +640,10 @@ SQL,
         }
 
         foreach ($diff->getIndexRenames() as $rename) {
-            $sql = array_merge(
-                $sql,
-                $this->getRenameIndexSQL(
-                    $rename->getOldName()->toSQL($this),
-                    $rename->getNewIndex(),
-                    $tableNameSQL,
-                ),
+            $sql[] = sprintf(
+                'ALTER INDEX %s RENAME TO %s',
+                $this->deriveQualifier($rename->getOldName(), $tableName)->toSQL($this),
+                $rename->getNewIndex()->getObjectName()->toSQL($this),
             );
         }
 
@@ -672,21 +669,6 @@ SQL,
         }
 
         return $column['name']->toSQL($this) . ' ' . $declaration;
-    }
-
-    #[Override]
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
-    {
-        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
-        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
-
-        return [
-            sprintf(
-                'ALTER INDEX %s RENAME TO %s',
-                $this->deriveQualifier($parsedOldIndexName, $parsedTableName)->toSQL($this),
-                $index->getObjectName()->toSQL($this),
-            ),
-        ];
     }
 
     private function generateAutoincrementSequenceName(OptionallyQualifiedName $tableName): OptionallyQualifiedName

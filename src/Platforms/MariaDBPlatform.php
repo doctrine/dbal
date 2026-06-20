@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Types\JsonType;
 use Override;
 
@@ -16,22 +15,6 @@ use function sprintf;
  */
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
-    #[Override]
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
-    {
-        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
-        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
-
-        return [
-            sprintf(
-                'ALTER TABLE %s RENAME INDEX %s TO %s',
-                $parsedTableName->toSQL($this),
-                $parsedOldIndexName->toSQL($this),
-                $index->getObjectName()->toSQL($this),
-            ),
-        ];
-    }
-
     /**
      * Generate SQL snippets to reverse the aliasing of JSON to LONGTEXT.
      *

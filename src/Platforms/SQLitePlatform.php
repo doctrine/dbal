@@ -542,15 +542,6 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     #[Override]
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
-    {
-        return [
-            $this->getDropIndexSQL($oldIndexName, $tableName),
-            $this->getCreateIndexSQL($index, $tableName),
-        ];
-    }
-
-    #[Override]
     public function getDropTablesSQL(array $tables): array
     {
         $sql = [];
