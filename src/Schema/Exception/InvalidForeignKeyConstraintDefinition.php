@@ -50,9 +50,4 @@ final class InvalidForeignKeyConstraintDefinition extends LogicException impleme
             $referencedCount,
         ));
     }
-
-    public static function nonDeferrableInitiallyDeferred(): self
-    {
-        return new self('A constraint cannot be non-deferrable and initially deferred at the same time.');
-    }
 }

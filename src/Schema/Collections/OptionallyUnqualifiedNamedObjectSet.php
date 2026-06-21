@@ -106,39 +106,6 @@ final class OptionallyUnqualifiedNamedObjectSet implements ObjectSet
         $this->replace($key, $position, $modification($this->elements[$position]));
     }
 
-    public function modifyByPosition(int $position, callable $modification): void
-    {
-        if (! isset($this->elements[$position])) {
-            return;
-        }
-
-        $current     = $this->elements[$position];
-        $currentName = $current->getObjectName();
-
-        $element = $modification($current);
-
-        if ($currentName !== null) {
-            $oldKey = $this->getKey($currentName);
-            $this->replace($oldKey, $position, $element);
-
-            return;
-        }
-
-        $newName = $element->getObjectName();
-        if ($newName !== null) {
-            $newKey = $this->getKey($newName);
-
-            if (isset($this->elementPositionsByKey[$newKey])) {
-                throw ObjectAlreadyExists::new($newName);
-            }
-
-            $this->elementPositionsByKey[$newKey] = $position;
-        }
-
-        // @phpstan-ignore assign.propertyType
-        $this->elements[$position] = $element;
-    }
-
     #[Override]
     public function clear(): void
     {
