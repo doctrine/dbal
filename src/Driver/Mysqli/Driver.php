@@ -76,22 +76,20 @@ final readonly class Driver extends AbstractMySQLDriver
         }
 
         if (
-            ! isset($params['ssl_key']) &&
-            ! isset($params['ssl_cert']) &&
-            ! isset($params['ssl_ca']) &&
-            ! isset($params['ssl_capath']) &&
-            ! isset($params['ssl_cipher'])
+            isset($params['ssl_key']) ||
+            isset($params['ssl_cert']) ||
+            isset($params['ssl_ca']) ||
+            isset($params['ssl_capath']) ||
+            isset($params['ssl_cipher'])
         ) {
-            return;
+            yield new Secure(
+                $params['ssl_key']    ?? '',
+                $params['ssl_cert']   ?? '',
+                $params['ssl_ca']     ?? '',
+                $params['ssl_capath'] ?? '',
+                $params['ssl_cipher'] ?? '',
+            );
         }
-
-        yield new Secure(
-            $params['ssl_key']    ?? '',
-            $params['ssl_cert']   ?? '',
-            $params['ssl_ca']     ?? '',
-            $params['ssl_capath'] ?? '',
-            $params['ssl_cipher'] ?? '',
-        );
     }
 
     /**
@@ -103,10 +101,8 @@ final readonly class Driver extends AbstractMySQLDriver
         #[SensitiveParameter]
         array $params,
     ): Generator {
-        if (! isset($params['charset'])) {
-            return;
+        if (isset($params['charset'])) {
+            yield new Charset($params['charset']);
         }
-
-        yield new Charset($params['charset']);
     }
 }

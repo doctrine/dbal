@@ -38,19 +38,15 @@ class Comparator
         $droppedSequences = [];
 
         foreach ($newSchema->getNamespaces() as $newNamespace) {
-            if ($oldSchema->hasNamespace($newNamespace)) {
-                continue;
+            if (! $oldSchema->hasNamespace($newNamespace)) {
+                $createdSchemas[] = $newNamespace;
             }
-
-            $createdSchemas[] = $newNamespace;
         }
 
         foreach ($oldSchema->getNamespaces() as $oldNamespace) {
-            if ($newSchema->hasNamespace($oldNamespace)) {
-                continue;
+            if (! $newSchema->hasNamespace($oldNamespace)) {
+                $droppedSchemas[] = $oldNamespace;
             }
-
-            $droppedSchemas[] = $oldNamespace;
         }
 
         foreach ($newSchema->getTables() as $newTable) {
@@ -74,11 +70,9 @@ class Comparator
             $oldTableName = $oldTable->getObjectName()->toString();
 
             $oldTable = $oldSchema->getTable($oldTableName);
-            if ($newSchema->hasTable($oldTableName)) {
-                continue;
+            if (! $newSchema->hasTable($oldTableName)) {
+                $droppedTables[] = $oldTable;
             }
-
-            $droppedTables[] = $oldTable;
         }
 
         foreach ($newSchema->getSequences() as $newSequence) {
@@ -95,11 +89,9 @@ class Comparator
         foreach ($oldSchema->getSequences() as $oldSequence) {
             $oldSequenceName = $oldSequence->getObjectName()->toString();
 
-            if ($newSchema->hasSequence($oldSequenceName)) {
-                continue;
+            if (! $newSchema->hasSequence($oldSequenceName)) {
+                $droppedSequences[] = $oldSequence;
             }
-
-            $droppedSequences[] = $oldSequence;
         }
 
         return new SchemaDiff(
@@ -150,11 +142,9 @@ class Comparator
                     ->getValue(),
             );
 
-            if ($oldTable->hasColumn($newColumnName)) {
-                continue;
+            if (! $oldTable->hasColumn($newColumnName)) {
+                $addedColumns[$newColumnName] = $newColumn;
             }
-
-            $addedColumns[$newColumnName] = $newColumn;
         }
 
         // See if there are any removed columns in the new table
@@ -174,11 +164,9 @@ class Comparator
 
             $newColumn = $newTable->getColumn($oldColumnName);
 
-            if ($this->columnsEqual($oldColumn, $newColumn)) {
-                continue;
+            if (! $this->columnsEqual($oldColumn, $newColumn)) {
+                $modifiedColumns[$oldColumnName] = new ColumnDiff($oldColumn, $newColumn);
             }
-
-            $modifiedColumns[$oldColumnName] = new ColumnDiff($oldColumn, $newColumn);
         }
 
         $renamedColumnNames = $newTable->getRenamedColumns();
@@ -232,11 +220,9 @@ class Comparator
         foreach ($newIndexes as $newIndex) {
             $newIndexName = $newIndex->getObjectName();
 
-            if ($oldTable->hasIndex($newIndexName->toString())) {
-                continue;
+            if (! $oldTable->hasIndex($newIndexName->toString())) {
+                $addedIndexes[] = $newIndex;
             }
-
-            $addedIndexes[] = $newIndex;
         }
 
         // See if there are any removed indexes in the new table
@@ -332,11 +318,9 @@ class Comparator
 
         foreach ($addedColumns as $addedColumnName => $addedColumn) {
             foreach ($removedColumns as $removedColumn) {
-                if (! $this->columnsEqual($addedColumn, $removedColumn)) {
-                    continue;
+                if ($this->columnsEqual($addedColumn, $removedColumn)) {
+                    $candidatesByName[$addedColumnName][] = [$removedColumn, $addedColumn];
                 }
-
-                $candidatesByName[$addedColumnName][] = [$removedColumn, $addedColumn];
             }
         }
 
@@ -401,13 +385,11 @@ class Comparator
         // Gather possible rename candidates by comparing each added and removed index based on semantics.
         foreach ($addedIndexes as $addedIndexKey => $addedIndex) {
             foreach ($removedIndexes as $removedIndexKey => $removedIndex) {
-                if (! $addedIndex->equals($removedIndex, $folding)) {
-                    continue;
-                }
-
-                $candidatesByName[$addedIndex->getObjectName()
+                if ($addedIndex->equals($removedIndex, $folding)) {
+                    $candidatesByName[$addedIndex->getObjectName()
                         ->getIdentifier()
                         ->getValue()][] = [$removedIndexKey, $addedIndexKey];
+                }
             }
         }
 

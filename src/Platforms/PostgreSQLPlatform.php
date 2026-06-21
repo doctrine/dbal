@@ -216,15 +216,13 @@ class PostgreSQLPlatform extends AbstractPlatform
 
             $comment = $addedColumn->getComment();
 
-            if ($comment === '') {
-                continue;
+            if ($comment !== '') {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $tableNameSQL,
+                    $addedColumn->getObjectName()->toSQL($this),
+                    $comment,
+                );
             }
-
-            $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $tableNameSQL,
-                $addedColumn->getObjectName()->toSQL($this),
-                $comment,
-            );
         }
 
         foreach ($diff->getDroppedColumns() as $droppedColumn) {
@@ -287,15 +285,13 @@ class PostgreSQLPlatform extends AbstractPlatform
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ALTER ' . $newColumnName . ' ' . $query;
             }
 
-            if (! $columnDiff->hasCommentChanged()) {
-                continue;
+            if ($columnDiff->hasCommentChanged()) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $tableNameSQL,
+                    $newColumn->getObjectName()->toSQL($this),
+                    $newColumn->getComment(),
+                );
             }
-
-            $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $tableNameSQL,
-                $newColumn->getObjectName()->toSQL($this),
-                $newColumn->getComment(),
-            );
         }
 
         $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();

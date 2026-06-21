@@ -7,7 +7,10 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
+use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
+use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
@@ -458,12 +461,42 @@ class TableTest extends TestCase
 
     public function testGetUnknownIndexThrowsException(): void
     {
-        $this->expectException(SchemaException::class);
+        $table = $this->createTableWithSingleColumn();
 
-        $table = Table::editor()
-            ->setUnquotedName('foo')
+        $this->expectException(IndexDoesNotExist::class);
+
+        $table->getIndex('unknown');
+    }
+
+    public function testGetUnknownForeignKeyThrowsException(): void
+    {
+        $table = $this->createTableWithSingleColumn();
+
+        $this->expectException(ForeignKeyDoesNotExist::class);
+
+        $table->getForeignKey('unknown');
+    }
+
+    public function testGetUnknownUniqueConstraintThrowsException(): void
+    {
+        $table = $this->createTableWithSingleColumn();
+
+        $this->expectException(UniqueConstraintDoesNotExist::class);
+
+        $table->getUniqueConstraint('unknown');
+    }
+
+    private function createTableWithSingleColumn(): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
             ->create();
-        $table->getIndex('unknownIndex');
     }
 
     public function testAddTwoIndexesWithSameNameThrowsException(): void

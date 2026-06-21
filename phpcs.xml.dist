@@ -33,6 +33,13 @@
         <exclude name="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore"/>
     </rule>
 
+    <!-- Allow a trailing single-instruction `if` to stay instead of forcing an inverted guard. -->
+    <rule ref="SlevomatCodingStandard.ControlStructures.EarlyExit">
+        <properties>
+            <property name="ignoreTrailingIfWithOneInstruction" value="true"/>
+        </properties>
+    </rule>
+
     <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
         <exclude-pattern>*/src/Configuration.php</exclude-pattern>
         <exclude-pattern>*/src/Connection.php</exclude-pattern>

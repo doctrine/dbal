@@ -199,11 +199,9 @@ class SQLServerPlatform extends AbstractPlatform
                 );
             }
 
-            if ($column['comment'] === '') {
-                continue;
+            if ($column['comment'] !== '') {
+                $commentsSql[] = $this->getCreateColumnCommentSQL($tableName, $column['name'], $column['comment']);
             }
-
-            $commentsSql[] = $this->getCreateColumnCommentSQL($tableName, $column['name'], $column['comment']);
         }
 
         $elements = [];
@@ -359,15 +357,13 @@ class SQLServerPlatform extends AbstractPlatform
 
             $comment = $column->getComment();
 
-            if ($comment === '') {
-                continue;
+            if ($comment !== '') {
+                $commentsSql[] = $this->getCreateColumnCommentSQL(
+                    $tableName,
+                    $column->getObjectName(),
+                    $comment,
+                );
             }
-
-            $commentsSql[] = $this->getCreateColumnCommentSQL(
-                $tableName,
-                $column->getObjectName(),
-                $comment,
-            );
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
@@ -444,13 +440,11 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             if (
-                    $newColumn->getDefault() === null
-                    || (! $requireDropDefaultConstraint && ! $defaultChanged)
+                $newColumn->getDefault() !== null
+                && ($requireDropDefaultConstraint || $defaultChanged)
             ) {
-                continue;
+                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($newColumn);
             }
-
-            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($newColumn);
         }
 
         $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
@@ -943,11 +937,9 @@ class SQLServerPlatform extends AbstractPlatform
     {
         if (is_array($item)) {
             foreach ($item as $key => $value) {
-                if (! is_bool($value) && ! is_numeric($value)) {
-                    continue;
+                if (is_bool($value) || is_numeric($value)) {
+                    $item[$key] = (int) (bool) $value;
                 }
-
-                $item[$key] = (int) (bool) $value;
             }
         } elseif (is_bool($item) || is_numeric($item)) {
             $item = (int) (bool) $item;

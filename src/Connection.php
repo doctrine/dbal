@@ -274,11 +274,9 @@ class Connection implements ServerVersionProvider
         $this->autoCommit = $autoCommit;
 
         // Commit all currently active transactions if any when switching auto-commit mode.
-        if ($this->_conn === null || $this->transactionNestingLevel === 0) {
-            return;
+        if ($this->_conn !== null && $this->transactionNestingLevel !== 0) {
+            $this->commitAll();
         }
-
-        $this->commitAll();
     }
 
     /**
@@ -1062,11 +1060,9 @@ class Connection implements ServerVersionProvider
             --$this->transactionNestingLevel;
         }
 
-        if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
-            return;
+        if ($this->autoCommit === false && $this->transactionNestingLevel === 0) {
+            $this->beginTransaction();
         }
-
-        $this->beginTransaction();
     }
 
     /**
@@ -1151,11 +1147,9 @@ class Connection implements ServerVersionProvider
             throw SavepointsNotSupported::new();
         }
 
-        if (! $platform->supportsReleaseSavepoints()) {
-            return;
+        if ($platform->supportsReleaseSavepoints()) {
+            $this->executeStatement($platform->releaseSavePoint($savepoint));
         }
-
-        $this->executeStatement($platform->releaseSavePoint($savepoint));
     }
 
     /**

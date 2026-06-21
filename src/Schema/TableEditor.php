@@ -196,15 +196,13 @@ final class TableEditor
                 }
             }
 
-            if (! $modified) {
-                continue;
+            if ($modified) {
+                $this->indexes->modify($index->getObjectName(), static function (Index $index) use ($columns): Index {
+                    return $index->edit()
+                        ->setColumns(...$columns)
+                        ->create();
+                });
             }
-
-            $this->indexes->modify($index->getObjectName(), static function (Index $index) use ($columns): Index {
-                return $index->edit()
-                    ->setColumns(...$columns)
-                    ->create();
-            });
         }
     }
 
@@ -228,13 +226,11 @@ final class TableEditor
             }
         }
 
-        if (! $modified) {
-            return;
+        if ($modified) {
+            $this->primaryKeyConstraint = $this->primaryKeyConstraint->edit()
+                ->setColumnNames(...$columnNames)
+                ->create();
         }
-
-        $this->primaryKeyConstraint = $this->primaryKeyConstraint->edit()
-            ->setColumnNames(...$columnNames)
-            ->create();
     }
 
     private function renameColumnInUniqueConstraints(

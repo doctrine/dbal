@@ -914,15 +914,13 @@ abstract class AbstractPlatform
             foreach ($table->getColumns() as $column) {
                 $comment = $column->getComment();
 
-                if ($comment === '') {
-                    continue;
+                if ($comment !== '') {
+                    $sql[] = $this->getCommentOnColumnSQL(
+                        $tableNameSQL,
+                        $column->getObjectName()->toSQL($this),
+                        $comment,
+                    );
                 }
-
-                $sql[] = $this->getCommentOnColumnSQL(
-                    $tableNameSQL,
-                    $column->getObjectName()->toSQL($this),
-                    $comment,
-                );
             }
         }
 
@@ -1417,11 +1415,9 @@ abstract class AbstractPlatform
                 $constraints[] = 'CHECK (' . $name . ' >= ' . $def['min'] . ')';
             }
 
-            if (! isset($def['max'])) {
-                continue;
+            if (isset($def['max'])) {
+                $constraints[] = 'CHECK (' . $name . ' <= ' . $def['max'] . ')';
             }
-
-            $constraints[] = 'CHECK (' . $name . ' <= ' . $def['max'] . ')';
         }
 
         return $constraints;
@@ -1695,11 +1691,9 @@ abstract class AbstractPlatform
     {
         if (is_array($item)) {
             foreach ($item as $k => $value) {
-                if (! is_bool($value)) {
-                    continue;
+                if (is_bool($value)) {
+                    $item[$k] = (int) $value;
                 }
-
-                $item[$k] = (int) $value;
             }
         } elseif (is_bool($item)) {
             $item = (int) $item;

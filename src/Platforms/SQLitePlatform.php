@@ -597,15 +597,13 @@ class SQLitePlatform extends AbstractPlatform
                     ->getValue(),
             );
 
-            if (! isset($columns[$columnKey])) {
-                continue;
+            if (isset($columns[$columnKey])) {
+                unset(
+                    $columns[$columnKey],
+                    $oldColumnNames[$columnKey],
+                    $newColumnNames[$columnKey],
+                );
             }
-
-            unset(
-                $columns[$columnKey],
-                $oldColumnNames[$columnKey],
-                $newColumnNames[$columnKey],
-            );
         }
 
         foreach ($diff->getChangedColumns() as $columnDiff) {
@@ -620,11 +618,9 @@ class SQLitePlatform extends AbstractPlatform
 
             $columns[$oldColumnKey] = $newColumn;
 
-            if (! isset($newColumnNames[$oldColumnKey])) {
-                continue;
+            if (isset($newColumnNames[$oldColumnKey])) {
+                $newColumnNames[$oldColumnKey] = $newColumn->getObjectName()->toSQL($this);
             }
-
-            $newColumnNames[$oldColumnKey] = $newColumn->getObjectName()->toSQL($this);
         }
 
         foreach ($diff->getAddedColumns() as $column) {
@@ -775,12 +771,10 @@ class SQLitePlatform extends AbstractPlatform
             foreach ($diff->getIndexRenames() as $rename) {
                 if (
                     strtolower($indexName->getIdentifier()->getValue())
-                    !== strtolower($rename->getOldName()->getIdentifier()->getValue())
+                    === strtolower($rename->getOldName()->getIdentifier()->getValue())
                 ) {
-                    continue;
+                    $indexes->remove($indexName);
                 }
-
-                $indexes->remove($indexName);
             }
 
             $changed     = false;
@@ -793,21 +787,17 @@ class SQLitePlatform extends AbstractPlatform
                 }
 
                 $columnNames[] = $nameMap[$name];
-                if ($name === $nameMap[$name]) {
-                    continue;
+                if ($name !== $nameMap[$name]) {
+                    $changed = true;
                 }
-
-                $changed = true;
             }
 
-            if (! $changed) {
-                continue;
-            }
-
-            $indexes->modify($indexName, static fn (Index $index): Index => $index
-                ->edit()
-                ->setUnquotedColumnNames(...$columnNames)
+            if ($changed) {
+                $indexes->modify($indexName, static fn (Index $index): Index => $index
+                    ->edit()
+                    ->setUnquotedColumnNames(...$columnNames)
                 ->create());
+            }
         }
 
         foreach ($diff->getDroppedIndexes() as $index) {
@@ -847,11 +837,9 @@ class SQLitePlatform extends AbstractPlatform
 
                 $referencingColumnNames[] = $nameMap[$normalizedColumnName];
 
-                if ($originalColumnName === $nameMap[$normalizedColumnName]) {
-                    continue;
+                if ($originalColumnName !== $nameMap[$normalizedColumnName]) {
+                    $changed = true;
                 }
-
-                $changed = true;
             }
 
             $constraintName = $constraint->getObjectName();
@@ -865,13 +853,11 @@ class SQLitePlatform extends AbstractPlatform
                 $keysByName[$constraintKey] = $key;
             }
 
-            if (! $changed) {
-                continue;
+            if ($changed) {
+                $foreignKeys[$key] = $constraint->edit()
+                    ->setUnquotedReferencingColumnNames(...$referencingColumnNames)
+                    ->create();
             }
-
-            $foreignKeys[$key] = $constraint->edit()
-                ->setUnquotedReferencingColumnNames(...$referencingColumnNames)
-                ->create();
         }
 
         foreach ($diff->getDroppedForeignKeyConstraintNames() as $constraintName) {
@@ -937,11 +923,9 @@ class SQLitePlatform extends AbstractPlatform
 
             $columnNames[] = $nameMap[$normalizedColumnName];
 
-            if ($originalColumnName === $nameMap[$normalizedColumnName]) {
-                continue;
+            if ($originalColumnName !== $nameMap[$normalizedColumnName]) {
+                $changed = true;
             }
-
-            $changed = true;
         }
 
         if (! $changed) {

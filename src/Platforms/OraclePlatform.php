@@ -306,12 +306,10 @@ class OraclePlatform extends AbstractPlatform
             }
 
             if (
-                ! isset($column['autoincrement']) || $column['autoincrement'] === false
+                isset($column['autoincrement']) && $column['autoincrement'] !== false
             ) {
-                continue;
+                $sql = array_merge($sql, $this->getCreateAutoincrementSql($tableName, $column['name']));
             }
-
-            $sql = array_merge($sql, $this->getCreateAutoincrementSql($tableName, $column['name']));
         }
 
         foreach ($parameters['indexes'] as $index) {
@@ -536,15 +534,13 @@ SQL,
 
             $comment = $column->getComment();
 
-            if ($comment === '') {
-                continue;
+            if ($comment !== '') {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $tableNameSQL,
+                    $column->getObjectName()->toSQL($this),
+                    $comment,
+                );
             }
-
-            $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $tableNameSQL,
-                $column->getObjectName()->toSQL($this),
-                $comment,
-            );
         }
 
         if (count($addColumnSQL) > 0) {
@@ -600,15 +596,13 @@ SQL,
                 }
             }
 
-            if (! $columnDiff->hasCommentChanged()) {
-                continue;
+            if ($columnDiff->hasCommentChanged()) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $tableNameSQL,
+                    $newColumn->getObjectName()->toSQL($this),
+                    $newColumn->getComment(),
+                );
             }
-
-            $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $tableNameSQL,
-                $newColumn->getObjectName()->toSQL($this),
-                $newColumn->getComment(),
-            );
         }
 
         if (count($modifyColumnSQL) > 0) {
