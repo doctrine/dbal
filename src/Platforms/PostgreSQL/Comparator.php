@@ -32,14 +32,12 @@ class Comparator extends BaseComparator
         $editor = null;
 
         foreach ($table->getColumns() as $column) {
-            if ($column->getCollation() !== 'default') {
-                continue;
+            if ($column->getCollation() === 'default') {
+                ($editor ??= $table->edit())
+                    ->modifyColumn($column->getObjectName(), static function (ColumnEditor $editor): void {
+                        $editor->setCollation(null);
+                    });
             }
-
-            ($editor ??= $table->edit())
-                ->modifyColumn($column->getObjectName(), static function (ColumnEditor $editor): void {
-                    $editor->setCollation(null);
-                });
         }
 
         return $editor === null ? $table : $editor->create();
