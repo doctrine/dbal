@@ -1030,12 +1030,6 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     #[Override]
-    public function releaseSavePoint(string $savepoint): string
-    {
-        return '';
-    }
-
-    #[Override]
     public function rollbackSavePoint(string $savepoint): string
     {
         return 'ROLLBACK TRANSACTION ' . $savepoint;
