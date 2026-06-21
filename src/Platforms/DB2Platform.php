@@ -350,13 +350,10 @@ class DB2Platform extends AbstractPlatform
         }
 
         foreach ($diff->getIndexRenames() as $rename) {
-            $sql = array_merge(
-                $sql,
-                $this->getRenameIndexSQL(
-                    $rename->getOldName()->toSQL($this),
-                    $rename->getNewIndex(),
-                    $tableNameSQL,
-                ),
+            $sql[] = sprintf(
+                'RENAME INDEX %s TO %s',
+                $this->deriveQualifier($rename->getOldName(), $tableName)->toSQL($this),
+                $rename->getNewIndex()->getObjectName()->toSQL($this),
             );
         }
 
@@ -476,21 +473,6 @@ class DB2Platform extends AbstractPlatform
         }
 
         return $clauses;
-    }
-
-    #[Override]
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
-    {
-        $parsedOldIndexName = $this->parseUnqualifiedName($oldIndexName);
-        $parsedTableName    = $this->parseOptionallyQualifiedName($tableName);
-
-        return [
-            sprintf(
-                'RENAME INDEX %s TO %s',
-                $this->deriveQualifier($parsedOldIndexName, $parsedTableName)->toSQL($this),
-                $index->getObjectName()->toSQL($this),
-            ),
-        ];
     }
 
     #[Override]

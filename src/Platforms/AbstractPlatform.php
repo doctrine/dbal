@@ -1266,17 +1266,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL for renaming an index on a table.
-     *
-     * @param string $oldIndexName The name of the index to rename from.
-     * @param Index  $index        The definition of the index to rename to.
-     * @param string $tableName    The table to rename the given index on.
-     *
-     * @return list<string> The sequence of SQL statements for renaming the given index.
-     */
-    abstract protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array;
-
-    /**
      * Returns the SQL for renaming a column
      *
      * @param string $tableName     The table to rename the column on.
