@@ -325,11 +325,9 @@ final readonly class Table implements NamedObject
         $explicitIndexes = [];
 
         foreach ($this->indexes as $index) {
-            if ($this->implicitIndexNames->contains($index->getObjectName())) {
-                continue;
+            if (! $this->implicitIndexNames->contains($index->getObjectName())) {
+                $explicitIndexes[] = $index;
             }
-
-            $explicitIndexes[] = $index;
         }
 
         $editor = self::editor()

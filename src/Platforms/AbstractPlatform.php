@@ -1486,20 +1486,16 @@ abstract class AbstractPlatform
 
     final protected function ensurePrimaryKeyConstraintIsNotNamed(PrimaryKeyConstraint $constraint): void
     {
-        if ($constraint->getObjectName() === null) {
-            return;
+        if ($constraint->getObjectName() !== null) {
+            throw UnsupportedPrimaryKeyConstraintDefinition::fromNamedConstraint(static::class);
         }
-
-        throw UnsupportedPrimaryKeyConstraintDefinition::fromNamedConstraint(static::class);
     }
 
     final protected function ensurePrimaryKeyConstraintIsClustered(PrimaryKeyConstraint $constraint): void
     {
-        if ($constraint->isClustered()) {
-            return;
+        if (! $constraint->isClustered()) {
+            throw UnsupportedPrimaryKeyConstraintDefinition::fromNonClusteredConstraint(static::class);
         }
-
-        throw UnsupportedPrimaryKeyConstraintDefinition::fromNonClusteredConstraint(static::class);
     }
 
     final protected function ensureIndexHasNoColumnLengths(Index $index): void
@@ -1513,38 +1509,30 @@ abstract class AbstractPlatform
 
     final protected function ensureIndexIsNotFulltext(Index $index): void
     {
-        if ($index->getType() !== IndexType::FULLTEXT) {
-            return;
+        if ($index->getType() === IndexType::FULLTEXT) {
+            throw UnsupportedIndexDefinition::fromFulltextIndex(static::class);
         }
-
-        throw UnsupportedIndexDefinition::fromFulltextIndex(static::class);
     }
 
     final protected function ensureIndexIsNotSpatial(Index $index): void
     {
-        if ($index->getType() !== IndexType::SPATIAL) {
-            return;
+        if ($index->getType() === IndexType::SPATIAL) {
+            throw UnsupportedIndexDefinition::fromSpatialIndex(static::class);
         }
-
-        throw UnsupportedIndexDefinition::fromSpatialIndex(static::class);
     }
 
     final protected function ensureIndexIsNotClustered(Index $index): void
     {
-        if (! $index->isClustered()) {
-            return;
+        if ($index->isClustered()) {
+            throw UnsupportedIndexDefinition::fromClusteredIndex(static::class);
         }
-
-        throw UnsupportedIndexDefinition::fromClusteredIndex(static::class);
     }
 
     final protected function ensureIndexIsNotPartial(Index $index): void
     {
-        if ($index->getPredicate() === null) {
-            return;
+        if ($index->getPredicate() !== null) {
+            throw UnsupportedIndexDefinition::fromPartialIndex(static::class);
         }
-
-        throw UnsupportedIndexDefinition::fromPartialIndex(static::class);
     }
 
     /**

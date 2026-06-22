@@ -44,14 +44,12 @@ class Comparator extends BaseComparator
         foreach ($table->getColumns() as $column) {
             $collation = $column->getCollation();
 
-            if ($collation !== $this->databaseCollation) {
-                continue;
+            if ($collation === $this->databaseCollation) {
+                ($editor ??= $table->edit())
+                    ->modifyColumn($column->getObjectName(), static function (ColumnEditor $editor): void {
+                        $editor->setCollation(null);
+                    });
             }
-
-            ($editor ??= $table->edit())
-                ->modifyColumn($column->getObjectName(), static function (ColumnEditor $editor): void {
-                    $editor->setCollation(null);
-                });
         }
 
         return $editor === null ? $table : $editor->create();

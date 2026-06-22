@@ -656,11 +656,9 @@ final class TableEditor
                 continue;
             }
 
-            if (! $candidate->isFulfilledBy($index)) {
-                continue;
+            if ($candidate->isFulfilledBy($index)) {
+                $replacedImplicitIndexNames->add($implicitIndexName);
             }
-
-            $replacedImplicitIndexNames->add($implicitIndexName);
         }
 
         if ($indexes->get($indexName) !== null && ! $replacedImplicitIndexNames->contains($indexName)) {
