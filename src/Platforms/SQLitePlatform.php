@@ -703,7 +703,9 @@ class SQLitePlatform extends AbstractPlatform
             $type = $definition['type'];
 
             switch (true) {
-                case isset($definition['columnDefinition']) || $definition['autoincrement']:
+                case isset($definition['columnDefinition']):
+                case $definition['autoincrement']:
+                case $definition['comment'] !== '':
                 case $type instanceof Types\DateTimeType && $definition['default'] === $this->getCurrentTimestampSQL():
                 case $type instanceof Types\DateType && $definition['default'] === $this->getCurrentDateSQL():
                 case $type instanceof Types\TimeType && $definition['default'] === $this->getCurrentTimeSQL():

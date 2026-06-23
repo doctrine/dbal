@@ -112,6 +112,40 @@ class ColumnCommentTest extends FunctionalTestCase
         ];
     }
 
+    public function testAddColumnWithComment(): void
+    {
+        $table1 = Table::editor()
+            ->setUnquotedName('column_comments')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table1);
+
+        $table2 = $table1->edit()
+            ->addColumn(
+                Column::editor()
+                    ->setUnquotedName('added')
+                    ->setTypeName(Types::INTEGER)
+                    ->setComment('added column comment')
+                    ->create(),
+            )
+            ->create();
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $diff = $schemaManager->createComparator()
+            ->compareTables($table1, $table2);
+
+        $schemaManager->alterTable($diff);
+
+        $this->assertColumnComment('added', 'added column comment');
+    }
+
     private function assertColumnComment(string $columnName, string $expectedComment): void
     {
         self::assertSame(

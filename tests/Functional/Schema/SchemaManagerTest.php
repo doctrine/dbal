@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -15,6 +16,8 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -267,5 +270,114 @@ final class SchemaManagerTest extends FunctionalTestCase
         $table = $this->schemaManager->introspectTableByQuotedName('example.com');
 
         self::assertCount(1, $table->getColumns());
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testChangeColumnNullability(bool $notNull): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('change_column_nullability')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::INTEGER)
+                    ->setNotNull(! $notNull)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('change_column_nullability');
+
+        $newTable = $table->edit()
+            ->modifyColumnByUnquotedName('val', static function (ColumnEditor $editor) use ($notNull): void {
+                $editor->setNotNull($notNull);
+            })
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()
+            ->compareTables($table, $newTable);
+
+        self::assertFalse($diff->isEmpty());
+
+        $this->schemaManager->alterTable($diff);
+
+        self::assertSame(
+            $notNull,
+            $this->schemaManager->introspectTableByUnquotedName('change_column_nullability')
+                ->getColumn('val')
+                ->getNotnull(),
+        );
+    }
+
+    public function testAlterSequence(): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
+            self::markTestSkipped('The platform does not support sequences.');
+        }
+
+        $name = 'alter_sequence_test_seq';
+
+        $this->schemaManager->createSequence(
+            Sequence::editor()
+                ->setUnquotedName($name)
+                ->setAllocationSize(1)
+                ->create(),
+        );
+
+        $sequence = $this->findSequence($this->schemaManager->introspectSequences(), $name);
+        self::assertNotNull($sequence);
+
+        $oldSchema = Schema::editor()
+            ->addSequence($sequence)
+            ->create();
+
+        $newSchema = Schema::editor()
+            ->addSequence(
+                Sequence::editor()
+                    ->setName($sequence->getObjectName())
+                    ->setAllocationSize(5)
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()
+            ->compareSchemas($oldSchema, $newSchema);
+
+        self::assertFalse($diff->isEmpty());
+
+        $this->schemaManager->alterSchema($diff);
+
+        $sequence = $this->findSequence($this->schemaManager->introspectSequences(), $name);
+        self::assertNotNull($sequence);
+        self::assertSame(5, $sequence->getAllocationSize());
+    }
+
+    /**
+     * @param array<Sequence>  $sequences
+     * @param non-empty-string $name
+     *
+     * @throws Exception
+     */
+    private function findSequence(array $sequences, string $name): ?Sequence
+    {
+        $expectedName = Identifier::unquoted($name);
+
+        $folding = $this->connection->getDatabasePlatform()
+            ->getUnquotedIdentifierFolding();
+
+        foreach ($sequences as $sequence) {
+            if ($sequence->getObjectName()->getUnqualifiedName()->equals($expectedName, $folding)) {
+                return $sequence;
+            }
+        }
+
+        return null;
     }
 }

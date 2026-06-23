@@ -2051,6 +2051,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create a new savepoint.
+     *
+     * This method should be invoked only if {@see supportsSavepoints()} returns true.
      */
     public function createSavePoint(string $savepoint): string
     {
@@ -2059,6 +2061,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to release a savepoint.
+     *
+     * This method should be invoked only if {@see supportsReleaseSavepoints()} returns true.
      */
     public function releaseSavePoint(string $savepoint): string
     {
@@ -2067,6 +2071,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to rollback a savepoint.
+     *
+     * This method should be invoked only if {@see supportsSavepoints()} returns true.
      */
     public function rollbackSavePoint(string $savepoint): string
     {
