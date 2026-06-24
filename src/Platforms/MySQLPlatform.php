@@ -62,4 +62,10 @@ class MySQLPlatform extends AbstractMySQLPlatform
 
         return new MySQLKeywords();
     }
+
+    /** @inheritdoc */
+    public function getVectorTypeDeclarationSQL(array $column): string
+    {
+        return AbstractPlatform::getVectorTypeDeclarationSQL($column);
+    }
 }

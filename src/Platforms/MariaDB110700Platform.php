@@ -10,8 +10,6 @@ use Doctrine\Deprecations\Deprecation;
 
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB 11.7 database platform.
- *
- * @deprecated To be removed along with the keyword list feature.
  */
 class MariaDB110700Platform extends MariaDB1010Platform
 {
@@ -26,5 +24,11 @@ class MariaDB110700Platform extends MariaDB1010Platform
         );
 
         return new MariaDB117Keywords();
+    }
+
+    /** @inheritdoc */
+    public function getVectorTypeDeclarationSQL(array $column): string
+    {
+        return AbstractMySQLPlatform::getVectorTypeDeclarationSQL($column);
     }
 }

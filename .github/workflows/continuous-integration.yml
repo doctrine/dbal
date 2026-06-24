@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - "*.x"
+      - feature/vector-type
     paths:
       - .github/workflows/continuous-integration.yml
       - .github/workflows/phpunit-*.yml
@@ -166,6 +167,7 @@ jobs:
       config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - "8.3"
@@ -212,6 +214,7 @@ jobs:
       config-file-suffix: ${{ matrix.config-file-suffix }}
 
     strategy:
+      fail-fast: false
       matrix:
         php-version:
           - "8.3"

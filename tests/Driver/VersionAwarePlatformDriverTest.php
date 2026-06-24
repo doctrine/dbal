@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\MariaDB1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
+use Doctrine\DBAL\Platforms\MySQL90Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
@@ -40,7 +41,7 @@ class VersionAwarePlatformDriverTest extends TestCase
             ['5.7.0', MySQLPlatform::class],
             ['8.0.11', MySQL80Platform::class],
             ['8.4.1', MySQL84Platform::class],
-            ['9.0.0', MySQL84Platform::class],
+            ['9.0.0', MySQL90Platform::class],
             ['5.5.40-MariaDB-1~wheezy', MariaDBPlatform::class],
             ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
             ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],

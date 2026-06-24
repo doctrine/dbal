@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Types\Types;
 
@@ -35,5 +36,11 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
     public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
         self::markTestSkipped('MariaDB supports default values for BLOB and TEXT columns');
+    }
+
+    public function testGetVectorTypeDeclarationSQL(): void
+    {
+        self::expectException(NotSupported::class);
+        $this->platform->getVectorTypeDeclarationSQL(['length' => 2048]);
     }
 }

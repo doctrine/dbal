@@ -16,6 +16,7 @@ use Doctrine\DBAL\Platforms\MariaDB110700Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
+use Doctrine\DBAL\Platforms\MySQL90Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
 use Doctrine\Deprecations\Deprecation;
@@ -62,6 +63,10 @@ abstract class AbstractMySQLDriver implements Driver
             }
 
             return new MariaDBPlatform();
+        }
+
+        if (version_compare($version, '9.0.0', '>=')) {
+            return new MySQL90Platform();
         }
 
         if (version_compare($version, '8.4.0', '>=')) {
