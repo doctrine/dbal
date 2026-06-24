@@ -6,12 +6,14 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SchemaTest extends TestCase
@@ -64,6 +66,42 @@ class SchemaTest extends TestCase
         $this->expectException(SchemaException::class);
 
         $schema->getTable('unknown');
+    }
+
+    /** @param callable(Schema): mixed $lookup */
+    #[DataProvider('lookupWithInvalidNameProvider')]
+    public function testLookupWithInvalidName(callable $lookup): void
+    {
+        $schema = Schema::editor()
+            ->create();
+
+        $this->expectException(InvalidName::class);
+
+        $lookup($schema);
+    }
+
+    /** @return iterable<string, array{callable(Schema): mixed}> */
+    public static function lookupWithInvalidNameProvider(): iterable
+    {
+        yield 'get table' => [
+            static fn (Schema $schema): Table => $schema->getTable('"orders'),
+        ];
+
+        yield 'has table' => [
+            static fn (Schema $schema): bool => $schema->hasTable('"orders'),
+        ];
+
+        yield 'get sequence' => [
+            static fn (Schema $schema): Sequence => $schema->getSequence('"id_seq'),
+        ];
+
+        yield 'has sequence' => [
+            static fn (Schema $schema): bool => $schema->hasSequence('"id_seq'),
+        ];
+
+        yield 'has namespace' => [
+            static fn (Schema $schema): bool => $schema->hasNamespace('"billing'),
+        ];
     }
 
     public function testAddSequences(): void
