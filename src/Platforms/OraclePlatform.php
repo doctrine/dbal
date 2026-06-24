@@ -781,12 +781,6 @@ SQL,
     }
 
     #[Override]
-    public function releaseSavePoint(string $savepoint): string
-    {
-        return '';
-    }
-
-    #[Override]
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BLOB';
