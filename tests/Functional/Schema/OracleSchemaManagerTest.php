@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -11,6 +12,8 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -18,6 +21,7 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\DateTimeTzType;
 use Doctrine\DBAL\Types\DateType;
+use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 
 use function array_map;
@@ -242,5 +246,36 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function getExpectedDefaultSchemaName(): ?string
     {
         return null;
+    }
+
+    /**
+     * @throws Exception
+     * @throws TypesException
+     */
+    public function testIntrospectTableByUnquotedNameWithLowerFolding(): void
+    {
+        $tableName = 'test_folding_fix';
+        $table = Table::editor()
+            ->setUnquotedName($tableName)
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $platform = new OraclePlatform(UnquotedIdentifierFolding::LOWER);
+
+        $schemaManager = new OracleSchemaManager($this->connection, $platform);
+
+        $introspectedTable = $schemaManager->introspectTableByUnquotedName($tableName);
+
+        self::assertSame(
+            'TEST_FOLDING_FIX',
+            $introspectedTable->getObjectName()->getUnqualifiedName()->getName()
+        );
     }
 }

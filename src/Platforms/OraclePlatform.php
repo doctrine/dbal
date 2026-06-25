@@ -37,9 +37,9 @@ use function substr;
  */
 class OraclePlatform extends AbstractPlatform
 {
-    public function __construct()
+    public function __construct(?UnquotedIdentifierFolding $unquotedIdentifierFolding = null)
     {
-        parent::__construct(UnquotedIdentifierFolding::UPPER);
+        parent::__construct($unquotedIdentifierFolding ?? UnquotedIdentifierFolding::UPPER);
     }
 
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string

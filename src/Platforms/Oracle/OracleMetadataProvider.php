@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Metadata\DatabaseMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ForeignKeyConstraintColumnMetadataRow;
@@ -522,14 +523,17 @@ SQL,
             $qualifier    = $relation !== null ? $relation . '.' : '';
             $conditions[] = $qualifier . 'TABLE_NAME = :TABLE_NAME';
 
-            $params['TABLE_NAME'] = $tableName;
+            $identifier = new Identifier($tableName);
+
+            $params['TABLE_NAME'] = $identifier->isQuoted()
+                ? $identifier->getName()
+                : strtoupper($identifier->getName());
         } else {
             $conditions[] = '1 = 1';
         }
 
         return implode(' AND ', $conditions);
     }
-
     /**
      * {@inheritDoc}
      *
