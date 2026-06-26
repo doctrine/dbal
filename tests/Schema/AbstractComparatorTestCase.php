@@ -22,6 +22,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
+use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
@@ -637,10 +638,10 @@ abstract class AbstractComparatorTestCase extends TestCase
             )
             ->create();
 
-        self::assertEquals(
-            new TableDiff($tableA),
-            $this->comparator->compareTables($tableA, $tableB),
-        );
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertCount(1, $tableDiff->getDroppedForeignKeyConstraintNames());
+        self::assertCount(1, $tableDiff->getAddedForeignKeys());
     }
 
     public function testDetectRenameColumn(): void
@@ -1354,5 +1355,52 @@ abstract class AbstractComparatorTestCase extends TestCase
                     ->create(),
             )
             ->create();
+    }
+
+    /**
+     * @throws TypesException
+     */
+    public function testTableRenamedForeignKeyIsDetected(): void
+    {
+        $table1 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('fk')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setName(UnqualifiedName::unquoted('old_fk_name'))
+                    ->setUnquotedReferencingColumnNames('fk')
+                    ->setUnquotedReferencedTableName('bar')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $table2 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('fk')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setName(UnqualifiedName::unquoted('new_fk_name'))
+                    ->setUnquotedReferencingColumnNames('fk')
+                    ->setUnquotedReferencedTableName('bar')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
+
+        self::assertCount(1, $tableDiff->getDroppedForeignKeyConstraintNames());
+        self::assertCount(1, $tableDiff->getAddedForeignKeys());
     }
 }
