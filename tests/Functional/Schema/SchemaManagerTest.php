@@ -26,6 +26,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
 use function sprintf;
+use function array_values;
 
 final class SchemaManagerTest extends FunctionalTestCase
 {
@@ -356,6 +357,84 @@ final class SchemaManagerTest extends FunctionalTestCase
                 ->getColumn('val')
                 ->getNotnull(),
         );
+    }
+
+    public function testAlterTableRenameForeignKey(): void
+    {
+        $tableForeign = Table::editor()
+            ->setUnquotedName('fk_referenced')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($tableForeign);
+
+        $fk = ForeignKeyConstraint::editor()
+            ->setUnquotedName('foo_constraint')
+            ->setUnquotedReferencingColumnNames('foreign_id')
+            ->setReferencedTableName(OptionallyQualifiedName::unquoted('fk_referenced'))
+            ->setUnquotedReferencedColumnNames('id')
+            ->create();
+
+        $tableFrom = Table::editor()
+            ->setUnquotedName('fk_referencing')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('foreign_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints($fk)
+            ->create();
+
+        $this->dropAndCreateTable($tableFrom);
+
+        $tableTo = $tableFrom->edit()
+            ->setForeignKeyConstraints(
+                $fk->edit()
+                    ->setUnquotedName('bar_constraint')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()->compareTables($tableFrom, $tableTo);
+        self::assertFalse($diff->isEmpty());
+
+        $this->schemaManager->alterTable($diff);
+
+        $foreignKeys = $this->schemaManager->introspectTableByUnquotedName('fk_referencing')->getForeignKeys();
+        self::assertCount(1, $foreignKeys);
+
+        $foreignKey = array_values($foreignKeys)[0];
+        self::assertNotNull($foreignKey);
+
+        self::assertTrue(
+            $foreignKey->getObjectName()->equals(
+                UnqualifiedName::unquoted('bar_constraint'),
+                $this->connection->getDatabasePlatform()->getUnquotedIdentifierFolding(),
+            ),
+        );
+
+        $this->dropTableIfExists('fk_referencing');
+        $this->dropTableIfExists('fk_referenced');
     }
 
     public function testAlterSequence(): void
