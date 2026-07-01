@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed the `simple_array` type
+
+The `simple_array` type has been removed.
+
+The following class and constant have been removed:
+
+- `SimpleArrayType`,
+- `Types::SIMPLE_ARRAY`.
+
+The native MySQL `set` type is now introspected as `text` instead of `simple_array`.
+
 ## BC BREAK: Removed `Doctrine\DBAL\SQL\Parser\Exception`
 
 The `Doctrine\DBAL\SQL\Parser\Exception` interface has been removed.

@@ -195,34 +195,6 @@ final class ComparatorTest extends FunctionalTestCase
         )->isEmpty());
     }
 
-    public function testSimpleArrayTypeNonChangeNotDetected(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('comparator_test')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('simple_array_col')
-                    ->setTypeName(Types::SIMPLE_ARRAY)
-                    ->setLength(255)
-                    ->create(),
-            )
-            ->create();
-
-        $this->dropAndCreateTable($table);
-
-        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
-            $this->schemaManager,
-            $this->comparator,
-            $table,
-        )->isEmpty());
-
-        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
-            $this->schemaManager,
-            $this->comparator,
-            $table,
-        )->isEmpty());
-    }
-
     /** @return iterable<string,array{array<string,string>,?non-empty-string,?non-empty-string}> */
     public static function tableAndColumnOptionsProvider(): iterable
     {

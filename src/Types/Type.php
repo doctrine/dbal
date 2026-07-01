@@ -47,7 +47,6 @@ abstract class Type
         Types::JSON_OBJECT          => JsonObjectType::class,
         Types::JSONB                => JsonbType::class,
         Types::JSONB_OBJECT         => JsonbObjectType::class,
-        Types::SIMPLE_ARRAY         => SimpleArrayType::class,
         Types::SMALLFLOAT           => SmallFloatType::class,
         Types::SMALLINT             => SmallIntType::class,
         Types::STRING               => StringType::class,
