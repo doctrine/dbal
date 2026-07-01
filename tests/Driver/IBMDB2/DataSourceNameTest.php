@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class DataSourceNameTest extends TestCase
 {
-    /** @param mixed[] $params */
+    /** @param array<string, mixed> $params */
     #[DataProvider('connectionParametersProvider')]
     public function testFromConnectionParameters(array $params, string $expected): void
     {
@@ -19,7 +19,7 @@ class DataSourceNameTest extends TestCase
         self::assertSame($expected, $dsn->toString());
     }
 
-    /** @return iterable<string,array<int,mixed>> */
+    /** @return iterable<string, array{array<string, mixed>, string}> */
     public static function connectionParametersProvider(): iterable
     {
         yield 'empty-params' => [[], ''];

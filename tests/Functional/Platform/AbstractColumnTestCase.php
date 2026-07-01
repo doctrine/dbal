@@ -63,7 +63,7 @@ abstract class AbstractColumnTestCase extends FunctionalTestCase
         );
     }
 
-    /** @return iterable<string, array<int, mixed>> */
+    /** @return iterable<string, array{string}> */
     public static function string1Provider(): iterable
     {
         return [
@@ -72,7 +72,7 @@ abstract class AbstractColumnTestCase extends FunctionalTestCase
         ];
     }
 
-    /** @return iterable<string, array<int, mixed>> */
+    /** @return iterable<string, array{string}> */
     public static function string8Provider(): iterable
     {
         return [

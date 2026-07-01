@@ -331,7 +331,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals($expectedResult, $row['trimmed']);
     }
 
-    /** @return array<int, array<int, mixed>> */
+    /** @return list<array{string, TrimMode, string|null, string}> */
     public static function getTrimExpressionData(): iterable
     {
         return [
@@ -625,7 +625,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
     }
 
-    /** @return mixed[][] */
+    /** @return array<string, array{callable(int): string, callable(Statement, int): void}> */
     public static function modeProvider(): array
     {
         return [
@@ -744,7 +744,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals($expected, $this->connection->fetchOne($query));
     }
 
-    /** @return mixed[][] */
+    /** @return array<string, array{string, string, string|null, string}> */
     public static function substringExpressionProvider(): iterable
     {
         return [

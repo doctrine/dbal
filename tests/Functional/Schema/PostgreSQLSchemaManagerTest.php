@@ -502,7 +502,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('(-1)', $colString->getDefault());
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{string}> */
     public static function serialTypes(): iterable
     {
         return [
@@ -665,7 +665,7 @@ SQL;
         );
     }
 
-    /** @return iterable<mixed[]> */
+    /** @return iterable<string, array{string, string, string}> */
     public static function autoIncrementTypeMigrations(): iterable
     {
         return [

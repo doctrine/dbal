@@ -497,6 +497,15 @@ all drivers and middleware.
 
 # Upgrade to 4.5
 
+## Deprecated the `simple_array` type
+
+The `simple_array` type has been deprecated. Use the `json` type instead.
+
+The following class and constant have been deprecated:
+
+- `SimpleArrayType`,
+- `Types::SIMPLE_ARRAY`.
+
 ## Marked `AbstractNamedObject` and `AbstractOptionallyNamedObject` classes as internal
 
 The `AbstractNamedObject` and `AbstractOptionallyNamedObject` classes have been marked as internal. Use the

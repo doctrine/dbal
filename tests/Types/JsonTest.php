@@ -71,7 +71,7 @@ class JsonTest extends TestCase
         $this->type->convertToPHPValue($data, $this->platform);
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{string}> */
     public static function providerFailure(): iterable
     {
         return [['a'], ['{']];

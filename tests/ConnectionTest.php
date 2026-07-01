@@ -28,7 +28,10 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use RuntimeException;
 
-/** @phpstan-import-type Params from DriverManager */
+/**
+ * @phpstan-import-type Params from DriverManager
+ * @phpstan-import-type WrapperParameterTypeArray from Connection
+ */
 #[RequiresPhpExtension('pdo_mysql')]
 class ConnectionTest extends TestCase
 {
@@ -488,7 +491,11 @@ class ConnectionTest extends TestCase
         self::assertSame($expected, $invoke($conn, $query, $params, $types));
     }
 
-    /** @return iterable<string,array<int,mixed>> */
+    /** @return iterable<string, array{
+     *     non-empty-string,
+     *     callable(Connection, string, list<mixed>|array<string, mixed>, WrapperParameterTypeArray): mixed,
+     *     mixed,
+     * }> */
     public static function fetchModeProvider(): iterable
     {
         yield 'numeric' => [

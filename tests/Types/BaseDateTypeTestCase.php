@@ -66,7 +66,7 @@ abstract class BaseDateTypeTestCase extends TestCase
         self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{mixed}> */
     public static function invalidPHPValuesProvider(): iterable
     {
         return [

@@ -61,7 +61,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         return new Comparator($this->platform, new ComparatorConfig());
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{string, string}> */
     public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
         return [
@@ -812,7 +812,7 @@ abstract class AbstractPlatformTestCase extends TestCase
      */
     abstract protected function getCommentOnColumnSQL(): array;
 
-    /** @return mixed[][] */
+    /** @return array<string, array{string, string}> */
     public static function getGeneratesInlineColumnCommentSQL(): iterable
     {
         return [
@@ -960,7 +960,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     /** @return string[] */
     abstract protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array;
 
-    /** @param mixed[] $column */
+    /** @param array<string, mixed> $column */
     #[DataProvider('getGeneratesDecimalTypeDeclarationSQL')]
     public function testGeneratesDecimalTypeDeclarationSQL(array $column, string $expectedSql): void
     {
@@ -974,14 +974,14 @@ abstract class AbstractPlatformTestCase extends TestCase
         yield [['precision' => 8, 'scale' => 2], 'NUMERIC(8, 2)'];
     }
 
-    /** @param mixed[] $column */
+    /** @param array<string, mixed> $column */
     #[DataProvider('getGeneratesFloatDeclarationSQL')]
     public function testGeneratesFloatDeclarationSQL(array $column, string $expectedSql): void
     {
         self::assertSame($expectedSql, $this->platform->getFloatDeclarationSQL($column));
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{array<string, mixed>, string}> */
     public static function getGeneratesFloatDeclarationSQL(): iterable
     {
         return [
@@ -994,14 +994,14 @@ abstract class AbstractPlatformTestCase extends TestCase
         ];
     }
 
-    /** @param mixed[] $column */
+    /** @param array<string, mixed> $column */
     #[DataProvider('getGeneratesSmallFloatDeclarationSQL')]
     public function testGeneratesSmallFloatDeclarationSQL(array $column, string $expectedSql): void
     {
         self::assertSame($expectedSql, $this->platform->getSmallFloatDeclarationSQL($column));
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{array<string, mixed>, string}> */
     public static function getGeneratesSmallFloatDeclarationSQL(): iterable
     {
         return [
@@ -1107,7 +1107,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         ];
     }
 
-    /** @param array<mixed> $column */
+    /** @param array<string, mixed> $column */
     #[DataProvider('getEnumDeclarationSQLWithInvalidValuesProvider')]
     public function testGetEnumDeclarationSQLWithInvalidValues(array $column): void
     {
@@ -1115,7 +1115,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $this->platform->getEnumDeclarationSQL($column);
     }
 
-    /** @return array<string, array{array<mixed>}> */
+    /** @return array<string, array{array<string, mixed>}> */
     public static function getEnumDeclarationSQLWithInvalidValuesProvider(): array
     {
         return [

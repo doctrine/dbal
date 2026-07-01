@@ -152,7 +152,7 @@ class ComparatorTest extends FunctionalTestCase
         self::assertEquals(3, $modifiedOnly->countChangedProperties());
     }
 
-    /** @return iterable<mixed[]> */
+    /** @return list<array{string, mixed}> */
     public static function defaultValueProvider(): iterable
     {
         return [

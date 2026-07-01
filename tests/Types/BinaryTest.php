@@ -73,7 +73,7 @@ class BinaryTest extends TestCase
         $this->type->convertToPHPValue($value, $this->platform);
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{mixed}> */
     public static function getInvalidDatabaseValues(): iterable
     {
         return [

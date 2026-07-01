@@ -47,7 +47,7 @@ class CompositeExpressionTest extends TestCase
         self::assertEquals($expects, (string) $expr);
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{CompositeExpression, string}> */
     public static function provideDataForConvertToString(): iterable
     {
         return [

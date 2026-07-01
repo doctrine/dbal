@@ -23,7 +23,7 @@ class QuotingTest extends FunctionalTestCase
         self::assertSame($string, $this->connection->fetchOne($query));
     }
 
-    /** @return mixed[][] */
+    /** @return array<string, array{string}> */
     public static function stringLiteralProvider(): iterable
     {
         return [

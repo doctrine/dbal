@@ -100,7 +100,7 @@ class ColumnCommentTest extends FunctionalTestCase
         $this->assertColumnComment('id', $comment2);
     }
 
-    /** @return mixed[][] */
+    /** @return array<string, array{string, string}> */
     public static function alterColumnCommentProvider(): iterable
     {
         return [

@@ -15,24 +15,24 @@ Powerful ***D***ata***B***ase ***A***bstraction ***L***ayer with many features f
 
   [Coverage 5.0 image]: https://codecov.io/gh/doctrine/dbal/branch/5.0.x/graph/badge.svg
   [5.0]: https://github.com/doctrine/dbal/tree/5.0.x
-  [CodeCov 5.0]: https://codecov.io/gh/doctrine/dbal/branch/5.0.x
+  [CodeCov 5.0]: https://codecov.io/gh/doctrine/dbal/tree/5.0.x
   [GA 5.0]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A5.0.x
   [GA 5.0 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=5.0.x
 
   [Coverage 4.5 image]: https://codecov.io/gh/doctrine/dbal/branch/4.5.x/graph/badge.svg
   [4.5]: https://github.com/doctrine/dbal/tree/4.5.x
-  [CodeCov 4.5]: https://codecov.io/gh/doctrine/dbal/branch/4.5.x
+  [CodeCov 4.5]: https://codecov.io/gh/doctrine/dbal/tree/4.5.x
   [GA 4.5]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A4.5.x
   [GA 4.5 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=4.5.x
 
   [Coverage 4.4 image]: https://codecov.io/gh/doctrine/dbal/branch/4.4.x/graph/badge.svg
   [4.4]: https://github.com/doctrine/dbal/tree/4.4.x
-  [CodeCov 4.4]: https://codecov.io/gh/doctrine/dbal/branch/4.4.x
+  [CodeCov 4.4]: https://codecov.io/gh/doctrine/dbal/tree/4.4.x
   [GA 4.4]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A4.4.x
   [GA 4.4 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=4.4.x
 
   [Coverage 3.10 image]: https://codecov.io/gh/doctrine/dbal/branch/3.10.x/graph/badge.svg
   [3.10]: https://github.com/doctrine/dbal/tree/3.10.x
-  [CodeCov 3.10]: https://codecov.io/gh/doctrine/dbal/branch/3.10.x
+  [CodeCov 3.10]: https://codecov.io/gh/doctrine/dbal/tree/3.10.x
   [GA 3.10]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A3.10.x
   [GA 3.10 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=3.10.x

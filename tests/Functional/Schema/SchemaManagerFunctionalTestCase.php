@@ -819,7 +819,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         // test table created in a namespace
-        $this->createTestTable('my_table_in_namespace', qualifier: 'testschema');
+        $this->createTestTable('my_table_in_namespace', 'testschema');
         $this->assertOptionallyQualifiedNameListContainsUnquotedName(
             'my_table_in_namespace',
             'testschema',
@@ -1135,14 +1135,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     /**
      * @param non-empty-string  $name
-     * @param mixed[]           $data
      * @param ?non-empty-string $qualifier
      */
-    protected function createTestTable(string $name, array $data = [], ?string $qualifier = null): Table
+    protected function createTestTable(string $name, ?string $qualifier = null): Table
     {
-        $options = $data['options'] ?? [];
-
-        $table = $this->getTestTable($name, $options, $qualifier);
+        $table = $this->getTestTable($name, $qualifier);
 
         $this->dropAndCreateTable($table);
 
@@ -1151,10 +1148,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     /**
      * @param non-empty-string  $name
-     * @param mixed[]           $options
      * @param ?non-empty-string $qualifier
      */
-    protected function getTestTable(string $name, array $options = [], ?string $qualifier = null): Table
+    protected function getTestTable(string $name, ?string $qualifier = null): Table
     {
         return Table::editor()
             ->setUnquotedName($name, $qualifier)
@@ -1179,7 +1175,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                     ->setUnquotedColumnNames('id')
                     ->create(),
             )
-            ->setOptions($options)
             ->setConfiguration(
                 $this->schemaManager->createSchemaConfig()->toTableConfiguration(),
             )

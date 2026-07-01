@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class ConvertPositionalToNamedPlaceholdersTest extends TestCase
 {
-    /** @param mixed[] $expectedOutputParamsMap */
+    /** @param array<int, string> $expectedOutputParamsMap */
     #[DataProvider('positionalToNamedPlaceholdersProvider')]
     public function testConvertPositionalToNamedParameters(
         string $inputSQL,
@@ -27,7 +27,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
         self::assertEquals($expectedOutputParamsMap, $visitor->getParameterMap());
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{string, string, array<int, string>}> */
     public static function positionalToNamedPlaceholdersProvider(): iterable
     {
         return [

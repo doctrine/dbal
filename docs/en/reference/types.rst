@@ -407,6 +407,10 @@ real arrays or JSON format arrays.
 simple_array
 ^^^^^^^^^^^^
 
+.. warning::
+
+    This type is deprecated, you should use the ``json`` type instead.
+
 Maps and converts array data based on PHP comma delimited imploding and exploding.
 If you know that the data to be stored always is a scalar value based one-dimensional
 array, you should consider using this type as it uses simple PHP imploding and

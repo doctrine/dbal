@@ -41,6 +41,11 @@ class ConnectionTest extends FunctionalTestCase
         $this->markConnectionNotReusable();
     }
 
+    public function testServerVersion(): void
+    {
+        self::assertNotEmpty($this->connection->getServerVersion());
+    }
+
     public function testCommitWithRollbackOnlyThrowsException(): void
     {
         $this->connection->beginTransaction();

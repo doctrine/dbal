@@ -28,7 +28,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /** @return iterable<string,array<int,mixed>> */
+    /** @return iterable<string, array{list<mixed>|false, bool, bool, list<mixed>|false}> */
     public static function convertNumericProvider(): iterable
     {
         $row = ['X ', ''];
@@ -84,7 +84,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /** @return iterable<string,array<int,mixed>> */
+    /** @return iterable<string, array{array<string, mixed>|false, bool, bool, Converter::CASE_*|null, array<string, mixed>|false}> */
     public static function convertAssociativeProvider(): iterable
     {
         $row = [
@@ -197,7 +197,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /** @return iterable<string,array<int,mixed>> */
+    /** @return iterable<string, array{mixed, bool, bool, mixed}> */
     public static function convertOneProvider(): iterable
     {
         yield 'None, trailing space' => ['X ', false, false, 'X '];
@@ -230,7 +230,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /** @return iterable<string,array<int,mixed>> */
+    /** @return iterable<string, array{list<list<mixed>>, bool, bool, list<list<mixed>>}> */
     public static function convertAllNumericProvider(): iterable
     {
         $data = [
@@ -297,7 +297,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /** @return iterable<string,array<int,mixed>> */
+    /** @return iterable<string, array{list<array<string, mixed>>, bool, bool, Converter::CASE_*|null, list<array<string, mixed>>}> */
     public static function convertAllAssociativeProvider(): iterable
     {
         $data = [
@@ -466,7 +466,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /** @return iterable<string,array<int,mixed>> */
+    /** @return iterable<string, array{list<mixed>, bool, bool, list<mixed>}> */
     public static function convertFirstColumnProvider(): iterable
     {
         $column = ['X ', ''];

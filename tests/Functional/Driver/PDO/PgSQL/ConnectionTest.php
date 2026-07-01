@@ -41,7 +41,7 @@ class ConnectionTest extends FunctionalTestCase
         );
     }
 
-    /** @return mixed[][] */
+    /** @return list<array{string}> */
     public static function getValidCharsets(): iterable
     {
         return [

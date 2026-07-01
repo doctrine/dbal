@@ -76,7 +76,7 @@ class DefaultValueTest extends FunctionalTestCase
      * @see http://www.sqlite.org/lang_expr.html
      * @see https://www.postgresql.org/docs/9.6/static/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE
      *
-     * @return mixed[][]
+     * @return array<string, array{non-empty-string, ?string}>
      */
     public static function columnProvider(): iterable
     {

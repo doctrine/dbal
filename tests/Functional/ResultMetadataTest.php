@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
 use Override;
 use PHPUnit\Framework\Attributes\TestWith;
 
 use function strtolower;
+
+use const PHP_VERSION_ID;
 
 class ResultMetadataTest extends FunctionalTestCase
 {
@@ -67,6 +71,53 @@ class ResultMetadataTest extends FunctionalTestCase
         $this->expectException(InvalidColumnIndex::class);
 
         $result->getColumnName($index);
+    }
+
+    public function testColumnNameAfterFree(): void
+    {
+        // Whether a freed result reports an invalid column index is driver-specific.
+        if (! TestUtil::isDriverOneOf('sqlite3', 'pdo_sqlite', 'pgsql', 'pdo_mysql')) {
+            self::markTestSkipped('This driver does not report an invalid column index for a freed result.');
+        }
+
+        // pdo_sqlite's getColumnMeta() returns false for a freed statement only since the fix
+        // for https://github.com/php/php-src/issues/17837, shipped in PHP 8.3.18 and 8.4.5.
+        if (
+            TestUtil::isDriverOneOf('pdo_sqlite')
+            && (PHP_VERSION_ID < 80318 || (PHP_VERSION_ID >= 80400 && PHP_VERSION_ID < 80405))
+        ) {
+            self::markTestSkipped('pdo_sqlite reports getColumnMeta() failure only since PHP 8.3.18/8.4.5.');
+        }
+
+        $result = $this->getFreedResult();
+
+        $this->expectException(InvalidColumnIndex::class);
+
+        $result->getColumnName(0);
+    }
+
+    public function testColumnCountAfterFree(): void
+    {
+        // Whether a freed result reports zero columns is driver-specific.
+        if (! TestUtil::isDriverOneOf('sqlite3', 'pgsql')) {
+            self::markTestSkipped('This driver does not report zero columns for a freed result.');
+        }
+
+        $result = $this->getFreedResult();
+
+        self::assertSame(0, $result->columnCount());
+    }
+
+    private function getFreedResult(): Result
+    {
+        $result = $this->connection->executeQuery(
+            $this->connection->getDatabasePlatform()
+                ->getDummySelectSQL(),
+        );
+
+        $result->free();
+
+        return $result;
     }
 
     public function testColumnNameWithoutResults(): void

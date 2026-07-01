@@ -18,6 +18,8 @@ use function stream_get_contents;
  * Array Type which can be used for simple values.
  *
  * Only use this type if you are sure that your values cannot contain a ",".
+ *
+ * @deprecated Use {@see JsonType} instead.
  */
 class SimpleArrayType extends Type
 {

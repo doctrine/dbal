@@ -63,10 +63,10 @@ abstract class AlterColumnCollationTestCase extends FunctionalTestCase
 
     /**
      * @return iterable<string, array{
-     *     ?string,
+     *     ?non-empty-string,
      *     callable(ColumnEditor): void,
      *     bool,
-     *     ?string
+     *     ?non-empty-string
      * }>
      */
     abstract public static function provideAlterColumnCollationCases(): iterable;

@@ -91,7 +91,7 @@ class PortabilityTest extends FunctionalTestCase
         yield 'upper' => [ColumnCase::UPPER, ['TEST_INT', 'TEST_STRING', 'TEST_NULL']];
     }
 
-    /** @param array<int, array<string, mixed>> $rows */
+    /** @param list<array<string, mixed>> $rows */
     private function assertFetchResultRows(array $rows): void
     {
         self::assertCount(2, $rows);
@@ -114,7 +114,7 @@ class PortabilityTest extends FunctionalTestCase
         self::assertArrayNotHasKey(0, $row, 'The row should not contain numerical keys.');
     }
 
-    /** @param mixed[] $expected */
+    /** @param list<mixed> $expected */
     #[DataProvider('fetchColumnProvider')]
     public function testFetchColumn(string $column, array $expected): void
     {
@@ -126,7 +126,7 @@ class PortabilityTest extends FunctionalTestCase
         self::assertEquals($expected, $result->fetchFirstColumn());
     }
 
-    /** @return iterable<string, array<int, mixed>> */
+    /** @return iterable<string, array{string, list<mixed>}> */
     public static function fetchColumnProvider(): iterable
     {
         return [

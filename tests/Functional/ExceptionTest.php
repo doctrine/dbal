@@ -313,7 +313,7 @@ class ExceptionTest extends FunctionalTestCase
         $conn->executeQuery($platform->getDummySelectSQL());
     }
 
-    /** @return array<int, array<int, mixed>> */
+    /** @return list<array{array<string, mixed>}> */
     public static function getConnectionParams(): iterable
     {
         return [

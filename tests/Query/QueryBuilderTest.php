@@ -523,7 +523,7 @@ class QueryBuilderTest extends TestCase
         self::assertEquals($maxResults, $qb->getMaxResults());
     }
 
-    /** @return mixed[][] */
+    /** @return array<string, array{?int}> */
     public static function maxResultsProvider(): iterable
     {
         return [

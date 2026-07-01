@@ -79,31 +79,19 @@ final readonly class Connection implements ConnectionInterface
     #[Override]
     public function beginTransaction(): void
     {
-        try {
-            $this->connection->exec('BEGIN');
-        } catch (\Exception $e) {
-            throw Exception::new($e);
-        }
+        $this->exec('BEGIN');
     }
 
     #[Override]
     public function commit(): void
     {
-        try {
-            $this->connection->exec('COMMIT');
-        } catch (\Exception $e) {
-            throw Exception::new($e);
-        }
+        $this->exec('COMMIT');
     }
 
     #[Override]
     public function rollBack(): void
     {
-        try {
-            $this->connection->exec('ROLLBACK');
-        } catch (\Exception $e) {
-            throw Exception::new($e);
-        }
+        $this->exec('ROLLBACK');
     }
 
     #[Override]
