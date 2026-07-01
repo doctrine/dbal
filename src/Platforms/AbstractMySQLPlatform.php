@@ -560,7 +560,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             'mediumtext' => Types::TEXT,
             'numeric'    => Types::DECIMAL,
             'real'       => Types::FLOAT,
-            'set'        => Types::SIMPLE_ARRAY,
+            'set'        => Types::TEXT,
             'smallint'   => Types::SMALLINT,
             'string'     => Types::STRING,
             'text'       => Types::TEXT,

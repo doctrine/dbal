@@ -401,41 +401,7 @@ or ``null`` if no data is present.
 Array types
 ~~~~~~~~~~~
 
-Types that map array data in different variations such as simple arrays,
-real arrays or JSON format arrays.
-
-simple_array
-^^^^^^^^^^^^
-
-.. warning::
-
-    This type is deprecated, you should use the ``json`` type instead.
-
-Maps and converts array data based on PHP comma delimited imploding and exploding.
-If you know that the data to be stored always is a scalar value based one-dimensional
-array, you should consider using this type as it uses simple PHP imploding and
-exploding techniques to serialize and deserialize your data.
-Values retrieved from the database are always converted to PHP's ``array`` type
-using comma delimited ``explode()`` or ``null`` if no data is present.
-
-.. note::
-
-    This type will always be mapped to the database vendor's ``text`` type
-    internally as there is no way of storing a PHP array representation
-    natively in the database.
-    Furthermore this type requires an SQL column comment hint so that it can be
-    reverse engineered from the database. Doctrine cannot map back this type
-    properly on vendors not supporting column comments and will fall back to
-    ``text`` type instead.
-
-.. warning::
-
-    You should never rely on a specific PHP type like ``boolean``,
-    ``integer``, ``float`` or ``null`` when retrieving values from
-    the database as the ``explode()`` deserialization technique used
-    by this type converts every single array item to ``string``.
-    This basically means that every array item other than ``string``
-    will lose its type awareness.
+Types that map array data in JSON format.
 
 .. _json:
 json
