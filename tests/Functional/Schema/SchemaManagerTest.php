@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -612,6 +613,43 @@ final class SchemaManagerTest extends FunctionalTestCase
                 ->setUnquotedName('s')
                 ->create(),
         );
+    }
+
+    /** @param callable(AbstractSchemaManager): mixed $introspect */
+    #[DataProvider('introspectionWithSchemaNameProvider')]
+    public function testIntrospectionWithSchemaNameWithoutSchemaSupport(callable $introspect): void
+    {
+        if ($this->connection->getDatabasePlatform()->supportsSchemas()) {
+            self::markTestSkipped('The platform supports schemas.');
+        }
+
+        $this->expectException(UnsupportedName::class);
+
+        $introspect($this->schemaManager);
+    }
+
+    /** @return iterable<string, array{callable(AbstractSchemaManager): mixed}> */
+    public static function introspectionWithSchemaNameProvider(): iterable
+    {
+        $tableName = OptionallyQualifiedName::unquoted('orders', 'billing');
+
+        yield 'table' => [
+            static fn (AbstractSchemaManager $sm): Table => $sm->introspectTable($tableName),
+        ];
+
+        yield 'indexes' => [
+            static fn (AbstractSchemaManager $sm): array => $sm->introspectTableIndexes($tableName),
+        ];
+
+        yield 'primary key constraint' => [
+            static fn (
+                AbstractSchemaManager $sm,
+            ): ?PrimaryKeyConstraint => $sm->introspectTablePrimaryKeyConstraint($tableName),
+        ];
+
+        yield 'foreign key constraints' => [
+            static fn (AbstractSchemaManager $sm): array => $sm->introspectTableForeignKeyConstraints($tableName),
+        ];
     }
 
     /**
