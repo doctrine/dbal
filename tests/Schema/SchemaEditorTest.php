@@ -13,10 +13,12 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\SchemaEditor;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
@@ -183,6 +185,68 @@ class SchemaEditorTest extends TestCase
         $editor->addSequence(Sequence::editor()->setUnquotedName('a_seq')->create());
     }
 
+    /**
+     * The schema is empty, so the edit fails before the lookup. {@see testEditOnMissingObjectOfPopulatedSchema} covers
+     * the opposite case.
+     *
+     * @param callable(SchemaEditor): SchemaEditor $edit
+     */
+    #[DataProvider('editOnMissingObjectProvider')]
+    public function testEditOnMissingObjectOfEmptySchema(callable $edit): void
+    {
+        $editor = Schema::editor();
+
+        $this->expectException(InvalidSchemaModification::class);
+
+        $edit($editor);
+    }
+
+    /**
+     * The schema is non-empty, so the edit reaches the lookup. {@see testEditOnMissingObjectOfEmptySchema} covers the
+     * opposite case.
+     *
+     * @param callable(SchemaEditor): SchemaEditor $edit
+     */
+    #[DataProvider('editOnMissingObjectProvider')]
+    public function testEditOnMissingObjectOfPopulatedSchema(callable $edit): void
+    {
+        $editor = Schema::editor()
+            ->addTable($this->createTable('orders'))
+            ->addSequence(
+                Sequence::editor()
+                    ->setUnquotedName('id_seq')
+                    ->create(),
+            );
+
+        $this->expectException(InvalidSchemaModification::class);
+
+        $edit($editor);
+    }
+
+    /** @return iterable<string, array{callable(SchemaEditor): SchemaEditor}> */
+    public static function editOnMissingObjectProvider(): iterable
+    {
+        yield 'drop table' => [
+            static fn (SchemaEditor $editor) => $editor->dropTableByUnquotedName('invoices'),
+        ];
+
+        yield 'modify table' => [
+            static fn (SchemaEditor $editor) => $editor->modifyTableByUnquotedName(
+                'invoices',
+                static function (TableEditor $editor): void {
+                },
+            ),
+        ];
+
+        yield 'rename table' => [
+            static fn (SchemaEditor $editor) => $editor->renameTableByUnquotedName('invoices', 'receipts'),
+        ];
+
+        yield 'drop sequence' => [
+            static fn (SchemaEditor $editor) => $editor->dropSequenceByUnquotedName('pk_seq'),
+        ];
+    }
+
     public function testModifyTableReplacesInPlacePreservingOrder(): void
     {
         $schema = Schema::editor()
@@ -218,16 +282,6 @@ class SchemaEditorTest extends TestCase
 
         self::assertTrue($schema->hasTable('renamed'));
         self::assertFalse($schema->hasTable('foo'));
-    }
-
-    public function testModifyTableOnAbsentNameThrows(): void
-    {
-        $editor = Schema::editor();
-
-        $this->expectException(InvalidSchemaModification::class);
-
-        $editor->modifyTableByUnquotedName('missing', static function (): void {
-        });
     }
 
     public function testModifyTableRenameCollisionThrows(): void
@@ -307,15 +361,6 @@ class SchemaEditorTest extends TestCase
         self::assertTrue($schema->hasTable('bar'));
     }
 
-    public function testDropTableOnAbsentNameThrows(): void
-    {
-        $editor = Schema::editor();
-
-        $this->expectException(InvalidSchemaModification::class);
-
-        $editor->dropTableByUnquotedName('missing');
-    }
-
     public function testDropSequence(): void
     {
         $foo = Sequence::editor()
@@ -334,15 +379,6 @@ class SchemaEditorTest extends TestCase
 
         self::assertFalse($schema->hasSequence('foo'));
         self::assertTrue($schema->hasSequence('bar'));
-    }
-
-    public function testDropSequenceOnAbsentNameThrows(): void
-    {
-        $editor = Schema::editor();
-
-        $this->expectException(InvalidSchemaModification::class);
-
-        $editor->dropSequenceByUnquotedName('missing');
     }
 
     public function testDefaultNamespaceLookupParity(): void
