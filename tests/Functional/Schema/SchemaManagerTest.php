@@ -10,6 +10,8 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -612,6 +614,88 @@ final class SchemaManagerTest extends FunctionalTestCase
                 ->setUnquotedName('s')
                 ->create(),
         );
+    }
+
+    /** @param callable(AbstractSchemaManager): mixed $introspect */
+    #[DataProvider('introspectionWithSchemaNameProvider')]
+    public function testIntrospectionWithSchemaNameWithoutSchemaSupport(callable $introspect): void
+    {
+        if ($this->connection->getDatabasePlatform()->supportsSchemas()) {
+            self::markTestSkipped('The platform supports schemas.');
+        }
+
+        $this->expectException(UnsupportedName::class);
+
+        $introspect($this->schemaManager);
+    }
+
+    /** @return iterable<string, array{callable(AbstractSchemaManager): mixed}> */
+    public static function introspectionWithSchemaNameProvider(): iterable
+    {
+        $tableName = OptionallyQualifiedName::unquoted('orders', 'billing');
+
+        yield 'table' => [
+            static fn (AbstractSchemaManager $sm): Table => $sm->introspectTable($tableName),
+        ];
+
+        yield 'indexes' => [
+            static fn (AbstractSchemaManager $sm): array => $sm->introspectTableIndexes($tableName),
+        ];
+
+        yield 'primary key constraint' => [
+            static fn (
+                AbstractSchemaManager $sm,
+            ): ?PrimaryKeyConstraint => $sm->introspectTablePrimaryKeyConstraint($tableName),
+        ];
+
+        yield 'foreign key constraints' => [
+            static fn (AbstractSchemaManager $sm): array => $sm->introspectTableForeignKeyConstraints($tableName),
+        ];
+    }
+
+    /** @param callable(AbstractSchemaManager): void $drop */
+    #[DataProvider('dropWithInvalidNameProvider')]
+    public function testDropWithInvalidName(callable $drop): void
+    {
+        $this->expectException(InvalidName::class);
+
+        $drop($this->schemaManager);
+    }
+
+    /** @return iterable<string, array{callable(AbstractSchemaManager): void}> */
+    public static function dropWithInvalidNameProvider(): iterable
+    {
+        yield 'table name' => [
+            static fn (AbstractSchemaManager $sm) => $sm->dropTable('"orders'),
+        ];
+
+        yield 'index name' => [
+            static fn (AbstractSchemaManager $sm) => $sm->dropIndex('"idx_article', 'orders'),
+        ];
+
+        yield 'index table name' => [
+            static fn (AbstractSchemaManager $sm) => $sm->dropIndex('idx_article', '"orders'),
+        ];
+
+        yield 'foreign key constraint name' => [
+            static fn (AbstractSchemaManager $sm) => $sm->dropForeignKey('"fk_article', 'orders'),
+        ];
+
+        yield 'foreign key constraint table name' => [
+            static fn (AbstractSchemaManager $sm) => $sm->dropForeignKey('fk_article', '"orders'),
+        ];
+
+        yield 'unique constraint name' => [
+            static fn (AbstractSchemaManager $sm) => $sm->dropUniqueConstraint('"uq_article', 'orders'),
+        ];
+
+        yield 'unique constraint table name' => [
+            static fn (AbstractSchemaManager $sm) => $sm->dropUniqueConstraint('uq_article', '"orders'),
+        ];
+
+        yield 'view name' => [
+            static fn (AbstractSchemaManager $sm) => $sm->dropView('"available_articles'),
+        ];
     }
 
     /**

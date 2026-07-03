@@ -799,6 +799,10 @@ abstract class AbstractPlatform
     {
         $parsedName = $this->parseUnqualifiedName($indexName);
 
+        // Validate the table name even though it is unused, so an invalid name is rejected
+        // consistently across platforms.
+        $this->parseOptionallyQualifiedName($tableName);
+
         return sprintf('DROP INDEX %s', $parsedName->toSQL($this));
     }
 
