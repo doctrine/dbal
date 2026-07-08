@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema\Exception;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SchemaException;
 use LogicException;
 
@@ -120,65 +119,8 @@ final class InvalidTableModification extends LogicException implements SchemaExc
         ), previous: $previous);
     }
 
-    public static function indexedColumnDoesNotExist(
-        ?OptionallyQualifiedName $tableName,
-        UnqualifiedName $indexName,
-        UnqualifiedName $columnName,
-    ): self {
-        return new self(sprintf(
-            'Column %s referenced by index %s does not exist on table %s.',
-            $columnName->toString(),
-            $indexName->toString(),
-            self::formatTableName($tableName),
-        ));
-    }
-
-    public static function primaryKeyConstraintColumnDoesNotExist(
-        ?OptionallyQualifiedName $tableName,
-        ?UnqualifiedName $constraintName,
-        UnqualifiedName $columnName,
-    ): self {
-        return new self(sprintf(
-            'Column %s referenced by primary key constraint %s does not exist on table %s.',
-            $columnName->toString(),
-            self::formatConstraintName($constraintName),
-            self::formatTableName($tableName),
-        ));
-    }
-
-    public static function uniqueConstraintColumnDoesNotExist(
-        ?OptionallyQualifiedName $tableName,
-        ?UnqualifiedName $constraintName,
-        UnqualifiedName $columnName,
-    ): self {
-        return new self(sprintf(
-            'Column %s referenced by unique constraint %s does not exist on table %s.',
-            $columnName->toString(),
-            self::formatConstraintName($constraintName),
-            self::formatTableName($tableName),
-        ));
-    }
-
-    public static function foreignKeyConstraintReferencingColumnDoesNotExist(
-        ?OptionallyQualifiedName $tableName,
-        ?UnqualifiedName $constraintName,
-        UnqualifiedName $columnName,
-    ): self {
-        return new self(sprintf(
-            'Referencing column %s of foreign key constraint %s does not exist on table %s.',
-            $columnName->toString(),
-            self::formatConstraintName($constraintName),
-            self::formatTableName($tableName),
-        ));
-    }
-
     private static function formatTableName(?OptionallyQualifiedName $tableName): string
     {
         return $tableName === null ? '<unnamed>' : $tableName->toString();
-    }
-
-    private static function formatConstraintName(?UnqualifiedName $constraintName): string
-    {
-        return $constraintName === null ? '<unnamed>' : $constraintName->toString();
     }
 }

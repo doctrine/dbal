@@ -97,6 +97,18 @@ final class PrimaryKeyConstraintEditor
         return $this;
     }
 
+    /** @param non-empty-string $name */
+    public function addUnquotedColumnName(string $name): self
+    {
+        return $this->addColumnName(UnqualifiedName::unquoted($name));
+    }
+
+    /** @param non-empty-string $name */
+    public function addQuotedColumnName(string $name): self
+    {
+        return $this->addColumnName(UnqualifiedName::quoted($name));
+    }
+
     public function setIsClustered(bool $isClustered): self
     {
         $this->isClustered = $isClustered;

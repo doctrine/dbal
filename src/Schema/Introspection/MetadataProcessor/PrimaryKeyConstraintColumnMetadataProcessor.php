@@ -32,8 +32,6 @@ final readonly class PrimaryKeyConstraintColumnMetadataProcessor
 
     public function applyRow(PrimaryKeyConstraintEditor $editor, PrimaryKeyConstraintColumnRow $row): void
     {
-        $editor->addColumnName(
-            UnqualifiedName::quoted($row->getColumnName()),
-        );
+        $editor->addQuotedColumnName($row->getColumnName());
     }
 }

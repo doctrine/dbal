@@ -172,6 +172,36 @@ class ForeignKeyConstraintEditorTest extends TestCase
         ], $constraint->getReferencedColumnNames());
     }
 
+    public function testAddReferencingColumnName(): void
+    {
+        $constraint = ForeignKeyConstraint::editor()
+            ->addUnquotedReferencingColumnName('account_id')
+            ->addQuotedReferencingColumnName('user_id')
+            ->setReferencedTableName($this->createTableName())
+            ->setUnquotedReferencedColumnNames('unused1', 'unused2')
+            ->create();
+
+        self::assertEquals([
+            UnqualifiedName::unquoted('account_id'),
+            UnqualifiedName::quoted('user_id'),
+        ], $constraint->getReferencingColumnNames());
+    }
+
+    public function testAddReferencedColumnName(): void
+    {
+        $constraint = ForeignKeyConstraint::editor()
+            ->setUnquotedReferencingColumnNames('unused1', 'unused2')
+            ->setReferencedTableName($this->createTableName())
+            ->addUnquotedReferencedColumnName('account_id')
+            ->addQuotedReferencedColumnName('id')
+            ->create();
+
+        self::assertEquals([
+            UnqualifiedName::unquoted('account_id'),
+            UnqualifiedName::quoted('id'),
+        ], $constraint->getReferencedColumnNames());
+    }
+
     public function testSetMatchType(): void
     {
         $editor = $this->createMinimalValidEditor();

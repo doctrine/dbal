@@ -83,6 +83,24 @@ final class IndexEditor
         return $this;
     }
 
+    /**
+     * @param non-empty-string $name
+     * @param ?positive-int    $length
+     */
+    public function addUnquotedColumnName(string $name, ?int $length = null): self
+    {
+        return $this->addColumn(new IndexedColumn(UnqualifiedName::unquoted($name), $length));
+    }
+
+    /**
+     * @param non-empty-string $name
+     * @param ?positive-int    $length
+     */
+    public function addQuotedColumnName(string $name, ?int $length = null): self
+    {
+        return $this->addColumn(new IndexedColumn(UnqualifiedName::quoted($name), $length));
+    }
+
     public function setColumnNames(UnqualifiedName $firstColumnName, UnqualifiedName ...$otherColumnNames): self
     {
         $this->columns = array_map(
