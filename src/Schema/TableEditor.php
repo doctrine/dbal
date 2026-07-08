@@ -158,7 +158,15 @@ final class TableEditor
         });
 
         $this->renameColumnInIndexes($oldColumnName, $newColumnName);
-        $this->renameColumnInPrimaryKeyConstraint($oldColumnName, $newColumnName);
+
+        if ($this->primaryKeyConstraint !== null) {
+            $this->primaryKeyConstraint = $this->renameColumnInPrimaryKeyConstraint(
+                $this->primaryKeyConstraint,
+                $oldColumnName,
+                $newColumnName,
+            );
+        }
+
         $this->renameColumnInForeignKeyConstraints($oldColumnName, $newColumnName);
         $this->renameColumnInUniqueConstraints($oldColumnName, $newColumnName);
 
@@ -205,17 +213,14 @@ final class TableEditor
     }
 
     private function renameColumnInPrimaryKeyConstraint(
+        PrimaryKeyConstraint $primaryKeyConstraint,
         UnqualifiedName $oldColumnName,
         UnqualifiedName $newColumnName,
-    ): void {
-        if ($this->primaryKeyConstraint === null) {
-            return;
-        }
-
+    ): PrimaryKeyConstraint {
         $modified    = false;
         $columnNames = [];
 
-        foreach ($this->primaryKeyConstraint->getColumnNames() as $columnName) {
+        foreach ($primaryKeyConstraint->getColumnNames() as $columnName) {
             if ($this->namesEqual($columnName, $oldColumnName)) {
                 $columnNames[] = $newColumnName;
                 $modified      = true;
@@ -224,11 +229,13 @@ final class TableEditor
             }
         }
 
-        if ($modified) {
-            $this->primaryKeyConstraint = $this->primaryKeyConstraint->edit()
-                ->setColumnNames(...$columnNames)
-                ->create();
+        if (! $modified) {
+            return $primaryKeyConstraint;
         }
+
+        return $primaryKeyConstraint->edit()
+            ->setColumnNames(...$columnNames)
+            ->create();
     }
 
     private function renameColumnInUniqueConstraints(
