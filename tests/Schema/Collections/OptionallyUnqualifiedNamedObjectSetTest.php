@@ -144,6 +144,35 @@ class OptionallyUnqualifiedNamedObjectSetTest extends TestCase
         );
     }
 
+    public function testModifyingAnElementToANewNameMovesItUnderThatName(): void
+    {
+        $set = new OptionallyUnqualifiedNamedObjectSet($this->createObject('old_name', 1));
+
+        $renamed = $this->createObject('new_name', 1);
+        $set->modify(
+            UnqualifiedName::unquoted('old_name'),
+            static fn (): OptionallyNamedObject => $renamed,
+        );
+
+        self::assertSame($renamed, $set->get(UnqualifiedName::unquoted('new_name')));
+        self::assertNull($set->get(UnqualifiedName::unquoted('old_name')));
+    }
+
+    public function testRemoveKeepsOtherElementsAddressable(): void
+    {
+        $first  = $this->createObject('first', 1);
+        $middle = $this->createObject('middle', 2);
+        $last   = $this->createObject('last', 3);
+
+        $set = new OptionallyUnqualifiedNamedObjectSet($first, $middle, $last);
+
+        $set->remove(UnqualifiedName::unquoted('middle'));
+
+        self::assertSame($first, $set->get(UnqualifiedName::unquoted('first')));
+        self::assertNull($set->get(UnqualifiedName::unquoted('middle')));
+        self::assertSame($last, $set->get(UnqualifiedName::unquoted('last')));
+    }
+
     public function testRenameToNullName(): void
     {
         $object1 = $this->createObject('object1', 1);

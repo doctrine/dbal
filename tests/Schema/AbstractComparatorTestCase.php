@@ -882,6 +882,49 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertCount(0, $tableDiff->getIndexRenames());
     }
 
+    public function testDetectRenameIndexAmbiguousWithMultipleAddedIndexes(): void
+    {
+        $prototype = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('foo')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $table1 = $prototype->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_foo')
+                    ->setUnquotedColumnNames('foo')
+                    ->create(),
+            )
+            ->create();
+
+        $table2 = $prototype->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_bar')
+                    ->setUnquotedColumnNames('foo')
+                    ->create(),
+            )
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_baz')
+                    ->setUnquotedColumnNames('foo')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
+
+        self::assertEquals(['idx_bar', 'idx_baz'], $this->getObjectNames($tableDiff->getAddedIndexes()));
+        self::assertEquals(['idx_foo'], $this->getObjectNames($tableDiff->getDroppedIndexes()));
+        self::assertCount(0, $tableDiff->getIndexRenames());
+    }
+
     public function testDetectChangeIdentifierType(): void
     {
         $tableA = Table::editor()

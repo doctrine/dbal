@@ -380,21 +380,25 @@ class Comparator
         array &$removedIndexes,
         UnquotedIdentifierFolding $folding,
     ): array {
-        $candidatesByName = [];
+        $candidatesByName       = [];
+        $removedIndexMatchCount = [];
 
         // Gather possible rename candidates by comparing each added and removed index based on semantics.
         foreach ($addedIndexes as $addedIndexKey => $addedIndex) {
             foreach ($removedIndexes as $removedIndexKey => $removedIndex) {
-                if ($addedIndex->equals($removedIndex, $folding)) {
-                    $candidatesByName[$addedIndex->getObjectName()
-                        ->getIdentifier()
-                        ->getValue()][] = [$removedIndexKey, $addedIndexKey];
+                if (! $addedIndex->equals($removedIndex, $folding)) {
+                    continue;
                 }
+
+                $candidatesByName[$addedIndex->getObjectName()
+                    ->getIdentifier()
+                    ->getValue()][] = [$removedIndexKey, $addedIndexKey];
+
+                $removedIndexMatchCount[$removedIndexKey] = ($removedIndexMatchCount[$removedIndexKey] ?? 0) + 1;
             }
         }
 
         $indexRenames = [];
-        $seen         = [];
 
         foreach ($candidatesByName as $candidates) {
             // If the current rename candidate contains exactly one semantically equal index,
@@ -407,18 +411,12 @@ class Comparator
 
             [$removedIndexKey, $addedIndexKey] = $candidates[0];
 
-            $removedIndex     = $removedIndexes[$removedIndexKey];
-            $removedIndexName = strtolower(
-                $removedIndex->getObjectName()
-                    ->getIdentifier()
-                    ->getValue(),
-            );
-
-            if (isset($seen[$removedIndexName])) {
+            // Likewise, a removed index that matches more than one added index is ambiguous.
+            if ($removedIndexMatchCount[$removedIndexKey] > 1) {
                 continue;
             }
 
-            $seen[$removedIndexName] = true;
+            $removedIndex = $removedIndexes[$removedIndexKey];
 
             $indexRenames[] = new IndexRename($removedIndex->getObjectName(), $addedIndexes[$addedIndexKey]);
             unset(

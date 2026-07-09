@@ -13,10 +13,13 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
+
+use function array_values;
 
 class TableEditorTest extends TestCase
 {
@@ -211,6 +214,79 @@ class TableEditorTest extends TestCase
         $this->expectException(InvalidTableModification::class);
 
         $editor->renameColumnByUnquotedName('id', 'value');
+    }
+
+    public function testRenameColumnDoesNotRebuildUnaffectedIndex(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('idx_username')
+            ->setUnquotedColumnNames('username')
+            ->create();
+
+        $table = $this->renameColumnUnreferencedBy(
+            static fn (TableEditor $editor): TableEditor => $editor->setIndexes($index),
+        );
+
+        self::assertSame($index, $table->getIndex('idx_username'));
+    }
+
+    public function testRenameColumnDoesNotRebuildUnaffectedUniqueConstraint(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedColumnNames('username')
+            ->create();
+
+        $table = $this->renameColumnUnreferencedBy(
+            static fn (TableEditor $editor): TableEditor => $editor->setUniqueConstraints($uniqueConstraint),
+        );
+
+        self::assertSame([$uniqueConstraint], array_values($table->getUniqueConstraints()));
+    }
+
+    public function testRenameColumnDoesNotRebuildUnaffectedForeignKeyConstraint(): void
+    {
+        $foreignKeyConstraint = ForeignKeyConstraint::editor()
+            ->setUnquotedReferencingColumnNames('username')
+            ->setUnquotedReferencedTableName('users')
+            ->setUnquotedReferencedColumnNames('id')
+            ->create();
+
+        $table = $this->renameColumnUnreferencedBy(
+            static fn (TableEditor $editor): TableEditor => $editor->setForeignKeyConstraints($foreignKeyConstraint),
+        );
+
+        self::assertSame([$foreignKeyConstraint], array_values($table->getForeignKeys()));
+    }
+
+    public function testRenameColumnDoesNotRebuildUnaffectedPrimaryKeyConstraint(): void
+    {
+        $primaryKeyConstraint = PrimaryKeyConstraint::editor()
+            ->setUnquotedColumnNames('id')
+            ->create();
+
+        $table = $this->renameColumnUnreferencedBy(
+            static fn (TableEditor $editor): TableEditor => $editor->setPrimaryKeyConstraint($primaryKeyConstraint),
+        );
+
+        self::assertSame($primaryKeyConstraint, $table->getPrimaryKeyConstraint());
+    }
+
+    /** @param callable(TableEditor): TableEditor $addObject */
+    private function renameColumnUnreferencedBy(callable $addObject): Table
+    {
+        $editor = Table::editor()
+            ->setUnquotedName('accounts')
+            ->setColumns(
+                $this->createColumn('id', Types::INTEGER),
+                $this->createColumn('username', Types::STRING),
+                $this->createColumn('city', Types::STRING),
+            );
+
+        $addObject($editor);
+
+        return $editor
+            ->renameColumnByUnquotedName('city', 'town')
+            ->create();
     }
 
     public function testDropColumn(): void
