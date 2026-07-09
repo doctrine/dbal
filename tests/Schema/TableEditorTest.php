@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -340,6 +341,28 @@ class TableEditorTest extends TestCase
                 ->setIndexes($index),
             static fn (TableEditor $editor): TableEditor => $editor->addIndex($index),
         );
+    }
+
+    public function testCreateWithSameNamedIndexEditors(): void
+    {
+        $editor = Table::editor()
+            ->setUnquotedName('accounts')
+            ->setColumns(
+                $this->createColumn('id', Types::INTEGER),
+                $this->createColumn('email', Types::STRING),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_email')
+                    ->setUnquotedColumnNames('email'),
+                Index::editor()
+                    ->setUnquotedName('idx_email')
+                    ->setUnquotedColumnNames('id'),
+            );
+
+        $this->expectException(IndexAlreadyExists::class);
+
+        $editor->create();
     }
 
     public function testRenameIndex(): void
