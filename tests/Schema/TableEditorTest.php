@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -86,13 +87,10 @@ class TableEditorTest extends TestCase
     {
         $column = $this->createColumn('id', Types::INTEGER);
 
-        $editor = Table::editor()
-            ->setUnquotedName('accounts')
-            ->setColumns($column);
-
-        $this->expectException(InvalidTableModification::class);
-
-        $editor->addColumn($column);
+        $this->assertModificationRejected(
+            static fn (TableEditor $editor): TableEditor => $editor->setColumns($column),
+            static fn (TableEditor $editor): TableEditor => $editor->addColumn($column),
+        );
     }
 
     public function testModifyColumn(): void
@@ -337,14 +335,34 @@ class TableEditorTest extends TestCase
             ->setUnquotedColumnNames('id')
             ->create();
 
+        $this->assertModificationRejected(
+            fn (TableEditor $editor): TableEditor => $editor
+                ->setColumns($this->createColumn('id', Types::INTEGER))
+                ->setIndexes($index),
+            static fn (TableEditor $editor): TableEditor => $editor->addIndex($index),
+        );
+    }
+
+    public function testCreateWithSameNamedIndexEditors(): void
+    {
         $editor = Table::editor()
             ->setUnquotedName('accounts')
-            ->setColumns($this->createColumn('id', Types::INTEGER))
-            ->setIndexes($index);
+            ->setColumns(
+                $this->createColumn('id', Types::INTEGER),
+                $this->createColumn('email', Types::STRING),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_email')
+                    ->setUnquotedColumnNames('email'),
+                Index::editor()
+                    ->setUnquotedName('idx_email')
+                    ->setUnquotedColumnNames('id'),
+            );
 
-        $this->expectException(InvalidTableModification::class);
+        $this->expectException(IndexAlreadyExists::class);
 
-        $editor->addIndex($index);
+        $editor->create();
     }
 
     public function testRenameIndex(): void
@@ -520,14 +538,12 @@ class TableEditorTest extends TestCase
             ->setUnquotedColumnNames('id')
             ->create();
 
-        $editor = Table::editor()
-            ->setUnquotedName('accounts')
-            ->setColumns($this->createColumn('id', Types::INTEGER))
-            ->addUniqueConstraint($uniqueConstraint);
-
-        $this->expectException(InvalidTableModification::class);
-
-        $editor->addUniqueConstraint($uniqueConstraint);
+        $this->assertModificationRejected(
+            fn (TableEditor $editor): TableEditor => $editor
+                ->setColumns($this->createColumn('id', Types::INTEGER))
+                ->addUniqueConstraint($uniqueConstraint),
+            static fn (TableEditor $editor): TableEditor => $editor->addUniqueConstraint($uniqueConstraint),
+        );
     }
 
     public function testDropUniqueConstraint(): void
@@ -588,16 +604,12 @@ class TableEditorTest extends TestCase
             ->setUnquotedReferencedColumnNames('id')
             ->create();
 
-        $editor = Table::editor()
-            ->setUnquotedName('accounts')
-            ->setColumns(
-                $this->createColumn('user_id', Types::INTEGER),
-            )
-            ->addForeignKeyConstraint($foreignKeyConstraint);
-
-        $this->expectException(InvalidTableModification::class);
-
-        $editor->addForeignKeyConstraint($foreignKeyConstraint);
+        $this->assertModificationRejected(
+            fn (TableEditor $editor): TableEditor => $editor
+                ->setColumns($this->createColumn('user_id', Types::INTEGER))
+                ->addForeignKeyConstraint($foreignKeyConstraint),
+            static fn (TableEditor $editor): TableEditor => $editor->addForeignKeyConstraint($foreignKeyConstraint),
+        );
     }
 
     public function testDropForeignKeyConstraint(): void
@@ -644,6 +656,22 @@ class TableEditorTest extends TestCase
             'This is the "accounts" table',
             $table->getComment(),
         );
+    }
+
+    /**
+     * @param callable(TableEditor): TableEditor $setup
+     * @param callable(TableEditor): TableEditor $modify
+     */
+    private function assertModificationRejected(callable $setup, callable $modify): void
+    {
+        $editor = Table::editor()
+            ->setUnquotedName('accounts');
+
+        $setup($editor);
+
+        $this->expectException(InvalidTableModification::class);
+
+        $modify($editor);
     }
 
     /**

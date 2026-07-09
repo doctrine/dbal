@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -24,6 +25,7 @@ use Doctrine\DBAL\Schema\TableConfiguration;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function strlen;
@@ -484,6 +486,53 @@ class TableTest extends TestCase
         $this->expectException(UniqueConstraintDoesNotExist::class);
 
         $table->getUniqueConstraint('unknown');
+    }
+
+    /** @param callable(Table): mixed $lookup */
+    #[DataProvider('lookupWithInvalidNameProvider')]
+    public function testLookupWithInvalidName(callable $lookup): void
+    {
+        $table = $this->createTableWithSingleColumn();
+
+        $this->expectException(InvalidName::class);
+
+        $lookup($table);
+    }
+
+    /** @return iterable<string, array{callable(Table): mixed}> */
+    public static function lookupWithInvalidNameProvider(): iterable
+    {
+        yield 'has column' => [
+            static fn (Table $table): bool => $table->hasColumn('"email'),
+        ];
+
+        yield 'get column' => [
+            static fn (Table $table): Column => $table->getColumn('"email'),
+        ];
+
+        yield 'has index' => [
+            static fn (Table $table): bool => $table->hasIndex('"idx_email'),
+        ];
+
+        yield 'get index' => [
+            static fn (Table $table): Index => $table->getIndex('"idx_email'),
+        ];
+
+        yield 'has unique constraint' => [
+            static fn (Table $table): bool => $table->hasUniqueConstraint('"uq_email'),
+        ];
+
+        yield 'get unique constraint' => [
+            static fn (Table $table): UniqueConstraint => $table->getUniqueConstraint('"uq_email'),
+        ];
+
+        yield 'has foreign key' => [
+            static fn (Table $table): bool => $table->hasForeignKey('"fk_users'),
+        ];
+
+        yield 'get foreign key' => [
+            static fn (Table $table): ForeignKeyConstraint => $table->getForeignKey('"fk_users'),
+        ];
     }
 
     private function createTableWithSingleColumn(): Table
