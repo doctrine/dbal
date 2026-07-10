@@ -586,14 +586,13 @@ final class TableEditor
         $implicitIndexNames = new UnqualifiedNameSet();
 
         foreach ($this->indexes as $index) {
-            $this->registerIndex($name, $indexes, $implicitIndexNames, $index);
+            $this->registerIndex($name, $indexes, $index);
         }
 
         foreach ($this->indexEditors as $indexEditor) {
             $this->registerIndex(
                 $name,
                 $indexes,
-                $implicitIndexNames,
                 $indexEditor->createForTable($unqualifiedName, $maxIdentifierLength),
             );
         }
@@ -642,32 +641,12 @@ final class TableEditor
     private function registerIndex(
         OptionallyQualifiedName $tableName,
         UnqualifiedNamedObjectSet $indexes,
-        UnqualifiedNameSet $implicitIndexNames,
         Index $index,
     ): void {
         $indexName = $index->getObjectName();
 
-        $replacedImplicitIndexNames = new UnqualifiedNameSet();
-
-        foreach ($implicitIndexNames as $implicitIndexName) {
-            $candidate = $indexes->get($implicitIndexName);
-
-            if ($candidate === null) {
-                continue;
-            }
-
-            if ($candidate->isFulfilledBy($index)) {
-                $replacedImplicitIndexNames->add($implicitIndexName);
-            }
-        }
-
-        if ($indexes->get($indexName) !== null && ! $replacedImplicitIndexNames->contains($indexName)) {
+        if ($indexes->get($indexName) !== null) {
             throw IndexAlreadyExists::new($tableName, $indexName);
-        }
-
-        foreach ($replacedImplicitIndexNames as $replacedImplicitIndexName) {
-            $indexes->remove($replacedImplicitIndexName);
-            $implicitIndexNames->remove($replacedImplicitIndexName);
         }
 
         $indexes->add($index);
@@ -723,7 +702,7 @@ final class TableEditor
             }
         }
 
-        $this->registerIndex($tableName, $indexes, $implicitIndexNames, $indexCandidate);
+        $this->registerIndex($tableName, $indexes, $indexCandidate);
         $implicitIndexNames->add($indexCandidate->getObjectName());
     }
 }

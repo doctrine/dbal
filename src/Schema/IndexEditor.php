@@ -164,11 +164,7 @@ final class IndexEditor
             throw InvalidIndexDefinition::nameNotSet();
         }
 
-        if (count($this->columns) < 1) {
-            throw InvalidIndexDefinition::columnsNotSet($this->name);
-        }
-
-        return new Index($this->name, $this->type, $this->columns, $this->isClustered, $this->predicate);
+        return $this->createWithName($this->name);
     }
 
     /**
@@ -180,8 +176,11 @@ final class IndexEditor
      */
     public function createForTable(Identifier $tableName, int $maxIdentifierLength): Index
     {
-        $name = $this->name ?? $this->generateName($tableName, $maxIdentifierLength);
+        return $this->createWithName($this->name ?? $this->generateName($tableName, $maxIdentifierLength));
+    }
 
+    private function createWithName(UnqualifiedName $name): Index
+    {
         if (count($this->columns) < 1) {
             throw InvalidIndexDefinition::columnsNotSet($name);
         }
