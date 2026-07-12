@@ -29,12 +29,10 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableConfiguration;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Schema\UniqueConstraintEditor;
-use Doctrine\Deprecations\Deprecation;
 use Override;
 
 use function array_map;
 use function array_values;
-use function method_exists;
 
 /**
  * Provides access to the database schema obtained by introspection.
@@ -296,18 +294,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     #[Override]
     public function getUniqueConstraintsForTable(?string $schemaName, string $tableName): array
     {
-        if (! method_exists($this->metadataProvider, 'getUniqueConstraintColumnsForTable')) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/7461',
-                'Not implementing %s::getUniqueConstraintColumnsForTable() in %s is deprecated.',
-                MetadataProvider::class,
-                $this->metadataProvider::class,
-            );
-
-            return [];
-        }
-
         $editors   = [];
         $processor = new UniqueConstraintColumnMetadataProcessor();
 
@@ -338,18 +324,6 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
      */
     private function getUniqueConstraintsForAllTables(): array
     {
-        if (! method_exists($this->metadataProvider, 'getUniqueConstraintColumnsForAllTables')) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/7461',
-                'Not implementing %s::getUniqueConstraintColumnsForAllTables() in %s is deprecated.',
-                MetadataProvider::class,
-                $this->metadataProvider::class,
-            );
-
-            return [];
-        }
-
         $processor = new UniqueConstraintColumnMetadataProcessor();
 
         return $this->groupByTable(

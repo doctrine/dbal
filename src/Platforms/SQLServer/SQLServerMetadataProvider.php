@@ -416,24 +416,13 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         }
     }
 
-    /**
-     * @return iterable<UniqueConstraintColumnMetadataRow>
-     *
-     * @throws Exception
-     */
+    #[Override]
     public function getUniqueConstraintColumnsForAllTables(): iterable
     {
         return $this->getUniqueConstraintColumns(null, null);
     }
 
-    /**
-     * @param ?non-empty-string $schemaName
-     * @param non-empty-string  $tableName
-     *
-     * @return iterable<UniqueConstraintColumnMetadataRow>
-     *
-     * @throws Exception
-     */
+    #[Override]
     public function getUniqueConstraintColumnsForTable(?string $schemaName, string $tableName): iterable
     {
         if ($schemaName === null) {

@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: `MetadataProvider` requires unique constraint introspection
+
+`Doctrine\DBAL\Schema\Metadata\MetadataProvider` now declares `getUniqueConstraintColumnsForAllTables()` and
+`getUniqueConstraintColumnsForTable()`. Implementations must provide them.
+
 ## BC BREAK: Removed the `simple_array` type
 
 The `simple_array` type has been removed.
