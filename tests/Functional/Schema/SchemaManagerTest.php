@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -15,6 +16,7 @@ use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -22,11 +24,14 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
+
+use function array_values;
 
 final class SchemaManagerTest extends FunctionalTestCase
 {
@@ -275,6 +280,63 @@ final class SchemaManagerTest extends FunctionalTestCase
         self::assertCount(1, $table->getColumns());
     }
 
+    public function testIntrospectionDistinguishesTablesWhoseNamesDifferOnlyInCase(): void
+    {
+        $id = Column::editor()
+            ->setQuotedName('id')
+            ->setTypeName(Types::INTEGER)
+            ->create();
+
+        $lowerColumn = Column::editor()
+            ->setQuotedName('lower_only')
+            ->setTypeName(Types::INTEGER)
+            ->create();
+
+        $upperColumn = Column::editor()
+            ->setQuotedName('UPPER_ONLY')
+            ->setTypeName(Types::INTEGER)
+            ->create();
+
+        $lowerTable = Table::editor()
+            ->setQuotedName('contract')
+            ->setColumns($id, $lowerColumn)
+            ->create();
+
+        $upperTable = Table::editor()
+            ->setQuotedName('CONTRACT')
+            ->setColumns($id, $upperColumn)
+            ->create();
+
+        $platform = $this->connection->getDatabasePlatform();
+        $this->dropTableIfExists($upperTable->getObjectName()->toSQL($platform));
+        $this->dropTableIfExists($lowerTable->getObjectName()->toSQL($platform));
+
+        $this->schemaManager->createTable($lowerTable);
+
+        try {
+            $this->schemaManager->createTable($upperTable);
+        } catch (TableExistsException) {
+            self::markTestSkipped('The database compares table names case-insensitively.');
+        }
+
+        try {
+            $this->assertColumnNamesEqual(
+                [$id, $lowerColumn],
+                $this->schemaManager->introspectTableColumnsByQuotedName('contract'),
+            );
+
+            $this->assertColumnNamesEqual(
+                [$id, $upperColumn],
+                $this->schemaManager->introspectTableColumnsByQuotedName('CONTRACT'),
+            );
+        } finally {
+            // Leaving tables whose names differ only in case behind would poison the schema for the other tests
+            // that use introspectSchema(), since a Schema cannot represent such tables.
+            $this->schemaManager->dropTable($upperTable->getObjectName()->toSQL($platform));
+            $this->schemaManager->dropTable($lowerTable->getObjectName()->toSQL($platform));
+        }
+    }
+
     #[TestWith([true])]
     #[TestWith([false])]
     public function testChangeColumnNullability(bool $notNull): void
@@ -447,6 +509,168 @@ final class SchemaManagerTest extends FunctionalTestCase
         ];
     }
 
+    /** @param callable(AbstractSchemaManager): list<UniqueConstraint> $introspect */
+    #[DataProvider('quotedAndUnquotedUniqueConstraintIntrospection')]
+    public function testIntrospectTableUniqueConstraints(
+        OptionallyQualifiedName $tableName,
+        UniqueConstraint $uniqueConstraint,
+        callable $introspect,
+    ): void {
+        $this->createTableWithUniqueConstraint($tableName, $uniqueConstraint);
+
+        $this->assertUniqueConstraintListEquals(
+            [$uniqueConstraint],
+            $introspect($this->schemaManager),
+        );
+    }
+
+    /** @return iterable<string, array{
+     *     OptionallyQualifiedName,
+     *     UniqueConstraint,
+     *     callable(AbstractSchemaManager): list<UniqueConstraint>,
+     *  }> */
+    public static function quotedAndUnquotedUniqueConstraintIntrospection(): iterable
+    {
+        yield 'unquoted name' => [
+            OptionallyQualifiedName::unquoted('Enrollments'),
+            UniqueConstraint::editor()
+                ->setUnquotedName('UQ_StudentCourse')
+                ->setUnquotedColumnNames('StudentId', 'CourseId')
+                ->create(),
+            static function (AbstractSchemaManager $sm): array {
+                return $sm->introspectTableUniqueConstraintsByUnquotedName('Enrollments');
+            },
+        ];
+
+        yield 'quoted name' => [
+            OptionallyQualifiedName::quoted('Enrollments'),
+            UniqueConstraint::editor()
+                ->setQuotedName('UQ_StudentCourse')
+                ->setQuotedColumnNames('StudentId', 'CourseId')
+                ->create(),
+            static function (AbstractSchemaManager $sm): array {
+                return $sm->introspectTableUniqueConstraintsByQuotedName('Enrollments');
+            },
+        ];
+    }
+
+    private function createTableWithUniqueConstraint(
+        OptionallyQualifiedName $tableName,
+        UniqueConstraint $uniqueConstraint,
+    ): void {
+        $platform = $this->connection->getDatabasePlatform();
+
+        $columns = [];
+        foreach ($uniqueConstraint->getColumnNames() as $columnName) {
+            $columns[] = Column::editor()
+                ->setName($columnName)
+                ->setTypeName(Types::INTEGER)
+                ->create();
+        }
+
+        $table = Table::editor()
+            ->setName($tableName)
+            ->setColumns(...$columns)
+            ->setUniqueConstraints($uniqueConstraint)
+            ->create();
+
+        $this->dropTableIfExists($table->getObjectName()->toSQL($platform));
+
+        $this->schemaManager->createTable($table);
+    }
+
+    public function testIntrospectTableUniqueConstraintsInNonDefaultSchema(): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsSchemas()) {
+            self::markTestSkipped('Platform does not support schemas.');
+        }
+
+        $this->dropAndCreateSchema(UnqualifiedName::unquoted('other_schema'));
+
+        $uniqueConstraint = $this->createUniqueConstraint();
+        $this->createTableWithUniqueConstraint(
+            OptionallyQualifiedName::unquoted('Enrollments', 'other_schema'),
+            $uniqueConstraint,
+        );
+
+        $this->assertUniqueConstraintListEquals(
+            [$uniqueConstraint],
+            $this->schemaManager->introspectTableUniqueConstraintsByUnquotedName('Enrollments', 'other_schema'),
+        );
+    }
+
+    public function testIntrospectAllTablesUniqueConstraintsInNonDefaultSchema(): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsSchemas()) {
+            self::markTestSkipped('Platform does not support schemas.');
+        }
+
+        $this->dropAndCreateSchema(UnqualifiedName::unquoted('other_schema'));
+
+        $uniqueConstraint = $this->createUniqueConstraint();
+        $tableName        = OptionallyQualifiedName::unquoted('Enrollments', 'other_schema');
+        $this->createTableWithUniqueConstraint($tableName, $uniqueConstraint);
+
+        $table = $this->findTable($this->schemaManager->introspectTables(), $tableName);
+        self::assertNotNull($table);
+
+        $this->assertUniqueConstraintListEquals(
+            [$uniqueConstraint],
+            array_values($table->getUniqueConstraints()),
+        );
+    }
+
+    public function testIntrospectAllTablesUniqueConstraintsOnSchemalessPlatform(): void
+    {
+        if ($this->connection->getDatabasePlatform()->supportsSchemas()) {
+            self::markTestSkipped('Platform supports schemas.');
+        }
+
+        $uniqueConstraint = $this->createUniqueConstraint();
+        $tableName        = OptionallyQualifiedName::unquoted('Enrollments');
+        $this->createTableWithUniqueConstraint($tableName, $uniqueConstraint);
+
+        $table = $this->findTable($this->schemaManager->introspectTables(), $tableName);
+        self::assertNotNull($table);
+
+        $this->assertUniqueConstraintListEquals(
+            [$uniqueConstraint],
+            array_values($table->getUniqueConstraints()),
+        );
+    }
+
+    /**
+     * @param list<Table> $tables
+     *
+     * @throws Exception
+     */
+    private function findTable(array $tables, OptionallyQualifiedName $name): ?Table
+    {
+        $folding = $this->connection->getDatabasePlatform()
+            ->getUnquotedIdentifierFolding();
+
+        $expectedName = $name->getUnqualifiedName();
+
+        foreach ($tables as $table) {
+            if ($table->getObjectName()->getUnqualifiedName()->equals($expectedName, $folding)) {
+                return $table;
+            }
+        }
+
+        return null;
+    }
+
+    private function createUniqueConstraint(): UniqueConstraint
+    {
+        return UniqueConstraint::editor()
+            ->setUnquotedName('UQ_StudentCourse')
+            ->setColumnNames(
+                UnqualifiedName::unquoted('StudentId'),
+                UnqualifiedName::quoted('CourseId'),
+            )
+            ->create();
+    }
+
     /** @param callable(AbstractSchemaManager): list<ForeignKeyConstraint> $introspect */
     #[DataProvider('quotedAndUnquotedForeignKeyIntrospection')]
     public function testIntrospectTableForeignKeyConstraints(
@@ -616,43 +840,6 @@ final class SchemaManagerTest extends FunctionalTestCase
         );
     }
 
-    /** @param callable(AbstractSchemaManager): mixed $introspect */
-    #[DataProvider('introspectionWithSchemaNameProvider')]
-    public function testIntrospectionWithSchemaNameWithoutSchemaSupport(callable $introspect): void
-    {
-        if ($this->connection->getDatabasePlatform()->supportsSchemas()) {
-            self::markTestSkipped('The platform supports schemas.');
-        }
-
-        $this->expectException(UnsupportedName::class);
-
-        $introspect($this->schemaManager);
-    }
-
-    /** @return iterable<string, array{callable(AbstractSchemaManager): mixed}> */
-    public static function introspectionWithSchemaNameProvider(): iterable
-    {
-        $tableName = OptionallyQualifiedName::unquoted('orders', 'billing');
-
-        yield 'table' => [
-            static fn (AbstractSchemaManager $sm): Table => $sm->introspectTable($tableName),
-        ];
-
-        yield 'indexes' => [
-            static fn (AbstractSchemaManager $sm): array => $sm->introspectTableIndexes($tableName),
-        ];
-
-        yield 'primary key constraint' => [
-            static fn (
-                AbstractSchemaManager $sm,
-            ): ?PrimaryKeyConstraint => $sm->introspectTablePrimaryKeyConstraint($tableName),
-        ];
-
-        yield 'foreign key constraints' => [
-            static fn (AbstractSchemaManager $sm): array => $sm->introspectTableForeignKeyConstraints($tableName),
-        ];
-    }
-
     /** @param callable(AbstractSchemaManager): void $drop */
     #[DataProvider('dropWithInvalidNameProvider')]
     public function testDropWithInvalidName(callable $drop): void
@@ -718,5 +905,82 @@ final class SchemaManagerTest extends FunctionalTestCase
         }
 
         return null;
+    }
+
+    /** @param callable(MetadataProvider, ?non-empty-string, non-empty-string): iterable<mixed> $introspect */
+    #[DataProvider('perTableIntrospectionProvider')]
+    public function testIntrospectionWithSchemaNameWithoutSchemaSupport(callable $introspect): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        if ($platform->supportsSchemas()) {
+            self::markTestSkipped('The platform supports schemas.');
+        }
+
+        $provider = $platform->createMetadataProvider($this->connection);
+
+        $this->expectException(UnsupportedName::class);
+
+        $introspect($provider, 'billing', 'orders');
+    }
+
+    /** @param callable(MetadataProvider, ?non-empty-string, non-empty-string): iterable<mixed> $introspect */
+    #[DataProvider('perTableIntrospectionProvider')]
+    public function testIntrospectionWithoutSchemaNameWithSchemaSupport(callable $introspect): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        if (! $platform->supportsSchemas()) {
+            self::markTestSkipped('The platform does not support schemas.');
+        }
+
+        $provider = $platform->createMetadataProvider($this->connection);
+
+        $this->expectException(UnsupportedName::class);
+
+        $introspect($provider, null, 'orders');
+    }
+
+    /**
+     * @return iterable<string, array{callable(
+     *     MetadataProvider,
+     *     ?non-empty-string,
+     *     non-empty-string,
+     * ): iterable<mixed>}> */
+    public static function perTableIntrospectionProvider(): iterable
+    {
+        yield 'columns' => [
+            static function (MetadataProvider $provider, $schemaName, $tableName): iterable {
+                return $provider->getTableColumnsForTable($schemaName, $tableName);
+            },
+        ];
+
+        yield 'indexes' => [
+            static function (MetadataProvider $provider, $schemaName, $tableName): iterable {
+                return $provider->getIndexColumnsForTable($schemaName, $tableName);
+            },
+        ];
+
+        yield 'primary key constraint' => [
+            static function (MetadataProvider $provider, $schemaName, $tableName): iterable {
+                return $provider->getPrimaryKeyConstraintColumnsForTable($schemaName, $tableName);
+            },
+        ];
+
+        yield 'unique constraints' => [
+            static function (MetadataProvider $provider, $schemaName, $tableName): iterable {
+                return $provider->getUniqueConstraintColumnsForTable($schemaName, $tableName);
+            },
+        ];
+
+        yield 'foreign key constraints' => [
+            static function (MetadataProvider $provider, $schemaName, $tableName): iterable {
+                return $provider->getForeignKeyConstraintColumnsForTable($schemaName, $tableName);
+            },
+        ];
+
+        yield 'options' => [
+            static function (MetadataProvider $provider, $schemaName, $tableName): iterable {
+                return $provider->getTableOptionsForTable($schemaName, $tableName);
+            },
+        ];
     }
 }

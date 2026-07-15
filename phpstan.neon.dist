@@ -115,6 +115,10 @@ parameters:
         - '~^Class Pdo\\\w+ not found\.$~'
         - '~^Call to an undefined static method PDO\:\:connect\(\)\.$~'
 
+        # Backward-compatible optional MetadataProvider methods, declared via @method on the interface.
+        # TODO: make them interface methods and remove in 5.0.0
+        - '~^Call to function method_exists\(\) with Doctrine\\DBAL\\Schema\\Metadata\\MetadataProvider and ''getUniqueConstraint.*'' will always evaluate to true\.$~'
+
         # TODO: Review these errors and fix them.
         - identifier: phpunit.assertEquals
 includes:

@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Metadata\PrimaryKeyConstraintColumnRow;
 use Doctrine\DBAL\Schema\Metadata\SequenceMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
+use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Override;
@@ -372,6 +373,71 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 tableName: $row[0],
                 constraintName: $row[1],
                 isClustered: true,
+                columnName: $row[2],
+            );
+        }
+    }
+
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForAllTables(): iterable
+    {
+        return $this->getUniqueConstraintColumns(null);
+    }
+
+    /**
+     * @param ?non-empty-string $schemaName
+     * @param non-empty-string  $tableName
+     *
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForTable(?string $schemaName, string $tableName): iterable
+    {
+        if ($schemaName !== null) {
+            throw UnsupportedName::fromNonNullSchemaName($schemaName, __METHOD__);
+        }
+
+        return $this->getUniqueConstraintColumns($tableName);
+    }
+
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    private function getUniqueConstraintColumns(?string $tableName): iterable
+    {
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT C.TABLE_NAME,
+                   C.CONSTRAINT_NAME,
+                   CC.COLUMN_NAME
+            FROM USER_CONSTRAINTS C
+                     JOIN USER_CONS_COLUMNS CC
+                          ON CC.TABLE_NAME = C.TABLE_NAME
+                              AND CC.CONSTRAINT_NAME = C.CONSTRAINT_NAME
+            WHERE %s
+              AND C.CONSTRAINT_TYPE = 'U'
+            ORDER BY C.TABLE_NAME,
+                C.CONSTRAINT_NAME,
+                CC.POSITION
+            SQL,
+            $this->buildTableQueryPredicate('C', $tableName, $params),
+        );
+
+        foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            yield new UniqueConstraintColumnMetadataRow(
+                schemaName: null,
+                tableName: $row[0],
+                id: null,
+                name: $row[1],
                 columnName: $row[2],
             );
         }

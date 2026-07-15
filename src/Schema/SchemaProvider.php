@@ -105,6 +105,23 @@ interface SchemaProvider
     public function getPrimaryKeyConstraintForTable(?string $schemaName, string $tableName): ?PrimaryKeyConstraint;
 
     /**
+     * Returns the unique constraints in the given table.
+     *
+     * If the current database platform supports schemas, the schema name must be specified. Otherwise, null must be
+     * passed as the schema name.
+     *
+     * Returns an empty value if the table doesn't exist or is not accessible to the connection.
+     *
+     * @param ?non-empty-string $schemaName
+     * @param non-empty-string  $tableName
+     *
+     * @return list<UniqueConstraint>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintsForTable(?string $schemaName, string $tableName): array;
+
+    /**
      * Returns the foreign key constraints in the given table.
      *
      * If the current database platform supports schemas, the schema name must be specified. Otherwise, null must be

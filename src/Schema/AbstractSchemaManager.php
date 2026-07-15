@@ -250,6 +250,7 @@ abstract class AbstractSchemaManager
             ->setColumns(...$columns)
             ->setPrimaryKeyConstraint($this->introspectTablePrimaryKeyConstraint($tableName))
             ->setIndexes(...$this->introspectTableIndexes($tableName))
+            ->setUniqueConstraints(...$this->introspectTableUniqueConstraints($tableName))
             ->setForeignKeyConstraints(...$this->introspectTableForeignKeyConstraints($tableName))
             ->setOptions($options)
             ->create();
@@ -426,6 +427,72 @@ abstract class AbstractSchemaManager
             ): ?PrimaryKeyConstraint {
                 return $schemaProvider->getPrimaryKeyConstraintForTable($schemaName, $tableName);
             },
+        );
+    }
+
+    /**
+     * Introspects the unique constraints of a given table and returns their definitions. If the name is unqualified,
+     * and the underlying database platform supports schemas, the current schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @return list<UniqueConstraint>
+     *
+     * @throws Exception
+     */
+    public function introspectTableUniqueConstraints(OptionallyQualifiedName $tableName): array
+    {
+        return $this->introspectTableObjects(
+            $tableName,
+            static function (SchemaProvider $schemaProvider, ?string $schemaName, string $tableName): array {
+                return $schemaProvider->getUniqueConstraintsForTable($schemaName, $tableName);
+            },
+        );
+    }
+
+    /**
+     * Introspects the unique constraints of the table with the given unquoted name and schema name and returns their
+     * definitions. If the name is unqualified, and the underlying database platform supports schemas, the current
+     * schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @return list<UniqueConstraint>
+     *
+     * @throws Exception
+     */
+    public function introspectTableUniqueConstraintsByUnquotedName(
+        string $tableName,
+        ?string $schemaName = null,
+    ): array {
+        return $this->introspectTableUniqueConstraints(
+            OptionallyQualifiedName::unquoted($tableName, $schemaName),
+        );
+    }
+
+    /**
+     * Introspects the unique constraints of the table with the given quoted name and schema name and returns their
+     * definitions. If the name is unqualified, and the underlying database platform supports schemas, the current
+     * schema is used.
+     *
+     * Returns an empty value if the table does not exist.
+     *
+     * @param non-empty-string  $tableName
+     * @param ?non-empty-string $schemaName
+     *
+     * @return list<UniqueConstraint>
+     *
+     * @throws Exception
+     */
+    public function introspectTableUniqueConstraintsByQuotedName(
+        string $tableName,
+        ?string $schemaName = null,
+    ): array {
+        return $this->introspectTableUniqueConstraints(
+            OptionallyQualifiedName::quoted($tableName, $schemaName),
         );
     }
 

@@ -19,11 +19,15 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
+
+use function array_map;
+use function array_values;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -89,9 +93,21 @@ CREATE TABLE t1 (
 )
 EOS);
 
-        $this->expectException(UnsupportedSchema::class);
+        try {
+            $this->schemaManager->introspectTableForeignKeyConstraintsByUnquotedName('t1');
+            self::fail('Expected an UnsupportedSchema exception.');
+        } catch (UnsupportedSchema $e) {
+            // Catching the exception is the verification.
+            self::expectNotToPerformAssertions();
 
-        $this->schemaManager->introspectTableForeignKeyConstraintsByUnquotedName('t1');
+            // The trace references the still-open result set on t1. Releasing it closes the cursor,
+            // without which SQLite rejects the DROP below as locked.
+            unset($e);
+        }
+
+        // Leaving t1 behind would poison the schema for the other tests that use introspectTables(),
+        // since it does not tolerate incomplete schemas.
+        $this->connection->executeStatement('DROP TABLE t1');
     }
 
     public function testColumnCollation(): void
@@ -400,6 +416,69 @@ SQL;
         $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::unquoted('id'),
         ], $foreignKey2->getReferencedColumnNames());
+    }
+
+    /** @throws Exception */
+    public function testIntrospectMultipleAnonymousUniqueConstraints(): void
+    {
+        $this->dropTableIfExists('t');
+
+        $this->connection->executeStatement(<<<'DDL'
+        CREATE TABLE t (
+          a INTEGER,
+          b INTEGER,
+          UNIQUE (a),
+          UNIQUE (b)
+        )
+        DDL);
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('t');
+
+        /** @var list<UniqueConstraint> $uniqueConstraints */
+        $uniqueConstraints = array_values($table->getUniqueConstraints());
+        self::assertCount(2, $uniqueConstraints);
+
+        foreach ($uniqueConstraints as $uniqueConstraint) {
+            self::assertNull($uniqueConstraint->getObjectName());
+        }
+    }
+
+    /** @throws Exception */
+    public function testIntrospectMultipleNamedUniqueConstraints(): void
+    {
+        $this->dropTableIfExists('t');
+
+        // SQLite does not report a unique constraint's declared name; it must be reconstructed and
+        // matched to the right constraint by declaration order.
+        $this->connection->executeStatement(<<<'DDL'
+        CREATE TABLE t (
+          a INTEGER,
+          b INTEGER,
+          c INTEGER,
+          d INTEGER,
+          PRIMARY KEY (a, b),
+          CONSTRAINT uq_c UNIQUE (c),
+          CONSTRAINT uq_d UNIQUE (d)
+        )
+        DDL);
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('t');
+
+        $namesByColumn = [];
+        foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
+            $name = $uniqueConstraint->getObjectName();
+            self::assertNotNull($name);
+
+            $columns = array_map(
+                static fn (UnqualifiedName $column): string => $column->getIdentifier()->getValue(),
+                $uniqueConstraint->getColumnNames(),
+            );
+            self::assertCount(1, $columns);
+
+            $namesByColumn[$columns[0]] = $name->getIdentifier()->getValue();
+        }
+
+        self::assertSame(['c' => 'uq_c', 'd' => 'uq_d'], $namesByColumn);
     }
 
     /** @throws Exception */

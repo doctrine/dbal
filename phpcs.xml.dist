@@ -40,6 +40,11 @@
         </properties>
     </rule>
 
+    <!-- An @method annotation is parsed as a single-line signature and cannot span multiple lines. -->
+    <rule ref="Generic.Files.LineLength.TooLong">
+        <exclude-pattern>src/Schema/Metadata/MetadataProvider.php</exclude-pattern>
+    </rule>
+
     <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
         <exclude-pattern>*/src/Configuration.php</exclude-pattern>
         <exclude-pattern>*/src/Connection.php</exclude-pattern>

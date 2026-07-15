@@ -508,6 +508,12 @@ all drivers and middleware.
 
 # Upgrade to 4.5
 
+## Deprecated not implementing unique constraint introspection in `MetadataProvider`
+
+`Doctrine\DBAL\Schema\Metadata\MetadataProvider` implementations should now implement
+`getUniqueConstraintColumnsForAllTables()` and `getUniqueConstraintColumnsForTable()`. Not implementing them is
+deprecated. Both methods will become part of the interface in DBAL 5.0.
+
 ## Deprecated the `simple_array` type
 
 The `simple_array` type has been deprecated. Use the `json` type instead.

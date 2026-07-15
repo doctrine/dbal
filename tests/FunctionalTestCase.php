@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
@@ -17,6 +18,7 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Constraint\Callback;
@@ -25,7 +27,6 @@ use PHPUnit\Framework\TestCase;
 
 use function array_map;
 use function array_values;
-use function count;
 use function sprintf;
 use function usort;
 
@@ -137,23 +138,24 @@ abstract class FunctionalTestCase extends TestCase
         $normalizedSchemaName = $schemaName->getIdentifier()
             ->toNormalizedValue($folding);
 
-        $schemaManager  = $this->connection->createSchemaManager();
-        $databaseSchema = $schemaManager->introspectSchema();
+        $schemaManager = $this->connection->createSchemaManager();
 
-        $sequencesToDrop = [];
-        foreach ($databaseSchema->getSequences() as $sequence) {
-            $qualifier = $sequence->getObjectName()
-                ->getQualifier();
+        $schemaToDrop = Schema::editor();
 
-            if ($qualifier === null || $qualifier->toNormalizedValue($folding) !== $normalizedSchemaName) {
-                continue;
+        if ($platform->supportsSequences()) {
+            foreach ($schemaManager->introspectSequences() as $sequence) {
+                $qualifier = $sequence->getObjectName()
+                    ->getQualifier();
+
+                if ($qualifier === null || $qualifier->toNormalizedValue($folding) !== $normalizedSchemaName) {
+                    continue;
+                }
+
+                $schemaToDrop->addSequence($sequence);
             }
-
-            $sequencesToDrop[] = $sequence;
         }
 
-        $tablesToDrop = [];
-        foreach ($databaseSchema->getTables() as $table) {
+        foreach ($schemaManager->introspectTables() as $table) {
             $qualifier = $table->getObjectName()
                 ->getQualifier();
 
@@ -161,17 +163,10 @@ abstract class FunctionalTestCase extends TestCase
                 continue;
             }
 
-            $tablesToDrop[] = $table;
+            $schemaToDrop->addTable($table);
         }
 
-        if (count($sequencesToDrop) > 0 || count($tablesToDrop) > 0) {
-            $schemaManager->dropSchemaObjects(
-                Schema::editor()
-                    ->setTables(...$tablesToDrop)
-                    ->setSequences(...$sequencesToDrop)
-                    ->create(),
-            );
-        }
+        $schemaManager->dropSchemaObjects($schemaToDrop->create());
 
         try {
             $schemaManager->dropSchema($schemaName->toSQL($platform));
@@ -241,7 +236,7 @@ abstract class FunctionalTestCase extends TestCase
 
     /**
      * @param non-empty-list<UnqualifiedName> $expected
-     * @param non-empty-list<UnqualifiedName> $actual
+     * @param list<UnqualifiedName>           $actual
      *
      * @throws Exception
      */
@@ -379,6 +374,49 @@ abstract class FunctionalTestCase extends TestCase
         return array_map(
             fn (UnqualifiedName $name): UnqualifiedName => $this->toQuotedUnqualifiedName($name),
             $names,
+        );
+    }
+
+    /** @throws Exception */
+    protected function toQuotedColumn(Column $column): Column
+    {
+        return $column->edit()
+            ->setName($this->toQuotedUnqualifiedName($column->getObjectName()))
+            ->create();
+    }
+
+    /**
+     * @param non-empty-list<Column> $expected
+     * @param list<Column>           $actual
+     *
+     * @throws Exception
+     */
+    protected function assertColumnNamesEqual(array $expected, array $actual): void
+    {
+        $this->assertUnqualifiedNameListEquals(
+            array_map(
+                static fn (Column $column): UnqualifiedName => $column->getObjectName(),
+                $expected,
+            ),
+            array_map(
+                static fn (Column $column): UnqualifiedName => $column->getObjectName(),
+                $actual,
+            ),
+        );
+    }
+
+    /**
+     * @param list<Column> $columns
+     *
+     * @return ($columns is non-empty-list ? non-empty-list<Column> : list<Column>)
+     *
+     * @throws Exception
+     */
+    protected function toQuotedColumnList(array $columns): array
+    {
+        return array_map(
+            fn (Column $column): Column => $this->toQuotedColumn($column),
+            $columns,
         );
     }
 
@@ -581,6 +619,71 @@ abstract class FunctionalTestCase extends TestCase
             fn (ForeignKeyConstraint $constraint): ForeignKeyConstraint => $this->toQuotedForeignKeyConstraint(
                 $constraint,
             ),
+            $constraints,
+        );
+    }
+
+    /** @throws Exception */
+    protected function assertUniqueConstraintEquals(
+        UniqueConstraint $expected,
+        UniqueConstraint $actual,
+    ): void {
+        $expectedName = $expected->getObjectName();
+        $actualName   = $actual->getObjectName();
+
+        // ignore auto-generated name on the actual constraint
+        if ($expectedName === null && $actualName !== null) {
+            $actual = $actual->edit()
+                ->setName(null)
+                ->create();
+        }
+
+        self::assertEquals(
+            $this->toQuotedUniqueConstraint($expected),
+            $this->toQuotedUniqueConstraint($actual),
+        );
+    }
+
+    /** @throws Exception */
+    protected function toQuotedUniqueConstraint(UniqueConstraint $constraint): UniqueConstraint
+    {
+        $name = $constraint->getObjectName();
+
+        if ($name !== null) {
+            $name = $this->toQuotedUnqualifiedName($name);
+        }
+
+        return $constraint->edit()
+            ->setName($name)
+            ->setColumnNames(...$this->toQuotedUnqualifiedNameList($constraint->getColumnNames()))
+            ->create();
+    }
+
+    /**
+     * @param list<UniqueConstraint> $expected
+     * @param list<UniqueConstraint> $actual
+     *
+     * @throws Exception
+     */
+    protected function assertUniqueConstraintListEquals(array $expected, array $actual): void
+    {
+        self::assertEquals(
+            $this->toQuotedUniqueConstraintList($expected),
+            $this->toQuotedUniqueConstraintList($actual),
+        );
+    }
+
+    /**
+     * @param list<UniqueConstraint> $constraints
+     *
+     * @return list<UniqueConstraint>
+     *
+     * @throws Exception
+     */
+    protected function toQuotedUniqueConstraintList(array $constraints): array
+    {
+        return array_map(
+            fn (UniqueConstraint $constraint): UniqueConstraint => $this->toQuotedUniqueConstraint($constraint),
             $constraints,
         );
     }

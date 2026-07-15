@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Metadata\SchemaMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\SequenceMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
+use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Override;
@@ -411,6 +412,80 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 constraintName: $row[2],
                 isClustered: (int) $row[3] === 1,
                 columnName: $row[4],
+            );
+        }
+    }
+
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForAllTables(): iterable
+    {
+        return $this->getUniqueConstraintColumns(null, null);
+    }
+
+    /**
+     * @param ?non-empty-string $schemaName
+     * @param non-empty-string  $tableName
+     *
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForTable(?string $schemaName, string $tableName): iterable
+    {
+        if ($schemaName === null) {
+            throw UnsupportedName::fromNullSchemaName(__METHOD__);
+        }
+
+        return $this->getUniqueConstraintColumns($schemaName, $tableName);
+    }
+
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    private function getUniqueConstraintColumns(?string $schemaName, ?string $tableName): iterable
+    {
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT s.name,
+                   t.name,
+                   i.name,
+                   c.name
+            FROM sys.schemas s
+                     INNER JOIN sys.tables t
+                                ON t.schema_id = s.schema_id
+                     INNER JOIN sys.indexes i
+                                ON i.object_id = t.object_id
+                                    AND i.is_unique_constraint = 1
+                     INNER JOIN sys.index_columns ic
+                                ON ic.object_id = t.object_id
+                                    AND ic.index_id = i.index_id
+                     INNER JOIN sys.columns c
+                                ON c.object_id = t.object_id
+                                    AND c.column_id = ic.column_id
+            WHERE %s
+            ORDER BY s.name,
+                     t.name,
+                     i.name,
+                     ic.key_ordinal
+            SQL,
+            $this->buildTableQueryPredicate('s', $schemaName, 't', $tableName, $params),
+        );
+
+        foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            yield new UniqueConstraintColumnMetadataRow(
+                schemaName: $row[0],
+                tableName: $row[1],
+                id: null,
+                name: $row[2],
+                columnName: $row[3],
             );
         }
     }

@@ -1198,7 +1198,7 @@ abstract class AbstractPlatform
      */
     public function getCreateUniqueConstraintSQL(UniqueConstraint $constraint, string $tableName): string
     {
-        $parsedName = $this->parseUnqualifiedName($tableName);
+        $parsedName = $this->parseOptionallyQualifiedName($tableName);
 
         return sprintf(
             'ALTER TABLE %s ADD %s',

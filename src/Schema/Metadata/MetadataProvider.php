@@ -13,6 +13,9 @@ use Doctrine\DBAL\Exception;
  * 1. Filter out internal or system schemas, tables, and other objects that are not relevant to the user.
  * 2. Remain stateless: if the underlying connection changes the current database and/or schema, the subsequent calls
  *    to the methods of this interface should reflect that change.
+ *
+ * @method iterable<UniqueConstraintColumnMetadataRow> getUniqueConstraintColumnsForAllTables()
+ * @method iterable<UniqueConstraintColumnMetadataRow> getUniqueConstraintColumnsForTable(?non-empty-string $schemaName, non-empty-string $tableName)
  */
 interface MetadataProvider
 {

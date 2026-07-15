@@ -69,6 +69,19 @@ class UniqueConstraintEditorTest extends TestCase
         ], $constraint->getColumnNames());
     }
 
+    public function testAddColumnNames(): void
+    {
+        $constraint = UniqueConstraint::editor()
+            ->addUnquotedColumnName('account_id')
+            ->addQuotedColumnName('user_id')
+            ->create();
+
+        self::assertEquals([
+            UnqualifiedName::unquoted('account_id'),
+            UnqualifiedName::quoted('user_id'),
+        ], $constraint->getColumnNames());
+    }
+
     public function testSetIsClustered(): void
     {
         $editor = UniqueConstraint::editor()

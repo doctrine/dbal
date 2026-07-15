@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Metadata\SchemaMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\SequenceMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
+use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Override;
@@ -473,6 +474,88 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 tableName: $row[1],
                 constraintName: $row[2],
                 isClustered: true,
+                columnName: $row[3],
+            );
+        }
+    }
+
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForAllTables(): iterable
+    {
+        return $this->getUniqueConstraintColumns(null, null);
+    }
+
+    /**
+     * @param ?non-empty-string $schemaName
+     * @param non-empty-string  $tableName
+     *
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForTable(?string $schemaName, string $tableName): iterable
+    {
+        if ($schemaName === null) {
+            throw UnsupportedName::fromNullSchemaName(__METHOD__);
+        }
+
+        return $this->getUniqueConstraintColumns($schemaName, $tableName);
+    }
+
+    /**
+     * @link https://www.postgresql.org/docs/current/catalog-pg-namespace.html
+     * @link https://www.postgresql.org/docs/current/catalog-pg-class.html
+     * @link https://www.postgresql.org/docs/current/catalog-pg-constraint.html
+     * @link https://www.postgresql.org/docs/current/catalog-pg-index.html
+     *
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    private function getUniqueConstraintColumns(?string $schemaName, ?string $tableName): iterable
+    {
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT n.nspname,
+                   c.relname,
+                   ct.conname,
+                   a.attname
+            FROM pg_namespace n
+                     INNER JOIN pg_class c
+                                ON c.relnamespace = n.oid
+                     INNER JOIN pg_constraint ct
+                                ON ct.conrelid = c.oid
+                     INNER JOIN pg_index i
+                                ON i.indrelid = c.oid
+                                    AND i.indexrelid = ct.conindid
+                     INNER JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
+                                ON true
+                     INNER JOIN
+                 pg_attribute a
+                 ON a.attrelid = c.oid
+                     AND a.attnum = keys.attnum
+            WHERE %s
+              AND ct.contype = 'u'
+            ORDER BY n.nspname,
+                     c.relname,
+                     ct.conname,
+                     keys.ord
+            SQL,
+            $this->buildTableQueryPredicate('n', $schemaName, 'c', $tableName, $params),
+        );
+
+        foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            yield new UniqueConstraintColumnMetadataRow(
+                schemaName: $row[0],
+                tableName: $row[1],
+                id: null,
+                name: $row[2],
                 columnName: $row[3],
             );
         }
