@@ -13,9 +13,6 @@ use Doctrine\DBAL\Exception;
  * 1. Filter out internal or system schemas, tables, and other objects that are not relevant to the user.
  * 2. Remain stateless: if the underlying connection changes the current database and/or schema, the subsequent calls
  *    to the methods of this interface should reflect that change.
- *
- * @method iterable<UniqueConstraintColumnMetadataRow> getUniqueConstraintColumnsForAllTables()
- * @method iterable<UniqueConstraintColumnMetadataRow> getUniqueConstraintColumnsForTable(?non-empty-string $schemaName, non-empty-string $tableName)
  */
 interface MetadataProvider
 {
@@ -142,6 +139,40 @@ interface MetadataProvider
      * @throws Exception
      */
     public function getPrimaryKeyConstraintColumnsForTable(?string $schemaName, string $tableName): iterable;
+
+    /**
+     * Returns the unique constraint columns of all tables within the current database.
+     *
+     * The results are ordered by schema name (if the underlying database platform supports schemas), table name,
+     * unique constraint name, and column position within the unique constraint. If the underlying database platform
+     * supports unnamed unique constraints, instead of ordering by name, it may provide another stable order of the
+     * results.
+     *
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForAllTables(): iterable;
+
+    /**
+     * Returns the unique constraint columns of the given table.
+     *
+     * If the underlying database platform supports schemas, the schema name must be specified. Otherwise, null must be
+     * passed as the schema name.
+     *
+     * The results are ordered by unique constraint name and column position within the unique constraint. If the
+     * underlying database platform supports unnamed unique constraints, instead of ordering by name, it may provide
+     * another stable order of the results. If the table doesn't exist, or is not accessible to the connection, an
+     * empty value is returned.
+     *
+     * @param ?non-empty-string $schemaName
+     * @param non-empty-string  $tableName
+     *
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForTable(?string $schemaName, string $tableName): iterable;
 
     /**
      * Returns the foreign key constraint columns of all tables within the current database.
