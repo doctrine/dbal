@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Attributes\TestWith;
 
-#[RequiresPhp('8.4')]
+#[RequiresPhp('>= 8.4')]
 #[RequiresPhpExtension('bcmath')]
 final class NumberTest extends FunctionalTestCase
 {

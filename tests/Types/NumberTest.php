@@ -16,7 +16,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-#[RequiresPhp('8.4')]
+#[RequiresPhp('>= 8.4')]
 #[RequiresPhpExtension('bcmath')]
 final class NumberTest extends TestCase
 {

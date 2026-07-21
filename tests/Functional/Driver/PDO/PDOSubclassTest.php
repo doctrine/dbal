@@ -11,7 +11,7 @@ use Pdo\Pgsql;
 use Pdo\Sqlite;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 
-#[RequiresPhp('8.4')]
+#[RequiresPhp('>= 8.4')]
 final class PDOSubclassTest extends FunctionalTestCase
 {
     public function testMySQLSubclass(): void

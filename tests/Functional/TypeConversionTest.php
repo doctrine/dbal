@@ -234,7 +234,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertSame('13.37', $this->processValue(Types::DECIMAL, '13.37'));
     }
 
-    #[RequiresPhp('8.4')]
+    #[RequiresPhp('>= 8.4')]
     #[RequiresPhpExtension('bcmath')]
     public function testNumber(): void
     {
