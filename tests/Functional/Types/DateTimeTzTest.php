@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use DateTime;
 use DateTimeInterface;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -31,6 +32,10 @@ final class DateTimeTzTest extends FunctionalTestCase
 
         if ($platform->getDateTimeTzFormatString() === $platform->getDateTimeFormatString()) {
             self::markTestSkipped('This test requires the platform to support DateTime with timezone.');
+        }
+
+        if ($platform instanceof OraclePlatform) {
+            self::markTestSkipped('Oracle driver have a bug in DateTimeTz format string.');
         }
 
         $table = Table::editor()
