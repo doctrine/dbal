@@ -27,6 +27,12 @@ final class DateTimeTzTest extends FunctionalTestCase
     #[DataProvider('dataValuesProvider')]
     public function testInsertAndRetrieveDateTimeTz(DateTimeInterface $expected): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform->getDateTimeTzFormatString() === $platform->getDateTimeFormatString()) {
+            self::markTestSkipped('This test requires the platform to support DateTime with timezone.');
+        }
+
         $table = Table::editor()
             ->setUnquotedName('datetimetz_table')
             ->setColumns(
@@ -47,7 +53,7 @@ final class DateTimeTzTest extends FunctionalTestCase
 
         $value = Type::getType(Types::DATETIMETZ_MUTABLE)->convertToPHPValue(
             $this->connection->fetchOne('SELECT val FROM datetimetz_table'),
-            $this->connection->getDatabasePlatform(),
+            $platform,
         );
 
         self::assertInstanceOf(DateTime::class, $value);
