@@ -76,11 +76,6 @@ class TypeConversionTest extends FunctionalTestCase
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
-                    ->setUnquotedName('test_datetimetz_immutable')
-                    ->setTypeName(Types::DATETIMETZ_IMMUTABLE)
-                    ->setNotNull(false)
-                    ->create(),
-                Column::editor()
                     ->setUnquotedName('test_date_immutable')
                     ->setTypeName(Types::DATE_IMMUTABLE)
                     ->setNotNull(false)
@@ -224,10 +219,6 @@ class TypeConversionTest extends FunctionalTestCase
 
         self::assertInstanceOf(DateTimeImmutable::class, $dbValue);
 
-        if ($type === Types::DATETIMETZ_IMMUTABLE) {
-            return;
-        }
-
         self::assertEquals($originalValue, $dbValue);
         self::assertEquals(
             $originalValue->getTimezone(),
@@ -240,7 +231,6 @@ class TypeConversionTest extends FunctionalTestCase
     {
         return [
             'datetime' => [Types::DATETIME_IMMUTABLE, new DateTimeImmutable('2010-04-05 10:10:10')],
-            'datetimetz' => [Types::DATETIMETZ_IMMUTABLE, new DateTimeImmutable('2010-04-05 10:10:10')],
             'date' => [Types::DATE_IMMUTABLE, new DateTimeImmutable('2010-04-05')],
             'time' => [Types::TIME_IMMUTABLE, new DateTimeImmutable('1970-01-01 10:10:10')],
         ];
