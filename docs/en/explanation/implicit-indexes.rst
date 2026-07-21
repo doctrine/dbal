@@ -40,11 +40,22 @@ that responsibility to the user:
 - `SQLite <https://sqlite.org/foreignkeys.html#fk_indexes>`_
 - `SQL Server <https://stackoverflow.com/questions/836167/does-a-foreign-key-automatically-create-an-index>`_
 
-Regardless of the behavior of the platform, the DBAL will create an
-index for you and will automatically pick an index name that obeys
-string length constraints of the platform you are using. That way,
-differences between platforms are reduced because you always end up with
-an index.
+So why does the DBAL create this index on every platform, even the ones
+that neither require it nor create it themselves?
+
+Because of how the DBAL compares schemas on MySQL and MariaDB. When the
+DBAL reads a table back, it cannot tell an index you added from one the
+database created for the foreign key: the metadata records nothing about
+who created it. So a table you defined without a backing index comes
+back with one. If the DBAL hadn't created it up-front, the comparison
+would report a change that isn't real: the migration would drop the
+index, the database would recreate it immediately, and the next
+comparison would report the same change again — a migration that never
+converges. Implicit indexes work around this limitation.
+
+The DBAL's schema model is platform-agnostic, so it cannot apply this
+only to MySQL and MariaDB. The index ends up on every database, including
+the ones that never needed it.
 
 This is a detail, but these indexes will be prefixed with ``IDX_``, and
 typically look like this:
@@ -52,6 +63,8 @@ typically look like this:
 .. code-block:: sql
 
    CREATE INDEX IDX_885DBAFAA76ED395 ON posts (user_id)
+
+The generated name fits within the platform's identifier-length limit.
 
 In the case of MariaDB and MySQL, the creation of that DBAL-defined
 index will result in the RDBMS-defined index being dropped.
