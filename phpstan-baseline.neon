@@ -67,12 +67,6 @@ parameters:
 			path: src/Schema/ColumnDiff.php
 
 		-
-			rawMessage: 'Offset string might not exist on array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, host?: string, ...}.'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/DriverManagerTest.php
-
-		-
 			rawMessage: 'Call to new Doctrine\DBAL\Driver\PgSQL\Result() on a separate line has no effect.'
 			identifier: new.resultUnused
 			count: 1

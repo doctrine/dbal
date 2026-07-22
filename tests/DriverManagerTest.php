@@ -121,7 +121,7 @@ class DriverManagerTest extends TestCase
             if (in_array($key, ['driver', 'driverClass'], true)) {
                 self::assertInstanceOf($value, $conn->getDriver());
             } else {
-                self::assertEquals($value, $params[$key]);
+                self::assertEquals($value, $params[$key] ?? null);
             }
         }
     }
