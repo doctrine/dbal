@@ -757,6 +757,73 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testCreateTableWithoutRowid(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('mytable')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions(['without_rowid' => true])
+            ->create();
+
+        self::assertSame(
+            ['CREATE TABLE mytable (id INTEGER NOT NULL, PRIMARY KEY (id)) WITHOUT ROWID'],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
+    public function testCreateStrictTable(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('mytable')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setOptions(['strict' => true])
+            ->create();
+
+        self::assertSame(
+            ['CREATE TABLE mytable (id INTEGER NOT NULL) STRICT'],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
+    public function testCreateTableWithoutRowidAndStrict(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('mytable')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions(['without_rowid' => true, 'strict' => true])
+            ->create();
+
+        self::assertSame(
+            ['CREATE TABLE mytable (id INTEGER NOT NULL, PRIMARY KEY (id)) WITHOUT ROWID, STRICT'],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
     public function testCreateTableWithNonPrimaryKeyAutoIncrementColumn(): void
     {
         $table = Table::editor()

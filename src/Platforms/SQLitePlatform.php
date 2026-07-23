@@ -298,7 +298,23 @@ class SQLitePlatform extends AbstractPlatform
             $tableComment = $this->getInlineCommentSQL($options['comment']);
         }
 
-        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
+        $sql = 'CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')';
+
+        $tableOptions = [];
+
+        if (isset($options['without_rowid']) && $options['without_rowid'] === true) {
+            $tableOptions[] = 'WITHOUT ROWID';
+        }
+
+        if (isset($options['strict']) && $options['strict'] === true) {
+            $tableOptions[] = 'STRICT';
+        }
+
+        if ($tableOptions !== []) {
+            $sql .= ' ' . implode(', ', $tableOptions);
+        }
+
+        $query = [$sql];
 
         if (isset($options['alter']) && $options['alter'] === true) {
             return $query;
