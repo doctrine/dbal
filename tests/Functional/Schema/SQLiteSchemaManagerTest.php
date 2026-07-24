@@ -285,6 +285,79 @@ SQL;
             ->getComment());
     }
 
+    public function testIntrospectWithoutRowidTableOption(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('dbal_without_rowid')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions(['without_rowid' => true])
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('dbal_without_rowid');
+
+        self::assertTrue($onlineTable->getOption('without_rowid'));
+        self::assertFalse($onlineTable->hasOption('strict'));
+    }
+
+    public function testIntrospectStrictTableOption(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('dbal_strict')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setOptions(['strict' => true])
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('dbal_strict');
+
+        self::assertTrue($onlineTable->getOption('strict'));
+        self::assertFalse($onlineTable->hasOption('without_rowid'));
+    }
+
+    public function testIntrospectWithoutRowidAndStrictTableOptions(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('dbal_without_rowid_strict')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions(['without_rowid' => true, 'strict' => true])
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('dbal_without_rowid_strict');
+
+        self::assertTrue($onlineTable->getOption('without_rowid'));
+        self::assertTrue($onlineTable->getOption('strict'));
+    }
+
     public function testNonSimpleAlterTableCreatedFromDDL(): void
     {
         $this->dropTableIfExists('nodes');

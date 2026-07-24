@@ -45,6 +45,7 @@ use function strcasecmp;
 use function strlen;
 use function strtolower;
 use function substr;
+use function version_compare;
 
 final readonly class SQLiteMetadataProvider implements MetadataProvider
 {
@@ -725,13 +726,36 @@ SQL,
      */
     private function getTableOptions(iterable $tableNames): iterable
     {
+        $supportsTableList = version_compare($this->connection->getServerVersion(), '3.37.0', '>=');
+
         foreach ($tableNames as $tableName) {
-            yield new TableMetadataRow(null, $tableName, [
-                'comment' => $this->parseTableCommentFromSQL(
-                    $tableName,
-                    $this->getCreateTableSQL($tableName),
-                ),
-            ]);
+            $createSQL = $this->getCreateTableSQL($tableName);
+
+            $options = [
+                'comment' => $this->parseTableCommentFromSQL($tableName, $createSQL),
+            ];
+
+            if ($supportsTableList) {
+                $flags = $this->connection->fetchAssociative(
+                    'SELECT wr, "strict" FROM pragma_table_list WHERE name = ?',
+                    [$tableName],
+                );
+
+                $withoutRowid = $flags !== false && (bool) $flags['wr'];
+                $strict       = $flags !== false && (bool) $flags['strict'];
+            } else {
+                [$withoutRowid, $strict] = $this->parseTableOptionsFromSQL($createSQL);
+            }
+
+            if ($withoutRowid) {
+                $options['without_rowid'] = true;
+            }
+
+            if ($strict) {
+                $options['strict'] = true;
+            }
+
+            yield new TableMetadataRow(null, $tableName, $options);
         }
     }
 
@@ -775,6 +799,27 @@ SQL,
         $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
 
         return $comment === '' ? null : $comment;
+    }
+
+    /**
+     * Parses the WITHOUT ROWID and STRICT table options from a CREATE TABLE statement.
+     *
+     * Used as a fallback on SQLite versions older than 3.37.0, where PRAGMA table_list
+     * does not yet expose the "wr" and "strict" flags. The options may appear in any order
+     * after the closing parenthesis of the column definitions.
+     *
+     * @return array{bool, bool} Whether the table is WITHOUT ROWID and whether it is STRICT.
+     */
+    private function parseTableOptionsFromSQL(string $sql): array
+    {
+        if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
+            return [false, false];
+        }
+
+        return [
+            preg_match('/\bWITHOUT\s+ROWID\b/i', $match[0]) === 1,
+            preg_match('/\bSTRICT\b/i', $match[0]) === 1,
+        ];
     }
 
     /** {@inheritDoc} */

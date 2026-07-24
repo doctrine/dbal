@@ -32,6 +32,7 @@ use function str_contains;
 use function str_replace;
 use function strcasecmp;
 use function strtolower;
+use function version_compare;
 
 use const CASE_LOWER;
 
@@ -254,6 +255,27 @@ CREATE\sTABLE' . $this->buildIdentifierPattern($table) . '
         $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
 
         return $comment === '' ? null : $comment;
+    }
+
+    /**
+     * Parses the WITHOUT ROWID and STRICT table options from a CREATE TABLE statement.
+     *
+     * Used as a fallback on SQLite versions older than 3.37.0, where PRAGMA table_list
+     * does not yet expose the "wr" and "strict" flags. The options may appear in any order
+     * after the closing parenthesis of the column definitions.
+     *
+     * @return array{bool, bool} Whether the table is WITHOUT ROWID and whether it is STRICT.
+     */
+    private function parseTableOptionsFromSQL(string $sql): array
+    {
+        if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
+            return [false, false];
+        }
+
+        return [
+            preg_match('/\bWITHOUT\s+ROWID\b/i', $match[0]) === 1,
+            preg_match('/\bSTRICT\b/i', $match[0]) === 1,
+        ];
     }
 
     private function parseColumnCommentFromSQL(string $column, string $sql): string
@@ -585,12 +607,36 @@ SQL,
             $tables = [$tableName];
         }
 
+        $supportsTableList = version_compare($this->connection->getServerVersion(), '3.37.0', '>=');
+
         $tableOptions = [];
         foreach ($tables as $table) {
-            $comment = $this->parseTableCommentFromSQL($table, $this->getCreateTableSQL($table));
+            $createSQL = $this->getCreateTableSQL($table);
+
+            $comment = $this->parseTableCommentFromSQL($table, $createSQL);
 
             if ($comment !== null) {
                 $tableOptions[$table]['comment'] = $comment;
+            }
+
+            if ($supportsTableList) {
+                $flags = $this->connection->fetchAssociative(
+                    'SELECT wr, "strict" FROM pragma_table_list WHERE name = ?',
+                    [$table],
+                );
+
+                $withoutRowid = $flags !== false && (bool) $flags['wr'];
+                $strict       = $flags !== false && (bool) $flags['strict'];
+            } else {
+                [$withoutRowid, $strict] = $this->parseTableOptionsFromSQL($createSQL);
+            }
+
+            if ($withoutRowid) {
+                $tableOptions[$table]['without_rowid'] = true;
+            }
+
+            if ($strict) {
+                $tableOptions[$table]['strict'] = true;
             }
         }
 
