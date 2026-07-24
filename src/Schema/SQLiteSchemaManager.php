@@ -257,15 +257,7 @@ CREATE\sTABLE' . $this->buildIdentifierPattern($table) . '
         return $comment === '' ? null : $comment;
     }
 
-    /**
-     * Parses the WITHOUT ROWID and STRICT table options from a CREATE TABLE statement.
-     *
-     * Used as a fallback on SQLite versions older than 3.37.0, where PRAGMA table_list
-     * does not yet expose the "wr" and "strict" flags. The options may appear in any order
-     * after the closing parenthesis of the column definitions.
-     *
-     * @return array{bool, bool} Whether the table is WITHOUT ROWID and whether it is STRICT.
-     */
+    /** @return array{bool, bool} */
     private function parseTableOptionsFromSQL(string $sql): array
     {
         if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
