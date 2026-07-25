@@ -965,6 +965,14 @@ class Table extends AbstractNamedObject
             }
         }
 
+        foreach ($this->uniqueConstraints as $uniqueConstraint) {
+            $uniqueIndex = $this->_createIndex($uniqueConstraint->getColumns(), $indexName, true, false);
+
+            if ($indexCandidate->isFulfilledBy($uniqueIndex)) {
+                return $this;
+            }
+        }
+
         $this->_addIndex($indexCandidate);
         $this->implicitIndexNames[$this->normalizeIdentifier($indexName)] = true;
 

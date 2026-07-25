@@ -848,6 +848,33 @@ class TableTest extends TestCase
         self::assertSame(['bar'], $table->getIndex('bar_idx')->getColumns());
     }
 
+    public function testAddForeignKeyDoesNotCreateImplicitIndexWhenUniqueConstraintSpansColumns(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('bar')
+                    ->setUnquotedReferencedTableName('foo')
+                    ->setUnquotedReferencedColumnNames('foo')
+                    ->create(),
+            )
+            ->create();
+
+        self::assertCount(0, $table->getIndexes());
+    }
+
     public function testAddForeignKeyAddsImplicitIndexIfIndexColumnsDoNotSpan(): void
     {
         $table = Table::editor()
