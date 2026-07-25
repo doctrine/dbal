@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableEditor;
@@ -281,6 +282,48 @@ class AlterTableTest extends FunctionalTestCase
                 ->addPrimaryKeyConstraint(
                     PrimaryKeyConstraint::editor()
                         ->setUnquotedColumnNames('id1', 'id2')
+                        ->create(),
+                );
+        });
+    }
+
+    /**
+     * A single alter that both drops a column and adds an index. Db2 leaves the table pending
+     * reorganization after the drop and rejects the new index until the reorganization runs, so the
+     * two must be ordered correctly.
+     */
+    public function testDropColumnAndAddIndex(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('reorg_alter')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('legacy')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('lookup')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor
+                ->dropColumnByUnquotedName('legacy')
+                ->addIndex(
+                    Index::editor()
+                        ->setUnquotedName('reorg_alter_lookup_idx')
+                        ->setUnquotedColumnNames('lookup')
                         ->create(),
                 );
         });

@@ -332,6 +332,12 @@ class DB2Platform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . implode(' ', $queryParts);
         }
 
+        // Some column alterations leave the table needing a reorganization before it accepts further
+        // operations, so it must run before any index or constraint is added.
+        if ($needsReorg) {
+            $sql[] = sprintf("CALL SYSPROC.ADMIN_CMD ('REORG TABLE %s')", $tableNameSQL);
+        }
+
         $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
 
         if ($addedPrimaryKeyConstraint !== null) {
@@ -353,11 +359,6 @@ class DB2Platform extends AbstractPlatform
                 $this->deriveQualifier($rename->getOldName(), $tableName)->toSQL($this),
                 $rename->getNewIndex()->getObjectName()->toSQL($this),
             );
-        }
-
-        // Some table alteration operations require a table reorganization.
-        if ($needsReorg) {
-            $sql[] = sprintf("CALL SYSPROC.ADMIN_CMD ('REORG TABLE %s')", $tableNameSQL);
         }
 
         return array_merge($sql, $commentsSQL);
