@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
-use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -13,21 +13,21 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-final class DateTimeTzTest extends FunctionalTestCase
+final class DateTimeTzImmutableTest extends FunctionalTestCase
 {
-    /** @return list<array{DateTime}> */
+    /** @return list<array{DateTimeImmutable}> */
     public static function dataValuesProvider(): array
     {
         $timezone = new DateTimeZone('Europe/Berlin');
 
         return [
-            [new DateTime('1985-09-01 10:10:10', $timezone)],
-            [new DateTime('2013-10-07T04:23:19-04:00', $timezone)],
+            [new DateTimeImmutable('1985-09-01 10:10:10', $timezone)],
+            [new DateTimeImmutable('2013-10-07T04:23:19-04:00', $timezone)],
         ];
     }
 
     #[DataProvider('dataValuesProvider')]
-    public function testInsertAndRetrieveDateTimeTz(DateTime $expected): void
+    public function testInsertAndRetrieveDateTimeTz(DateTimeImmutable $expected): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -40,11 +40,11 @@ final class DateTimeTzTest extends FunctionalTestCase
         }
 
         $table = Table::editor()
-            ->setUnquotedName('datetimetz_table')
+            ->setUnquotedName('datetimetz_immutable_table')
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('val')
-                    ->setTypeName(Types::DATETIMETZ_MUTABLE)
+                    ->setTypeName(Types::DATETIMETZ_IMMUTABLE)
                     ->create(),
             )
             ->create();
@@ -52,17 +52,17 @@ final class DateTimeTzTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $this->connection->insert(
-            'datetimetz_table',
+            'datetimetz_immutable_table',
             ['val' => $expected],
-            ['val' => Types::DATETIMETZ_MUTABLE],
+            ['val' => Types::DATETIMETZ_IMMUTABLE],
         );
 
         $value = $this->connection->convertToPHPValue(
-            $this->connection->fetchOne('SELECT val FROM datetimetz_table'),
-            Types::DATETIMETZ_MUTABLE,
+            $this->connection->fetchOne('SELECT val FROM datetimetz_immutable_table'),
+            Types::DATETIMETZ_IMMUTABLE,
         );
 
-        self::assertInstanceOf(DateTime::class, $value);
+        self::assertInstanceOf(DateTimeImmutable::class, $value);
         self::assertEquals($expected, $value);
     }
 }
