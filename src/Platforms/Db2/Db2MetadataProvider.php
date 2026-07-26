@@ -276,7 +276,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                 schemaName: null,
                 tableName: $row[0],
                 indexName: $row[1],
-                type: $row[2] === 'U' ? IndexType::UNIQUE : IndexType::REGULAR,
+                type: $row[2] === 'D' ? IndexType::REGULAR : IndexType::UNIQUE,
                 isClustered: false,
                 predicate: null,
                 columnName: $row[3],

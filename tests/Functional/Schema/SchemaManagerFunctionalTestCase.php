@@ -804,6 +804,112 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         ], $foreignKey->getReferencedColumnNames());
     }
 
+    public function testAlterIntrospectedTablePreservesIndexesAndForeignKeys(): void
+    {
+        $referencedTable = Table::editor()
+            ->setUnquotedName('alter_introspected_ref')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $indexes = [
+            Index::editor()
+                ->setUnquotedName('idx_intro_name')
+                ->setUnquotedColumnNames('name')
+                ->setType(IndexType::UNIQUE)
+                ->create(),
+            Index::editor()
+                ->setUnquotedName('idx_intro_ref')
+                ->setUnquotedColumnNames('ref_id')
+                ->create(),
+        ];
+
+        $foreignKeyConstraints = [
+            ForeignKeyConstraint::editor()
+                ->setUnquotedName('fk_intro_ref')
+                ->setUnquotedReferencingColumnNames('ref_id')
+                ->setUnquotedReferencedTableName('alter_introspected_ref')
+                ->setUnquotedReferencedColumnNames('id')
+                ->create(),
+        ];
+
+        $table = Table::editor()
+            ->setUnquotedName('alter_introspected')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('ref_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(32)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('weight')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setIndexes(...$indexes)
+            ->setForeignKeyConstraints(...$foreignKeyConstraints)
+            ->create();
+
+        $platform = $this->connection->getDatabasePlatform();
+
+        $this->dropTableIfExists($table->getObjectName()->toSQL($platform));
+        $this->dropTableIfExists($referencedTable->getObjectName()->toSQL($platform));
+
+        $this->schemaManager->createTable($referencedTable);
+        $this->schemaManager->createTable($table);
+
+        $oldTable = $this->schemaManager->introspectTableByUnquotedName('alter_introspected');
+
+        // Guard against a vacuous comparison of the foreign keys below.
+        self::assertCount(1, $oldTable->getForeignKeys());
+
+        // Modify an unrelated column to force a table alteration that does not touch
+        // the indexed or referencing columns.
+        $newTable = $oldTable->edit()
+            ->modifyColumnByUnquotedName('weight', static function (ColumnEditor $editor): void {
+                $editor->setTypeName(Types::STRING)
+                    ->setLength(32);
+            })
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()->compareTables($oldTable, $newTable);
+        $this->schemaManager->alterTable($diff);
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('alter_introspected');
+
+        // The indexes and foreign keys must survive the alteration. The foreign keys are compared against
+        // the pre-alteration introspection because the referential actions of a foreign key created without
+        // explicit actions are reported inconsistently across platforms (e.g. MariaDB reports RESTRICT).
+        $this->assertIndexEquals($indexes[0], $table->getIndex('idx_intro_name'));
+        $this->assertIndexEquals($indexes[1], $table->getIndex('idx_intro_ref'));
+        $this->assertForeignKeyConstraintListEquals(
+            $oldTable->getForeignKeys(),
+            $table->getForeignKeys(),
+        );
+    }
+
     public function testTableInNamespace(): void
     {
         $platform = $this->connection->getDatabasePlatform();

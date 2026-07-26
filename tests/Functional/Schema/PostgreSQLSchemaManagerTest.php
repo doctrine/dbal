@@ -255,7 +255,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertTrue(
             $this->schemaManager->createComparator()
-                ->compareTables($table, $databaseTable)
+                ->compareTables($databaseTable, $table)
                 ->isEmpty(),
         );
     }
@@ -284,7 +284,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertTrue(
             $this->schemaManager->createComparator()
-                ->compareTables($table, $databaseTable)
+                ->compareTables($databaseTable, $table)
                 ->isEmpty(),
         );
     }
@@ -417,7 +417,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertTrue(
             $this->schemaManager->createComparator()
-                ->compareTables($offlineTable, $onlineTable)
+                ->compareTables($onlineTable, $offlineTable)
                 ->isEmpty(),
         );
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));

@@ -76,7 +76,7 @@ final class EnumTypeTest extends FunctionalTestCase
 
         $introspectedTable = $schemaManager->introspectTableByUnquotedName('my_enum_table');
 
-        self::assertTrue($schemaManager->createComparator()->compareTables($table, $introspectedTable)->isEmpty());
+        self::assertTrue($schemaManager->createComparator()->compareTables($introspectedTable, $table)->isEmpty());
 
         $this->connection->insert('my_enum_table', ['id' => 1, 'suit' => 'hearts'], ['suit' => Types::ENUM]);
         $this->connection->insert(
