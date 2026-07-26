@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
@@ -580,22 +581,14 @@ class SQLitePlatform extends AbstractPlatform
         $newColumnNames = [];
 
         foreach ($table->getColumns() as $column) {
-            $columnKey = strtolower(
-                $column->getObjectName()
-                    ->getIdentifier()
-                    ->getValue(),
-            );
+            $columnKey = $this->getKey($column->getObjectName());
 
             $columns[$columnKey]        = $column;
             $oldColumnNames[$columnKey] = $newColumnNames[$columnKey] = $column->getObjectName()->toSQL($this);
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
-            $columnKey = strtolower(
-                $column->getObjectName()
-                    ->getIdentifier()
-                    ->getValue(),
-            );
+            $columnKey = $this->getKey($column->getObjectName());
 
             if (isset($columns[$columnKey])) {
                 unset(
@@ -609,7 +602,7 @@ class SQLitePlatform extends AbstractPlatform
         foreach ($diff->getChangedColumns() as $columnDiff) {
             $oldColumn     = $columnDiff->getOldColumn();
             $oldColumnName = $oldColumn->getObjectName();
-            $oldColumnKey  = strtolower($oldColumnName->getIdentifier()->getValue());
+            $oldColumnKey  = $this->getKey($oldColumnName);
             $newColumn     = $columnDiff->getNewColumn();
 
             if (! isset($columns[$oldColumnKey])) {
@@ -761,6 +754,12 @@ class SQLitePlatform extends AbstractPlatform
         return $map;
     }
 
+    /** The key by which SQLite matches this name, folding away the case it ignores. */
+    private function getKey(UnqualifiedName $name): string
+    {
+        return strtolower($name->getIdentifier()->getValue());
+    }
+
     /** @return array<Index> */
     private function getIndexesInAlteredTable(TableDiff $diff): array
     {
@@ -768,12 +767,14 @@ class SQLitePlatform extends AbstractPlatform
         $indexes  = new UnqualifiedNamedObjectSet(...$oldTable->getIndexes());
         $nameMap  = $this->getDiffColumnNameMap($diff);
 
+        $alreadyDropped = [];
+
         foreach ($indexes as $index) {
             $indexName = $index->getObjectName();
             foreach ($diff->getIndexRenames() as $rename) {
                 if (
-                    strtolower($indexName->getIdentifier()->getValue())
-                    === strtolower($rename->getOldName()->getIdentifier()->getValue())
+                    $this->getKey($indexName)
+                    === $this->getKey($rename->getOldName())
                 ) {
                     $indexes->remove($indexName);
                 }
@@ -785,6 +786,8 @@ class SQLitePlatform extends AbstractPlatform
                 $name = $column->getColumnName()->getIdentifier()->getValue();
                 if (! isset($nameMap[$name])) {
                     $indexes->remove($indexName);
+                    $alreadyDropped[$this->getKey($indexName)] = true;
+
                     continue 2;
                 }
 
@@ -803,7 +806,13 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->getDroppedIndexes() as $index) {
-            $indexes->remove($index->getObjectName());
+            $indexName = $index->getObjectName();
+
+            if (isset($alreadyDropped[$this->getKey($indexName)])) {
+                continue;
+            }
+
+            $indexes->remove($indexName);
         }
 
         foreach ($diff->getAddedIndexes() as $index) {
@@ -820,20 +829,34 @@ class SQLitePlatform extends AbstractPlatform
     /** @return array<ForeignKeyConstraint> */
     private function getForeignKeysInAlteredTable(TableDiff $diff): array
     {
-        $oldTable    = $diff->getOldTable();
-        $foreignKeys = $oldTable->getForeignKeys();
-        $nameMap     = $this->getDiffColumnNameMap($diff);
-        $keysByName  = [];
+        $oldTable       = $diff->getOldTable();
+        $foreignKeys    = $oldTable->getForeignKeys();
+        $nameMap        = $this->getDiffColumnNameMap($diff);
+        $keysByName     = [];
+        $alreadyDropped = [];
 
         foreach ($foreignKeys as $key => $constraint) {
+            $constraintName = $constraint->getObjectName();
+
+            if ($constraintName !== null) {
+                $constraintKey = $this->getKey($constraintName);
+            } else {
+                $constraintKey = null;
+            }
+
             $changed = false;
 
             $referencingColumnNames = [];
             foreach ($constraint->getReferencingColumnNames() as $columnName) {
                 $originalColumnName   = $columnName->getIdentifier()->getValue();
-                $normalizedColumnName = strtolower($originalColumnName);
+                $normalizedColumnName = $this->getKey($columnName);
                 if (! isset($nameMap[$normalizedColumnName])) {
                     unset($foreignKeys[$key]);
+
+                    if ($constraintKey !== null) {
+                        $alreadyDropped[$constraintKey] = true;
+                    }
+
                     continue 2;
                 }
 
@@ -844,14 +867,7 @@ class SQLitePlatform extends AbstractPlatform
                 }
             }
 
-            $constraintName = $constraint->getObjectName();
-
-            if ($constraintName !== null) {
-                $constraintKey = strtolower(
-                    $constraintName->getIdentifier()
-                        ->getValue(),
-                );
-
+            if ($constraintKey !== null) {
                 $keysByName[$constraintKey] = $key;
             }
 
@@ -863,10 +879,11 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->getDroppedForeignKeyConstraintNames() as $constraintName) {
-            $constraintKey = strtolower(
-                $constraintName->getIdentifier()
-                    ->getValue(),
-            );
+            $constraintKey = $this->getKey($constraintName);
+
+            if (isset($alreadyDropped[$constraintKey])) {
+                continue;
+            }
 
             assert(isset($keysByName[$constraintKey]));
             unset($foreignKeys[$keysByName[$constraintKey]], $keysByName[$constraintKey]);
@@ -876,10 +893,7 @@ class SQLitePlatform extends AbstractPlatform
             $constraintName = $constraint->getObjectName();
 
             if ($constraintName !== null) {
-                $constraintKey = strtolower(
-                    $constraintName->getIdentifier()
-                        ->getValue(),
-                );
+                $constraintKey = $this->getKey($constraintName);
 
                 assert(! isset($keysByName[$constraintKey]));
                 $foreignKeys[] = $constraint;
@@ -918,7 +932,7 @@ class SQLitePlatform extends AbstractPlatform
         $columnNames = [];
         foreach ($primaryKeyConstraint->getColumnNames() as $columnName) {
             $originalColumnName   = $columnName->getIdentifier()->getValue();
-            $normalizedColumnName = strtolower($originalColumnName);
+            $normalizedColumnName = $this->getKey($columnName);
             if (! isset($nameMap[$normalizedColumnName])) {
                 return null;
             }
