@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableEditor;
@@ -356,6 +357,147 @@ class AlterTableTest extends FunctionalTestCase
                         ->create(),
                 );
         });
+    }
+
+    public function testDropColumnCoveredByForeignKey(): void
+    {
+        $referenced = Table::editor()
+            ->setUnquotedName('alter_referenced')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $referencing = Table::editor()
+            ->setUnquotedName('alter_referencing')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('referenced_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedName('alter_referencing_fk')
+                    ->setUnquotedReferencingColumnNames('referenced_id')
+                    ->setUnquotedReferencedTableName('alter_referenced')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropTableIfExists('alter_referencing');
+        $this->dropTableIfExists('alter_referenced');
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createTable($referenced);
+        $schemaManager->createTable($referencing);
+
+        // testMigration() can't be used here: it introspects the table, which hits
+        // https://github.com/doctrine/dbal/issues/7481.
+        $desired = $referencing->edit()
+            ->dropColumnByUnquotedName('referenced_id')
+            ->dropForeignKeyConstraintByUnquotedName('alter_referencing_fk')
+            ->create();
+
+        $comparator = $schemaManager->createComparator();
+
+        $diff = $comparator->compareTables($referencing, $desired);
+        self::assertFalse($diff->isEmpty());
+
+        $schemaManager->alterTable($diff);
+
+        $introspected = $schemaManager->introspectTable($desired->getObjectName());
+
+        self::assertTrue(
+            $comparator->compareTables($desired, $introspected)->isEmpty(),
+        );
+    }
+
+    public function testDropOneColumnCoveredByCompositeIndex(): void
+    {
+        $table = $this->indexedTable(
+            Index::editor()
+                ->setUnquotedName('alter_names_idx')
+                ->setUnquotedColumnNames('first_name', 'last_name')
+                ->create(),
+        );
+
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor
+                ->dropColumnByUnquotedName('last_name')
+                ->dropIndexByUnquotedName('alter_names_idx')
+                ->addIndex(
+                    Index::editor()
+                        ->setUnquotedName('alter_names_idx')
+                        ->setUnquotedColumnNames('first_name')
+                        ->create(),
+                );
+        });
+    }
+
+    public function testDropAllColumnsCoveredByIndex(): void
+    {
+        $table = $this->indexedTable(
+            Index::editor()
+                ->setUnquotedName('alter_name_idx')
+                ->setUnquotedColumnNames('first_name')
+                ->create(),
+        );
+
+        $this->testMigration($table, static function (TableEditor $editor): void {
+            $editor
+                ->dropColumnByUnquotedName('first_name')
+                ->dropIndexByUnquotedName('alter_name_idx');
+        });
+    }
+
+    private function indexedTable(Index $index): Table
+    {
+        $editor = Table::editor()
+            ->setUnquotedName('alter_indexed')
+            ->addColumn(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            );
+
+        foreach ($index->getIndexedColumns() as $indexedColumn) {
+            $editor->addColumn(
+                Column::editor()
+                    ->setName($indexedColumn->getColumnName())
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            );
+        }
+
+        return $editor
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setIndexes($index)
+            ->create();
     }
 
     /** @param callable(TableEditor): void $migration */
