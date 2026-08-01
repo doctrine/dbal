@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Foreign key constraints are compared by name
+
+`Comparator::compareTables()` compares the names of foreign key constraints, so one whose name differs is reported as
+dropped and added back. A constraint with no name still matches a named one.
+
 ## BC BREAK: `MetadataProvider` requires unique constraint introspection
 
 `Doctrine\DBAL\Schema\Metadata\MetadataProvider` now declares `getUniqueConstraintColumnsForAllTables()` and
