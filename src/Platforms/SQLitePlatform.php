@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\OptionallyNamedObject;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
@@ -29,6 +30,9 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Override;
 
+use function array_any;
+use function array_filter;
+use function array_map;
 use function array_merge;
 use function array_values;
 use function assert;
@@ -36,6 +40,7 @@ use function count;
 use function implode;
 use function sprintf;
 use function str_replace;
+use function str_starts_with;
 use function strtolower;
 
 /**
@@ -765,8 +770,18 @@ class SQLitePlatform extends AbstractPlatform
     private function getIndexesForAlteredTable(TableDiff $diff): array
     {
         $oldTable = $diff->getOldTable();
-        $indexes  = new UnqualifiedNamedObjectSet(...$oldTable->getIndexes());
-        $nameMap  = $this->getDiffColumnNameMap($diff);
+
+        // Exclude SQLite's own indexes starting with the sqlite_ prefix. They are returned as a result of introspection
+        // but do not need to and cannot be explicitly created.
+        $indexes = new UnqualifiedNamedObjectSet(...array_filter(
+            $oldTable->getIndexes(),
+            static fn (Index $index): bool => ! str_starts_with(
+                strtolower($index->getObjectName()->getIdentifier()->getValue()),
+                'sqlite_',
+            ),
+        ));
+
+        $nameMap = $this->getDiffColumnNameMap($diff);
 
         $alreadyDropped = [];
 
@@ -830,13 +845,49 @@ class SQLitePlatform extends AbstractPlatform
     /** @return array<ForeignKeyConstraint> */
     private function getForeignKeysForAlteredTable(TableDiff $diff): array
     {
-        $oldTable       = $diff->getOldTable();
-        $foreignKeys    = $oldTable->getForeignKeys();
-        $nameMap        = $this->getDiffColumnNameMap($diff);
+        return $this->getConstraintsForAlteredTable(
+            $diff->getOldTable()->getForeignKeys(),
+            $this->getDiffColumnNameMap($diff),
+            $diff->getDroppedForeignKeyConstraintNames(),
+            $diff->getAddedForeignKeys(),
+            static fn (ForeignKeyConstraint $constraint): array => $constraint->getReferencingColumnNames(),
+            static fn (ForeignKeyConstraint $constraint, array $columnNames): ForeignKeyConstraint => $constraint
+                ->edit()
+                ->setUnquotedReferencingColumnNames(...$columnNames)
+                ->create(),
+        );
+    }
+
+    /**
+     * Returns the constraints to declare on the altered table.
+     *
+     * @param array<T>                                         $constraints
+     * @param array<non-empty-string, non-empty-string>        $nameMap
+     * @param array<UnqualifiedName>                           $droppedNames
+     * @param array<T>                                         $addedConstraints
+     * @param callable(T): non-empty-list<UnqualifiedName>     $getColumnNames   Returns the names of the altered
+     *                                                                           table's columns that the given
+     *                                                                           constraint references.
+     * @param callable(T, non-empty-list<non-empty-string>): T $withColumnNames  Returns the given constraint with the
+     *                                                                           names of those columns replaced with
+     *                                                                           the given ones.
+     *
+     * @return array<T>
+     *
+     * @template T of OptionallyNamedObject<UnqualifiedName>
+     */
+    private function getConstraintsForAlteredTable(
+        array $constraints,
+        array $nameMap,
+        array $droppedNames,
+        array $addedConstraints,
+        callable $getColumnNames,
+        callable $withColumnNames,
+    ): array {
         $keysByName     = [];
         $alreadyDropped = [];
 
-        foreach ($foreignKeys as $key => $constraint) {
+        foreach ($constraints as $key => $constraint) {
             $constraintName = $constraint->getObjectName();
 
             if ($constraintName !== null) {
@@ -845,41 +896,34 @@ class SQLitePlatform extends AbstractPlatform
                 $constraintKey = null;
             }
 
-            $changed = false;
+            $columnNames = $getColumnNames($constraint);
 
-            $referencingColumnNames = [];
-            foreach ($constraint->getReferencingColumnNames() as $columnName) {
-                $originalColumnName   = $columnName->getIdentifier()->getValue();
-                $normalizedColumnName = $this->getKey($columnName);
-                if (! isset($nameMap[$normalizedColumnName])) {
-                    unset($foreignKeys[$key]);
+            if (
+                array_any(
+                    $columnNames,
+                    static fn ($columnName) => ! isset($nameMap[$columnName->getIdentifier()->getValue()]),
+                )
+            ) {
+                unset($constraints[$key]);
 
-                    if ($constraintKey !== null) {
-                        $alreadyDropped[$constraintKey] = true;
-                    }
-
-                    continue 2;
+                if ($constraintKey !== null) {
+                    $alreadyDropped[$constraintKey] = true;
                 }
 
-                $referencingColumnNames[] = $nameMap[$normalizedColumnName];
-
-                if ($originalColumnName !== $nameMap[$normalizedColumnName]) {
-                    $changed = true;
-                }
+                continue;
             }
 
             if ($constraintKey !== null) {
                 $keysByName[$constraintKey] = $key;
             }
 
-            if ($changed) {
-                $foreignKeys[$key] = $constraint->edit()
-                    ->setUnquotedReferencingColumnNames(...$referencingColumnNames)
-                    ->create();
-            }
+            $constraints[$key] = $withColumnNames($constraint, array_map(
+                static fn (UnqualifiedName $columnName) => $nameMap[$columnName->getIdentifier()->getValue()],
+                $columnNames,
+            ));
         }
 
-        foreach ($diff->getDroppedForeignKeyConstraintNames() as $constraintName) {
+        foreach ($droppedNames as $constraintName) {
             $constraintKey = $this->getKey($constraintName);
 
             if (isset($alreadyDropped[$constraintKey])) {
@@ -887,25 +931,25 @@ class SQLitePlatform extends AbstractPlatform
             }
 
             assert(isset($keysByName[$constraintKey]));
-            unset($foreignKeys[$keysByName[$constraintKey]], $keysByName[$constraintKey]);
+            unset($constraints[$keysByName[$constraintKey]], $keysByName[$constraintKey]);
         }
 
-        foreach ($diff->getAddedForeignKeys() as $constraint) {
+        foreach ($addedConstraints as $constraint) {
             $constraintName = $constraint->getObjectName();
 
             if ($constraintName !== null) {
                 $constraintKey = $this->getKey($constraintName);
 
                 assert(! isset($keysByName[$constraintKey]));
-                $foreignKeys[] = $constraint;
+                $constraints[] = $constraint;
 
-                $keysByName[$constraintKey] = count($foreignKeys) - 1;
+                $keysByName[$constraintKey] = count($constraints) - 1;
             } else {
-                $foreignKeys[] = $constraint;
+                $constraints[] = $constraint;
             }
         }
 
-        return $foreignKeys;
+        return $constraints;
     }
 
     private function getPrimaryKeyConstraintForAlteredTable(TableDiff $diff, Table $oldTable): ?PrimaryKeyConstraint
