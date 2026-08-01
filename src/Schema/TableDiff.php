@@ -29,6 +29,8 @@ final readonly class TableDiff
      * @param list<IndexRename>           $indexRenames
      * @param array<ForeignKeyConstraint> $addedForeignKeys
      * @param array<UnqualifiedName>      $droppedForeignKeyConstraintNames
+     * @param array<UniqueConstraint>     $addedUniqueConstraints
+     * @param array<UnqualifiedName>      $droppedUniqueConstraintNames
      */
     public function __construct(
         private Table $oldTable,
@@ -42,6 +44,8 @@ final readonly class TableDiff
         private array $droppedForeignKeyConstraintNames = [],
         private ?PrimaryKeyConstraint $addedPrimaryKeyConstraint = null,
         private ?PrimaryKeyConstraint $droppedPrimaryKeyConstraint = null,
+        private array $addedUniqueConstraints = [],
+        private array $droppedUniqueConstraintNames = [],
     ) {
     }
 
@@ -158,6 +162,18 @@ final readonly class TableDiff
         return $this->droppedPrimaryKeyConstraint;
     }
 
+    /** @return array<UniqueConstraint> */
+    public function getAddedUniqueConstraints(): array
+    {
+        return $this->addedUniqueConstraints;
+    }
+
+    /** @return array<UnqualifiedName> */
+    public function getDroppedUniqueConstraintNames(): array
+    {
+        return $this->droppedUniqueConstraintNames;
+    }
+
     /**
      * Returns whether the diff is empty (contains no changes).
      */
@@ -172,6 +188,8 @@ final readonly class TableDiff
             && count($this->addedForeignKeys) === 0
             && count($this->droppedForeignKeyConstraintNames) === 0
             && $this->addedPrimaryKeyConstraint === null
-            && $this->droppedPrimaryKeyConstraint === null;
+            && $this->droppedPrimaryKeyConstraint === null
+            && count($this->addedUniqueConstraints) === 0
+            && count($this->droppedUniqueConstraintNames) === 0;
     }
 }

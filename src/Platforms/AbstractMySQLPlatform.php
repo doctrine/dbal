@@ -330,6 +330,10 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
         }
 
+        foreach ($diff->getDroppedUniqueConstraintNames() as $constraintName) {
+            $sql[] = $this->getDropUniqueConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
+
         $queryParts = [];
 
         foreach ($diff->getAddedColumns() as $column) {
@@ -382,6 +386,10 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         foreach ($diff->getAddedForeignKeys() as $addedForeignKeyConstraint) {
             $sql[] = $this->getCreateForeignKeySQL($addedForeignKeyConstraint, $tableNameSQL);
+        }
+
+        foreach ($diff->getAddedUniqueConstraints() as $uniqueConstraint) {
+            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $tableNameSQL);
         }
 
         return $sql;

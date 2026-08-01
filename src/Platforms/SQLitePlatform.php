@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -641,8 +642,9 @@ class SQLitePlatform extends AbstractPlatform
         $newTable = Table::editor()
             ->setName($table->getObjectName())
             ->setColumns(...array_values($columns))
-            ->setForeignKeyConstraints(...$this->getForeignKeysForAlteredTable($diff))
             ->setPrimaryKeyConstraint($this->getPrimaryKeyConstraintForAlteredTable($diff, $table))
+            ->setUniqueConstraints(...$this->getUniqueConstraintsForAlteredTable($diff))
+            ->setForeignKeyConstraints(...$this->getForeignKeysForAlteredTable($diff))
             ->setOptions(
                 array_merge($table->getOptions(), ['alter' => true]),
             )
@@ -684,10 +686,12 @@ class SQLitePlatform extends AbstractPlatform
             || count($diff->getAddedIndexes()) > 0
             || count($diff->getDroppedIndexes()) > 0
             || count($diff->getIndexRenames()) > 0
-            || count($diff->getAddedForeignKeys()) > 0
-            || count($diff->getDroppedForeignKeyConstraintNames()) > 0
+            || count($diff->getDroppedUniqueConstraintNames()) > 0
+            || count($diff->getAddedUniqueConstraints()) > 0
             || $diff->getDroppedPrimaryKeyConstraint() !== null
             || $diff->getAddedPrimaryKeyConstraint() !== null
+            || count($diff->getDroppedForeignKeyConstraintNames()) > 0
+            || count($diff->getAddedForeignKeys()) > 0
         ) {
             return false;
         }
@@ -854,6 +858,22 @@ class SQLitePlatform extends AbstractPlatform
             static fn (ForeignKeyConstraint $constraint, array $columnNames): ForeignKeyConstraint => $constraint
                 ->edit()
                 ->setUnquotedReferencingColumnNames(...$columnNames)
+                ->create(),
+        );
+    }
+
+    /** @return array<UniqueConstraint> */
+    private function getUniqueConstraintsForAlteredTable(TableDiff $diff): array
+    {
+        return $this->getConstraintsForAlteredTable(
+            $diff->getOldTable()->getUniqueConstraints(),
+            $this->getDiffColumnNameMap($diff),
+            $diff->getDroppedUniqueConstraintNames(),
+            $diff->getAddedUniqueConstraints(),
+            static fn (UniqueConstraint $constraint): array => $constraint->getColumnNames(),
+            static fn (UniqueConstraint $constraint, array $columnNames): UniqueConstraint => $constraint
+                ->edit()
+                ->setUnquotedColumnNames(...$columnNames)
                 ->create(),
         );
     }

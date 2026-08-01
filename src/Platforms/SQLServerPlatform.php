@@ -329,6 +329,10 @@ class SQLServerPlatform extends AbstractPlatform
             $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
         }
 
+        foreach ($diff->getDroppedUniqueConstraintNames() as $constraintName) {
+            $sql[] = $this->getDropUniqueConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
+
         foreach ($diff->getDroppedIndexes() as $index) {
             $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
         }
@@ -460,6 +464,10 @@ class SQLServerPlatform extends AbstractPlatform
 
         foreach ($diff->getAddedForeignKeys() as $foreignKey) {
             $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
+        }
+
+        foreach ($diff->getAddedUniqueConstraints() as $uniqueConstraint) {
+            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $tableNameSQL);
         }
 
         foreach ($diff->getAddedIndexes() as $index) {
