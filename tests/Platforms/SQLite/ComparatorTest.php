@@ -15,7 +15,13 @@ class ComparatorTest extends AbstractComparatorTestCase
     #[Override]
     protected function createComparator(ComparatorConfig $config): Comparator
     {
-        return new Comparator(new SQLitePlatform(), $config);
+        $platform = new SQLitePlatform();
+
+        return new Comparator(
+            $platform,
+            $platform->createDerivedObjectProvider(),
+            $config,
+        );
     }
 
     public function testCompareChangedBinaryColumn(): void

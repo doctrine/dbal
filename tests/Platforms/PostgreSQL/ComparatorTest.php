@@ -15,6 +15,12 @@ class ComparatorTest extends AbstractComparatorTestCase
     #[Override]
     protected function createComparator(ComparatorConfig $config): Comparator
     {
-        return new Comparator(new PostgreSQLPlatform(), $config);
+        $platform = new PostgreSQLPlatform();
+
+        return new Comparator(
+            $platform,
+            $platform->createDerivedObjectProvider(),
+            $config,
+        );
     }
 }

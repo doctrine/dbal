@@ -29,8 +29,11 @@ class MariaDBJsonComparatorTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
+        $platform = new MariaDBPlatform();
+
         $this->comparator = new Comparator(
-            new MariaDBPlatform(),
+            $platform,
+            $platform->createDerivedObjectProvider(),
             new class implements CharsetMetadataProvider {
                 #[Override]
                 public function getDefaultCharsetCollation(string $charset): ?string

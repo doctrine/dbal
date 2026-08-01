@@ -58,7 +58,11 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     protected function createComparator(): Comparator
     {
-        return new Comparator($this->platform, new ComparatorConfig());
+        return new Comparator(
+            $this->platform,
+            $this->platform->createDerivedObjectProvider(),
+            new ComparatorConfig(),
+        );
     }
 
     /** @return list<array{string, string}> */

@@ -18,8 +18,11 @@ class ComparatorTest extends AbstractComparatorTestCase
     #[Override]
     protected function createComparator(ComparatorConfig $config): Comparator
     {
+        $platform = new MySQLPlatform();
+
         return new Comparator(
-            new MySQLPlatform(),
+            $platform,
+            $platform->createDerivedObjectProvider(),
             self::createStub(CharsetMetadataProvider::class),
             self::createStub(CollationMetadataProvider::class),
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),

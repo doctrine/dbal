@@ -35,7 +35,11 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     #[Override]
     protected function createComparator(): Comparator
     {
-        return new SQLite\Comparator($this->platform, new ComparatorConfig());
+        return new SQLite\Comparator(
+            $this->platform,
+            $this->platform->createDerivedObjectProvider(),
+            new ComparatorConfig(),
+        );
     }
 
     #[Override]

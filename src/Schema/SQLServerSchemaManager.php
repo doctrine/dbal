@@ -27,6 +27,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     {
         return new SQLServer\Comparator(
             $this->platform,
+            $this->platform->createDerivedObjectProvider(),
             $this->getDatabaseCollation(),
             $config,
         );

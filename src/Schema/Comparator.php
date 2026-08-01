@@ -19,6 +19,7 @@ class Comparator
     /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(
         private readonly AbstractPlatform $platform,
+        private readonly DerivedObjectProvider $derivedObjectProvider,
         private readonly ComparatorConfig $config = new ComparatorConfig(),
     ) {
     }
@@ -212,9 +213,13 @@ class Comparator
             $addedPrimaryKeyConstraint   = $newPrimaryKeyConstraint;
         }
 
+        $folding = $this->platform->getUnquotedIdentifierFolding();
+
+        $derivedFromNewTable = $this->derivedObjectProvider->getDerivedObjects($newTable);
+        $derivedFromOldTable = $this->derivedObjectProvider->getDerivedObjects($oldTable);
+
         $oldIndexes = $oldTable->getIndexes();
         $newIndexes = $newTable->getIndexes();
-        $folding    = $this->platform->getUnquotedIdentifierFolding();
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndex) {
@@ -230,6 +235,15 @@ class Comparator
             $oldIndexName = $oldIndex->getObjectName();
 
             if (! $newTable->hasIndex($oldIndexName->toString())) {
+                $matchesIndex = static fn (DerivedObject $d): bool => $d->matchesIndex($oldIndex, $folding);
+
+                if (
+                    $this->consumeDerivedObject($derivedFromNewTable, $matchesIndex)
+                    || $this->consumeDerivedObject($derivedFromOldTable, $matchesIndex)
+                ) {
+                    continue;
+                }
+
                 $droppedIndexes[] = $oldIndex;
 
                 continue;
@@ -364,6 +378,27 @@ class Comparator
         }
 
         return $oldPrimaryKeyConstraint === null && $newPrimaryKeyConstraint === null;
+    }
+
+    /**
+     * Removes the first derived object the predicate matches and reports whether there was one.
+     *
+     * @param array<DerivedObject>          $derivedObjects
+     * @param callable(DerivedObject): bool $matches
+     */
+    private function consumeDerivedObject(array &$derivedObjects, callable $matches): bool
+    {
+        foreach ($derivedObjects as $key => $derivedObject) {
+            if (! $matches($derivedObject)) {
+                continue;
+            }
+
+            unset($derivedObjects[$key]);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -952,7 +952,7 @@ abstract class AbstractSchemaManager
 
     public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
-        return new Comparator($this->platform, $config);
+        return new Comparator($this->platform, $this->platform->createDerivedObjectProvider(), $config);
     }
 
     protected function parseUnqualifiedName(string $name): UnqualifiedName

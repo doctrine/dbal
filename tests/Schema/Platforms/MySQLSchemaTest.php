@@ -98,8 +98,11 @@ class MySQLSchemaTest extends TestCase
 
     private function createComparator(): Comparator
     {
+        $platform = new MySQLPlatform();
+
         return new MySQL\Comparator(
-            new MySQLPlatform(),
+            $platform,
+            $platform->createDerivedObjectProvider(),
             self::createStub(CharsetMetadataProvider::class),
             self::createStub(CollationMetadataProvider::class),
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),

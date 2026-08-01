@@ -15,6 +15,13 @@ class ComparatorTest extends AbstractComparatorTestCase
     #[Override]
     protected function createComparator(ComparatorConfig $config): Comparator
     {
-        return new Comparator(new SQLServerPlatform(), '', $config);
+        $platform = new SQLServerPlatform();
+
+        return new Comparator(
+            $platform,
+            $platform->createDerivedObjectProvider(),
+            '',
+            $config,
+        );
     }
 }

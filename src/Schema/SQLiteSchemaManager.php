@@ -45,6 +45,6 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     #[Override]
     public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
-        return new SQLite\Comparator($this->platform, $config);
+        return new SQLite\Comparator($this->platform, $this->platform->createDerivedObjectProvider(), $config);
     }
 }

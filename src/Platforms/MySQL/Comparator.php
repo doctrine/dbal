@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
+use Doctrine\DBAL\Schema\DerivedObjectProvider;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Override;
@@ -26,12 +27,13 @@ class Comparator extends BaseComparator
     /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(
         AbstractMySQLPlatform $platform,
+        DerivedObjectProvider $derivedObjectProvider,
         private readonly CharsetMetadataProvider $charsetMetadataProvider,
         private readonly CollationMetadataProvider $collationMetadataProvider,
         private readonly DefaultTableOptions $defaultTableOptions,
         ComparatorConfig $config = new ComparatorConfig(),
     ) {
-        parent::__construct($platform, $config);
+        parent::__construct($platform, $derivedObjectProvider, $config);
     }
 
     #[Override]

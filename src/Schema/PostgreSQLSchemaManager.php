@@ -21,7 +21,7 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
     #[Override]
     public function createComparator(ComparatorConfig $config = new ComparatorConfig()): Comparator
     {
-        return new PostgreSQL\Comparator($this->platform, $config);
+        return new PostgreSQL\Comparator($this->platform, $this->platform->createDerivedObjectProvider(), $config);
     }
 
     #[Override]

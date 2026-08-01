@@ -31,6 +31,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         return new MySQL\Comparator(
             $this->platform,
+            $this->platform->createDerivedObjectProvider(),
             new CachingCharsetMetadataProvider(
                 new ConnectionCharsetMetadataProvider($this->connection),
             ),

@@ -36,7 +36,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     #[Override]
     protected function createComparator(): Comparator
     {
-        return new SQLServer\Comparator($this->platform, '', new ComparatorConfig());
+        return new SQLServer\Comparator(
+            $this->platform,
+            $this->platform->createDerivedObjectProvider(),
+            '',
+            new ComparatorConfig(),
+        );
     }
 
     #[Override]

@@ -10,8 +10,6 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
-use Doctrine\DBAL\Schema\Comparator;
-use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -69,8 +67,7 @@ class ComparatorTest extends FunctionalTestCase
 
     public function testRenameColumnComparison(): void
     {
-        $platform   = $this->connection->getDatabasePlatform();
-        $comparator = new Comparator($platform, new ComparatorConfig());
+        $comparator = $this->schemaManager->createComparator();
 
         $onlineTable = Table::editor()
             ->setUnquotedName('rename_table')
