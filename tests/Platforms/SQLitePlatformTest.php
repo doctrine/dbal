@@ -350,9 +350,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
                 . ', FOREIGN KEY ("parent")'
                 . ' REFERENCES "user" ("id") DEFERRABLE INITIALLY DEFERRED'
                 . ')',
-            'CREATE INDEX "IDX_8D93D64923A0E66" ON "user" ("article")',
-            'CREATE INDEX "IDX_8D93D6495A8A6C8D" ON "user" ("post")',
-            'CREATE INDEX "IDX_8D93D6493D8E604F" ON "user" ("parent")',
         ];
 
         self::assertEquals($sql, $this->platform->getCreateTableSQL($table));
@@ -455,8 +452,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
                 . ')',
             'INSERT INTO "user" ("key", "article", "comment") SELECT "id", "article", "post" FROM "__temp__user"',
             'DROP TABLE "__temp__user"',
-            'CREATE INDEX "IDX_8D93D64923A0E66" ON "user" ("article")',
-            'CREATE INDEX "IDX_8D93D6495A8A6C8D" ON "user" ("comment")',
         ];
 
         self::assertEquals($sql, $this->platform->getAlterTableSQL($diff));
@@ -498,7 +493,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             'REFERENCES "foo" ("create", "bar", "foo-bar"), ' .
             'CONSTRAINT "FK_WITH_INTENDED_QUOTATION" FOREIGN KEY ("create", "foo", "bar") ' .
             'REFERENCES "foo-bar" ("create", "bar", "foo-bar"))',
-            'CREATE INDEX "IDX_22660D028FD6E0FB8C73652176FF8CAA" ON "quoted" ("create", "foo", "bar")',
         ];
     }
 

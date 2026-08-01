@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: No index is created for a foreign key constraint
+
+Declaring a foreign key constraint no longer adds an index over its referencing columns. MySQL and MariaDB create one
+themselves; on the other platforms, an application that wants such an index must declare it.
+
 ## BC BREAK: Added `AbstractPlatform::createDerivedObjectProvider()`
 
 `Doctrine\DBAL\Platforms\AbstractPlatform` now declares `createDerivedObjectProvider()`. Platforms extending it must

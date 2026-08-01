@@ -299,7 +299,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, '
             . '"foo" VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
-            'CREATE INDEX "idx_22660d028fd6e0fb8c73652176ff8caa" ON "quoted" ("create", "foo", "bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT "fk_with_reserved_keyword" FOREIGN KEY ("create", "foo", "bar")'
             . ' REFERENCES "foreign" ("create", "bar", "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT "fk_with_non_reserved_keyword" FOREIGN KEY ("create", "foo", "bar")'
@@ -560,7 +559,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
         $expectedSql = [
             'ALTER TABLE "mytable" DROP CONSTRAINT "fk_parent"',
-            'DROP INDEX "idx_6b2bd609727aca70"',
             'ALTER TABLE "mytable" DROP "parent_id"',
         ];
 

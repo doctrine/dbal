@@ -114,8 +114,8 @@ class ColumnRenameTest extends FunctionalTestCase
         $this->connection->createSchemaManager()->createTable($table);
 
         self::assertTrue($this->comparator->compareTables(
-            $table,
             $this->schemaManager->introspectTableByUnquotedName('rename_column'),
+            $table,
         )->isEmpty());
     }
 }
