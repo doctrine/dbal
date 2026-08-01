@@ -125,7 +125,6 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                               AND T.TABNAME = C.TABNAME
             WHERE %s
               AND T.TYPE = 'T'
-              AND I.UNIQUERULE != 'P'
             ORDER BY C.TABNAME,
                      C.COLNO
             SQL,

@@ -502,7 +502,7 @@ class AlterTableTest extends FunctionalTestCase
         $introspected = $schemaManager->introspectTable($desired->getObjectName());
 
         self::assertTrue(
-            $comparator->compareTables($desired, $introspected)->isEmpty(),
+            $comparator->compareTables($introspected, $desired)->isEmpty(),
         );
     }
 
@@ -591,16 +591,17 @@ class AlterTableTest extends FunctionalTestCase
         $newTable = $editor->create();
 
         $diff = $schemaManager->createComparator()
-            ->compareTables($oldTable, $newTable);
+            ->compareTables($schemaManager->introspectTable($oldTable->getObjectName()), $newTable);
 
         self::assertFalse($diff->isEmpty());
 
         $schemaManager->alterTable($diff);
 
-        $introspectedTable = $schemaManager->introspectTable($newTable->getObjectName());
-
         $diff = $schemaManager->createComparator()
-            ->compareTables($newTable, $introspectedTable);
+            ->compareTables(
+                $schemaManager->introspectTable($newTable->getObjectName()),
+                $newTable,
+            );
 
         self::assertTrue($diff->isEmpty());
     }

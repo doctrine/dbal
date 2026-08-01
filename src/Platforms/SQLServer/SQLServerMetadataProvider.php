@@ -328,7 +328,6 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                           ON idxcol.object_id = c.object_id
                               AND idxcol.column_id = c.column_id
             WHERE %s
-              AND i.is_primary_key = 0
             ORDER BY s.name,
                      t.name,
                      i.name,

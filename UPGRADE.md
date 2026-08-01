@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Introspection reports the indexes backing constraints
+
+`AbstractSchemaManager::introspectTableIndexes()` now returns the indexes the database created to enforce a table's
+primary key and unique constraints.
+
 ## BC BREAK: No index is created for a foreign key constraint
 
 Declaring a foreign key constraint no longer adds an index over its referencing columns. MySQL and MariaDB create one
@@ -17,11 +22,6 @@ themselves; on the other platforms, an application that wants such an index must
 
 `Comparator::compareTables()` now compares unique constraints, and raises
 `Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName` when one that has to be dropped carries no name.
-
-## BC BREAK: `MetadataProvider` requires unique constraint introspection
-
-`Doctrine\DBAL\Schema\Metadata\MetadataProvider` now declares `getUniqueConstraintColumnsForAllTables()` and
-`getUniqueConstraintColumnsForTable()`. Implementations must provide them.
 
 ## BC BREAK: Added `AbstractPlatform::createDerivedObjectProvider()`
 
@@ -302,10 +302,8 @@ The following conflicting index configurations are no longer allowed:
 
 ## BC BREAK: Changes in features related to primary key constraints
 
-1. The `Index` class can no longer represent a primary key constraint. As a result:
-    1. The `Table::getIndexes()` and `AbstractSchemaManager::listTableIndexes()` methods no longer return the index that  
-       backs the primary key constraint.
-    2. The index that backs the primary key constraint is no longer considered during implicit index management.
+1. The `Index` class can no longer represent a primary key constraint. The index that backs one is still reported as an
+   ordinary index by `Table::getIndexes()` and `AbstractSchemaManager::introspectTableIndexes()`.
 2. The `Table::getPrimaryKey()` and `Table::setPrimaryKey()` methods have been removed.
 3. The `Table::renameIndex()` method can no longer be used to rename a primary key constraint.
 4. The `AbstractPlatform::getCreatePrimaryKeySQL()` method has been removed.

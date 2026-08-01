@@ -323,7 +323,6 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                      JOIN pragma_index_list(t.name) i
                      JOIN pragma_index_info(i.name) c
             WHERE %s
-              AND i.name NOT LIKE 'sqlite_%%'
             ORDER BY t.name,
                      i.name,
                      c.seqno

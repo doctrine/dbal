@@ -11,6 +11,11 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -64,6 +69,103 @@ final class ComparatorTest extends FunctionalTestCase
         $table = $this->createLobTable($type, $length);
         $table = $this->setBlobLength($table, $length + 1);
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
+    }
+
+    /**
+     * A column indexed by a prefix of its value cannot serve a foreign key, so MySQL indexes the
+     * referencing columns itself even though the declared index leads with them.
+     *
+     * @link https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html
+     *
+     * @throws Exception
+     */
+    public function testForeignKeyIsIndexedDespiteAnIndexPrefixingItsLastColumn(): void
+    {
+        $table = $this->createTableWithAForeignKeyIndexedByAPrefix();
+
+        $introspected = $this->schemaManager->introspectTable($table->getObjectName());
+
+        self::assertIndexedColumnListEquals(
+            [
+                new IndexedColumn(UnqualifiedName::unquoted('parent_id'), null),
+                new IndexedColumn(UnqualifiedName::unquoted('parent_code'), null),
+            ],
+            $introspected->getIndex('prefix_fk')->getIndexedColumns(),
+        );
+    }
+
+    /** @throws Exception */
+    public function testTheIndexMySQLAddsForSuchAForeignKeyIsNoDifference(): void
+    {
+        $table = $this->createTableWithAForeignKeyIndexedByAPrefix();
+
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table,
+        )->isEmpty());
+    }
+
+    /** @throws Exception */
+    private function createTableWithAForeignKeyIndexedByAPrefix(): Table
+    {
+        $this->dropTableIfExists('prefix_child');
+        $this->dropTableIfExists('prefix_parent');
+
+        $this->schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('prefix_parent')
+                ->setColumns($this->intColumn('id'), $this->stringColumn('code'))
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id', 'code')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $table = Table::editor()
+            ->setUnquotedName('prefix_child')
+            ->setColumns($this->intColumn('parent_id'), $this->stringColumn('parent_code'))
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('prefix_idx')
+                    ->addUnquotedColumnName('parent_id')
+                    ->addUnquotedColumnName('parent_code', 10)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedName('prefix_fk')
+                    ->setUnquotedReferencingColumnNames('parent_id', 'parent_code')
+                    ->setUnquotedReferencedTableName('prefix_parent')
+                    ->setUnquotedReferencedColumnNames('id', 'code')
+                    ->create(),
+            )
+            ->create();
+
+        $this->schemaManager->createTable($table);
+
+        return $table;
+    }
+
+    /** @param non-empty-string $name */
+    private function intColumn(string $name): Column
+    {
+        return Column::editor()
+            ->setUnquotedName($name)
+            ->setTypeName(Types::INTEGER)
+            ->create();
+    }
+
+    /** @param non-empty-string $name */
+    private function stringColumn(string $name): Column
+    {
+        return Column::editor()
+            ->setUnquotedName($name)
+            ->setTypeName(Types::STRING)
+            ->setLength(64)
+            ->create();
     }
 
     /** @return iterable<array{string,int}> */

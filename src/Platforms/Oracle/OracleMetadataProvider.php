@@ -297,7 +297,6 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                      JOIN USER_IND_COLUMNS IC
                           ON IC.INDEX_NAME = I.INDEX_NAME
             WHERE %s
-              AND (C.CONSTRAINT_TYPE IS NULL OR C.CONSTRAINT_TYPE != 'P')
             ORDER BY I.TABLE_NAME,
                      I.INDEX_NAME,
                      IC.COLUMN_POSITION

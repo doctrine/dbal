@@ -383,7 +383,6 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                           ON a.attrelid = c.oid
                               AND a.attnum = keys.attnum
             WHERE %s
-              AND i.indisprimary = false
             ORDER BY n.nspname,
                      c.relname,
                      ic.relname,
