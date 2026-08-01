@@ -331,6 +331,57 @@ class AlterTableTest extends FunctionalTestCase
 
     public function testReplaceForeignKeyConstraint(): void
     {
+        $prototype = ForeignKeyConstraint::editor()
+            ->setUnquotedName('articles_fk')
+            ->setUnquotedReferencedTableName('articles');
+
+        $old = $prototype
+            ->setUnquotedReferencingColumnNames('article_id')
+            ->setUnquotedReferencedColumnNames('id')
+            ->create();
+
+        $new = $prototype
+            ->setUnquotedReferencingColumnNames('article_sku')
+            ->setUnquotedReferencedColumnNames('sku')
+            ->create();
+
+        $this->assertForeignKeyConstraintModification($old, static function (TableEditor $editor) use ($new): void {
+            $editor
+                ->dropForeignKeyConstraintByUnquotedName('articles_fk')
+                ->addForeignKeyConstraint($new);
+        });
+    }
+
+    public function testRenameForeignKeyConstraint(): void
+    {
+        $prototype = ForeignKeyConstraint::editor()
+            ->setUnquotedReferencingColumnNames('article_id')
+            ->setUnquotedReferencedTableName('articles')
+            ->setUnquotedReferencedColumnNames('id');
+
+        $old = $prototype
+            ->setUnquotedName('articles_fk')
+            ->create();
+
+        $new = $prototype
+            ->setUnquotedName('new_fk')
+            ->create();
+
+        $this->assertForeignKeyConstraintModification($old, static function (TableEditor $editor) use ($new): void {
+            $editor
+                ->dropForeignKeyConstraintByUnquotedName('articles_fk')
+                ->addForeignKeyConstraint($new);
+        });
+    }
+
+    /**
+     * Creates a table with the given foreign key, applies the modification and asserts the altered
+     * table introspects back to the desired state.
+     *
+     * @param callable(TableEditor): void $modify
+     */
+    private function assertForeignKeyConstraintModification(ForeignKeyConstraint $old, callable $modify): void
+    {
         $articles = Table::editor()
             ->setUnquotedName('articles')
             ->setColumns(
@@ -371,14 +422,7 @@ class AlterTableTest extends FunctionalTestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedName('articles_fk')
-                    ->setUnquotedReferencingColumnNames('article_id')
-                    ->setUnquotedReferencedTableName('articles')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
+            ->setForeignKeyConstraints($old)
             ->create();
 
         $this->dropTableIfExists('orders');
@@ -387,18 +431,7 @@ class AlterTableTest extends FunctionalTestCase
         $this->connection->createSchemaManager()
             ->createTable($articles);
 
-        $this->testMigration($orders, static function (TableEditor $editor): void {
-            $editor
-                ->dropForeignKeyConstraintByUnquotedName('articles_fk')
-                ->addForeignKeyConstraint(
-                    ForeignKeyConstraint::editor()
-                        ->setUnquotedName('articles_fk')
-                        ->setUnquotedReferencingColumnNames('article_sku')
-                        ->setUnquotedReferencedTableName('articles')
-                        ->setUnquotedReferencedColumnNames('sku')
-                        ->create(),
-                );
-        });
+        $this->testMigration($orders, $modify);
     }
 
     public function testDropColumnCoveredByForeignKey(): void

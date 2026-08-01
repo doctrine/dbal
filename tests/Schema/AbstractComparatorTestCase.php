@@ -606,9 +606,36 @@ abstract class AbstractComparatorTestCase extends TestCase
         );
     }
 
-    public function testCompareForeignKeyBasedOnPropertiesNotName(): void
+    public function testRenamedForeignKeyIsDroppedAndAddedBack(): void
     {
-        $tableA = Table::editor()
+        $tableDiff = $this->comparator->compareTables(
+            $this->tableWithForeignKeyNamed(UnqualifiedName::unquoted('foo_constraint')),
+            $this->tableWithForeignKeyNamed(UnqualifiedName::unquoted('bar_constraint')),
+        );
+
+        self::assertCount(1, $tableDiff->getDroppedForeignKeyConstraintNames());
+        self::assertCount(1, $tableDiff->getAddedForeignKeys());
+    }
+
+    public function testUnnamedForeignKeyMatchesANamedOne(): void
+    {
+        $tableDiff = $this->comparator->compareTables(
+            $this->tableWithForeignKeyNamed(UnqualifiedName::unquoted('foo_constraint')),
+            $this->tableWithForeignKeyNamed(null),
+        );
+
+        self::assertTrue($tableDiff->isEmpty());
+    }
+
+    private function tableWithForeignKeyNamed(?UnqualifiedName $name): Table
+    {
+        $editor = ForeignKeyConstraint::editor()
+            ->setName($name)
+            ->setUnquotedReferencingColumnNames('id')
+            ->setUnquotedReferencedTableName('bar')
+            ->setUnquotedReferencedColumnNames('id');
+
+        return Table::editor()
             ->setUnquotedName('foo')
             ->setColumns(
                 Column::editor()
@@ -616,38 +643,8 @@ abstract class AbstractComparatorTestCase extends TestCase
                     ->setTypeName(Types::INTEGER)
                     ->create(),
             )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedName('foo_constraint')
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('bar')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
+            ->setForeignKeyConstraints($editor->create())
             ->create();
-
-        $tableB = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('ID')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedName('bar_constraint')
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('bar')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertEquals(
-            new TableDiff($tableA),
-            $this->comparator->compareTables($tableA, $tableB),
-        );
     }
 
     public function testDetectRenameColumn(): void

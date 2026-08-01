@@ -152,6 +152,10 @@ final readonly class ForeignKeyConstraint implements OptionallyNamedObject
             return false;
         }
 
+        if ($this->name !== null && $other->name !== null && ! $this->name->equals($other->name, $folding)) {
+            return false;
+        }
+
         if (! $this->columnsNamesEqual($this->referencingColumnNames, $other->referencingColumnNames, $folding)) {
             return false;
         }
