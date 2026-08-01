@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Added `AbstractPlatform::createDerivedObjectProvider()`
+
+`Doctrine\DBAL\Platforms\AbstractPlatform` now declares `createDerivedObjectProvider()`. Platforms extending it must
+implement the method.
+
 ## BC BREAK: Foreign key constraints are compared by name
 
 `Comparator::compareTables()` compares the names of foreign key constraints, so one whose name differs is reported as

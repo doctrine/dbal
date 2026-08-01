@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\Oracle\OracleDerivedObjectProvider;
 use Doctrine\DBAL\Platforms\Oracle\OracleMetadataProvider;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
@@ -790,6 +791,12 @@ SQL,
     public function createMetadataProvider(Connection $connection): OracleMetadataProvider
     {
         return new OracleMetadataProvider($connection, $this);
+    }
+
+    #[Override]
+    public function createDerivedObjectProvider(): OracleDerivedObjectProvider
+    {
+        return new OracleDerivedObjectProvider();
     }
 
     #[Override]

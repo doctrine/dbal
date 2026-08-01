@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
+use Doctrine\DBAL\Platforms\MySQL\MySQLDerivedObjectProvider;
 use Doctrine\DBAL\Platforms\MySQL\MySQLMetadataProvider;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
@@ -635,6 +636,12 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function createMetadataProvider(Connection $connection): MySQLMetadataProvider
     {
         return new MySQLMetadataProvider($connection, $this);
+    }
+
+    #[Override]
+    public function createDerivedObjectProvider(): MySQLDerivedObjectProvider
+    {
+        return new MySQLDerivedObjectProvider($this->getUnquotedIdentifierFolding());
     }
 
     #[Override]

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\Db2\Db2DerivedObjectProvider;
 use Doctrine\DBAL\Platforms\Db2\Db2MetadataProvider;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -581,6 +582,12 @@ class DB2Platform extends AbstractPlatform
     public function createMetadataProvider(Connection $connection): Db2MetadataProvider
     {
         return new Db2MetadataProvider($connection, $this);
+    }
+
+    #[Override]
+    public function createDerivedObjectProvider(): Db2DerivedObjectProvider
+    {
+        return new Db2DerivedObjectProvider();
     }
 
     #[Override]

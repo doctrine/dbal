@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Exception\UnsupportedTableDefinition;
+use Doctrine\DBAL\Platforms\SQLite\SQLiteDerivedObjectProvider;
 use Doctrine\DBAL\Platforms\SQLite\SQLiteMetadataProvider;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Column;
@@ -957,6 +958,12 @@ class SQLitePlatform extends AbstractPlatform
     public function createMetadataProvider(Connection $connection): SQLiteMetadataProvider
     {
         return new SQLiteMetadataProvider($connection, $this);
+    }
+
+    #[Override]
+    public function createDerivedObjectProvider(): SQLiteDerivedObjectProvider
+    {
+        return new SQLiteDerivedObjectProvider();
     }
 
     #[Override]

@@ -20,6 +20,7 @@ use Doctrine\DBAL\Platforms\Exception\UnsupportedPrimaryKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\DefaultExpression;
+use Doctrine\DBAL\Schema\DerivedObjectProvider;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -2198,6 +2199,14 @@ abstract class AbstractPlatform
      * @throws Exception
      */
     abstract public function createMetadataProvider(Connection $connection): MetadataProvider;
+
+    /**
+     * Creates a provider of the schema objects this platform derives from the ones a table declares.
+     *
+     * A caller holding a desired table can ask what the database will add to it: the indexes and
+     * constraints the table will have without having declared them.
+     */
+    abstract public function createDerivedObjectProvider(): DerivedObjectProvider;
 
     /**
      * Creates the schema manager that can be used to inspect and change the underlying

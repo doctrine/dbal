@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\PostgreSQL\PostgreSQLDerivedObjectProvider;
 use Doctrine\DBAL\Platforms\PostgreSQL\PostgreSQLMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
@@ -770,6 +771,12 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function createMetadataProvider(Connection $connection): PostgreSQLMetadataProvider
     {
         return new PostgreSQLMetadataProvider($connection, $this);
+    }
+
+    #[Override]
+    public function createDerivedObjectProvider(): PostgreSQLDerivedObjectProvider
+    {
+        return new PostgreSQLDerivedObjectProvider();
     }
 
     #[Override]
