@@ -636,8 +636,8 @@ class SQLitePlatform extends AbstractPlatform
         $newTable = Table::editor()
             ->setName($table->getObjectName())
             ->setColumns(...array_values($columns))
-            ->setForeignKeyConstraints(...$this->getForeignKeysInAlteredTable($diff))
-            ->setPrimaryKeyConstraint($this->getPrimaryKeyConstraintInAlteredTable($diff, $table))
+            ->setForeignKeyConstraints(...$this->getForeignKeysForAlteredTable($diff))
+            ->setPrimaryKeyConstraint($this->getPrimaryKeyConstraintForAlteredTable($diff, $table))
             ->setOptions(
                 array_merge($table->getOptions(), ['alter' => true]),
             )
@@ -663,7 +663,7 @@ class SQLitePlatform extends AbstractPlatform
         );
         $sql[] = $this->getDropTableSQL($dataTableName->toSQL($this));
 
-        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
+        foreach ($this->getIndexesForAlteredTable($diff) as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
@@ -762,7 +762,7 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return array<Index> */
-    private function getIndexesInAlteredTable(TableDiff $diff): array
+    private function getIndexesForAlteredTable(TableDiff $diff): array
     {
         $oldTable = $diff->getOldTable();
         $indexes  = new UnqualifiedNamedObjectSet(...$oldTable->getIndexes());
@@ -828,7 +828,7 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return array<ForeignKeyConstraint> */
-    private function getForeignKeysInAlteredTable(TableDiff $diff): array
+    private function getForeignKeysForAlteredTable(TableDiff $diff): array
     {
         $oldTable       = $diff->getOldTable();
         $foreignKeys    = $oldTable->getForeignKeys();
@@ -908,7 +908,7 @@ class SQLitePlatform extends AbstractPlatform
         return $foreignKeys;
     }
 
-    private function getPrimaryKeyConstraintInAlteredTable(TableDiff $diff, Table $oldTable): ?PrimaryKeyConstraint
+    private function getPrimaryKeyConstraintForAlteredTable(TableDiff $diff, Table $oldTable): ?PrimaryKeyConstraint
     {
         $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
 
