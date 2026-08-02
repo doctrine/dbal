@@ -517,7 +517,7 @@ class SQLitePlatform extends AbstractPlatform
 
         $sql = [];
 
-        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
+        foreach ($this->getIndexesForAlteredTable($diff) as $index) {
             if (! $index->isPrimary()) {
                 $sql[] = $this->getCreateIndexSQL($index, $table->getQuotedName($this));
             }
@@ -685,9 +685,9 @@ class SQLitePlatform extends AbstractPlatform
         $newTable = new Table(
             $table->getQuotedName($this),
             $columns,
-            $this->getPrimaryIndexInAlteredTable($diff),
+            $this->getPrimaryIndexForAlteredTable($diff),
             [],
-            $this->getForeignKeysInAlteredTable($diff),
+            $this->getForeignKeysForAlteredTable($diff),
             $table->getOptions(),
         );
 
@@ -825,7 +825,7 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return array<Index> */
-    private function getIndexesInAlteredTable(TableDiff $diff): array
+    private function getIndexesForAlteredTable(TableDiff $diff): array
     {
         $oldTable = $diff->getOldTable();
         $indexes  = $oldTable->getIndexes();
@@ -895,7 +895,7 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return array<ForeignKeyConstraint> */
-    private function getForeignKeysInAlteredTable(TableDiff $diff): array
+    private function getForeignKeysForAlteredTable(TableDiff $diff): array
     {
         $oldTable    = $diff->getOldTable();
         $foreignKeys = $oldTable->getForeignKeys();
@@ -952,11 +952,11 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return array<string, Index> */
-    private function getPrimaryIndexInAlteredTable(TableDiff $diff): array
+    private function getPrimaryIndexForAlteredTable(TableDiff $diff): array
     {
         $primaryIndex = [];
 
-        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
+        foreach ($this->getIndexesForAlteredTable($diff) as $index) {
             if ($index->isPrimary()) {
                 $primaryIndex = [$index->getName() => $index];
             }
