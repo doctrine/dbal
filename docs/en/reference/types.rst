@@ -327,6 +327,33 @@ The immutable variant of the ``datetime`` type.
 Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
 object or ``null`` if no data is present.
 
+.. _datetime_utc:
+datetime_utc
+^^^^^^^^^^^^
+
+Behaves like the ``datetime`` type, but normalizes the timezone on the way in and out of the
+database. Before a value is persisted, it is converted to the UTC timezone, so that no timezone
+information needs to be stored in the database. When a value is read back, it is always interpreted
+as being in the UTC timezone, regardless of the default timezone configured for PHP.
+
+This lets you work with ``\DateTime`` instances in arbitrary timezones in your domain while keeping
+the persisted representation unambiguous. The value passed to this type is not mutated; a copy is
+converted to UTC for storage. Values retrieved from the database are always converted to PHP's
+``\DateTime`` object (in the UTC timezone) or ``null`` if no data is present.
+
+.. warning::
+
+    Passing instances of ``DateTimeImmutable`` to this type is not supported. Use
+    :ref:`datetime_utc_immutable` instead.
+
+.. _datetime_utc_immutable:
+datetime_utc_immutable
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The immutable variant of the ``datetime_utc`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object (in the UTC timezone) or ``null`` if no data is present.
+
 datetimetz
 ^^^^^^^^^^
 
@@ -395,8 +422,10 @@ or ``null`` if no data is present.
     set by `date_default_timezone_set() <http://docs.php.net/manual/en/function.date-default-timezone-set.php>`_
     or by the php.ini configuration ``date.timezone``.
 
-    If you need specific timezone handling you have to handle this
-    in your domain, converting all the values back and forth from UTC.
+    If you need specific timezone handling you can either handle this
+    in your domain, converting all the values back and forth from UTC,
+    or use the :ref:`datetime_utc <datetime_utc>` / :ref:`datetime_utc_immutable`
+    types, which store and retrieve the values in the UTC timezone for you.
 
 Array types
 ~~~~~~~~~~~
@@ -673,8 +702,8 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |                    +--------------------------+---------+                                                          |
     |                   |                    | **SQL Server**           | "all"   |                                                          |
     +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
-    | **datetime**      | ``\DateTime``      | **MySQL**                | *all*   | ``DATETIME`` [13]                                        |
-    |                   |                    +--------------------------+---------+----------------------------------------------------------+
+    | **datetime**,     | ``\DateTime``      | **MySQL**                | *all*   | ``DATETIME`` [13]                                        |
+    | **datetime_utc**  |                    +--------------------------+---------+----------------------------------------------------------+
     |                   |                    | **SQL Server**           | *all*   | ``DATETIME``                                             |
     |                   |                    +--------------------------+         |                                                          |
     |                   |                    | **SQLite**               |         |                                                          |

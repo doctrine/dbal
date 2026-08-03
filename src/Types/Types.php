@@ -9,28 +9,30 @@ namespace Doctrine\DBAL\Types;
  */
 final class Types
 {
-    public const ASCII_STRING         = 'ascii_string';
-    public const BIGINT               = 'bigint';
-    public const BINARY               = 'binary';
-    public const BLOB                 = 'blob';
-    public const BOOLEAN              = 'boolean';
-    public const DATE_MUTABLE         = 'date';
-    public const DATE_IMMUTABLE       = 'date_immutable';
-    public const DATEINTERVAL         = 'dateinterval';
-    public const DATETIME_MUTABLE     = 'datetime';
-    public const DATETIME_IMMUTABLE   = 'datetime_immutable';
-    public const DATETIMETZ_MUTABLE   = 'datetimetz';
-    public const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
-    public const DECIMAL              = 'decimal';
-    public const NUMBER               = 'number';
-    public const FLOAT                = 'float';
-    public const ENUM                 = 'enum';
-    public const GUID                 = 'guid';
-    public const INTEGER              = 'integer';
-    public const JSON                 = 'json';
-    public const JSON_OBJECT          = 'json_object';
-    public const JSONB                = 'jsonb';
-    public const JSONB_OBJECT         = 'jsonb_object';
+    public const ASCII_STRING           = 'ascii_string';
+    public const BIGINT                 = 'bigint';
+    public const BINARY                 = 'binary';
+    public const BLOB                   = 'blob';
+    public const BOOLEAN                = 'boolean';
+    public const DATE_MUTABLE           = 'date';
+    public const DATE_IMMUTABLE         = 'date_immutable';
+    public const DATEINTERVAL           = 'dateinterval';
+    public const DATETIME_MUTABLE       = 'datetime';
+    public const DATETIME_IMMUTABLE     = 'datetime_immutable';
+    public const DATETIME_UTC_MUTABLE   = 'datetime_utc';
+    public const DATETIME_UTC_IMMUTABLE = 'datetime_utc_immutable';
+    public const DATETIMETZ_MUTABLE     = 'datetimetz';
+    public const DATETIMETZ_IMMUTABLE   = 'datetimetz_immutable';
+    public const DECIMAL                = 'decimal';
+    public const NUMBER                 = 'number';
+    public const FLOAT                  = 'float';
+    public const ENUM                   = 'enum';
+    public const GUID                   = 'guid';
+    public const INTEGER                = 'integer';
+    public const JSON                   = 'json';
+    public const JSON_OBJECT            = 'json_object';
+    public const JSONB                  = 'jsonb';
+    public const JSONB_OBJECT           = 'jsonb_object';
 
     /** @deprecated Use {@see Types::JSON} instead. */
     public const SIMPLE_ARRAY = 'simple_array';

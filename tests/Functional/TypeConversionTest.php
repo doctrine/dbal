@@ -6,6 +6,9 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use BcMath\Number;
 use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -13,10 +16,14 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
+use function date_default_timezone_get;
+use function date_default_timezone_set;
+use function implode;
 use function str_repeat;
 
 class TypeConversionTest extends FunctionalTestCase
@@ -56,6 +63,16 @@ class TypeConversionTest extends FunctionalTestCase
                 Column::editor()
                     ->setUnquotedName('test_datetime')
                     ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setNotNull(false)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('test_datetime_utc')
+                    ->setTypeName(Types::DATETIME_UTC_MUTABLE)
+                    ->setNotNull(false)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('test_datetime_utc_immutable')
+                    ->setTypeName(Types::DATETIME_UTC_IMMUTABLE)
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
@@ -227,6 +244,54 @@ class TypeConversionTest extends FunctionalTestCase
             'date' => [Types::DATE_MUTABLE, new DateTime('2010-04-05')],
             'time' => [Types::TIME_MUTABLE, new DateTime('1970-01-01 10:10:10')],
         ];
+    }
+
+    #[DataProvider('toUtcDateTimeProvider')]
+    public function testConversionToUtcDateTime(
+        string $type,
+        DateTimeInterface $originalValue,
+        DateTimeInterface $expectedDate,
+    ): void {
+        $oldTimeZone = date_default_timezone_get();
+        // A timezone that is neither UTC nor one of the input timezones.
+        date_default_timezone_set('Europe/Berlin');
+
+        try {
+            $dbValue = $this->processValue($type, $originalValue);
+        } finally {
+            date_default_timezone_set($oldTimeZone);
+        }
+
+        self::assertInstanceOf(DateTimeInterface::class, $dbValue);
+        self::assertInstanceOf($expectedDate::class, $dbValue);
+
+        self::assertSame($originalValue->getTimestamp(), $dbValue->getTimestamp());
+        self::assertSame('UTC', $dbValue->getTimezone()->getName());
+        self::assertEquals($expectedDate, $dbValue);
+    }
+
+    /** @return Generator<string, array{string, DateTimeInterface}> */
+    public static function toUtcDateTimeProvider(): Generator
+    {
+        $referenceDate = '2010-04-05 10:10:10';
+        $timezones     = [
+            ['+05:00', '2010-04-05 05:10:10'],
+            ['America/Vancouver', '2010-04-05 17:10:10'],
+        ];
+
+        foreach ($timezones as [$tz, $utcTime]) {
+            yield implode(' ', [Types::DATETIME_UTC_MUTABLE, $tz]) => [
+                Types::DATETIME_UTC_MUTABLE,
+                new DateTime($referenceDate, new DateTimeZone($tz)),
+                new DateTime($utcTime, new DateTimeZone('UTC')),
+            ];
+
+            yield implode(' ', [Types::DATETIME_UTC_IMMUTABLE, $tz]) => [
+                Types::DATETIME_UTC_IMMUTABLE,
+                new DateTimeImmutable($referenceDate, new DateTimeZone($tz)),
+                new DateTimeImmutable($utcTime, new DateTimeZone('UTC')),
+            ];
+        }
     }
 
     public function testDecimal(): void
