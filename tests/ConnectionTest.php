@@ -405,7 +405,38 @@ class ConnectionTest extends TestCase
                 ],
 
             ],
-            ['integer'],
+            ['c1' => 'integer'],
+        );
+    }
+
+    public function testInsertManyWithEmptyValues(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'INSERT INTO footable () VALUES (), ()',
+                [],
+                [],
+            );
+
+        $conn->insertMany(
+            'footable',
+            [[], []],
+        );
+    }
+
+    public function testInsertManyWithNoValues(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+
+        $conn->expects(self::never())
+            ->method('executeStatement');
+
+        $conn->insertMany(
+            'footable',
+            [],
         );
     }
 
@@ -423,12 +454,7 @@ class ConnectionTest extends TestCase
                     1,
                     'i2-c2',
                 ],
-                [
-                    ParameterType::STRING,
-                    ParameterType::STRING,
-                    ParameterType::STRING,
-                    ParameterType::STRING,
-                ],
+                [],
             );
 
         $conn->insertMany(

@@ -33,6 +33,7 @@ use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
+use Exception;
 use InvalidArgumentException;
 use SensitiveParameter;
 use Throwable;
@@ -523,44 +524,52 @@ class Connection implements ServerVersionProvider
      * Inserts multiple table rows with specified data.
      *
      * Table expression and columns are not escaped and are not safe for user-input.
-     * Each array within data should have the same keys.
+     * Each row should have the same keys
      *
-     * @param array<array<string, mixed>>                                                           $data
-     * @param array<int<0,max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     * @param array<array<string, mixed>>              $rows
+     * @param array<string, string|ParameterType|Type> $types
      *
      * @return int|numeric-string The number of affected rows.
      *
      * @throws Exception
      */
-    public function insertMany(string $table, array $data, array $types = []): int|string
+    public function insertMany(string $table, array $rows, array $types = []): int|string
     {
-        $numRows = count($data);
+        $numRows = count($rows);
         if ($numRows === 0) {
-            return $this->executeStatement('INSERT INTO ' . $table . ' () VALUES ()');
+            return 0;
         }
 
         $columns = [];
         $values  = [];
         $set     = [];
 
-        $first = true;
-        foreach ($data as $row) {
+        $first       = true;
+        $columnCount = 0;
+        foreach ($rows as $row) {
             if ($first) {
-                $first   = false;
-                $columns = array_keys($row);
-                $set     = array_fill(0, count($columns), '?');
+                $first       = false;
+                $columns     = array_keys($row);
+                $columnCount = count($columns);
+                $set         = array_fill(0, count($columns), '?');
+            }
+
+            if ($columnCount !== count($row)) {
+                // TODO: add a custom exception
+                throw new Exception('Column count mismatch');
             }
 
             foreach ($columns as $column) {
-                $values[] = $row[$column];
+                // TODO: add a custom exception
+                $values[] = $row[$column] ?? throw new Exception('Column ' . $column . ' does not exist');
             }
         }
 
         $setParams = '(' . implode(',', $set) . ')';
 
-        $calculatedTypes = is_string(key($types))
+        $calculatedTypes = $types
             ? $this->extractTypeValues($columns, $types)
-            : array_merge($types, array_fill(0, count($columns) - count($types), ParameterType::STRING));
+            : [];
 
         return $this->executeStatement(
             'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ') VALUES '
