@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\Exception\UnsupportedTableDefinition;
 use Doctrine\DBAL\Platforms\SQLite\SQLiteMetadataProvider;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
@@ -25,7 +26,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types;
 use Override;
 
 use function array_merge;
@@ -699,9 +699,9 @@ class SQLitePlatform extends AbstractPlatform
                 case isset($definition['columnDefinition']):
                 case $definition['autoincrement']:
                 case $definition['comment'] !== '':
-                case $type instanceof Types\DateTimeType && $definition['default'] === $this->getCurrentTimestampSQL():
-                case $type instanceof Types\DateType && $definition['default'] === $this->getCurrentDateSQL():
-                case $type instanceof Types\TimeType && $definition['default'] === $this->getCurrentTimeSQL():
+                // A non-constant default expression (e.g. CURRENT_TIMESTAMP) cannot be used with
+                // ALTER TABLE ... ADD COLUMN on a non-empty table, so fall back to a table rebuild.
+                case $definition['default'] instanceof DefaultExpression:
                     return false;
             }
 
