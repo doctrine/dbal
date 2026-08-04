@@ -530,6 +530,18 @@ data.
     $conn->insert('user', ['username' => 'jwage']);
     // INSERT INTO user (username) VALUES (?) (jwage)
 
+insertMany()
+~~~~~~~~~
+
+Insert multiple rows into the given table name using the key value pairs of
+data.
+
+.. code-block:: php
+
+    <?php
+    $conn->insertMany('user', [['username' => 'jwage'], ['username' => 'zezima']]);
+    // INSERT INTO user (username) VALUES (?), (?) (jwage, zezima)
+
 update()
 ~~~~~~~~~
 

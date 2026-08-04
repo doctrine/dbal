@@ -38,7 +38,9 @@ use SensitiveParameter;
 use Throwable;
 use Traversable;
 
+use function array_fill;
 use function array_key_exists;
+use function array_keys;
 use function array_merge;
 use function count;
 use function implode;
@@ -514,6 +516,57 @@ class Connection implements ServerVersionProvider
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
+        );
+    }
+
+    /**
+     * Inserts multiple table rows with specified data.
+     *
+     * Table expression and columns are not escaped and are not safe for user-input.
+     * Each array within data should have the same keys.
+     *
+     * @param array<array<string, mixed>>                                                           $data
+     * @param array<int<0,max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     *
+     * @return int|numeric-string The number of affected rows.
+     *
+     * @throws Exception
+     */
+    public function insertMany(string $table, array $data, array $types = []): int|string
+    {
+        $numRows = count($data);
+        if ($numRows === 0) {
+            return $this->executeStatement('INSERT INTO ' . $table . ' () VALUES ()');
+        }
+
+        $columns = [];
+        $values  = [];
+        $set     = [];
+
+        $first = true;
+        foreach ($data as $row) {
+            if ($first) {
+                $first   = false;
+                $columns = array_keys($row);
+                $set     = array_fill(0, count($columns), '?');
+            }
+
+            foreach ($columns as $column) {
+                $values[] = $row[$column];
+            }
+        }
+
+        $setParams = '(' . implode(',', $set) . ')';
+
+        $calculatedTypes = is_string(key($types))
+            ? $this->extractTypeValues($columns, $types)
+            : array_merge($types, array_fill(0, count($columns) - count($types), ParameterType::STRING));
+
+        return $this->executeStatement(
+            'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ') VALUES '
+            . implode(', ', array_fill(0, $numRows, $setParams)),
+            $values,
+            array_merge(...array_fill(0, $numRows, $calculatedTypes)),
         );
     }
 

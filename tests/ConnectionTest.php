@@ -314,6 +314,140 @@ class ConnectionTest extends TestCase
         $conn->insert('footable', []);
     }
 
+    public function testInsertMany(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'INSERT INTO footable (c1, c2, c3, c4) VALUES (?,?,?,?), (?,?,?,?)',
+                [
+                    'i1-c1',
+                    'i1-c2',
+                    'i1-c3',
+                    4,
+                    'i2-c1',
+                    'i2-c2',
+                    'i2-c3',
+                    4,
+                ],
+                [
+                    'string',
+                    'string',
+                    'string',
+                    'integer',
+                    'string',
+                    'string',
+                    'string',
+                    'integer',
+                ],
+            );
+
+        $conn->insertMany(
+            'footable',
+            [
+                [
+                    'c1' => 'i1-c1',
+                    'c2' => 'i1-c2',
+                    'c3' => 'i1-c3',
+                    'c4' => 4,
+                ],
+                [
+                    'c3' => 'i2-c3',
+                    'c1' => 'i2-c1',
+                    'c2' => 'i2-c2',
+                    'c4' => 4,
+                ],
+
+            ],
+            [
+                'c3' => 'string',
+                'c1' => 'string',
+                'c2' => 'string',
+                'c4' => 'integer',
+            ],
+        );
+    }
+
+    public function testInsertManySpecifyingFirstKeyOnly(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'INSERT INTO footable (c1, c2) VALUES (?,?), (?,?)',
+                [
+                    1,
+                    'i1-c2',
+                    1,
+                    'i2-c2',
+                ],
+                [
+                    'integer',
+                    ParameterType::STRING,
+                    'integer',
+                    ParameterType::STRING,
+                ],
+            );
+
+        $conn->insertMany(
+            'footable',
+            [
+                [
+                    'c1' => 1,
+                    'c2' => 'i1-c2',
+                ],
+                [
+                    'c1' => 1,
+                    'c2' => 'i2-c2',
+                ],
+
+            ],
+            ['integer'],
+        );
+    }
+
+    public function testInsertManyWithoutTypes(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'INSERT INTO footable (c1, c2) VALUES (?,?), (?,?)',
+                [
+                    1,
+                    'i1-c2',
+                    1,
+                    'i2-c2',
+                ],
+                [
+                    ParameterType::STRING,
+                    ParameterType::STRING,
+                    ParameterType::STRING,
+                    ParameterType::STRING,
+                ],
+            );
+
+        $conn->insertMany(
+            'footable',
+            [
+                [
+                    'c1' => 1,
+                    'c2' => 'i1-c2',
+                ],
+                [
+                    'c1' => 1,
+                    'c2' => 'i2-c2',
+                ],
+
+            ],
+            [],
+        );
+    }
+
     public function testUpdateWithDifferentColumnsInDataAndIdentifiers(): void
     {
         $conn = $this->getExecuteStatementMockConnection();
