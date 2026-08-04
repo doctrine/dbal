@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
 use Doctrine\DBAL\Platforms\SQLite\SQLiteMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -765,9 +766,13 @@ class SQLitePlatform extends AbstractPlatform
                 case isset($definition['columnDefinition']):
                 case $definition['autoincrement']:
                 case $definition['comment'] !== '':
-                case $type instanceof Types\DateTimeType && $definition['default'] === $this->getCurrentTimestampSQL():
-                case $type instanceof Types\DateType && $definition['default'] === $this->getCurrentDateSQL():
-                case $type instanceof Types\TimeType && $definition['default'] === $this->getCurrentTimeSQL():
+                // A non-constant default expression (e.g. CURRENT_TIMESTAMP) cannot be used with
+                // ALTER TABLE ... ADD COLUMN on a non-empty table, so fall back to a table rebuild.
+                case $definition['default'] instanceof DefaultExpression:
+                case $type instanceof Types\PhpDateTimeMappingType
+                    && $definition['default'] === $this->getCurrentTimestampSQL():
+                case $type instanceof Types\PhpDateMappingType && $definition['default'] === $this->getCurrentDateSQL():
+                case $type instanceof Types\PhpTimeMappingType && $definition['default'] === $this->getCurrentTimeSQL():
                     return false;
             }
 

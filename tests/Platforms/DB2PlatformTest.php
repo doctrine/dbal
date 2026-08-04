@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -283,6 +284,32 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
         self::assertEquals('TIMESTAMP(0)', $this->platform->getDateTimeTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL($fullColumnDef));
+    }
+
+    public function testVersionColumnDefaultTreatsImmutableLikeMutableDateTime(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6940');
+
+        $declarationFor = fn (string $typeName): string => $this->platform->getDefaultValueDeclarationSQL([
+            'version' => true,
+            'notnull' => true,
+            'type' => Type::getType($typeName),
+        ]);
+
+        $mutableDeclaration = $declarationFor(Types::DATETIME_MUTABLE);
+
+        self::assertNotSame(
+            '',
+            $mutableDeclaration,
+            'The version-column default should be applied, so the declaration must not be empty.',
+        );
+
+        // ... and the immutable type must be treated identically.
+        self::assertSame(
+            $mutableDeclaration,
+            $declarationFor(Types::DATETIME_IMMUTABLE),
+            'Mutable and immutable DATETIME fields must be treated the same.',
+        );
     }
 
     public function testGeneratesDDLSnippets(): void

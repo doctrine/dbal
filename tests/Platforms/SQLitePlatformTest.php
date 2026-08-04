@@ -21,7 +21,9 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
+use PHPUnit\Framework\Attributes\DataProvider;
 
+use function count;
 use function implode;
 
 /** @extends AbstractPlatformTestCase<SQLitePlatform> */
@@ -620,6 +622,58 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             'INSERT INTO main.t (b) SELECT a FROM __temp__t',
             'DROP TABLE __temp__t',
         ], $this->platform->getAlterTableSQL($tableDiff));
+    }
+
+    #[DataProvider('addedColumnWithCurrentDefaultProvider')]
+    public function testAddedDateTimeColumnWithCurrentDefaultTriggersTableRebuild(
+        string $typeName,
+        string $default,
+    ): void {
+        // Rendering the legacy string CURRENT_* default is deprecated.
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7195');
+
+        $table = Table::editor()
+            ->setUnquotedName('t')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = new TableDiff($table, addedColumns: [
+            Column::editor()
+                ->setUnquotedName('c')
+                ->setTypeName($typeName)
+                ->setDefaultValue($default)
+                ->create(),
+        ]);
+
+        // A CURRENT_* default forces the table-rebuild strategy on SQLite, because
+        // ALTER TABLE ... ADD COLUMN cannot use a non-constant default. The rebuild emits
+        // several statements, whereas a simple column addition would be a single one.
+        self::assertGreaterThan(1, count($this->platform->getAlterTableSQL($tableDiff)));
+    }
+
+    /**
+     * Covers the mutable types and, as a regression guard, their immutable siblings, which share
+     * the same database representation and must be treated identically here.
+     *
+     * @return array<string, array{string, string}>
+     */
+    public static function addedColumnWithCurrentDefaultProvider(): iterable
+    {
+        $platform = new SQLitePlatform();
+
+        return [
+            'datetime' => [Types::DATETIME_MUTABLE, $platform->getCurrentTimestampSQL()],
+            'datetime_immutable' => [Types::DATETIME_IMMUTABLE, $platform->getCurrentTimestampSQL()],
+            'date' => [Types::DATE_MUTABLE, $platform->getCurrentDateSQL()],
+            'date_immutable' => [Types::DATE_IMMUTABLE, $platform->getCurrentDateSQL()],
+            'time' => [Types::TIME_MUTABLE, $platform->getCurrentTimeSQL()],
+            'time_immutable' => [Types::TIME_IMMUTABLE, $platform->getCurrentTimeSQL()],
+        ];
     }
 
     /**
