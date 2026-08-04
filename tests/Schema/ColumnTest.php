@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
@@ -45,11 +46,37 @@ class ColumnTest extends TestCase
         self::assertEquals(self::class, $column->getPlatformOption('enumType'));
     }
 
+    public function testToArrayWithType(): void
+    {
+        $expected = [
+            'name' => 'foo',
+            'typeName' => Types::STRING,
+            'default' => 'baz',
+            'notnull' => false,
+            'length' => 200,
+            'precision' => 5,
+            'scale' => 2,
+            'fixed' => true,
+            'unsigned' => true,
+            'autoincrement' => false,
+            'columnDefinition' => null,
+            'comment' => '',
+            'values' => [],
+            'type' => Type::getType(Types::STRING),
+            'charset' => 'utf8',
+            'enumType' => self::class,
+        ];
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame($expected, $this->createColumn()->toArray());
+    }
+
     public function testToArray(): void
     {
         $expected = [
             'name' => 'foo',
-            'type' => Type::getType(Types::STRING),
+            'typeName' => Types::STRING,
             'default' => 'baz',
             'notnull' => false,
             'length' => 200,
@@ -65,15 +92,22 @@ class ColumnTest extends TestCase
             'enumType' => self::class,
         ];
 
-        self::assertSame($expected, $this->createColumn()->toArray());
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame($expected, $this->createColumn()->toArray(true));
     }
 
     public function testSettingUnknownOptionIsStillSupported(): void
     {
+        $column = Column::editor()
+            ->setUnquotedName('foo')
+            ->setTypeName(Types::STRING)
+            ->create();
+
         $this->expectException(UnknownColumnOption::class);
         $this->expectExceptionMessage('The "unknown_option" column option is not supported.');
 
-        new Column('foo', self::createStub(Type::class), ['unknown_option' => 'bar']);
+        $column->setOptions(['unknown_option' => 'bar']);
     }
 
     public function testOptionsShouldNotBeIgnored(): void
@@ -185,6 +219,31 @@ class ColumnTest extends TestCase
             ->create();
 
         self::assertEquals(Identifier::unquoted('id'), $column->getObjectName()->getIdentifier());
+    }
+
+    public function testPassingTypeInstanceToConstructorIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        new Column('foo', Type::getType(Types::STRING));
+    }
+
+    public function testGetTypeIsDeprecated(): void
+    {
+        $column = new Column('foo', Types::STRING);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertInstanceOf(StringType::class, $column->getType());
+    }
+
+    public function testGetTypeNameIsNotDeprecated(): void
+    {
+        $column = new Column('foo', Types::STRING);
+
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame(Types::STRING, $column->getTypeName());
     }
 
     public function testSetPlatformOptionJsonb(): void

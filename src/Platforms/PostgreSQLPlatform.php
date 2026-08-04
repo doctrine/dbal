@@ -217,7 +217,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         foreach ($diff->getAddedColumns() as $addedColumn) {
             $query = 'ADD ' . $this->getColumnDeclarationSQL(
                 $addedColumn->getQuotedName($this),
-                $addedColumn->toArray(),
+                $addedColumn->toArray(true),
             );
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
@@ -272,7 +272,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             if ($columnDiff->hasDefaultChanged()) {
                 $defaultClause = $newColumn->getDefault() === null
                     ? ' DROP DEFAULT'
-                    : ' SET' . $this->getDefaultValueDeclarationSQL($newColumn->toArray());
+                    : ' SET' . $this->getDefaultValueDeclarationSQL($newColumn->toArray(true));
 
                 $query = 'ALTER ' . $newColumnName . $defaultClause;
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
@@ -312,10 +312,10 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     private function getTypeSQLDeclaration(Column $column): string
     {
-        $type = $column->getType();
+        $type = $this->getType($column->getTypeName());
 
         // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
-        $columnDefinition                  = $column->toArray();
+        $columnDefinition                  = $column->toArray(true);
         $columnDefinition['autoincrement'] = false;
 
         return $type->getSQLDeclaration($columnDefinition, $this);

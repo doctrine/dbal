@@ -889,6 +889,15 @@ abstract class AbstractPlatform
         return $this->buildCreateTableSQL($table, false);
     }
 
+    /**
+     * Resolves the DBAL type instance for a column type name.
+     */
+    protected function getType(string $typeName): Type
+    {
+        // @phpstan-ignore missingType.checkedException
+        return Type::getType($typeName);
+    }
+
     /** @return list<string> */
     private function buildCreateTableSQL(Table $table, bool $createForeignKeys): array
     {
@@ -1493,7 +1502,7 @@ abstract class AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
+            $typeDecl    = $this->getType($column['typeName'])->getSQLDeclaration($column, $this);
             $declaration = $typeDecl . $charset . $default . $notnull . $collation;
 
             if ($this->supportsInlineColumnComments() && isset($column['comment']) && $column['comment'] !== '') {
@@ -1544,11 +1553,13 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $default->toSQL($this);
         }
 
-        if (! isset($column['type'])) {
+        if (isset($column['typeName']) && is_string($column['typeName'])) {
+            $type = $this->getType($column['typeName']);
+        } elseif (isset($column['type']) && $column['type'] instanceof Type) {
+            $type = $column['type'];
+        } else {
             return " DEFAULT '" . $default . "'";
         }
-
-        $type = $column['type'];
 
         if ($type instanceof Types\PhpIntegerMappingType) {
             return ' DEFAULT ' . $default;
@@ -2382,7 +2393,7 @@ abstract class AbstractPlatform
      */
     private function columnToArray(Column $column): array
     {
-        return array_merge($column->toArray(), [
+        return array_merge($column->toArray(true), [
             'name' => $column->getQuotedName($this),
             'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
             'comment' => $column->getComment(),

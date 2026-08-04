@@ -9,7 +9,6 @@ use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
-use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function assert;
@@ -132,7 +131,7 @@ SQL,
             $options['length'] = $length;
         }
 
-        $column = new Column($tableColumn['name'], Type::getType($type), $options);
+        $column = new Column($tableColumn['name'], $type, $options);
 
         if ($tableColumn['default'] !== null) {
             $default = $this->parseDefaultExpression($tableColumn['default']);
