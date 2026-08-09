@@ -460,7 +460,12 @@ class ConnectionTest extends TestCase
                     1,
                     'i2-c2',
                 ],
-                [],
+                [
+                    ParameterType::STRING,
+                    ParameterType::STRING,
+                    ParameterType::STRING,
+                    ParameterType::STRING,
+                ],
             );
 
         $conn->insertMany(
