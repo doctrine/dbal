@@ -375,6 +375,10 @@ class WriteTest extends FunctionalTestCase
 
     public function testInsertMany(): void
     {
+        if (! $this->connection->getDatabasePlatform()->supportsBulkInserts()) {
+            self::markTestSkipped('This test targets platforms that support bulk inserts.');
+        }
+
         $count = $this->connection->insertMany(
             'write_table',
             [

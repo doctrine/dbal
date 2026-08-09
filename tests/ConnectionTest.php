@@ -51,7 +51,13 @@ class ConnectionTest extends TestCase
 
     private function getExecuteStatementMockConnection(): Connection&MockObject
     {
+        $platform = self::createStub(AbstractPlatform::class);
+        $platform->method('getMaximumAmountOfBoundParameters')->willReturn(1000);
+        $platform->method('supportsBulkInserts')->willReturn(true);
         $driver = self::createStub(Driver::class);
+
+        $driver->method('getDatabasePlatform')
+            ->willReturn($platform);
 
         return $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeStatement'])
@@ -471,6 +477,63 @@ class ConnectionTest extends TestCase
 
             ],
             [],
+        );
+    }
+
+    public function testInsertManyWithTooManyTypes(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'INSERT INTO footable (c1, c2, c3, c4) VALUES (?,?,?,?), (?,?,?,?)',
+                [
+                    'i1-c1',
+                    'i1-c2',
+                    'i1-c3',
+                    4,
+                    'i2-c1',
+                    'i2-c2',
+                    'i2-c3',
+                    4,
+                ],
+                [
+                    'string',
+                    'string',
+                    'string',
+                    'integer',
+                    'string',
+                    'string',
+                    'string',
+                    'integer',
+                ],
+            );
+
+        $conn->insertMany(
+            'footable',
+            [
+                [
+                    'c1' => 'i1-c1',
+                    'c2' => 'i1-c2',
+                    'c3' => 'i1-c3',
+                    'c4' => 4,
+                ],
+                [
+                    'c3' => 'i2-c3',
+                    'c1' => 'i2-c1',
+                    'c2' => 'i2-c2',
+                    'c4' => 4,
+                ],
+
+            ],
+            [
+                'c3' => 'string',
+                'c1' => 'string',
+                'c2' => 'string',
+                'c4' => 'integer',
+                'c5' => 'datetime',
+            ],
         );
     }
 

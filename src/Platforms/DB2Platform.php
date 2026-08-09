@@ -597,4 +597,12 @@ class DB2Platform extends AbstractPlatform
     {
         return new DB2SchemaManager($connection, $this);
     }
+
+    /**
+     * Source: https://www.bmc.com/blogs/db2-limits/
+     */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return 16000;
+    }
 }
