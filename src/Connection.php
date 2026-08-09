@@ -14,17 +14,20 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Exception\BatchInsertsDontMatch;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception\MaxBoundParamsExceeded;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
 use Doctrine\DBAL\Exception\ParseError;
 use Doctrine\DBAL\Exception\SavepointsNotSupported;
 use Doctrine\DBAL\Exception\TransactionRolledBack;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -537,9 +540,8 @@ class Connection implements ServerVersionProvider
     {
         $platform = $this->getDatabasePlatform();
 
-        if (! $platform->supportsBulkInserts($this)) {
-            // TODO: custom exception
-            throw new Exception('Bulk insert operation not supported by this platform');
+        if (! $platform->supportsBulkInserts()) {
+            throw NotSupported::new('bulk insert');
         }
 
         $numRows = count($rows);
@@ -562,29 +564,24 @@ class Connection implements ServerVersionProvider
                 $columnCount = count($columns);
 
                 if ($columnCount * $numRows > $maxBoundParams) {
-                    // TODO: add a custom exception
-                    throw new Exception('Too many bound params');
+                    throw MaxBoundParamsExceeded::new($maxBoundParams, $columnCount * $numRows);
                 }
 
                 $set = array_fill(0, count($columns), '?');
             }
 
             if ($columnCount !== count($row)) {
-                // TODO: add a custom exception
-                throw new Exception('Column count mismatch');
+                throw BatchInsertsDontMatch::new();
             }
 
             foreach ($columns as $column) {
-                // TODO: add a custom exception
-                $values[] = $row[$column] ?? throw new Exception('Column ' . $column . ' does not exist');
+                $values[] = $row[$column] ?? throw BatchInsertsDontMatch::new();
             }
         }
 
         $setParams = '(' . implode(',', $set) . ')';
 
-        $calculatedTypes = $types
-            ? $this->extractTypeValues($columns, $types)
-            : [];
+        $calculatedTypes =  $this->extractTypeValues($columns, $types);
 
         return $this->executeStatement(
             'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ') VALUES '
