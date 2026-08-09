@@ -1334,4 +1334,12 @@ class SQLServerPlatform extends AbstractPlatform
     {
         return new SQLServerSchemaManager($connection, $this);
     }
+
+    /**
+     * Source: https://learn.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?view=sql-server-ver17
+     */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return 2100;
+    }
 }

@@ -535,10 +535,19 @@ class Connection implements ServerVersionProvider
      */
     public function insertMany(string $table, array $rows, array $types = []): int|string
     {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsBulkInserts($this)) {
+            // TODO: custom exception
+            throw new Exception('Bulk insert operation not supported by this platform');
+        }
+
         $numRows = count($rows);
         if ($numRows === 0) {
             return 0;
         }
+
+        $maxBoundParams = $platform->getMaximumAmountOfBoundParameters($this);
 
         $columns = [];
         $values  = [];
@@ -551,7 +560,13 @@ class Connection implements ServerVersionProvider
                 $first       = false;
                 $columns     = array_keys($row);
                 $columnCount = count($columns);
-                $set         = array_fill(0, count($columns), '?');
+
+                if ($columnCount * $numRows > $maxBoundParams) {
+                    // TODO: add a custom exception
+                    throw new Exception('Too many bound params');
+                }
+
+                $set = array_fill(0, count($columns), '?');
             }
 
             if ($columnCount !== count($row)) {

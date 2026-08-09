@@ -843,4 +843,9 @@ class PostgreSQLPlatform extends AbstractPlatform
     {
         return new PostgreSQLSchemaManager($connection, $this);
     }
+
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return 34464;
+    }
 }

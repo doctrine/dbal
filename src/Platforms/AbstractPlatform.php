@@ -2482,4 +2482,15 @@ abstract class AbstractPlatform
      * database schema according to the dialect of the platform.
      */
     abstract public function createSchemaManager(Connection $connection): AbstractSchemaManager;
+
+    /** @throws Exception */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function supportsBulkInserts(): bool
+    {
+        return true;
+    }
 }
