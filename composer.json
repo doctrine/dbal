@@ -45,7 +45,7 @@
         "phpstan/phpstan-strict-rules": "^2",
         "phpunit/phpunit": "11.5.50",
         "slevomat/coding-standard": "8.27.1",
-        "squizlabs/php_codesniffer": "4.0.1",
+        "squizlabs/php_codesniffer": "4.0.4",
         "symfony/cache": "^6.3.8|^7.0|^8.0",
         "symfony/console": "^5.4|^6.3|^7.0|^8.0"
     },
