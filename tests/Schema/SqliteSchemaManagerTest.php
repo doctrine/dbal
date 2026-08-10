@@ -9,6 +9,9 @@ use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
+use function implode;
+use function sprintf;
+
 use const PHP_VERSION_ID;
 
 class SqliteSchemaManagerTest extends TestCase
@@ -19,12 +22,14 @@ class SqliteSchemaManagerTest extends TestCase
         $conn = $this->createMock(Connection::class);
 
         $manager = new SqliteSchemaManager($conn, new SqlitePlatform());
-        $ref     = new ReflectionMethod($manager, 'parseColumnCollationFromSQL');
+        $ref     = new ReflectionMethod($manager, 'parseColumnCollationsFromSQL');
         if (PHP_VERSION_ID < 80100) {
             $ref->setAccessible(true);
         }
 
-        self::assertSame($collation, $ref->invoke($manager, $column, $sql));
+        $collations = $ref->invoke($manager, $sql);
+        self::assertIsArray($collations);
+        self::assertSame($collation, $collations[$column] ?? null);
     }
 
     /** @return mixed[][] */
@@ -47,6 +52,16 @@ class SqliteSchemaManagerTest extends TestCase
                 'a',
                 'CREATE TABLE "a" ("a" text DEFAULT (lower(ltrim(" a") || rtrim("a ")))'
                     . ' CHECK ("a") NOT NULL COLLATE NOCASE UNIQUE, "b" text COLLATE RTRIM)',
+            ],
+            [
+                'RTRIM',
+                'a',
+                'CREATE TABLE "a" ("a" text COLLATE NOCASE COLLATE RTRIM)',
+            ],
+            [
+                null,
+                'a',
+                'CREATE TABLE "a" ("a" "COLLATE" NOT NULL)',
             ],
             [
                 null,
@@ -125,6 +140,30 @@ class SqliteSchemaManagerTest extends TestCase
                     . ' "bar/" INTEGER NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))',
             ],
         ];
+    }
+
+    public function testParseColumnCollationsFromWideTable(): void
+    {
+        $definitions = [];
+        $expected    = [];
+
+        for ($index = 0; $index < 1000; $index++) {
+            $column            = sprintf('column_%d', $index);
+            $definitions[]     = sprintf('%s TEXT COLLATE NOCASE', $column);
+            $expected[$column] = 'NOCASE';
+        }
+
+        $conn    = $this->createMock(Connection::class);
+        $manager = new SqliteSchemaManager($conn, new SqlitePlatform());
+        $ref     = new ReflectionMethod($manager, 'parseColumnCollationsFromSQL');
+        if (PHP_VERSION_ID < 80100) {
+            $ref->setAccessible(true);
+        }
+
+        self::assertSame(
+            $expected,
+            $ref->invoke($manager, sprintf('CREATE TABLE wide_table (%s)', implode(', ', $definitions))),
+        );
     }
 
     /** @dataProvider getDataColumnComment */

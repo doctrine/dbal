@@ -26,8 +26,10 @@ use function preg_replace;
 use function rtrim;
 use function str_replace;
 use function strcasecmp;
+use function strlen;
 use function strpos;
 use function strtolower;
+use function substr;
 use function trim;
 use function unlink;
 use function usort;
@@ -317,7 +319,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // inspect column collation and comments
-        $createSql = $this->getCreateTableSQL($table);
+        $createSql        = $this->getCreateTableSQL($table);
+        $columnCollations = $this->parseColumnCollationsFromSQL($createSql);
 
         foreach ($list as $columnName => $column) {
             $type = $column->getType();
@@ -325,7 +328,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             if ($type instanceof StringType || $type instanceof TextType) {
                 $column->setPlatformOption(
                     'collation',
-                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?? 'BINARY',
+                    $columnCollations[strtolower($column->getName())] ?? 'BINARY',
                 );
             }
 
@@ -506,16 +509,164 @@ class SqliteSchemaManager extends AbstractSchemaManager
         );
     }
 
-    private function parseColumnCollationFromSQL(string $column, string $sql): ?string
+    /** @return array<string, string> */
+    private function parseColumnCollationsFromSQL(string $sql): array
     {
-        $pattern = '{' . $this->buildIdentifierPattern($column)
-            . '[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}is';
+        $collations       = [];
+        $column           = null;
+        $depth            = -1;
+        $expectsCollation = false;
 
-        if (preg_match($pattern, $sql, $match) !== 1) {
-            return null;
+        foreach ($this->tokenizeSQL($sql) as [$token, $quoted]) {
+            if (! $quoted && $token === '(') {
+                $depth++;
+
+                continue;
+            }
+
+            if (! $quoted && $token === ')') {
+                if ($depth === 0) {
+                    break;
+                }
+
+                $depth--;
+
+                continue;
+            }
+
+            if (! $quoted && $token === ',' && $depth === 0) {
+                $column           = null;
+                $expectsCollation = false;
+
+                continue;
+            }
+
+            if ($depth !== 0) {
+                continue;
+            }
+
+            if ($column === null) {
+                $column = $token;
+
+                continue;
+            }
+
+            if ($expectsCollation) {
+                $collations[strtolower($column)] = $token;
+                $expectsCollation                = false;
+
+                continue;
+            }
+
+            if ($quoted) {
+                continue;
+            }
+
+            if (strcasecmp($token, 'COLLATE') !== 0) {
+                continue;
+            }
+
+            $expectsCollation = true;
         }
 
-        return $match[1];
+        return $collations;
+    }
+
+    /** @return iterable<array{string, bool}> */
+    private function tokenizeSQL(string $sql): iterable
+    {
+        $length = strlen($sql);
+
+        for ($offset = 0; $offset < $length;) {
+            $character = $sql[$offset];
+
+            if (strpos("\"'`[", $character) !== false) {
+                yield [$this->parseQuotedToken($sql, $offset), true];
+
+                continue;
+            }
+
+            if ($character === '-' && $offset + 1 < $length && $sql[$offset + 1] === '-') {
+                $commentEnd = strpos($sql, "\n", $offset + 2);
+                $offset     = $commentEnd === false ? $length : $commentEnd + 1;
+
+                continue;
+            }
+
+            if ($character === '/' && $offset + 1 < $length && $sql[$offset + 1] === '*') {
+                $commentEnd = strpos($sql, '*/', $offset + 2);
+                $offset     = $commentEnd === false ? $length : $commentEnd + 2;
+
+                continue;
+            }
+
+            if (strpos('(),', $character) !== false) {
+                $offset++;
+
+                yield [$character, false];
+
+                continue;
+            }
+
+            if (trim($character) === '') {
+                $offset++;
+
+                continue;
+            }
+
+            $tokenStart = $offset;
+            while ($offset < $length) {
+                $character = $sql[$offset];
+                if (
+                    trim($character) === ''
+                    || strpos("(),\"'`[", $character) !== false
+                    || ($character === '-' && $offset + 1 < $length && $sql[$offset + 1] === '-')
+                    || ($character === '/' && $offset + 1 < $length && $sql[$offset + 1] === '*')
+                ) {
+                    break;
+                }
+
+                $offset++;
+            }
+
+            yield [substr($sql, $tokenStart, $offset - $tokenStart), false];
+        }
+    }
+
+    private function parseQuotedToken(string $sql, int &$offset): string
+    {
+        $openingDelimiter = $sql[$offset];
+        $closingDelimiter = $openingDelimiter === '[' ? ']' : $openingDelimiter;
+        $token            = '';
+        $length           = strlen($sql);
+        $offset++;
+
+        while ($offset < $length) {
+            $character = $sql[$offset];
+            if ($character !== $closingDelimiter) {
+                $token .= $character;
+                $offset++;
+
+                continue;
+            }
+
+            if (
+                $openingDelimiter !== '['
+                && $offset + 1 < $length
+                && $sql[$offset + 1] === $closingDelimiter
+            ) {
+                $token  .= $closingDelimiter;
+                $offset += 2;
+
+                continue;
+            }
+
+            $offset++;
+
+            break;
+        }
+
+        return $token;
     }
 
     private function parseTableCommentFromSQL(string $table, string $sql): ?string
