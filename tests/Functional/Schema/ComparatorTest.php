@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -59,6 +60,53 @@ class ComparatorTest extends FunctionalTestCase
                 ->compareTables($onlineTable, $table)
                 ->isEmpty(),
         );
+    }
+
+    #[DataProvider('floatDefaultValueTypeProvider')]
+    public function testFloatDefaultValueComparisonConverges(string $typeName): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('float_default_value')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('score')
+                    ->setTypeName($typeName)
+                    ->setDefaultValue(14.75)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $comparator = $this->schemaManager->createComparator();
+
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $comparator,
+            $table,
+        )->isEmpty());
+
+        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
+            $this->schemaManager,
+            $comparator,
+            $table,
+        )->isEmpty());
+
+        // an actual change of the default value must produce a diff that converges once applied
+        $desiredTable = $table->edit()
+            ->modifyColumnByUnquotedName('score', static function (ColumnEditor $editor): void {
+                $editor->setDefaultValue(50.0);
+            })
+            ->create();
+
+        ComparatorTestUtils::assertDiffNotEmpty($this->connection, $comparator, $desiredTable);
+    }
+
+    /** @return iterable<array{string}> */
+    public static function floatDefaultValueTypeProvider(): iterable
+    {
+        yield [Types::FLOAT];
+        yield [Types::SMALLFLOAT];
     }
 
     public function testRenameColumnComparison(): void
@@ -147,6 +195,9 @@ class ComparatorTest extends FunctionalTestCase
     {
         return [
             [Types::INTEGER, 1],
+            [Types::FLOAT, 14.75],
+            [Types::FLOAT, 50.0],
+            [Types::SMALLFLOAT, 14.75],
             [Types::BOOLEAN, false],
             [Types::TEXT, 'Doctrine'],
         ];

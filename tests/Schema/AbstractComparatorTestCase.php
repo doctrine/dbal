@@ -557,6 +557,37 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertTrue($tableDiff->isEmpty());
     }
 
+    public function testCompareFloatColumnsWithStringAndFloatDefaultValues(): void
+    {
+        foreach ([Types::FLOAT, Types::SMALLFLOAT] as $type) {
+            $tableA = Table::editor()
+                ->setUnquotedName('foo')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('value')
+                        ->setTypeName($type)
+                        ->setDefaultValue(14.75)
+                        ->create(),
+                )
+                ->create();
+
+            $tableB = Table::editor()
+                ->setUnquotedName('foo')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('value')
+                        ->setTypeName($type)
+                        ->setDefaultValue('14.75')
+                        ->create(),
+                )
+                ->create();
+
+            $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+
+            self::assertTrue($tableDiff->isEmpty());
+        }
+    }
+
     public function testCompareIndexBasedOnPropertiesNotName(): void
     {
         $tableA = Table::editor()

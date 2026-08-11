@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-class SmallFloatType extends Type
+class SmallFloatType extends Type implements PhpFloatMappingType
 {
     /**
      * {@inheritDoc}

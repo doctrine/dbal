@@ -28,6 +28,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 use function implode;
@@ -354,6 +355,21 @@ abstract class AbstractPlatformTestCase extends TestCase
                 $this->platform->getDefaultValueDeclarationSQL([
                     'type'    => Type::getType($type),
                     'default' => 1,
+                ]),
+            );
+        }
+    }
+
+    #[TestWith([14.75])]
+    #[TestWith(['14.75'])]
+    public function testGetDefaultValueDeclarationSQLForFloatTypes(float|string $default): void
+    {
+        foreach ([Types::FLOAT, Types::SMALLFLOAT] as $type) {
+            self::assertSame(
+                ' DEFAULT 14.75',
+                $this->platform->getDefaultValueDeclarationSQL([
+                    'type'    => Type::getType($type),
+                    'default' => $default,
                 ]),
             );
         }

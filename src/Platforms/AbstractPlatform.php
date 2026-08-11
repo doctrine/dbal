@@ -1556,6 +1556,10 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $default;
         }
 
+        if ($type instanceof Types\PhpFloatMappingType) {
+            return ' DEFAULT ' . (float) $default;
+        }
+
         if ($type instanceof Types\PhpDateTimeMappingType && $default === $this->getCurrentTimestampSQL()) {
             Deprecation::trigger(
                 'doctrine/dbal',
