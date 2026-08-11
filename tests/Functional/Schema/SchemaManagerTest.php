@@ -477,6 +477,87 @@ final class SchemaManagerTest extends FunctionalTestCase
         );
     }
 
+    public function testReplaceIndexBackingForeignKey(): void
+    {
+        $this->dropTableIfExists('index_replacement_child');
+        $this->dropTableIfExists('index_replacement_parent');
+
+        $parentTable = Table::editor()
+            ->setUnquotedName('index_replacement_parent')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        // The unique index spans exactly the referencing column of the foreign key, so no implicit
+        // index is created, and it remains the only index covering the constraint. On MySQL, InnoDB
+        // refuses to drop such an index unless another index takes over the cover in the same
+        // ALTER TABLE statement.
+        $childTable = Table::editor()
+            ->setUnquotedName('index_replacement_child')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('parent_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('uniq_parent_id')
+                    ->setUnquotedColumnNames('parent_id')
+                    ->setType(IndexType::UNIQUE)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedName('fk_index_replacement')
+                    ->setUnquotedReferencingColumnNames('parent_id')
+                    ->setUnquotedReferencedTableName('index_replacement_parent')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->schemaManager->createTable($parentTable);
+        $this->schemaManager->createTable($childTable);
+
+        $oldTable = $this->schemaManager->introspectTableByUnquotedName('index_replacement_child');
+
+        $newIndex = Index::editor()
+            ->setUnquotedName('idx_parent_id')
+            ->setUnquotedColumnNames('parent_id')
+            ->create();
+
+        $newTable = $oldTable->edit()
+            ->setIndexes($newIndex)
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()->compareTables($oldTable, $newTable);
+        $this->schemaManager->alterTable($diff);
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('index_replacement_child');
+
+        self::assertFalse($table->hasIndex('uniq_parent_id'));
+        $this->assertIndexEquals($newIndex, $table->getIndex('idx_parent_id'));
+    }
+
     /** @param callable(AbstractSchemaManager): list<Index> $introspect */
     #[DataProvider('quotedAndUnquotedIndexIntrospection')]
     public function testIntrospectTableIndexes(
