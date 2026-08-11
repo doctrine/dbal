@@ -14,18 +14,13 @@ use function iterator_to_array;
 
 class SQLiteMetadataProviderTest extends TestCase
 {
-    /**
-     * On SQLite versions older than 3.37.0, PRAGMA table_list does not expose the WITHOUT ROWID and STRICT
-     * flags, so they have to be parsed from the CREATE TABLE statement instead.
-     */
     #[DataProvider('tableOptionsProvider')]
-    public function testParsesTableOptionsFromCreateTableSQLOnLegacyVersions(
+    public function testParsesTableOptionsFromCreateTableSQL(
         string $createTableSQL,
         bool $expectedWithoutRowid,
         bool $expectedStrict,
     ): void {
         $connection = self::createStub(Connection::class);
-        $connection->method('getServerVersion')->willReturn('3.36.0');
         $connection->method('fetchOne')->willReturn($createTableSQL);
 
         $provider = new SQLiteMetadataProvider($connection, new SQLitePlatform());
@@ -48,6 +43,29 @@ class SQLiteMetadataProviderTest extends TestCase
             'CREATE TABLE mytable (id INTEGER, PRIMARY KEY (id)) WITHOUT ROWID, STRICT',
             true,
             true,
+        ];
+
+        yield 'strict before without rowid' => [
+            'CREATE TABLE mytable (id INTEGER, PRIMARY KEY (id)) STRICT, WITHOUT ROWID',
+            true,
+            true,
+        ];
+
+        yield 'column named like an option' => [
+            'CREATE TABLE mytable (strict INTEGER, "without rowid" INTEGER)',
+            false,
+            false,
+        ];
+
+        yield 'multiline statement' => [
+            <<<'SQL'
+            CREATE TABLE mytable (
+                id INTEGER,
+                PRIMARY KEY (id)
+            ) WITHOUT ROWID
+            SQL,
+            true,
+            false,
         ];
     }
 }

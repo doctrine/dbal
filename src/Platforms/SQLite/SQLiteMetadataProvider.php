@@ -45,7 +45,6 @@ use function strcasecmp;
 use function strlen;
 use function strtolower;
 use function substr;
-use function version_compare;
 
 final readonly class SQLiteMetadataProvider implements MetadataProvider
 {
@@ -726,8 +725,6 @@ SQL,
      */
     private function getTableOptions(iterable $tableNames): iterable
     {
-        $supportsTableList = version_compare($this->connection->getServerVersion(), '3.37.0', '>=');
-
         foreach ($tableNames as $tableName) {
             $createSQL = $this->getCreateTableSQL($tableName);
 
@@ -735,17 +732,7 @@ SQL,
                 'comment' => $this->parseTableCommentFromSQL($tableName, $createSQL),
             ];
 
-            if ($supportsTableList) {
-                $flags = $this->connection->fetchAssociative(
-                    'SELECT wr, "strict" FROM pragma_table_list WHERE name = ?',
-                    [$tableName],
-                );
-
-                $withoutRowid = $flags !== false && (bool) $flags['wr'];
-                $strict       = $flags !== false && (bool) $flags['strict'];
-            } else {
-                [$withoutRowid, $strict] = $this->parseTableOptionsFromSQL($createSQL);
-            }
+            [$withoutRowid, $strict] = $this->parseTableOptionsFromSQL($createSQL);
 
             if ($withoutRowid) {
                 $options['without_rowid'] = true;

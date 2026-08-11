@@ -32,7 +32,6 @@ use function str_contains;
 use function str_replace;
 use function strcasecmp;
 use function strtolower;
-use function version_compare;
 
 use const CASE_LOWER;
 
@@ -599,8 +598,6 @@ SQL,
             $tables = [$tableName];
         }
 
-        $supportsTableList = version_compare($this->connection->getServerVersion(), '3.37.0', '>=');
-
         $tableOptions = [];
         foreach ($tables as $table) {
             $createSQL = $this->getCreateTableSQL($table);
@@ -611,17 +608,7 @@ SQL,
                 $tableOptions[$table]['comment'] = $comment;
             }
 
-            if ($supportsTableList) {
-                $flags = $this->connection->fetchAssociative(
-                    'SELECT wr, "strict" FROM pragma_table_list WHERE name = ?',
-                    [$table],
-                );
-
-                $withoutRowid = $flags !== false && (bool) $flags['wr'];
-                $strict       = $flags !== false && (bool) $flags['strict'];
-            } else {
-                [$withoutRowid, $strict] = $this->parseTableOptionsFromSQL($createSQL);
-            }
+            [$withoutRowid, $strict] = $this->parseTableOptionsFromSQL($createSQL);
 
             if ($withoutRowid) {
                 $tableOptions[$table]['without_rowid'] = true;
