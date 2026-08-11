@@ -19,6 +19,8 @@ use function array_map;
 use function array_shift;
 use function assert;
 use function dirname;
+use function implode;
+use function sprintf;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -109,6 +111,103 @@ EOS);
         self::assertEquals('BINARY', $columns['text']->getPlatformOption('collation'));
         self::assertEquals('BINARY', $columns['foo']->getPlatformOption('collation'));
         self::assertEquals('NOCASE', $columns['bar']->getPlatformOption('collation'));
+    }
+
+    public function testColumnCollationIdentifierQuoting(): void
+    {
+        $this->dropTableIfExists('test_collation_quoting');
+        $this->connection->executeStatement(<<<'SQL'
+CREATE TABLE test_collation_quoting (
+    backtick TEXT COLLATE `NOCASE`,
+    double_quote TEXT COLLATE "RTRIM",
+    bracket TEXT COLLATE [BINARY],
+    unquoted TEXT cOlLaTe nOcAsE,
+    `escaped``backtick` TEXT DEFAULT ('COLLATE "BINARY"')
+        CHECK (`escaped``backtick` <> '') COLLATE `RTRIM`,
+    "escaped""double" TEXT DEFAULT 'COLLATE BINARY'
+        CHECK ("escaped""double" COLLATE RTRIM <> '') COLLATE "NOCASE",
+    no_collation TEXT DEFAULT 'COLLATE NOCASE'
+        CHECK (no_collation COLLATE RTRIM <> '')
+)
+SQL);
+
+        $columns = $this->schemaManager->listTableColumns('test_collation_quoting');
+
+        self::assertSame('NOCASE', $columns['backtick']->getPlatformOption('collation'));
+        self::assertSame('RTRIM', $columns['double_quote']->getPlatformOption('collation'));
+        self::assertSame('BINARY', $columns['bracket']->getPlatformOption('collation'));
+        self::assertSame('nOcAsE', $columns['unquoted']->getPlatformOption('collation'));
+        self::assertSame('RTRIM', $columns['escaped`backtick']->getPlatformOption('collation'));
+        self::assertSame('NOCASE', $columns['escaped"double']->getPlatformOption('collation'));
+        self::assertSame('BINARY', $columns['no_collation']->getPlatformOption('collation'));
+        self::assertSame('COLLATE NOCASE', $columns['no_collation']->getDefault());
+    }
+
+    public function testColumnCollationOnQuotedReservedWordColumns(): void
+    {
+        $this->dropTableIfExists('test_collation_reserved_words');
+        $this->connection->executeStatement(<<<'SQL'
+CREATE TABLE test_collation_reserved_words (
+    "DEFAULT" TEXT COLLATE NOCASE,
+    "CHECK" TEXT COLLATE RTRIM
+)
+SQL);
+
+        $columns = $this->schemaManager->listTableColumns('test_collation_reserved_words');
+
+        self::assertSame('NOCASE', $columns['"default"']->getPlatformOption('collation'));
+        self::assertSame('RTRIM', $columns['"check"']->getPlatformOption('collation'));
+    }
+
+    /** @dataProvider quotedCollationTokenProvider */
+    public function testDoesNotMisidentifyQuotedCollationToken(string $ddl): void
+    {
+        $this->dropTableIfExists('test_collation_token');
+        $this->connection->executeStatement($ddl);
+
+        $columns = $this->schemaManager->listTableColumns('test_collation_token');
+
+        self::assertSame('BINARY', $columns['value']->getPlatformOption('collation'));
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function quotedCollationTokenProvider(): iterable
+    {
+        $ddl = "CREATE TABLE test_collation_token (value TEXT DEFAULT 'COLLATE' NOT NULL)";
+
+        yield 'single-quoted default' => [$ddl];
+
+        $ddl = 'CREATE TABLE test_collation_token (value TEXT DEFAULT "COLLATE" NOT NULL)';
+
+        yield 'double-quoted default' => [$ddl];
+
+        $ddl = 'CREATE TABLE test_collation_token (value TEXT REFERENCES "COLLATE" (id) NOT NULL)';
+
+        yield 'quoted referenced table' => [$ddl];
+
+        $ddl = 'CREATE TABLE test_collation_token (value TEXT CONSTRAINT "COLLATE" NOT NULL)';
+
+        yield 'quoted constraint name' => [$ddl];
+    }
+
+    public function testColumnCollationsAreParsedForWideTable(): void
+    {
+        $this->dropTableIfExists('test_collation_count');
+        $definitions = [];
+        for ($index = 0; $index < 1000; $index++) {
+            $definitions[] = sprintf('column_%d TEXT COLLATE NOCASE', $index);
+        }
+
+        $this->connection->executeStatement(sprintf(
+            'CREATE TABLE test_collation_count (%s)',
+            implode(', ', $definitions),
+        ));
+
+        $columns = $this->schemaManager->listTableColumns('test_collation_count');
+
+        self::assertCount(1000, $columns);
+        self::assertSame('NOCASE', $columns['column_0']->getPlatformOption('collation'));
+        self::assertSame('NOCASE', $columns['column_999']->getPlatformOption('collation'));
     }
 
     /**
