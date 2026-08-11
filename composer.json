@@ -45,8 +45,8 @@
         "jetbrains/phpstorm-stubs": "2023.1",
         "phpstan/phpstan": "2.1.30",
         "phpstan/phpstan-strict-rules": "^2",
-        "phpunit/phpunit": "9.6.34",
-        "slevomat/coding-standard": "8.27.1",
+        "phpunit/phpunit": "9.6.36",
+        "slevomat/coding-standard": "8.31.1",
         "squizlabs/php_codesniffer": "4.0.4",
         "symfony/cache": "^5.4|^6.0|^7.0|^8.0",
         "symfony/console": "^4.4|^5.4|^6.0|^7.0|^8.0"
