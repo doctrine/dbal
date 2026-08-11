@@ -82,9 +82,13 @@ jobs:
       matrix:
         php-version:
           - "8.5"
+        # Supported Oracle releases: https://support.oracle.com/knowledgefs?docId=742060
         oracle-version:
-          - "21"
-          - "23"
+          - "18" # There is no XE of Oracle 19 which is why we use the 18c XE image instead.
+                 # Oracle 19c LTR is supported until December 2029
+          - "21" # Supported until July 2027
+          - "23" # Oracle 26ai internally still uses the major version 23
+                 # Oracle 26ai LTR is supported until December 2031
         extension:
           - oci8
           - pdo_oci
