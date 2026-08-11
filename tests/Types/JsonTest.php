@@ -62,7 +62,7 @@ class JsonTest extends TestCase
     public function testJsonStringConvertsToPHPValue(): void
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = json_encode($value, 0, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
+        $databaseValue = json_encode($value, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertEquals($value, $phpValue);
