@@ -858,4 +858,17 @@ SQL,
     {
         return new OracleSchemaManager($connection, $this);
     }
+
+    /**
+     * https://docs.oracle.com/cd/B10501_01/appdev.920/a96624/e_limits.htm#LNPLS018
+     */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return 64000;
+    }
+
+    public function supportsBulkInserts(): bool
+    {
+        return false;
+    }
 }

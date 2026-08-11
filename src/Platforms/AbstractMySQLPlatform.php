@@ -929,4 +929,13 @@ SQL;
     {
         return new Parser(true);
     }
+
+    /**
+     * Sources: https://dev.mysql.com/worklog/task/?id=1803
+     * https://stackoverflow.com/a/6582902
+     */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return 65535;
+    }
 }

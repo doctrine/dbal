@@ -14,17 +14,20 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Exception\BatchInsertsDontMatch;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception\MaxBoundParamsExceeded;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
 use Doctrine\DBAL\Exception\ParseError;
 use Doctrine\DBAL\Exception\SavepointsNotSupported;
 use Doctrine\DBAL\Exception\TransactionRolledBack;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -33,12 +36,15 @@ use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
+use Exception;
 use InvalidArgumentException;
 use SensitiveParameter;
 use Throwable;
 use Traversable;
 
+use function array_fill;
 use function array_key_exists;
+use function array_keys;
 use function array_merge;
 use function count;
 use function implode;
@@ -514,6 +520,74 @@ class Connection implements ServerVersionProvider
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
+        );
+    }
+
+    /**
+     * Inserts multiple table rows with specified data.
+     *
+     * Table expression and columns are not escaped and are not safe for user-input.
+     * Each row should have the same keys
+     *
+     * @param array<array<string, mixed>>              $rows
+     * @param array<string, string|ParameterType|Type> $types
+     *
+     * @return int|numeric-string The number of affected rows.
+     *
+     * @throws Exception
+     */
+    public function insertMany(string $table, array $rows, array $types = []): int|string
+    {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsBulkInserts()) {
+            throw NotSupported::new('bulk insert');
+        }
+
+        $numRows = count($rows);
+        if ($numRows === 0) {
+            return 0;
+        }
+
+        $maxBoundParams = $platform->getMaximumAmountOfBoundParameters($this);
+
+        $columns = [];
+        $values  = [];
+        $set     = [];
+
+        $first       = true;
+        $columnCount = 0;
+        foreach ($rows as $row) {
+            if ($first) {
+                $first       = false;
+                $columns     = array_keys($row);
+                $columnCount = count($columns);
+
+                if ($columnCount * $numRows > $maxBoundParams) {
+                    throw MaxBoundParamsExceeded::new($maxBoundParams, $columnCount * $numRows);
+                }
+
+                $set = array_fill(0, count($columns), '?');
+            }
+
+            if ($columnCount !== count($row)) {
+                throw BatchInsertsDontMatch::new();
+            }
+
+            foreach ($columns as $column) {
+                $values[] = $row[$column] ?? throw BatchInsertsDontMatch::new();
+            }
+        }
+
+        $setParams = '(' . implode(',', $set) . ')';
+
+        $calculatedTypes =  $this->extractTypeValues($columns, $types);
+
+        return $this->executeStatement(
+            'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ') VALUES '
+            . implode(', ', array_fill(0, $numRows, $setParams)),
+            $values,
+            array_merge(...array_fill(0, $numRows, $calculatedTypes)),
         );
     }
 

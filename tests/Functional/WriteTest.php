@@ -373,6 +373,38 @@ class WriteTest extends FunctionalTestCase
         self::assertCount(0, $data);
     }
 
+    public function testInsertMany(): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsBulkInserts()) {
+            self::markTestSkipped('This test targets platforms that support bulk inserts.');
+        }
+
+        $count = $this->connection->insertMany(
+            'write_table',
+            [
+                ['test_int' => '30', 'test_string' => 'one'],
+                ['test_int' => '20', 'test_string' => 'two'],
+                ['test_string' => 'three', 'test_int' => '10' ],
+            ],
+            ['test_int' => 'integer'],
+        );
+
+        $data = $this->connection->fetchFirstColumn(
+            'SELECT test_string FROM write_table WHERE test_int IN(10,20,30) ORDER BY test_int',
+        );
+
+        self::assertSame(3, $count);
+
+        self::assertEquals(
+            [
+                'three',
+                'two',
+                'one',
+            ],
+            $data,
+        );
+    }
+
     /** @param class-string<Driver\Exception> $expectedClass */
     private function expectDriverException(string $expectedClass, Closure $test): void
     {
