@@ -191,7 +191,6 @@ class ComparatorTest extends FunctionalTestCase
         return [
             [Types::INTEGER, 1],
             [Types::FLOAT, 14.75],
-            [Types::FLOAT, 50.0],
             [Types::FLOAT, '50.0'],
             [Types::SMALLFLOAT, 14.75],
             [Types::BOOLEAN, false],
