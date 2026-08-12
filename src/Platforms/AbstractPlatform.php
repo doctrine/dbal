@@ -1556,10 +1556,6 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $default;
         }
 
-        if ($type instanceof Types\PhpFloatMappingType) {
-            return ' DEFAULT ' . (float) $default;
-        }
-
         if ($type instanceof Types\PhpDateTimeMappingType && $default === $this->getCurrentTimestampSQL()) {
             Deprecation::trigger(
                 'doctrine/dbal',
@@ -1599,6 +1595,10 @@ abstract class AbstractPlatform
 
         if (is_int($default) || is_float($default)) {
             return ' DEFAULT ' . $default;
+        }
+
+        if ($type instanceof Types\PhpFloatMappingType) {
+            return ' DEFAULT ' . (float) $default;
         }
 
         return ' DEFAULT ' . $this->quoteStringLiteral($default);
