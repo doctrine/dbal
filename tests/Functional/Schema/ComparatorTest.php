@@ -18,6 +18,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 
 class ComparatorTest extends FunctionalTestCase
 {
@@ -62,7 +63,8 @@ class ComparatorTest extends FunctionalTestCase
         );
     }
 
-    #[DataProvider('floatDefaultValueTypeProvider')]
+    #[TestWith([Types::FLOAT])]
+    #[TestWith([Types::SMALLFLOAT])]
     public function testFloatDefaultValueComparisonConverges(string $typeName): void
     {
         $table = Table::editor()
@@ -100,13 +102,6 @@ class ComparatorTest extends FunctionalTestCase
             ->create();
 
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $comparator, $desiredTable);
-    }
-
-    /** @return iterable<array{string}> */
-    public static function floatDefaultValueTypeProvider(): iterable
-    {
-        yield [Types::FLOAT];
-        yield [Types::SMALLFLOAT];
     }
 
     public function testRenameColumnComparison(): void
