@@ -94,7 +94,6 @@ class ComparatorTest extends FunctionalTestCase
             $table,
         )->isEmpty());
 
-        // an actual change of the default value must produce a diff that converges once applied
         $desiredTable = $table->edit()
             ->modifyColumnByUnquotedName('score', static function (ColumnEditor $editor): void {
                 $editor->setDefaultValue(50.0);
