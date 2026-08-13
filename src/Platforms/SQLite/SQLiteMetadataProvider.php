@@ -728,15 +728,10 @@ SQL,
         foreach ($tableNames as $tableName) {
             $createSQL = $this->getCreateTableSQL($tableName);
 
-            $options = [
+            yield new TableMetadataRow(null, $tableName, [
                 'comment' => $this->parseTableCommentFromSQL($tableName, $createSQL),
-            ];
-
-            if ($this->parseWithoutRowidFromSQL($createSQL)) {
-                $options['without_rowid'] = true;
-            }
-
-            yield new TableMetadataRow(null, $tableName, $options);
+                'without_rowid' => $this->parseWithoutRowidFromSQL($createSQL),
+            ]);
         }
     }
 
