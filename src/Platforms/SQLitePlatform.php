@@ -300,18 +300,8 @@ class SQLitePlatform extends AbstractPlatform
 
         $sql = 'CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')';
 
-        $tableOptions = [];
-
         if (isset($options['without_rowid']) && $options['without_rowid'] === true) {
-            $tableOptions[] = 'WITHOUT ROWID';
-        }
-
-        if (isset($options['strict']) && $options['strict'] === true) {
-            $tableOptions[] = 'STRICT';
-        }
-
-        if ($tableOptions !== []) {
-            $sql .= ' ' . implode(', ', $tableOptions);
+            $sql .= ' WITHOUT ROWID';
         }
 
         $query = [$sql];

@@ -18,7 +18,6 @@ class SQLiteMetadataProviderTest extends TestCase
     public function testParsesTableOptionsFromCreateTableSQL(
         string $createTableSQL,
         bool $expectedWithoutRowid,
-        bool $expectedStrict,
     ): void {
         $connection = self::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn($createTableSQL);
@@ -30,30 +29,21 @@ class SQLiteMetadataProviderTest extends TestCase
 
         $options = $rows[0]->getOptions();
         self::assertSame($expectedWithoutRowid, $options['without_rowid'] ?? false);
-        self::assertSame($expectedStrict, $options['strict'] ?? false);
     }
 
-    /** @return iterable<string, array{string, bool, bool}> */
+    /** @return iterable<string, array{string, bool}> */
     public static function tableOptionsProvider(): iterable
     {
-        yield 'plain' => ['CREATE TABLE mytable (id INTEGER)', false, false];
-        yield 'without rowid' => ['CREATE TABLE mytable (id INTEGER, PRIMARY KEY (id)) WITHOUT ROWID', true, false];
-        yield 'strict' => ['CREATE TABLE mytable (id INTEGER) STRICT', false, true];
-        yield 'without rowid and strict' => [
-            'CREATE TABLE mytable (id INTEGER, PRIMARY KEY (id)) WITHOUT ROWID, STRICT',
-            true,
-            true,
-        ];
+        yield 'plain' => ['CREATE TABLE mytable (id INTEGER)', false];
+        yield 'without rowid' => ['CREATE TABLE mytable (id INTEGER, PRIMARY KEY (id)) WITHOUT ROWID', true];
 
-        yield 'strict before without rowid' => [
+        yield 'without rowid amid other tail keywords' => [
             'CREATE TABLE mytable (id INTEGER, PRIMARY KEY (id)) STRICT, WITHOUT ROWID',
-            true,
             true,
         ];
 
         yield 'column named like an option' => [
             'CREATE TABLE mytable (strict INTEGER, "without rowid" INTEGER)',
-            false,
             false,
         ];
 
@@ -65,7 +55,6 @@ class SQLiteMetadataProviderTest extends TestCase
             ) WITHOUT ROWID
             SQL,
             true,
-            false,
         ];
     }
 }

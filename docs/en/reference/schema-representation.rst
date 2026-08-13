@@ -159,9 +159,6 @@ and absolutely not portable.
 -  **without_rowid** (boolean): Create the table as a
   `WITHOUT ROWID <https://www.sqlite.org/withoutrowid.html>`_ table. Currently only supported on SQLite.
 
--  **strict** (boolean): Create the table as a
-  `STRICT <https://www.sqlite.org/stricttables.html>`_ table. Currently only supported on SQLite.
-
 Column
 ~~~~~~
 

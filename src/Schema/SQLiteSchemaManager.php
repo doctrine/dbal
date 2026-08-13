@@ -256,17 +256,13 @@ CREATE\sTABLE' . $this->buildIdentifierPattern($table) . '
         return $comment === '' ? null : $comment;
     }
 
-    /** @return array{bool, bool} */
-    private function parseTableOptionsFromSQL(string $sql): array
+    private function parseTableOptionsFromSQL(string $sql): bool
     {
         if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
-            return [false, false];
+            return false;
         }
 
-        return [
-            preg_match('/\bWITHOUT\s+ROWID\b/i', $match[0]) === 1,
-            preg_match('/\bSTRICT\b/i', $match[0]) === 1,
-        ];
+        return preg_match('/\bWITHOUT\s+ROWID\b/i', $match[0]) === 1;
     }
 
     private function parseColumnCommentFromSQL(string $column, string $sql): string
@@ -608,14 +604,8 @@ SQL,
                 $tableOptions[$table]['comment'] = $comment;
             }
 
-            [$withoutRowid, $strict] = $this->parseTableOptionsFromSQL($createSQL);
-
-            if ($withoutRowid) {
+            if ($this->parseTableOptionsFromSQL($createSQL)) {
                 $tableOptions[$table]['without_rowid'] = true;
-            }
-
-            if ($strict) {
-                $tableOptions[$table]['strict'] = true;
             }
         }
 
