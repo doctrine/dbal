@@ -732,7 +732,7 @@ SQL,
                 'comment' => $this->parseTableCommentFromSQL($tableName, $createSQL),
             ];
 
-            if ($this->parseTableOptionsFromSQL($createSQL)) {
+            if ($this->parseWithoutRowidFromSQL($createSQL)) {
                 $options['without_rowid'] = true;
             }
 
@@ -782,7 +782,7 @@ SQL,
         return $comment === '' ? null : $comment;
     }
 
-    private function parseTableOptionsFromSQL(string $sql): bool
+    private function parseWithoutRowidFromSQL(string $sql): bool
     {
         if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
             return false;

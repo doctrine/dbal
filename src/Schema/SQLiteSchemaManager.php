@@ -256,7 +256,7 @@ CREATE\sTABLE' . $this->buildIdentifierPattern($table) . '
         return $comment === '' ? null : $comment;
     }
 
-    private function parseTableOptionsFromSQL(string $sql): bool
+    private function parseWithoutRowidFromSQL(string $sql): bool
     {
         if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
             return false;
@@ -604,7 +604,7 @@ SQL,
                 $tableOptions[$table]['comment'] = $comment;
             }
 
-            if ($this->parseTableOptionsFromSQL($createSQL)) {
+            if ($this->parseWithoutRowidFromSQL($createSQL)) {
                 $tableOptions[$table]['without_rowid'] = true;
             }
         }
