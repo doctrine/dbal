@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\PgSQL\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
+use function array_merge;
 use function in_array;
 
 class DriverTest extends AbstractDriverTestCase
@@ -40,6 +41,23 @@ class DriverTest extends AbstractDriverTestCase
         $params['host'] = '[::1]';
 
         $this->driver->connect($params);
+    }
+
+    public function testConnectionWithTcpKeepaliveParameters(): void
+    {
+        self::expectNotToPerformAssertions();
+
+        $this->driver->connect(array_merge(
+            TestUtil::getConnectionParams(),
+            [
+                'connect_timeout' => 5,
+                'keepalives' => 1,
+                'keepalives_idle' => 10,
+                'keepalives_interval' => 5,
+                'keepalives_count' => 3,
+                'tcp_user_timeout' => 15000,
+            ],
+        ));
     }
 
     protected function createDriver(): DriverInterface

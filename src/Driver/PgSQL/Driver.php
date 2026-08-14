@@ -85,6 +85,12 @@ final class Driver extends AbstractPostgreSQLDriver
                 'password' => $params['password'] ?? null,
                 'sslmode' => $params['sslmode'] ?? null,
                 'gssencmode' => $params['gssencmode'] ?? null,
+                'connect_timeout' => $params['connect_timeout'] ?? null,
+                'keepalives' => $params['keepalives'] ?? null,
+                'keepalives_idle' => $params['keepalives_idle'] ?? null,
+                'keepalives_interval' => $params['keepalives_interval'] ?? null,
+                'keepalives_count' => $params['keepalives_count'] ?? null,
+                'tcp_user_timeout' => $params['tcp_user_timeout'] ?? null,
             ],
             static fn (int|string|null $value) => $value !== '' && $value !== null,
         );
