@@ -37,6 +37,7 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\DateType;
 use Doctrine\DBAL\Types\DecimalType;
+use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\SmallFloatType;
@@ -379,6 +380,40 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
         self::assertEquals(true, $columns['baz3']->getNotnull());
         self::assertEquals(null, $columns['baz3']->getDefault());
+    }
+
+    public function testUnknownColumnType(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('test_list_table_with_unkown_doctrine_type')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('column_char')
+                    ->setTypeName(Types::STRING)
+                    ->create(),
+            )
+            ->create();
+
+        $this->schemaManager->createTable($table);
+
+        $platform = $this->connection->getDatabasePlatform();
+        $mappings = [
+            'varchar' => 'doctrine_type',
+        ];
+        (new \ReflectionObject($platform))->getProperty('doctrineTypeMapping')->setValue($platform, $mappings);
+
+        $exception = null;
+        try {
+            $this->schemaManager->listTableColumns('test_list_table_with_unkown_doctrine_type');
+        } catch (\Throwable $t) {
+            $exception = $t;
+        }
+
+        self::assertInstanceOf(UnknownColumnType::class, $exception);
+        self::assertSame('Unknown column type "doctrine_type" requested for table "test_list_table_with_unkown_doctrine_type". Any Doctrine type that you use has to be registered with \Doctrine\DBAL\Types\Type::addType(). You can get a list of all the known types with \Doctrine\DBAL\Types\Type::getTypesMap(). If this error occurs during database introspection then you might have forgotten to register all database types for a Doctrine Type. Use AbstractPlatform#registerDoctrineTypeMapping() or have your custom types implement Type#getMappedDatabaseTypes(). If the type name is empty you might have a problem with the cache or forgot some mapping information.', $exception->getMessage());
+
+        // Reverting back to the standard
+        (new \ReflectionObject($platform))->getProperty('doctrineTypeMapping')->setValue($platform, null);
     }
 
     public function testListTableColumnsWithFixedStringColumn(): void
