@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\InvalidColumnDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -121,5 +122,18 @@ class ColumnEditorTest extends TestCase
         $this->expectException(InvalidColumnDefinition::class);
 
         $editor->create();
+    }
+
+    public function testInvalidType(): void
+    {
+        $this->expectException(UnknownColumnType::class);
+        $this->expectExceptionMessage('Unknown column type "unknown_type"');
+
+        Column::editor()
+            ->setUnquotedName('column_char')
+            ->setTypeName('unknown_type')
+            ->setFixed(true)
+            ->setLength(2)
+            ->create();
     }
 }
