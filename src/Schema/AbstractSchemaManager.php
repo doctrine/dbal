@@ -658,7 +658,7 @@ abstract class AbstractSchemaManager
         }
 
         $options = $this->introspectTableOptions($tableName);
-        assert($options !== null);
+        assert($options !== null, 'Unable to retrieve schema for table: '. $tableName);
 
         return Table::editor()
             ->setName($tableName)
