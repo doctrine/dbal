@@ -294,8 +294,6 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                    I.UNIQUENESS,
                    IC.COLUMN_NAME
             FROM USER_INDEXES I
-                     LEFT JOIN USER_CONSTRAINTS C
-                               ON C.INDEX_NAME = I.INDEX_NAME
                      JOIN USER_IND_COLUMNS IC
                           ON IC.INDEX_NAME = I.INDEX_NAME
             WHERE %s

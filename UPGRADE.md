@@ -13,6 +13,16 @@ awareness about deprecated code.
 Declaring a foreign key constraint no longer adds an index over its referencing columns. MySQL and MariaDB create one
 themselves; on the other platforms, an application that wants such an index must declare it.
 
+## BC BREAK: A unique constraint to be dropped must have a name
+
+`Comparator::compareTables()` now compares unique constraints, and raises
+`Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName` when one that has to be dropped carries no name.
+
+## BC BREAK: `MetadataProvider` requires unique constraint introspection
+
+`Doctrine\DBAL\Schema\Metadata\MetadataProvider` now declares `getUniqueConstraintColumnsForAllTables()` and
+`getUniqueConstraintColumnsForTable()`. Implementations must provide them.
+
 ## BC BREAK: Added `AbstractPlatform::createDerivedObjectProvider()`
 
 `Doctrine\DBAL\Platforms\AbstractPlatform` now declares `createDerivedObjectProvider()`. Platforms extending it must

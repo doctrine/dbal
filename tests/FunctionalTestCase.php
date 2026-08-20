@@ -485,6 +485,36 @@ abstract class FunctionalTestCase extends TestCase
     }
 
     /**
+     * Asserts that each of the expected indexes is present in the given list, which may contain others.
+     *
+     * @param array<Index> $expected
+     * @param array<Index> $actual
+     *
+     * @throws Exception
+     */
+    protected function assertIndexListContainsAll(array $expected, array $actual): void
+    {
+        $folding = $this->connection->getDatabasePlatform()
+            ->getUnquotedIdentifierFolding();
+
+        foreach ($expected as $expectedIndex) {
+            $name = $expectedIndex->getObjectName();
+
+            foreach ($actual as $actualIndex) {
+                if (! $actualIndex->getObjectName()->equals($name, $folding)) {
+                    continue;
+                }
+
+                $this->assertIndexEquals($expectedIndex, $actualIndex);
+
+                continue 2;
+            }
+
+            self::fail(sprintf('The list contains no index named "%s".', $name->toString()));
+        }
+    }
+
+    /**
      * @param array<Index> $expected
      * @param array<Index> $actual
      *
