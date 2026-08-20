@@ -6,8 +6,11 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
+use function array_values;
+use function assert;
 use function count;
 use function strtolower;
 
@@ -264,29 +267,18 @@ class Comparator
             $indexRenames = $this->detectIndexRenames($addedIndexes, $droppedIndexes, $folding);
         }
 
-        $oldForeignKeys = $oldTable->getForeignKeys();
-        $newForeignKeys = $newTable->getForeignKeys();
+        [$oldForeignKeys, $newForeignKeys, $modifiedForeignKeys] = $this->matchConstraints(
+            $oldTable->getForeignKeys(),
+            $newTable->getForeignKeys(),
+            static fn (ForeignKeyConstraint $old, ForeignKeyConstraint $new): bool => $old->equals($new, $folding),
+        );
 
-        foreach ($oldForeignKeys as $oldKey => $oldForeignKey) {
-            foreach ($newForeignKeys as $newKey => $newForeignKey) {
-                if ($newForeignKey->equals($oldForeignKey, $folding)) {
-                    unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
-                } else {
-                    $oldForeignKeyName = $oldForeignKey->getObjectName();
-                    $newForeignKeyName = $newForeignKey->getObjectName();
-                    if (
-                        $oldForeignKeyName !== null
-                        && $newForeignKeyName !== null
-                        && strtolower($oldForeignKeyName->getIdentifier()->getValue())
-                        === strtolower($newForeignKeyName->getIdentifier()->getValue())
-                    ) {
-                        $droppedForeignKeyConstraintNames[$oldKey] = $oldForeignKeyName;
-                        $addedForeignKeys[$newKey]                 = $newForeignKey;
+        foreach ($modifiedForeignKeys as [$oldForeignKey, $newForeignKey]) {
+            $constraintName = $oldForeignKey->getObjectName();
+            assert($constraintName !== null);
 
-                        unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
-                    }
-                }
-            }
+            $droppedForeignKeyConstraintNames[] = $constraintName;
+            $addedForeignKeys[]                 = $newForeignKey;
         }
 
         foreach ($oldForeignKeys as $oldForeignKey) {
@@ -378,6 +370,59 @@ class Comparator
         }
 
         return $oldPrimaryKeyConstraint === null && $newPrimaryKeyConstraint === null;
+    }
+
+    /**
+     * Matches the old constraints of a table with the new ones.
+     *
+     * A constraint equal to one on the other side matches it and is left out of the result. One
+     * that keeps its name but changes its definition is modified: it has to be dropped and added
+     * back. What remains unmatched is dropped or added outright.
+     *
+     * @param array<T>             $oldConstraints
+     * @param array<T>             $newConstraints
+     * @param callable(T, T): bool $equals         Returns whether an old constraint and a new one
+     *                                             are equal.
+     *
+     * @return array{list<T>, list<T>, list<array{T, T}>} the unmatched old constraints, the
+     *                                                    unmatched new ones, and the modified ones
+     *                                                    as old and new
+     *
+     * @template T of OptionallyNamedObject<UnqualifiedName>
+     */
+    private function matchConstraints(array $oldConstraints, array $newConstraints, callable $equals): array
+    {
+        $modifiedConstraints = [];
+
+        foreach ($oldConstraints as $oldKey => $oldConstraint) {
+            foreach ($newConstraints as $newKey => $newConstraint) {
+                if ($equals($oldConstraint, $newConstraint)) {
+                    unset($oldConstraints[$oldKey], $newConstraints[$newKey]);
+
+                    continue 2;
+                }
+
+                $oldName = $oldConstraint->getObjectName();
+                $newName = $newConstraint->getObjectName();
+
+                if (
+                    $oldName === null
+                    || $newName === null
+                    || strtolower($oldName->getIdentifier()->getValue())
+                    !== strtolower($newName->getIdentifier()->getValue())
+                ) {
+                    continue;
+                }
+
+                $modifiedConstraints[] = [$oldConstraint, $newConstraint];
+
+                unset($oldConstraints[$oldKey], $newConstraints[$newKey]);
+
+                continue 2;
+            }
+        }
+
+        return [array_values($oldConstraints), array_values($newConstraints), $modifiedConstraints];
     }
 
     /**
