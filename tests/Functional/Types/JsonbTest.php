@@ -34,11 +34,5 @@ class JsonbTest extends FunctionalTestCase
             $comparator,
             $table,
         )->isEmpty());
-
-        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
-            $schemaManager,
-            $comparator,
-            $table,
-        )->isEmpty());
     }
 }

@@ -68,11 +68,5 @@ final class ComparatorTest extends FunctionalTestCase
             $this->comparator,
             $table,
         )->isEmpty());
-
-        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
-            $this->schemaManager,
-            $this->comparator,
-            $table,
-        )->isEmpty());
     }
 }

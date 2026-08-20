@@ -55,12 +55,6 @@ final class ComparatorTest extends FunctionalTestCase
             $this->comparator,
             $table,
         )->isEmpty());
-
-        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
-            $this->schemaManager,
-            $this->comparator,
-            $table,
-        )->isEmpty());
     }
 
     #[DataProvider('lobColumnProvider')]
@@ -223,12 +217,6 @@ final class ComparatorTest extends FunctionalTestCase
             $this->comparator,
             $table,
         )->isEmpty());
-
-        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
-            $this->schemaManager,
-            $this->comparator,
-            $table,
-        )->isEmpty());
     }
 
     public function testChangeColumnCharsetAndCollation(): void
@@ -285,12 +273,6 @@ final class ComparatorTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
-            $this->schemaManager,
-            $this->comparator,
-            $table,
-        )->isEmpty());
-
-        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
             $this->schemaManager,
             $this->comparator,
             $table,

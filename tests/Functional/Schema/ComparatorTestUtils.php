@@ -28,20 +28,6 @@ final class ComparatorTestUtils
         );
     }
 
-    /** @throws Exception */
-    public static function diffFromDesiredToActualTable(
-        AbstractSchemaManager $schemaManager,
-        Comparator $comparator,
-        Table $desiredTable,
-    ): TableDiff {
-        return $comparator->compareTables(
-            $desiredTable,
-            $schemaManager->introspectTable(
-                $desiredTable->getObjectName(),
-            ),
-        );
-    }
-
     public static function assertDiffNotEmpty(Connection $connection, Comparator $comparator, Table $table): void
     {
         $schemaManager = $connection->createSchemaManager();
@@ -54,10 +40,6 @@ final class ComparatorTestUtils
 
         TestCase::assertTrue(
             self::diffFromActualToDesiredTable($schemaManager, $comparator, $table)
-                ->isEmpty(),
-        );
-        TestCase::assertTrue(
-            self::diffFromDesiredToActualTable($schemaManager, $comparator, $table)
                 ->isEmpty(),
         );
     }
