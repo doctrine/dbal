@@ -220,6 +220,17 @@ returned.
         ->setFirstResult(10)
         ->setMaxResults(20);
 
+.. note::
+
+    ``setFirstResult()`` and ``setMaxResults()`` only apply to ``SELECT``
+    queries. They are ignored when building an ``UPDATE`` or ``DELETE``
+    query: some vendors support a vendor-specific syntax such as MySQL's
+    ``DELETE ... LIMIT``, but there is no workaround that works across all
+    supported platforms, so the query builder does not attempt to emulate
+    the clause there. To limit the number of affected rows, restrict the
+    query in the ``WHERE`` clause instead, for example to a set of
+    primary keys selected beforehand.
+
 VALUES Clause
 ~~~~~~~~~~
 
