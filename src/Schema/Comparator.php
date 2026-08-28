@@ -392,7 +392,7 @@ class Comparator
             }
 
             $removedIndex     = $removedIndexes[$removedIndexKey];
-            $removedIndexName = strtolower($removedIndex->getName());
+            $removedIndexName = $removedIndex->getQuotedName($this->platform);
 
             $addedIndex = $addedIndexes[$addedIndexKey];
 
