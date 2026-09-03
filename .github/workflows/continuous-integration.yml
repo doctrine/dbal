@@ -196,20 +196,20 @@ jobs:
           - "5.7"
           - "8.0" # We have code specific to ^8.0
           - "8.4" # LTS
-          - "9.6"
+          - "9.7" # LTS
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - config-file-suffix: "-tls"
             php-version: "7.4"
-            mysql-version: "9.6"
+            mysql-version: "9.7"
             extension: "mysqli"
           - php-version: "7.4"
-            mysql-version: "9.6"
+            mysql-version: "9.7"
             extension: "mysqli"
           - php-version: "7.4"
-            mysql-version: "9.6"
+            mysql-version: "9.7"
             extension: "pdo_mysql"
 
   phpunit-mssql:
