@@ -783,6 +783,57 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertEquals('idx_bar', $renamedIndexes['idx_foo']->getObjectName()->toString());
     }
 
+    /**
+     * A quoted index name carries case-sensitivity and quoting information that must be preserved
+     * when it becomes the array key of a renamed index, so that platforms which need to emit an
+     * explicitly quoted identifier for the old name (e.g. Oracle's ALTER INDEX ... RENAME TO) can
+     * still tell the name was quoted.
+     */
+    public function testDetectRenameIndexPreservesQuoting(): void
+    {
+        $prototype = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('foo')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $table1 = $prototype->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setQuotedName('Idx_Foo')
+                    ->setUnquotedColumnNames('foo')
+                    ->create(),
+            )
+            ->create();
+
+        $table2 = $prototype->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_bar')
+                    ->setUnquotedColumnNames('foo')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
+
+        self::assertCount(0, $tableDiff->getDroppedIndexes());
+
+        $renamedIndexes = $tableDiff->getRenamedIndexes();
+        self::assertCount(1, $renamedIndexes);
+
+        // The old index name must still be recognizable as quoted (wrapped in the platform's
+        // quote characters) and must preserve the original case, regardless of which character
+        // the platform uses for quoting (e.g. "Idx_Foo", `Idx_Foo` or [Idx_Foo]).
+        $oldIndexName = current(array_keys($renamedIndexes));
+        self::assertMatchesRegularExpression('/^(["`]Idx_Foo["`]|\[Idx_Foo])$/', $oldIndexName);
+        self::assertEquals('idx_bar', $renamedIndexes[$oldIndexName]->getObjectName()->toString());
+    }
+
     public function testDetectRenameIndexDisabled(): void
     {
         $prototype = Table::editor()
