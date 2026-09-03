@@ -726,11 +726,11 @@ SQL,
     private function getTableOptions(iterable $tableNames): iterable
     {
         foreach ($tableNames as $tableName) {
+            $createSQL = $this->getCreateTableSQL($tableName);
+
             yield new TableMetadataRow(null, $tableName, [
-                'comment' => $this->parseTableCommentFromSQL(
-                    $tableName,
-                    $this->getCreateTableSQL($tableName),
-                ),
+                'comment' => $this->parseTableCommentFromSQL($tableName, $createSQL),
+                'without_rowid' => $this->parseWithoutRowidFromSQL($createSQL),
             ]);
         }
     }
@@ -775,6 +775,15 @@ SQL,
         $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
 
         return $comment === '' ? null : $comment;
+    }
+
+    private function parseWithoutRowidFromSQL(string $sql): bool
+    {
+        if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
+            return false;
+        }
+
+        return preg_match('/\bWITHOUT\s+ROWID\b/i', $match[0]) === 1;
     }
 
     /** {@inheritDoc} */

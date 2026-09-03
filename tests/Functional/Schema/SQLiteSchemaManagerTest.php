@@ -22,6 +22,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 
 use function array_map;
 use function array_shift;
@@ -283,6 +284,69 @@ SQL;
         self::assertSame('', $sm->introspectTableByUnquotedName('own_column_comment')
             ->getColumn('col1')
             ->getComment());
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testIntrospectWithoutRowidTableOption(bool $withoutRowid): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('dbal_without_rowid')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setOptions(['without_rowid' => $withoutRowid])
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('dbal_without_rowid');
+
+        self::assertSame($withoutRowid, $onlineTable->getOption('without_rowid'));
+    }
+
+    public function testIntrospectWithoutRowidTableOptionFollowedByAnotherOption(): void
+    {
+        $this->dropTableIfExists('dbal_without_rowid_strict');
+
+        $ddl = <<<'DDL'
+        CREATE TABLE dbal_without_rowid_strict (
+            id INTEGER NOT NULL,
+            PRIMARY KEY (id)
+        ) WITHOUT ROWID, STRICT
+        DDL;
+
+        $this->connection->executeStatement($ddl);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('dbal_without_rowid_strict');
+
+        self::assertTrue($onlineTable->getOption('without_rowid'));
+    }
+
+    public function testIntrospectColumnNamedLikeWithoutRowidTableOption(): void
+    {
+        $this->dropTableIfExists('dbal_without_rowid_column');
+
+        $ddl = <<<'DDL'
+        CREATE TABLE dbal_without_rowid_column (
+            id INTEGER NOT NULL,
+            "without rowid" TEXT
+        )
+        DDL;
+
+        $this->connection->executeStatement($ddl);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('dbal_without_rowid_column');
+
+        self::assertFalse($onlineTable->getOption('without_rowid'));
     }
 
     public function testNonSimpleAlterTableCreatedFromDDL(): void

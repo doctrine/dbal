@@ -256,6 +256,15 @@ CREATE\sTABLE' . $this->buildIdentifierPattern($table) . '
         return $comment === '' ? null : $comment;
     }
 
+    private function parseWithoutRowidFromSQL(string $sql): bool
+    {
+        if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
+            return false;
+        }
+
+        return preg_match('/\bWITHOUT\s+ROWID\b/i', $match[0]) === 1;
+    }
+
     private function parseColumnCommentFromSQL(string $column, string $sql): string
     {
         $pattern = '{[\s(,]' . $this->buildIdentifierPattern($column)
@@ -587,10 +596,16 @@ SQL,
 
         $tableOptions = [];
         foreach ($tables as $table) {
-            $comment = $this->parseTableCommentFromSQL($table, $this->getCreateTableSQL($table));
+            $createSQL = $this->getCreateTableSQL($table);
+
+            $comment = $this->parseTableCommentFromSQL($table, $createSQL);
 
             if ($comment !== null) {
                 $tableOptions[$table]['comment'] = $comment;
+            }
+
+            if ($this->parseWithoutRowidFromSQL($createSQL)) {
+                $tableOptions[$table]['without_rowid'] = true;
             }
         }
 
