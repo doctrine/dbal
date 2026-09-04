@@ -194,7 +194,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
         }
 
         $editor
-            ->setTypeName($type)
+            ->setType($this->connection->getConfiguration()->getTypeRegistry()->get($type))
             ->setNotNull($nulls === 'N')
             ->setDefaultValue($this->parseDefaultExpression($default))
             ->setAutoincrement($generated === 'D');

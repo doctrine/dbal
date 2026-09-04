@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Types\TypeProvider;
+
 /**
  * Configuration for a Schema.
  */
 class SchemaConfig
 {
+    private ?TypeProvider $typeRegistry = null;
+
     /** @var positive-int */
     protected int $maxIdentifierLength = 63;
 
@@ -65,6 +69,24 @@ class SchemaConfig
     public function setDefaultTableOptions(array $defaultTableOptions): void
     {
         $this->defaultTableOptions = $defaultTableOptions;
+    }
+
+    /**
+     * @internal This method is necessary for ensuring backward compatibility
+     * for the deprecated {@see Column::getType()} method.
+     */
+    public function getTypeRegistry(): ?TypeProvider
+    {
+        return $this->typeRegistry;
+    }
+
+    /**
+     * @internal This method is necessary for ensuring backward compatibility
+     * for the deprecated {@see Column::getType()} method.
+     */
+    public function setTypeRegistry(TypeProvider $typeRegistry): void
+    {
+        $this->typeRegistry = $typeRegistry;
     }
 
     public function toTableConfiguration(): TableConfiguration

@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeProvider;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
 
@@ -83,6 +84,8 @@ class Table extends AbstractNamedObject
     private ?PrimaryKeyConstraint $primaryKeyConstraint = null;
 
     private bool $failedToParsePrimaryKeyConstraint = false;
+
+    private ?TypeProvider $typeRegistry = null;
 
     /**
      * @internal since doctrine/dbal 4.5. Use {@link Table::editor()} to instantiate an editor and
@@ -465,11 +468,21 @@ class Table extends AbstractNamedObject
             __METHOD__,
         );
 
-        $column = new Column($name, Type::getType($typeName), $options);
+        $column = new Column($name, $typeName, $options);
+        $column->setTypeRegistry($this->typeRegistry);
 
         $this->_addColumn($column);
 
         return $column;
+    }
+
+    /**
+     * @internal This method is necessary for ensuring backward compatibility
+     * for the deprecated {@see Column::getType()} method.
+     */
+    public function setTypeRegistry(?TypeProvider $typeRegistry): void
+    {
+        $this->typeRegistry = $typeRegistry;
     }
 
     /** @return array<string, string> */
@@ -1189,7 +1202,8 @@ class Table extends AbstractNamedObject
             ->setOptions($options)
             ->setConfiguration(
                 new TableConfiguration($this->maxIdentifierLength),
-            );
+            )
+            ->setTypeRegistry($this->typeRegistry);
     }
 
     /**

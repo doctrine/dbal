@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\TypeProvider;
 
 use function strcasecmp;
 use function strtolower;
@@ -46,6 +47,8 @@ final class TableEditor
     private string $comment = '';
 
     private ?TableConfiguration $configuration = null;
+
+    private ?TypeProvider $typeRegistry = null;
 
     /** @internal Use {@link Table::editor()} or {@link Table::edit()} to create an instance */
     public function __construct()
@@ -566,6 +569,17 @@ final class TableEditor
         return $this;
     }
 
+    /**
+     * @internal This method is necessary for ensuring backward compatibility
+     * for the deprecated {@see Column::getType()} method.
+     */
+    public function setTypeRegistry(?TypeProvider $typeRegistry): self
+    {
+        $this->typeRegistry = $typeRegistry;
+
+        return $this;
+    }
+
     public function create(): Table
     {
         if ($this->name === null) {
@@ -593,6 +607,7 @@ final class TableEditor
             $this->primaryKeyConstraint,
             $this->renamedColumns,
         );
+        $table->setTypeRegistry($this->typeRegistry);
 
         foreach ($this->indexEditors as $indexEditor) {
             $indexEditor->addToTable($table);

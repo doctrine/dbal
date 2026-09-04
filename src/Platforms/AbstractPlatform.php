@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -107,6 +108,8 @@ abstract class AbstractPlatform
      */
     private ?UnquotedIdentifierFolding $unquotedIdentifierFolding = null;
 
+    private ?Configuration $configuration = null;
+
     public function __construct(?UnquotedIdentifierFolding $unquotedIdentifierFolding = null)
     {
         if ($unquotedIdentifierFolding === null) {
@@ -119,6 +122,17 @@ abstract class AbstractPlatform
         }
 
         $this->unquotedIdentifierFolding = $unquotedIdentifierFolding ?? UnquotedIdentifierFolding::UPPER;
+    }
+
+    /** @internal Called by Connection after platform creation. */
+    public function setConfiguration(Configuration $configuration): void
+    {
+        $this->configuration = $configuration;
+    }
+
+    private function getTypeRegistry(): Types\TypeProvider
+    {
+        return $this->configuration?->getTypeRegistry() ?? Type::getTypeRegistry();
     }
 
     /**
@@ -171,8 +185,8 @@ abstract class AbstractPlatform
     {
         $this->initializeDoctrineTypeMappings();
 
-        foreach (Type::getTypesMap() as $typeName => $className) {
-            foreach (Type::getType($typeName)->getMappedDatabaseTypes($this) as $dbType) {
+        foreach ($this->getTypeRegistry() as $typeName => $type) {
+            foreach ($type->getMappedDatabaseTypes($this) as $dbType) {
                 $dbType                             = strtolower($dbType);
                 $this->doctrineTypeMapping[$dbType] = $typeName;
             }
@@ -397,7 +411,7 @@ abstract class AbstractPlatform
             $this->initializeAllDoctrineTypeMappings();
         }
 
-        if (! Types\Type::hasType($doctrineType)) {
+        if (! $this->getTypeRegistry()->has($doctrineType)) {
             throw TypeNotFound::new($doctrineType);
         }
 
@@ -887,6 +901,15 @@ abstract class AbstractPlatform
     final protected function getCreateTableWithoutForeignKeysSQL(Table $table): array
     {
         return $this->buildCreateTableSQL($table, false);
+    }
+
+    /**
+     * Resolves the DBAL type instance for a column type name.
+     */
+    protected function getType(string $typeName): Type
+    {
+        // @phpstan-ignore missingType.checkedException
+        return $this->getTypeRegistry()->get($typeName);
     }
 
     /** @return list<string> */
@@ -1493,7 +1516,7 @@ abstract class AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
+            $typeDecl    = $this->getType($column['typeName'])->getSQLDeclaration($column, $this);
             $declaration = $typeDecl . $charset . $default . $notnull . $collation;
 
             if ($this->supportsInlineColumnComments() && isset($column['comment']) && $column['comment'] !== '') {
@@ -1544,11 +1567,13 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $default->toSQL($this);
         }
 
-        if (! isset($column['type'])) {
+        if (isset($column['typeName']) && is_string($column['typeName'])) {
+            $type = $this->getType($column['typeName']);
+        } elseif (isset($column['type']) && $column['type'] instanceof Type) {
+            $type = $column['type'];
+        } else {
             return " DEFAULT '" . $default . "'";
         }
-
-        $type = $column['type'];
 
         if ($type instanceof Types\PhpIntegerMappingType) {
             return ' DEFAULT ' . $default;
@@ -2386,7 +2411,7 @@ abstract class AbstractPlatform
      */
     private function columnToArray(Column $column): array
     {
-        return array_merge($column->toArray(), [
+        return array_merge($column->toArray(true), [
             'name' => $column->getQuotedName($this),
             'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
             'comment' => $column->getComment(),

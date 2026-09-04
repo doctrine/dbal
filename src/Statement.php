@@ -79,7 +79,7 @@ class Statement
         $this->types[$param]  = $type;
 
         if (is_string($type)) {
-            $type = Type::getType($type);
+            $type = $this->conn->getConfiguration()->getTypeRegistry()->get($type);
         }
 
         if ($type instanceof Type) {

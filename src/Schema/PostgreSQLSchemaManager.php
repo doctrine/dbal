@@ -8,8 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Types\JsonType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
 use function array_map;
@@ -285,13 +284,14 @@ SQL,
             $options['comment'] = $tableColumn['comment'];
         }
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+        $column = new Column($tableColumn['field'], $type, $options);
+        $column->setTypeRegistry($this->connection->getConfiguration()->getTypeRegistry());
 
         if (! empty($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
-        if ($column->getType() instanceof JsonType) {
+        if ($type === Types::JSON) {
             $column->setPlatformOption('jsonb', $jsonb);
         }
 

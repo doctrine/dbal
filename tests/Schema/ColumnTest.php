@@ -12,7 +12,12 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Tests\Types\InMemoryTypeProvider;
+use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
+use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -45,11 +50,37 @@ class ColumnTest extends TestCase
         self::assertEquals(self::class, $column->getPlatformOption('enumType'));
     }
 
+    public function testToArrayWithType(): void
+    {
+        $expected = [
+            'name' => 'foo',
+            'typeName' => Types::STRING,
+            'default' => 'baz',
+            'notnull' => false,
+            'length' => 200,
+            'precision' => 5,
+            'scale' => 2,
+            'fixed' => true,
+            'unsigned' => true,
+            'autoincrement' => false,
+            'columnDefinition' => null,
+            'comment' => '',
+            'values' => [],
+            'type' => Type::getType(Types::STRING),
+            'charset' => 'utf8',
+            'enumType' => self::class,
+        ];
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame($expected, $this->createColumn()->toArray());
+    }
+
     public function testToArray(): void
     {
         $expected = [
             'name' => 'foo',
-            'type' => Type::getType(Types::STRING),
+            'typeName' => Types::STRING,
             'default' => 'baz',
             'notnull' => false,
             'length' => 200,
@@ -65,15 +96,22 @@ class ColumnTest extends TestCase
             'enumType' => self::class,
         ];
 
-        self::assertSame($expected, $this->createColumn()->toArray());
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame($expected, $this->createColumn()->toArray(true));
     }
 
     public function testSettingUnknownOptionIsStillSupported(): void
     {
+        $column = Column::editor()
+            ->setUnquotedName('foo')
+            ->setTypeName(Types::STRING)
+            ->create();
+
         $this->expectException(UnknownColumnOption::class);
         $this->expectExceptionMessage('The "unknown_option" column option is not supported.');
 
-        new Column('foo', self::createStub(Type::class), ['unknown_option' => 'bar']);
+        $column->setOptions(['unknown_option' => 'bar']);
     }
 
     public function testOptionsShouldNotBeIgnored(): void
@@ -173,7 +211,7 @@ class ColumnTest extends TestCase
     {
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6646');
 
-        new Column('', Type::getType(Types::INTEGER));
+        new Column('', Types::INTEGER);
     }
 
     /** @throws Exception */
@@ -187,9 +225,113 @@ class ColumnTest extends TestCase
         self::assertEquals(Identifier::unquoted('id'), $column->getObjectName()->getIdentifier());
     }
 
+    public function testPassingTypeInstanceToConstructorIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        new Column('foo', Type::getTypeRegistry()->get(Types::STRING));
+    }
+
+    public function testGetTypeIsDeprecated(): void
+    {
+        $column = new Column('foo', Types::STRING);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertInstanceOf(StringType::class, $column->getType());
+    }
+
+    public function testGetTypeNameIsNotDeprecated(): void
+    {
+        $column = new Column('foo', Types::STRING);
+
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame(Types::STRING, $column->getTypeName());
+    }
+
+    public function testGetTypeUsesInjectedTypeRegistry(): void
+    {
+        $customType = new StringType();
+        $registry   = new TypeRegistry([Types::STRING => $customType]);
+
+        $column = new Column('foo', Types::STRING);
+        $column->setTypeRegistry($registry);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame($customType, $column->getType());
+        self::assertNotSame(Type::getType(Types::STRING), $column->getType());
+    }
+
+    public function testGetTypeFallsBackToGlobalRegistryWhenRegistryIsNull(): void
+    {
+        $column = new Column('foo', Types::STRING);
+        $column->setTypeRegistry(null);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame(Type::getType(Types::STRING), $column->getType());
+    }
+
+    public function testSetTypeUsesInjectedTypeRegistryForNameLookup(): void
+    {
+        $customType = new StringType();
+        $registry   = new TypeRegistry([Types::STRING => $customType]);
+
+        $column = new Column('foo', Types::INTEGER);
+        $column->setTypeRegistry($registry);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7381');
+
+        $column->setType($customType);
+
+        self::assertSame(Types::STRING, $column->getTypeName());
+    }
+
+    public function testGetTypeUsesInjectedCustomTypeProvider(): void
+    {
+        $customType = new StringType();
+        $provider   = new InMemoryTypeProvider(['my_string' => $customType]);
+
+        $column = new Column('foo', 'my_string');
+        $column->setTypeRegistry($provider);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame($customType, $column->getType());
+    }
+
+    public function testSetTypeUsesInjectedCustomTypeProviderForNameLookup(): void
+    {
+        $customType = new StringType();
+        $provider   = new InMemoryTypeProvider(['my_string' => $customType]);
+
+        $column = new Column('foo', Types::INTEGER);
+        $column->setTypeRegistry($provider);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7381');
+
+        $column->setType($customType);
+
+        self::assertSame('my_string', $column->getTypeName());
+    }
+
+    public function testSetTypeThrowsWhenTypeIsNotFoundInCustomTypeProvider(): void
+    {
+        $provider = new InMemoryTypeProvider(['my_string' => new StringType()]);
+
+        $column = new Column('foo', Types::INTEGER);
+        $column->setTypeRegistry($provider);
+
+        $this->expectException(TypeNotRegistered::class);
+
+        $column->setType(new IntegerType());
+    }
+
     public function testSetPlatformOptionJsonb(): void
     {
-        $column = new Column('jsonb', Type::getType(Types::JSON));
+        $column = new Column('jsonb', Types::JSON);
 
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6939');
         $column->setPlatformOption('jsonb', true);

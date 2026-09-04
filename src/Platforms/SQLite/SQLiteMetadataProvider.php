@@ -175,7 +175,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
 
         $typeName = $this->platform->getDoctrineTypeMapping($dbType);
 
-        $editor->setTypeName($typeName);
+        $editor->setType($this->connection->getConfiguration()->getTypeRegistry()->get($typeName));
 
         if ($dbType === 'char') {
             $editor->setFixed(true);

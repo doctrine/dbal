@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function array_key_exists;
@@ -184,7 +183,10 @@ class OracleSchemaManager extends AbstractSchemaManager
             $options['comment'] = $tableColumn['comments'];
         }
 
-        return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
+        $column = new Column($this->getQuotedIdentifierName($tableColumn['column_name']), $type, $options);
+        $column->setTypeRegistry($this->connection->getConfiguration()->getTypeRegistry());
+
+        return $column;
     }
 
     /**

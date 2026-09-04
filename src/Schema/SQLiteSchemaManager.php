@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
@@ -127,7 +126,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             'scale'     => $scale,
         ];
 
-        $column = new Column($tableColumn['name'], Type::getType($type), $options);
+        $column = new Column($tableColumn['name'], $type, $options);
+        $column->setTypeRegistry($this->connection->getConfiguration()->getTypeRegistry());
 
         if ($type === Types::STRING || $type === Types::TEXT) {
             $column->setPlatformOption('collation', $tableColumn['collation'] ?? 'BINARY');

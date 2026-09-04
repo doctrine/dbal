@@ -19,6 +19,7 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\PhpDateTimeMappingType;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
@@ -27,6 +28,7 @@ use function count;
 use function current;
 use function explode;
 use function implode;
+use function is_string;
 use function sprintf;
 use function str_contains;
 
@@ -284,7 +286,7 @@ class DB2Platform extends AbstractPlatform
 
         $queryParts = [];
         foreach ($diff->getAddedColumns() as $column) {
-            $columnDef = $column->toArray();
+            $columnDef = $column->toArray(true);
             $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
             // Adding non-nullable columns to a table requires a default value to be specified.
@@ -400,7 +402,7 @@ class DB2Platform extends AbstractPlatform
     private function getAlterColumnClausesSQL(ColumnDiff $columnDiff, bool &$needsReorg): array
     {
         $newColumn   = $columnDiff->getNewColumn();
-        $columnArray = $newColumn->toArray();
+        $columnArray = $newColumn->toArray(true);
 
         $newName = $columnDiff->getNewColumn()->getQuotedName($this);
         $oldName = $columnDiff->getOldColumn()->getQuotedName($this);
@@ -427,7 +429,7 @@ class DB2Platform extends AbstractPlatform
             $columnDiff->hasFixedChanged()
         ) {
             $needsReorg = true;
-            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $newColumn->getType()
+            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $this->getType($newColumn->getTypeName())
                     ->getSQLDeclaration($columnArray, $this);
         }
 
@@ -484,7 +486,15 @@ class DB2Platform extends AbstractPlatform
                 'The "version" column platform option is deprecated.',
             );
 
-            if ($column['type'] instanceof PhpDateTimeMappingType) {
+            if (isset($column['typeName']) && is_string($column['typeName'])) {
+                $type = $this->getType($column['typeName']);
+            } elseif (isset($column['type']) && $column['type'] instanceof Type) {
+                $type = $column['type'];
+            } else {
+                $type = null;
+            }
+
+            if ($type instanceof PhpDateTimeMappingType) {
                 $column['default'] = '1';
             }
         }

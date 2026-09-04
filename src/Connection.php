@@ -194,6 +194,7 @@ class Connection implements ServerVersionProvider
             }
 
             $this->platform = $this->driver->getDatabasePlatform($versionProvider);
+            $this->platform->setConfiguration($this->_config);
         }
 
         return $this->platform;
@@ -1271,7 +1272,8 @@ class Connection implements ServerVersionProvider
      */
     public function convertToDatabaseValue(mixed $value, string $type): mixed
     {
-        return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
+        return $this->_config->getTypeRegistry()->get($type)
+            ->convertToDatabaseValue($value, $this->getDatabasePlatform());
     }
 
     /**
@@ -1287,7 +1289,7 @@ class Connection implements ServerVersionProvider
      */
     public function convertToPHPValue(mixed $value, string $type): mixed
     {
-        return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform());
+        return $this->_config->getTypeRegistry()->get($type)->convertToPHPValue($value, $this->getDatabasePlatform());
     }
 
     /**
@@ -1353,7 +1355,7 @@ class Connection implements ServerVersionProvider
     private function getBindingInfo(mixed $value, string|ParameterType|Type $type): array
     {
         if (is_string($type)) {
-            $type = Type::getType($type);
+            $type = $this->_config->getTypeRegistry()->get($type);
         }
 
         if ($type instanceof Type) {

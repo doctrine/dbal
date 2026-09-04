@@ -403,7 +403,18 @@ class Schema extends AbstractAsset
             __METHOD__,
         );
 
-        $table = new Table($name, [], [], [], [], [], $this->_schemaConfig->toTableConfiguration());
+        $table = new Table(
+            $name,
+            [],
+            [],
+            [],
+            [],
+            [],
+            $this->_schemaConfig->toTableConfiguration(),
+            null,
+            [],
+        );
+        $table->setTypeRegistry($this->_schemaConfig->getTypeRegistry());
         $this->_addTable($table);
 
         foreach ($this->_schemaConfig->getDefaultTableOptions() as $option => $value) {

@@ -244,8 +244,10 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             $completeType = $domainCompleteType;
         }
 
-        $editor->setTypeName(
-            $this->platform->getDoctrineTypeMapping($typeName),
+        $editor->setType(
+            $this->connection->getConfiguration()->getTypeRegistry()->get(
+                $this->platform->getDoctrineTypeMapping($typeName),
+            ),
         );
 
         switch ($typeName) {

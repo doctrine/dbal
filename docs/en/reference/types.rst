@@ -959,15 +959,63 @@ need to pass parameters to your instance::
         }
     }
 
-To do that, you can obtain the ``TypeRegistry`` singleton from ``Type``
-and register your type in it::
+To do that, build a ``TypeRegistry`` containing your type instance and set it on the
+connection ``Configuration``::
 
     <?php
-    Type::getTypeRegistry()->register('emojifyingType', new StringReplacingType(
-        [
-            ':)' => '😊',
-            ':(' => '😞',
-            ':D' => '😄',
-            ':P' => '😛',
-        ]
-    ));
+    use Doctrine\DBAL\Configuration;
+    use Doctrine\DBAL\DriverManager;
+    use Doctrine\DBAL\Types\TypeRegistry;
+
+    $configuration = new Configuration();
+    $configuration->setTypeProvider(new TypeRegistry([
+        'emojifyingType' => new StringReplacingType(
+            [
+                ':)' => '😊',
+                ':(' => '😞',
+                ':D' => '😄',
+                ':P' => '😛',
+            ]
+        ),
+    ]));
+
+    $connection = DriverManager::getConnection($params, $configuration);
+
+Types registered this way are scoped to the connections using that ``Configuration``,
+so they cannot affect the rest of the application.
+
+A registry always contains all built-in types. Names passed to the constructor
+override the built-in type of the same name.
+
+``Configuration`` accepts any ``Doctrine\DBAL\Types\TypeProvider``, so ``TypeRegistry`` can
+be replaced with your own implementation. A provider only has to answer ``get()`` and
+``has()``, and to yield its types when iterated::
+
+    <?php
+    foreach ($connection->getConfiguration()->getTypeRegistry() as $typeName => $type) {
+        // ...
+    }
+
+Lazy-loading types from a container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When types have their own dependencies, instantiating them all up front is wasteful.
+Pass a PSR-11 container together with a map of type names to service IDs, and each type
+is resolved on first use and then cached::
+
+    <?php
+    $registry = new TypeRegistry($container, [
+        'money'     => 'app.dbal_type.money',
+        'encrypted' => 'app.dbal_type.encrypted',
+    ]);
+
+The container is never queried during construction, nor by ``has()``. Iterating the
+registry does resolve every type, so callers that rely on it, such as schema
+introspection, will instantiate all of them.
+
+Each service must resolve to a distinct ``Type`` instance. Mapping two type names to the
+same service ID fails, because a type instance can only be registered under one name.
+
+The map is required whenever a container is passed: the registry never enumerates the
+container, so it cannot discover type names on its own. Any PSR-11 implementation works,
+including a Symfony service locator.

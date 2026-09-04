@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
@@ -252,17 +253,24 @@ abstract class AbstractSchemaManager
             ->toTableConfiguration();
 
         foreach ($tableColumnsByTable as $tableName => $tableColumns) {
-            if ($filter($tableName)) {
-                $tables[] = new Table(
-                    $tableName,
-                    $this->_getPortableTableColumnList($tableName, $database, $tableColumns),
-                    $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
-                    [],
-                    $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName] ?? []),
-                    $tableOptionsByTable[$tableName] ?? [],
-                    $configuration,
-                );
+            if (! $filter($tableName)) {
+                continue;
             }
+
+            $table = new Table(
+                $tableName,
+                $this->_getPortableTableColumnList($tableName, $database, $tableColumns),
+                $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
+                [],
+                $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName] ?? []),
+                $tableOptionsByTable[$tableName] ?? [],
+                $configuration,
+                null,
+                [],
+            );
+            $table->setTypeRegistry($this->connection->getConfiguration()->getTypeRegistry());
+
+            $tables[] = $table;
         }
 
         return $tables;
@@ -481,14 +489,20 @@ abstract class AbstractSchemaManager
             throw TableDoesNotExist::new($name);
         }
 
-        return new Table(
+        $table = new Table(
             $name,
             $columns,
             $this->listTableIndexes($name),
             [],
             $this->listTableForeignKeys($name),
             $this->getTableOptions($name),
+            null,
+            null,
+            [],
         );
+        $table->setTypeRegistry($this->connection->getConfiguration()->getTypeRegistry());
+
+        return $table;
     }
 
     /**
@@ -1501,6 +1515,7 @@ abstract class AbstractSchemaManager
         }
 
         $schemaConfig->setDefaultTableOptions($params['defaultTableOptions']);
+        $schemaConfig->setTypeRegistry($this->connection->getConfiguration()->getTypeRegistry());
 
         return $schemaConfig;
     }

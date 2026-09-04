@@ -230,7 +230,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
         }
 
         $editor
-            ->setTypeName($type)
+            ->setType($this->connection->getConfiguration()->getTypeRegistry()->get($type))
             ->setPrecision($precision)
             ->setScale($scale)
             ->setNotNull($nullable === 'N')

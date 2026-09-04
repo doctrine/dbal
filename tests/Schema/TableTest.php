@@ -23,7 +23,9 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use LogicException;
@@ -2106,5 +2108,33 @@ class TableTest extends TestCase
 
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7125');
         $table->addForeignKeyConstraint('baz', ['id'], ['id']);
+    }
+
+    public function testAddColumnUsesConfigurationTypeRegistry(): void
+    {
+        $customType = new IntegerType();
+        $registry   = new TypeRegistry([Types::INTEGER => $customType]);
+
+        $table = new Table('foo');
+        $table->setTypeRegistry($registry);
+        $column = $table->addColumn('id', Types::INTEGER);
+
+        self::assertSame($customType, $column->getType());
+        self::assertNotSame(Type::getType(Types::INTEGER), $column->getType());
+    }
+
+    public function testEditPreservesTypeRegistry(): void
+    {
+        $customType = new IntegerType();
+        $registry   = new TypeRegistry([Types::INTEGER => $customType]);
+
+        $table = new Table('foo');
+        $table->setTypeRegistry($registry);
+        $table->addColumn('id', Types::INTEGER);
+
+        $editedTable = $table->edit()->create();
+        $column      = $editedTable->addColumn('name', Types::INTEGER);
+
+        self::assertSame($customType, $column->getType());
     }
 }
