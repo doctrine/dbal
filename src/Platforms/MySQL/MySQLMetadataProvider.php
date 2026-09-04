@@ -173,7 +173,8 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                    c.EXTRA,
                    c.COLUMN_COMMENT,
                    c.CHARACTER_SET_NAME,
-                   c.COLLATION_NAME
+                   c.COLLATION_NAME,
+                   %s
             FROM information_schema.COLUMNS c
                      INNER JOIN information_schema.TABLES t
                                 ON t.TABLE_NAME = c.TABLE_NAME
@@ -184,6 +185,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                      c.ORDINAL_POSITION
             SQL,
             $this->platform->getColumnTypeSQLSnippet('c', $this->databaseName),
+            $this->platform->getSridColumnSQL(),
             implode(' AND ', $conditions),
         );
 
@@ -214,6 +216,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             $columnComment,
             $characterSetName,
             $collationName,
+            $srid,
         ] = $row;
 
         $editor = Column::editor()
@@ -283,6 +286,32 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
 
             case 'enum':
                 $editor->setValues($this->parseEnumExpression($columnType));
+                break;
+
+            case 'geometry':
+            case 'point':
+            case 'linestring':
+            case 'polygon':
+            case 'multipoint':
+            case 'multilinestring':
+            case 'multipolygon':
+            case 'geomcollection':
+            case 'geometrycollection':
+                // For MySQL, the dbType directly represents the geometry subtype
+                $geometryType = $dbType;
+
+                // Normalize MySQL's abbreviated "geomcollection" to "geometrycollection"
+                if ($geometryType === 'geomcollection') {
+                    $geometryType = 'geometrycollection';
+                }
+
+                $editor->setGeometryType($geometryType);
+
+                // MySQL 8.0.3+ stores SRID in information_schema.COLUMNS.SRS_ID
+                if ($srid !== null) {
+                    $editor->setSrid((int) $srid);
+                }
+
                 break;
         }
 

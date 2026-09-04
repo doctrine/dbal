@@ -524,6 +524,37 @@ jsonb_object
 This type is similar to ``json_object``. On PostgreSQL, it is mapped to the ``JSONB`` data type.
 On all other platforms, it is mapped to the same type as ``json``.
 
+Spatial types
+~~~~~~~~~~~~~
+
+Types that map geometric data such as points, lines and polygons.
+
+.. _geometry:
+geometry
+++++++++
+
+Maps and converts spatial geometry data on a planar (Euclidean) coordinate system.
+Values retrieved from the database are always converted to a
+``Doctrine\DBAL\Types\Geometry`` value object or ``null`` if no data is present.
+Spatial data is transported as GeoJSON, and the column accepts ``geometryType`` and
+``srid`` options. This type is only supported on PostgreSQL (PostGIS) and
+MySQL/MariaDB.
+
+See :doc:`spatial-types` for the value objects, the GeoJSON wire format, platform
+support and spatial indexes.
+
+.. _geography:
+geography
++++++++++
+
+Maps and converts spatial geography data on a spherical coordinate system using
+longitude/latitude coordinates. Values retrieved from the database are always converted
+to a ``Doctrine\DBAL\Types\Geometry`` value object or ``null`` if no data is present.
+This type is only supported on PostgreSQL (PostGIS).
+
+See :doc:`spatial-types` for the value objects, the GeoJSON wire format, platform
+support and spatial indexes.
+
 .. _mappingMatrix:
 
 Mapping Matrix
@@ -788,6 +819,12 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |                    +--------------------------+---------+----------------------------------------------------------+
     |                   |                    | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
     +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
+    | **geometry** [22] | ``Geometry``       | **PostgreSQL**           | *all*   | ``geometry(type, srid)``                                 |
+    |                   |                    +--------------------------+---------+----------------------------------------------------------+
+    |                   |                    | **MySQL**                | *all*   | ``GEOMETRY``, ``POINT``, ``POLYGON``, …                  |
+    +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
+    | **geography** [22]| ``Geometry``       | **PostgreSQL**           | *all*   | ``geography(type, srid)``                                |
+    +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
 
 
 **Notes**
@@ -829,6 +866,11 @@ Please also notice the mapping specific footnotes for additional information.
   attribute array or is set to ``false``.
 * [21] Chosen if the column definition contains the **jsonb** option inside the **platformOptions**
   attribute array and is set to ``true``.
+* [22] Spatial type. Requires PostGIS on PostgreSQL or MySQL 8.0+ / MariaDB 10.2.4+; ``geography`` is
+  only available on PostgreSQL. Not supported on SQLite, Oracle, DB2 and SQL Server. Values are
+  transported as GeoJSON and converted to and from the ``Doctrine\DBAL\Types\Geometry`` value object.
+  The **type** and **srid** parts of the declaration are derived from the **geometryType** and **srid**
+  column options. See :doc:`spatial-types`.
 
 Detection of Database Types
 ---------------------------

@@ -739,6 +739,8 @@ class PostgreSQLPlatform extends AbstractPlatform
             'float'            => Types::FLOAT,
             'float4'           => Types::SMALLFLOAT,
             'float8'           => Types::FLOAT,
+            'geography'        => Types::GEOGRAPHY,
+            'geometry'         => Types::GEOMETRY,
             'inet'             => Types::STRING,
             'int'              => Types::INTEGER,
             'int2'             => Types::SMALLINT,
@@ -834,9 +836,81 @@ class PostgreSQLPlatform extends AbstractPlatform
         return 'JSONB';
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        $geometryType = $column['geometryType'] ?? null;
+        $srid         = $column['srid'] ?? null;
+
+        if ($geometryType === null && $srid === null) {
+            return 'geometry';
+        }
+
+        return sprintf(
+            'geometry(%s%s)',
+            strtolower($geometryType ?? 'geometry'),
+            $srid !== null ? ',' . $srid : '',
+        );
+    }
+
+    public function getGeometryFromGeoJSONSQL(string $sqlExpr): string
+    {
+        return sprintf('ST_GeomFromGeoJSON(%s)', $sqlExpr);
+    }
+
+    public function getGeometryAsGeoJSONSQL(string $sqlExpr): string
+    {
+        // PostGIS 1.5+ - maxdecimaldigits=15 (full precision), options=2 (include CRS/SRID)
+        return sprintf('ST_AsGeoJSON(%s, 15, 2)', $sqlExpr);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        // geography defaults to SRID 4326 (WGS 84), unlike geometry which has no default SRID.
+        $geometryType = $column['geometryType'] ?? 'geometry';
+        $srid         = $column['srid'] ?? 4326;
+
+        return sprintf(
+            'geography(%s,%s)',
+            strtolower($geometryType),
+            $srid,
+        );
+    }
+
+    public function getGeographyFromGeoJSONSQL(string $sqlExpr): string
+    {
+        // First parse as geometry, then cast to geography
+        return sprintf('ST_GeomFromGeoJSON(%s)::geography', $sqlExpr);
+    }
+
+    public function getGeographyAsGeoJSONSQL(string $sqlExpr): string
+    {
+        // PostGIS 1.5+ - maxdecimaldigits=15 (full precision), options=2 (include CRS/SRID)
+        return sprintf('ST_AsGeoJSON(%s, 15, 2)', $sqlExpr);
+    }
+
     public function createMetadataProvider(Connection $connection): PostgreSQLMetadataProvider
     {
         return new PostgreSQLMetadataProvider($connection, $this);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For spatial indexes on PostgreSQL/PostGIS, we need to use GIST index method.
+     */
+    protected function getIndexMethodSQL(Index $index): string
+    {
+        if ($index->getType() === Index\IndexType::SPATIAL) {
+            return ' USING GIST';
+        }
+
+        return '';
     }
 
     public function createSchemaManager(Connection $connection): PostgreSQLSchemaManager

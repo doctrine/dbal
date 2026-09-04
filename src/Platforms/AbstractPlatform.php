@@ -387,6 +387,44 @@ abstract class AbstractPlatform
     abstract public function getBlobTypeDeclarationSQL(array $column): string;
 
     /**
+     * Gets the SQL declaration snippet for a geometry column.
+     *
+     * @param array<string, mixed> $column
+     */
+    abstract public function getGeometryTypeDeclarationSQL(array $column): string;
+
+    /**
+     * Gets the SQL snippet to convert a geometry value
+     * from GeoJSON format to the database's internal geometry format.
+     */
+    abstract public function getGeometryFromGeoJSONSQL(string $sqlExpr): string;
+
+    /**
+     * Gets the SQL snippet to convert a geometry value
+     * from the database's internal format to GeoJSON format.
+     */
+    abstract public function getGeometryAsGeoJSONSQL(string $sqlExpr): string;
+
+    /**
+     * Gets the SQL declaration snippet for a geography column.
+     *
+     * @param array<string, mixed> $column
+     */
+    abstract public function getGeographyTypeDeclarationSQL(array $column): string;
+
+    /**
+     * Gets the SQL snippet to convert a geography value
+     * from GeoJSON format to the database's internal geography format.
+     */
+    abstract public function getGeographyFromGeoJSONSQL(string $sqlExpr): string;
+
+    /**
+     * Gets the SQL snippet to convert a geography value
+     * from the database's internal format to GeoJSON format.
+     */
+    abstract public function getGeographyAsGeoJSONSQL(string $sqlExpr): string;
+
+    /**
      * Registers a doctrine type to be used in conjunction with a column type of this platform.
      *
      * @throws Exception If the type is not found.
@@ -1213,9 +1251,20 @@ abstract class AbstractPlatform
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
+        $query .= $this->getIndexMethodSQL($index);
         $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
+    }
+
+    /**
+     * Returns the index method clause for platforms that support it.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     */
+    protected function getIndexMethodSQL(Index $index): string
+    {
+        return '';
     }
 
     /**

@@ -9,12 +9,14 @@ use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\Tests\SpatialReferenceSystems;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -1171,6 +1173,235 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertSame(
             ['ALTER TABLE mytable ALTER payload TYPE JSON'],
             $this->platform->getAlterTableSQL($tableDiff),
+        );
+    }
+
+    public function testCreateTableWithGeometryColumns(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('spatial_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::GEOMETRY)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('point_location')
+                    ->setTypeName(Types::GEOMETRY)
+                    ->setGeometryType('POINT')
+                    ->setSrid(SpatialReferenceSystems::SRID_WGS84)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('polygon_area')
+                    ->setTypeName(Types::GEOMETRY)
+                    ->setGeometryType('POLYGON')
+                    ->create(),
+            )
+            ->create();
+
+        self::assertSame(
+            [
+                'CREATE TABLE spatial_table (id INT NOT NULL, '
+                . 'location geometry NOT NULL, '
+                . 'point_location geometry(point,4326) NOT NULL, '
+                . 'polygon_area geometry(polygon) NOT NULL)',
+            ],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
+    public function testCreateTableWithGeographyColumns(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('geo_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::GEOGRAPHY)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('point_location')
+                    ->setTypeName(Types::GEOGRAPHY)
+                    ->setGeometryType('POINT')
+                    ->setSrid(SpatialReferenceSystems::SRID_WGS84)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('line_path')
+                    ->setTypeName(Types::GEOGRAPHY)
+                    ->setGeometryType('LINESTRING')
+                    ->create(),
+            )
+            ->create();
+
+        self::assertSame(
+            [
+                'CREATE TABLE geo_table (id INT NOT NULL, '
+                . 'location geography(geometry,4326) NOT NULL, '
+                . 'point_location geography(point,4326) NOT NULL, '
+                . 'line_path geography(linestring,4326) NOT NULL)',
+            ],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
+    public function testAlterTableChangeColumnToGeometry(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('spatial_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'location' => new ColumnDiff(
+                $table->getColumn('location'),
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::GEOMETRY)
+                    ->setGeometryType('POINT')
+                    ->setSrid(SpatialReferenceSystems::SRID_WGS84)
+                    ->create(),
+            ),
+        ]);
+
+        self::assertSame(
+            ['ALTER TABLE spatial_table ALTER location TYPE geometry(point,4326)'],
+            $this->platform->getAlterTableSQL($tableDiff),
+        );
+    }
+
+    public function testAlterTableChangeColumnToGeography(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('geo_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'location' => new ColumnDiff(
+                $table->getColumn('location'),
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::GEOGRAPHY)
+                    ->setGeometryType('POINT')
+                    ->setSrid(SpatialReferenceSystems::SRID_WGS84)
+                    ->create(),
+            ),
+        ]);
+
+        self::assertSame(
+            ['ALTER TABLE geo_table ALTER location TYPE geography(point,4326)'],
+            $this->platform->getAlterTableSQL($tableDiff),
+        );
+    }
+
+    public function testReturnsGeometryTypeDeclarationSQL(): void
+    {
+        self::assertSame(
+            'geometry',
+            $this->platform->getGeometryTypeDeclarationSQL([]),
+        );
+
+        self::assertSame(
+            'geometry(point)',
+            $this->platform->getGeometryTypeDeclarationSQL(['geometryType' => 'POINT']),
+        );
+
+        self::assertSame(
+            'geometry(geometry,4326)',
+            $this->platform->getGeometryTypeDeclarationSQL(['srid' => SpatialReferenceSystems::SRID_WGS84]),
+        );
+
+        self::assertSame(
+            'geometry(polygon,4326)',
+            $this->platform->getGeometryTypeDeclarationSQL([
+                'geometryType' => 'POLYGON',
+                'srid' => SpatialReferenceSystems::SRID_WGS84,
+            ]),
+        );
+    }
+
+    public function testReturnsGeometryFromGeoJSONSQL(): void
+    {
+        self::assertSame(
+            'ST_GeomFromGeoJSON(?)',
+            $this->platform->getGeometryFromGeoJSONSQL('?'),
+        );
+    }
+
+    public function testReturnsGeometryAsGeoJSONSQL(): void
+    {
+        self::assertSame(
+            'ST_AsGeoJSON(geom_col, 15, 2)',
+            $this->platform->getGeometryAsGeoJSONSQL('geom_col'),
+        );
+    }
+
+    public function testReturnsGeographyTypeDeclarationSQL(): void
+    {
+        self::assertSame(
+            'geography(geometry,4326)',
+            $this->platform->getGeographyTypeDeclarationSQL([]),
+        );
+
+        self::assertSame(
+            'geography(point,4326)',
+            $this->platform->getGeographyTypeDeclarationSQL(['geometryType' => 'POINT']),
+        );
+
+        self::assertSame(
+            'geography(point,3857)',
+            $this->platform->getGeographyTypeDeclarationSQL([
+                'geometryType' => 'POINT',
+                'srid' => SpatialReferenceSystems::SRID_WEB_MERCATOR,
+            ]),
+        );
+    }
+
+    public function testReturnsGeographyFromGeoJSONSQL(): void
+    {
+        self::assertSame(
+            'ST_GeomFromGeoJSON(?)::geography',
+            $this->platform->getGeographyFromGeoJSONSQL('?'),
+        );
+    }
+
+    public function testReturnsGeographyAsGeoJSONSQL(): void
+    {
+        self::assertSame(
+            'ST_AsGeoJSON(geog_col, 15, 2)',
+            $this->platform->getGeographyAsGeoJSONSQL('geog_col'),
+        );
+    }
+
+    public function testCreateSpatialIndexSQL(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('spatial_idx')
+            ->setType(Index\IndexType::SPATIAL)
+            ->setUnquotedColumnNames('location')
+            ->create();
+
+        self::assertSame(
+            'CREATE INDEX spatial_idx ON spatial_table USING GIST (location)',
+            $this->platform->getCreateIndexSQL($index, 'spatial_table'),
         );
     }
 }

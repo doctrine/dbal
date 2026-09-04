@@ -12,6 +12,7 @@
    /reference/transactions
    /reference/platforms
    /reference/types
+   /reference/spatial-types
    /reference/schema-manager
    /reference/schema-representation
    /reference/object-names

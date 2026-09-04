@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\InvalidColumnDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Tests\SpatialReferenceSystems;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -121,5 +122,27 @@ class ColumnEditorTest extends TestCase
         $this->expectException(InvalidColumnDefinition::class);
 
         $editor->create();
+    }
+
+    public function testSetGeometryType(): void
+    {
+        $column = Column::editor()
+            ->setUnquotedName('location')
+            ->setTypeName(Types::GEOMETRY)
+            ->setGeometryType('POINT')
+            ->create();
+
+        self::assertSame('POINT', $column->getGeometryType());
+    }
+
+    public function testSetSrid(): void
+    {
+        $column = Column::editor()
+            ->setUnquotedName('location')
+            ->setTypeName(Types::GEOMETRY)
+            ->setSrid(SpatialReferenceSystems::SRID_WGS84)
+            ->create();
+
+        self::assertSame(SpatialReferenceSystems::SRID_WGS84, $column->getSrid());
     }
 }

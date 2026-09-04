@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
@@ -1035,6 +1036,42 @@ class SQLServerPlatform extends AbstractPlatform
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BIT';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeometryFromGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeometryAsGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeographyFromGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function getGeographyAsGeoJSONSQL(string $sqlExpr): string
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
