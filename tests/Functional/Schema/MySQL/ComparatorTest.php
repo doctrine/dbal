@@ -270,6 +270,28 @@ final class ComparatorTest extends FunctionalTestCase
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
+    public function testIndexPrefixLengthEqualToColumnLengthGeneratesNoDiff(): void
+    {
+        // https://github.com/doctrine/dbal/issues/5989 MySQL silently drops such a prefix on creation
+        $table = new Table('comparator_test');
+        $table->addColumn('my_col', Types::STRING, ['length' => 20]);
+        $table->addIndex(['my_col'], 'idx_col', [], ['lengths' => [20]]);
+
+        $this->dropAndCreateTable($table);
+
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table,
+        )->isEmpty());
+
+        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table,
+        )->isEmpty());
+    }
+
     private function createCollationTable(): Table
     {
         $table = Table::editor()

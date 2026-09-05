@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
 use function array_diff_assoc;
+use function array_filter;
 
 /**
  * Compares schemas in the context of MySQL platform.
@@ -64,6 +65,8 @@ class Comparator extends BaseComparator
 
         $table = clone $table;
 
+        $this->normalizeIndexLengths($table);
+
         foreach ($table->getColumns() as $column) {
             $originalOptions   = $column->getPlatformOptions();
             $normalizedOptions = $this->normalizeOptions($originalOptions);
@@ -79,6 +82,64 @@ class Comparator extends BaseComparator
         }
 
         return $table;
+    }
+
+    /**
+     * MySQL silently drops an index prefix length that equals the indexed column's length, so introspecting
+     * a table declared with such a length returns the index without it. Both representations must be
+     * considered equal during comparison.
+     */
+    private function normalizeIndexLengths(Table $table): void
+    {
+        foreach ($table->getIndexes() as $index) {
+            if (! $index->hasOption('lengths')) {
+                continue;
+            }
+
+            /** @var array<int, int|null> $lengths */
+            $lengths = $index->getOption('lengths');
+            $changed = false;
+
+            foreach ($index->getUnquotedColumns() as $position => $columnName) {
+                if (! isset($lengths[$position]) || ! $table->hasColumn($columnName)) {
+                    continue;
+                }
+
+                if ($lengths[$position] !== $table->getColumn($columnName)->getLength()) {
+                    continue;
+                }
+
+                $lengths[$position] = null;
+                $changed            = true;
+            }
+
+            if (! $changed) {
+                continue;
+            }
+
+            $remainingLengths = array_filter($lengths, static fn (?int $length): bool => $length !== null);
+
+            if ($index->isPrimary()) {
+                // rebuilding a primary key goes through a dedicated, richer API; prefix lengths on primary
+                // keys are exotic enough to leave them as they are
+                continue;
+            }
+
+            $options = $index->getOptions();
+            if ($remainingLengths === []) {
+                unset($options['lengths']);
+            } else {
+                $options['lengths'] = $lengths;
+            }
+
+            $table->dropIndex($index->getName());
+
+            if ($index->isUnique()) {
+                $table->addUniqueIndex($index->getUnquotedColumns(), $index->getName(), $options);
+            } else {
+                $table->addIndex($index->getUnquotedColumns(), $index->getName(), $index->getFlags(), $options);
+            }
+        }
     }
 
     /**
