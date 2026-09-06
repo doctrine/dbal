@@ -9,12 +9,13 @@ use Doctrine\DBAL\Schema\Exception\InvalidColumnDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 final class ColumnEditor
 {
     private ?UnqualifiedName $name = null;
 
-    private ?Type $type = null;
+    private ?string $typeName = null;
 
     private ?int $length = null;
 
@@ -84,17 +85,28 @@ final class ColumnEditor
         return $this;
     }
 
+    /**
+     * @deprecated Use {@link setTypeName()} instead.
+     *
+     * @throws TypesException
+     */
     public function setType(Type $type): self
     {
-        $this->type = $type;
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7490',
+            '%s is deprecated. Use ColumnEditor::setTypeName() instead.',
+            __METHOD__,
+        );
+
+        $this->typeName = Type::getTypeRegistry()->lookupName($type);
 
         return $this;
     }
 
-    /** @throws TypesException */
     public function setTypeName(string $typeName): self
     {
-        $this->type = Type::getType($typeName);
+        $this->typeName = $typeName;
 
         return $this;
     }
@@ -228,13 +240,14 @@ final class ColumnEditor
         return $this;
     }
 
+    /** @throws TypesException */
     public function create(): Column
     {
         if ($this->name === null) {
             throw InvalidColumnDefinition::nameNotSpecified();
         }
 
-        if ($this->type === null) {
+        if ($this->typeName === null) {
             throw InvalidColumnDefinition::dataTypeNotSpecified($this->name);
         }
 
@@ -266,7 +279,7 @@ final class ColumnEditor
 
         return new Column(
             $this->name->toString(),
-            $this->type,
+            $this->typeName,
             [
                 'length' => $this->length,
                 'precision' => $this->precision,

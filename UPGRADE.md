@@ -66,6 +66,26 @@ method instead:
 - `Column::setComment()` - use `ColumnEditor::setComment()`.
 - `Column::setValues()` - use `ColumnEditor::setValues()`.
 
+## Deprecated `Column::getType()`, `Column::setType()` and passing a `Type` instance to `Column::__construct()`
+
+`Column` now stores the DBAL type name (string) as source of truth. Use
+`Column::getTypeName()` / `Column::setTypeName()` and pass the type name to
+the constructor instead of a `Type` instance.
+
+```diff
+-use Doctrine\DBAL\Types\Type;
+ use Doctrine\DBAL\Types\Types;
+
+-$column = new Column('id', Type::getType(Types::INTEGER));
++$column = new Column('id', Types::INTEGER);
+
+-$typeName = Type::getTypeRegistry()->lookupName($column->getType());
++$typeName = $column->getTypeName();
+```
+
+Libraries that need to support older DBAL versions can keep passing a `Type`
+instance; the deprecated path stays functional until the next major.
+
 ## Deprecated `Table` features
 
 The `Table` constructor has been marked as internal. Use `Table::editor()` to instantiate an editor and

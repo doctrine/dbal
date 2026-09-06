@@ -23,7 +23,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -215,43 +214,15 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertFalse($diff11->hasTypeChanged());
     }
 
-    public function testDifferentTypeInstancesOfTheSameType(): void
+    public function testSameTypeNameIsNotAChange(): void
     {
-        $type1 = Type::getType(Types::INTEGER);
-        $type2 = clone $type1;
-
-        self::assertNotSame($type1, $type2);
-
         $column1 = Column::editor()
             ->setUnquotedName('id')
-            ->setType($type1)
+            ->setTypeName(Types::INTEGER)
             ->create();
 
         $column2 = $column1->edit()
-            ->setType($type2)
-            ->create();
-
-        $diff = new ColumnDiff($column2, $column1);
-        self::assertFalse($diff->hasTypeChanged());
-    }
-
-    public function testOverriddenType(): void
-    {
-        $defaultStringType = Type::getType(Types::STRING);
-        $integerType       = Type::getType(Types::INTEGER);
-
-        Type::overrideType(Types::STRING, $integerType::class);
-        $overriddenStringType = Type::getType(Types::STRING);
-
-        Type::overrideType(Types::STRING, $defaultStringType::class);
-
-        $column1 = Column::editor()
-            ->setUnquotedName('id')
-            ->setType($integerType)
-            ->create();
-
-        $column2 = $column1->edit()
-            ->setType($overriddenStringType)
+            ->setTypeName(Types::INTEGER)
             ->create();
 
         $diff = new ColumnDiff($column2, $column1);

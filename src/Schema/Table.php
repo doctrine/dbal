@@ -465,7 +465,7 @@ class Table extends AbstractNamedObject
             __METHOD__,
         );
 
-        $column = new Column($name, Type::getType($typeName), $options);
+        $column = new Column($name, $typeName, $options);
 
         $this->_addColumn($column);
 

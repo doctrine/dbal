@@ -285,13 +285,13 @@ SQL,
             $options['comment'] = $tableColumn['comment'];
         }
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+        $column = new Column($tableColumn['field'], $type, $options);
 
         if (! empty($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
-        if ($column->getType() instanceof JsonType) {
+        if (Type::getType($column->getTypeName()) instanceof JsonType) {
             $column->setPlatformOption('jsonb', $jsonb);
         }
 

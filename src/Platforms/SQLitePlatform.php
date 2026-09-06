@@ -762,9 +762,9 @@ class SQLitePlatform extends AbstractPlatform
         $sql = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            $definition = $column->toArray();
+            $definition = $column->toArray(true);
 
-            $type = $definition['type'];
+            $type = $this->getType($definition['typeName']);
 
             switch (true) {
                 case isset($definition['columnDefinition']):
