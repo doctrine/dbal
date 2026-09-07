@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\SQL\Builder\JoinLateralSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
@@ -38,6 +39,11 @@ class MySQLPlatform extends AbstractMySQLPlatform
     }
 
     public function createWithSQLBuilder(): WithSQLBuilder
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    public function createJoinLateralSQLBuilder(): JoinLateralSQLBuilder
     {
         throw NotSupported::new(__METHOD__);
     }

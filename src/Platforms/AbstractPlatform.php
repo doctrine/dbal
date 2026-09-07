@@ -30,8 +30,10 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\SQL\Builder\DefaultJoinLateralSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\JoinLateralSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\UnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
@@ -877,6 +879,21 @@ abstract class AbstractPlatform
     public function createWithSQLBuilder(): WithSQLBuilder
     {
         return new WithSQLBuilder();
+    }
+
+    public function createJoinLateralSQLBuilder(): JoinLateralSQLBuilder
+    {
+        return new DefaultJoinLateralSQLBuilder($this);
+    }
+
+    public function getJoinLateralSQL(): string
+    {
+        return 'LEFT JOIN LATERAL';
+    }
+
+    public function getJoinLateralConditionsSQL(?string $conditions): ?string
+    {
+        return $conditions !== null ? sprintf('(%s)', $conditions) : 'true';
     }
 
     /**

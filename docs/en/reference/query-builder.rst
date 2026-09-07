@@ -183,6 +183,64 @@ The method signature for ``join()``, ``innerJoin()``, ``leftJoin()`` and
 ``rightJoin()`` is the same. ``join()`` is a shorthand syntax for
 ``innerJoin()``.
 
+Lateral Join Clause
+~~~~~~~~~~~~~~~~~~~
+
+For ``SELECT`` clauses you can use ``LEFT JOIN LATERAL`` to join a subquery
+that can reference columns from the preceding FROM items. This is useful for
+performing correlated subqueries in the FROM clause.
+
+.. note::
+
+    ``LATERAL`` joins are supported on PostgreSQL 9.3+, MySQL 8.0.14+, and
+    SQL Server (as ``OUTER APPLY``). Check your database platform compatibility
+    before using this feature.
+
+The ``leftJoinLateral()`` method accepts a SQL string or QueryBuilder instance
+as the subquery, an alias for the lateral join, and an optional condition.
+
+.. note::
+
+    The optional condition parameter is not supported on all platforms. Check your
+    database platform compatibility before using it.
+
+.. code-block:: php
+
+    <?php
+    // Left join lateral using raw SQL
+    $queryBuilder
+        ->select('u.id', 'u.name', 'stats.phone_count', 'stats.last_phone_added')
+        ->from('users', 'u')
+        ->leftJoinLateral(
+            'u',
+            'SELECT COUNT(*) AS phone_count, MAX(pn.created_at) AS last_phone_added
+             FROM phonenumbers pn
+             WHERE pn.user_id = u.id',
+            'stats'
+        );
+
+.. code-block:: php
+
+    <?php
+    // Left join lateral using a QueryBuilder instance
+    $lateralQb = $conn->createQueryBuilder()
+        ->select(
+            'COUNT(*) as order_count',
+            'AVG(o.amount) as avg_order_value',
+            'SUM(o.amount) as total_spent',
+            'MIN(o.order_date) as first_order',
+            'MAX(o.order_date) as last_order'
+        )
+        ->from('orders', 'o')
+        ->where('o.user_id = u.id')
+        ->andWhere('o.status = :status');
+
+    $queryBuilder
+        ->select('u.id', 'u.name', 'u.category', 'order_stats.*')
+        ->from('users', 'u')
+        ->leftJoinLateral('u', $lateralQb, 'order_stats')
+        ->setParameter('status', 'completed');
+
 Order-By Clause
 ~~~~~~~~~~~~~~~
 

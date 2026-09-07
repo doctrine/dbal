@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
@@ -64,6 +65,20 @@ class SQLServerPlatform extends AbstractPlatform
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {
         return new SQLServerSelectSQLBuilder($this);
+    }
+
+    public function getJoinLateralSQL(): string
+    {
+        return 'OUTER APPLY';
+    }
+
+    public function getJoinLateralConditionsSQL(?string $conditions): ?string
+    {
+        if ($conditions === null) {
+            return null;
+        }
+
+        throw new NotSupported('OUTER APPLY conditions are not supported.');
     }
 
     public function getCurrentDateSQL(): string
