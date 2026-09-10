@@ -10,6 +10,7 @@ on:
       - phpstan.neon.dist
       - src/**
       - static-analysis/**
+      - structarmed.php
       - tests/**
   push:
     branches:
@@ -20,9 +21,32 @@ on:
       - phpstan.neon.dist
       - src/**
       - static-analysis/**
+      - structarmed.php
       - tests/**
 
 jobs:
   static-analysis-phpstan:
     name: "Static Analysis"
     uses: "doctrine/.github/.github/workflows/phpstan.yml@15.1.0"
+
+  static-analysis-structarmed:
+    name: "StructArmed"
+    runs-on: "ubuntu-24.04"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v7"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "8.2"
+          coverage: "none"
+        env:
+          fail-fast: true
+
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v4"
+
+      - name: "Run StructArmed"
+        run: "vendor/bin/structarmed analyse"
