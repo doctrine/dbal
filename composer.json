@@ -37,6 +37,7 @@
         "psr/log": "^1|^2|^3"
     },
     "require-dev": {
+        "boundwize/structarmed": "^0.17.3",
         "doctrine/coding-standard": "14.0.0",
         "fig/log-test": "^1",
         "jetbrains/phpstorm-stubs": "2023.2",
