@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
+use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
@@ -1339,7 +1340,15 @@ abstract class AbstractSchemaManager
     {
         $list = [];
         foreach ($rows as $row) {
-            $column = $this->_getPortableTableColumnDefinition($row);
+            try {
+                $column = $this->_getPortableTableColumnDefinition($row);
+            } catch (UnknownColumnType $unknownTypeException) {
+                throw UnknownColumnType::newWithContext(
+                    $unknownTypeException->getRequestedType(),
+                    $table,
+                    $unknownTypeException,
+                );
+            }
 
             $name        = strtolower($column->getQuotedName($this->platform));
             $list[$name] = $column;

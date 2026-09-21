@@ -5,16 +5,42 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types\Exception;
 
 use Exception;
+use Throwable;
 
 use function sprintf;
 
 final class UnknownColumnType extends Exception implements TypesException
 {
+    private string $requestedType;
+
+    public function getRequestedType(): string
+    {
+        return $this->requestedType;
+    }
+
     public static function new(string $name): self
     {
-        return new self(
+        $object = new self(sprintf(
+            'Unknown column type "%s" requested. Any Doctrine type that you use has '
+                    . 'to be registered with \Doctrine\DBAL\Types\Type::addType(). You can get a list of all the '
+                    . 'known types with \Doctrine\DBAL\Types\Type::getTypesMap(). If this error occurs during database '
+                    . 'introspection then you might have forgotten to register all database types for a Doctrine Type. '
+                    . 'Use AbstractPlatform#registerDoctrineTypeMapping() or have your custom types implement '
+                    . 'Type#getMappedDatabaseTypes(). If the type name is empty you might '
+                    . 'have a problem with the cache or forgot some mapping information.',
+            $name,
+        ));
+
+        $object->requestedType = $name;
+
+        return $object;
+    }
+
+    public static function newWithContext(string $name, string $tableName, ?Throwable $previous): self
+    {
+        $object = new self(
             sprintf(
-                'Unknown column type "%s" requested. Any Doctrine type that you use has '
+                'Unknown column type "%s" requested for table "%s". Any Doctrine type that you use has '
                     . 'to be registered with \Doctrine\DBAL\Types\Type::addType(). You can get a list of all the '
                     . 'known types with \Doctrine\DBAL\Types\Type::getTypesMap(). If this error occurs during database '
                     . 'introspection then you might have forgotten to register all database types for a Doctrine Type. '
@@ -22,7 +48,13 @@ final class UnknownColumnType extends Exception implements TypesException
                     . 'Type#getMappedDatabaseTypes(). If the type name is empty you might '
                     . 'have a problem with the cache or forgot some mapping information.',
                 $name,
+                $tableName,
             ),
+            previous: $previous,
         );
+
+        $object->requestedType = $name;
+
+        return $object;
     }
 }
