@@ -149,7 +149,11 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     {
         // MariaDb forces column collation to utf8mb4_bin where the column was declared as JSON so ignore
         // collation and character set for json columns as attempting to set them can cause an error.
-        if ($this->getJsonTypeDeclarationSQL([]) === 'JSON' && ($column['type'] ?? null) instanceof JsonType) {
+        if (
+            $this->getJsonTypeDeclarationSQL([]) === 'JSON'
+            && isset($column['typeName'])
+            && $this->getType($column['typeName']) instanceof JsonType
+        ) {
             unset($column['collation']);
             unset($column['charset']);
         }

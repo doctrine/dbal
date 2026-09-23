@@ -184,7 +184,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $options['comment'] = $tableColumn['comments'];
         }
 
-        return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
+        return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), $type, $options);
     }
 
     /**
