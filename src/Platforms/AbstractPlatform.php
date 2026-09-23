@@ -41,6 +41,7 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeProvider;
 use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
@@ -107,6 +108,8 @@ abstract class AbstractPlatform
      */
     private ?UnquotedIdentifierFolding $unquotedIdentifierFolding = null;
 
+    private ?TypeProvider $typeProvider = null;
+
     public function __construct(?UnquotedIdentifierFolding $unquotedIdentifierFolding = null)
     {
         if ($unquotedIdentifierFolding === null) {
@@ -119,6 +122,34 @@ abstract class AbstractPlatform
         }
 
         $this->unquotedIdentifierFolding = $unquotedIdentifierFolding ?? UnquotedIdentifierFolding::UPPER;
+    }
+
+    /**
+     * Sets the type provider used by this platform to resolve Doctrine types.
+     *
+     * Called by Connection after platform creation, replacing the former Configuration-based
+     * injection. Inject a type provider so the platform does not fall back to the global type
+     * registry.
+     */
+    public function setTypeProvider(TypeProvider $typeProvider): void
+    {
+        $this->typeProvider = $typeProvider;
+    }
+
+    private function getTypeProvider(): TypeProvider
+    {
+        if ($this->typeProvider === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7342',
+                'Not injecting a type provider is deprecated. Call %s::setTypeProvider() to provide one.',
+                self::class,
+            );
+
+            return Type::getTypeRegistry();
+        }
+
+        return $this->typeProvider;
     }
 
     /**
@@ -171,8 +202,8 @@ abstract class AbstractPlatform
     {
         $this->initializeDoctrineTypeMappings();
 
-        foreach (Type::getTypesMap() as $typeName => $className) {
-            foreach (Type::getType($typeName)->getMappedDatabaseTypes($this) as $dbType) {
+        foreach ($this->getTypeProvider() as $typeName => $type) {
+            foreach ($type->getMappedDatabaseTypes($this) as $dbType) {
                 $dbType                             = strtolower($dbType);
                 $this->doctrineTypeMapping[$dbType] = $typeName;
             }
@@ -397,7 +428,7 @@ abstract class AbstractPlatform
             $this->initializeAllDoctrineTypeMappings();
         }
 
-        if (! Types\Type::hasType($doctrineType)) {
+        if (! $this->getTypeProvider()->has($doctrineType)) {
             throw TypeNotFound::new($doctrineType);
         }
 
@@ -898,7 +929,7 @@ abstract class AbstractPlatform
     {
         if ($column instanceof Column) {
             // @phpstan-ignore missingType.checkedException
-            return Type::getType($column->getTypeName());
+            return $this->getTypeProvider()->get($column->getTypeName());
         }
 
         $type = $this->getColumnTypeOrNull($column);
@@ -922,7 +953,7 @@ abstract class AbstractPlatform
     {
         if (isset($column['typeName']) && is_string($column['typeName'])) {
             // @phpstan-ignore missingType.checkedException
-            return Type::getType($column['typeName']);
+            return $this->getTypeProvider()->get($column['typeName']);
         }
 
         if (isset($column['type']) && $column['type'] instanceof Type) {
