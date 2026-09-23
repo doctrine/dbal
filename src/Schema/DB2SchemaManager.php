@@ -97,7 +97,10 @@ class DB2SchemaManager extends AbstractSchemaManager
             $options['precision'] = $precision;
         }
 
-        return new Column($tableColumn['colname'], $type, $options);
+        $column = new Column($tableColumn['colname'], $type, $options);
+        $column->setTypeProvider($this->connection->getConfiguration()->getTypeProvider());
+
+        return $column;
     }
 
     /**

@@ -959,15 +959,67 @@ need to pass parameters to your instance::
         }
     }
 
-To do that, you can obtain the ``TypeRegistry`` singleton from ``Type``
-and register your type in it::
+To do that, build a ``TypeRegistry`` containing your type instance and set it on the
+connection ``Configuration``::
 
     <?php
-    Type::getTypeRegistry()->register('emojifyingType', new StringReplacingType(
-        [
-            ':)' => '😊',
-            ':(' => '😞',
-            ':D' => '😄',
-            ':P' => '😛',
-        ]
-    ));
+    use Doctrine\DBAL\Configuration;
+    use Doctrine\DBAL\DriverManager;
+    use Doctrine\DBAL\Types\TypeRegistry;
+
+    $configuration = new Configuration();
+    $configuration->setTypeProvider(new TypeRegistry([
+        'emojifyingType' => new StringReplacingType(
+            [
+                ':)' => '😊',
+                ':(' => '😞',
+                ':D' => '😄',
+                ':P' => '😛',
+            ]
+        ),
+    ]));
+
+    $connection = DriverManager::getConnection($params, $configuration);
+
+Types registered this way are scoped to the connections using that ``Configuration``,
+so they cannot affect the rest of the application.
+
+A registry always contains all built-in types. Names passed to the constructor
+override the built-in type of the same name.
+
+``Configuration`` accepts any ``Doctrine\DBAL\Types\TypeProvider``, so ``TypeRegistry`` can
+be replaced with your own implementation. A provider only has to answer ``get()`` and
+``has()``, and to yield its types when iterated::
+
+    <?php
+    foreach ($connection->getConfiguration()->getTypeProvider() as $typeName => $type) {
+        // ...
+    }
+
+Lazy-loading types
+~~~~~~~~~~~~~~~~~~
+
+A type can be registered by its class name instead of an instance. It is then instantiated
+only on the first ``get()``::
+
+    <?php
+    $registry = new TypeRegistry([
+        'money'     => MoneyType::class,
+        'encrypted' => EncryptedType::class,
+    ]);
+
+For types that have dependencies, inject a
+``Symfony\Contracts\Service\ServiceProviderInterface``, such as a Symfony service locator.
+The provider must be keyed by type name::
+
+    <?php
+    $registry = new TypeRegistry($serviceLocator);
+
+.. tip::
+
+   When using Symfony with DoctrineBundle, custom types can be registered as services through
+   the ``#[AsDbalType]`` attribute or the ``doctrine.dbal.type`` tag, which wires them into a
+   per-connection ``TypeRegistry`` automatically. See the `DoctrineBundle documentation`_.
+
+.. _`DoctrineBundle documentation`: https://www.doctrine-project.org/projects/doctrine-bundle/en/current/dbal-type.html
+

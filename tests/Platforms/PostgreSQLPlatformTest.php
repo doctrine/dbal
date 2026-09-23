@@ -510,7 +510,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $table = new Table('mytable');
 
         $oldColumn = $table->addColumn('foo', Types::STRING, $oldOptions);
-        $newColumn = new Column('foo', Type::getType($newType ?? Types::STRING), $newOptions);
+        $newColumn = new Column('foo', Type::getTypeRegistry()->get($newType ?? Types::STRING), $newOptions);
 
         $tableDiff = new TableDiff($table, changedColumns: [
             'foo' => new ColumnDiff(

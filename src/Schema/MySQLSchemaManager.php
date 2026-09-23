@@ -214,6 +214,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
         }
 
         $column = new Column($tableColumn['field'], $type, $options);
+        $column->setTypeProvider($this->connection->getConfiguration()->getTypeProvider());
         $column->setPlatformOption('charset', $tableColumn['characterset']);
         $column->setPlatformOption('collation', $tableColumn['collation']);
 
