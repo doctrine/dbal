@@ -325,7 +325,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         // non-timestamp value will get single quotes
         self::assertEquals(" DEFAULT 'non_timestamp'", $this->platform->getDefaultValueDeclarationSQL([
-            'type' => Type::getType(Types::STRING),
+            'typeName' => Types::STRING,
             'default' => 'non_timestamp',
         ]));
     }
@@ -343,8 +343,8 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::assertSame(
                 ' DEFAULT ' . $this->platform->getCurrentTimestampSQL(),
                 $this->platform->getDefaultValueDeclarationSQL([
-                    'type'    => Type::getType($type),
-                    'default' => new CurrentTimestamp(),
+                    'typeName' => $type,
+                    'default'  => new CurrentTimestamp(),
                 ]),
             );
         }
@@ -356,8 +356,8 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::assertEquals(
                 ' DEFAULT 1',
                 $this->platform->getDefaultValueDeclarationSQL([
-                    'type'    => Type::getType($type),
-                    'default' => 1,
+                    'typeName' => $type,
+                    'default'  => 1,
                 ]),
             );
         }
@@ -370,11 +370,58 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::assertSame(
                 ' DEFAULT ' . $currentDateSql,
                 $this->platform->getDefaultValueDeclarationSQL([
-                    'type'    => Type::getType($type),
-                    'default' => new CurrentDate(),
+                    'typeName' => $type,
+                    'default'  => new CurrentDate(),
                 ]),
             );
         }
+    }
+
+    /**
+     * Column definition arrays are built by third-party code, which still provides a Type instance under the
+     * legacy "type" key instead of the type name under "typeName".
+     */
+    public function testGetDefaultValueDeclarationSQLWithLegacyTypeKey(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame(
+            ' DEFAULT 1',
+            $this->platform->getDefaultValueDeclarationSQL([
+                'type'    => Type::getType(Types::INTEGER),
+                'default' => 1,
+            ]),
+        );
+    }
+
+    /** @see https://github.com/doctrine/orm/blob/HEAD/src/Query/Exec/MultiTableUpdateExecutor.php */
+    public function testGetColumnDeclarationListSQLWithLegacyTypeKey(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        $expected = $this->platform->getColumnDeclarationListSQL([
+            ['name' => 'id', 'notnull' => true, 'typeName' => Types::INTEGER],
+        ]);
+
+        self::assertSame($expected, $this->platform->getColumnDeclarationListSQL([
+            ['name' => 'id', 'notnull' => true, 'type' => Type::getType(Types::INTEGER)],
+        ]));
+    }
+
+    public function testGetColumnDeclarationSQLWithTypeNameDoesNotTriggerDeprecation(): void
+    {
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        $this->platform->getColumnDeclarationSQL('id', ['name' => 'id', 'typeName' => Types::INTEGER]);
+    }
+
+    public function testGetColumnDeclarationSQLWithoutType(): void
+    {
+        $this->expectException(InvalidColumnDeclaration::class);
+        $this->expectExceptionMessage('Column "id" has no type.');
+
+        /** @phpstan-ignore argument.type */
+        $this->platform->getColumnDeclarationSQL('id', ['name' => 'id']);
     }
 
     public function testKeywordList(): void

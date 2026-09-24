@@ -19,7 +19,6 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\PhpDateTimeMappingType;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
@@ -28,7 +27,6 @@ use function count;
 use function current;
 use function explode;
 use function implode;
-use function is_string;
 use function sprintf;
 use function str_contains;
 
@@ -429,7 +427,7 @@ class DB2Platform extends AbstractPlatform
             $columnDiff->hasFixedChanged()
         ) {
             $needsReorg = true;
-            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $this->getType($newColumn->getTypeName())
+            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $this->getColumnType($newColumn)
                     ->getSQLDeclaration($columnArray, $this);
         }
 
@@ -486,15 +484,7 @@ class DB2Platform extends AbstractPlatform
                 'The "version" column platform option is deprecated.',
             );
 
-            if (isset($column['typeName']) && is_string($column['typeName'])) {
-                $type = $this->getType($column['typeName']);
-            } elseif (isset($column['type']) && $column['type'] instanceof Type) {
-                $type = $column['type'];
-            } else {
-                $type = null;
-            }
-
-            if ($type instanceof PhpDateTimeMappingType) {
+            if ($this->getColumnTypeOrNull($column) instanceof PhpDateTimeMappingType) {
                 $column['default'] = '1';
             }
         }

@@ -95,6 +95,34 @@ read `$this->_type` directly must use `getType()` (or `getTypeName()`) instead,
 otherwise reading it throws a "typed property must not be accessed before
 initialization" error. The new `$_typeName` property is private.
 
+## Deprecated the `type` key of column definition arrays
+
+The arrays consumed by `AbstractPlatform::getColumnDeclarationListSQL()`,
+`AbstractPlatform::getColumnDeclarationSQL()` and
+`AbstractPlatform::getDefaultValueDeclarationSQL()` now carry the type name
+under the `typeName` key. Providing a `Type` instance under the `type` key is
+deprecated, and both keys are accepted until the next major.
+
+```diff
+-use Doctrine\DBAL\Types\Type;
+ use Doctrine\DBAL\Types\Types;
+
+ $sql = $platform->getColumnDeclarationListSQL([
+     [
+         'name'     => 'id',
+         'notnull'  => true,
+-        'type'     => Type::getType(Types::INTEGER),
++        'typeName' => Types::INTEGER,
+     ],
+ ]);
+```
+
+A definition array that carries neither key now throws
+`Doctrine\DBAL\Exception\InvalidColumnDeclaration`.
+
+Platforms resolving the type of such an array should call the new
+`AbstractPlatform::getColumnType()` instead of reading the key directly.
+
 ## Deprecated `Table` features
 
 The `Table` constructor has been marked as internal. Use `Table::editor()` to instantiate an editor and

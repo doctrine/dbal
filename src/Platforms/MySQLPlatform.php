@@ -11,10 +11,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
-
-use function is_string;
 
 /**
  * Provides the behavior, features and SQL dialect of the Oracle MySQL database platform
@@ -33,13 +30,7 @@ class MySQLPlatform extends AbstractMySQLPlatform
      */
     public function getDefaultValueDeclarationSQL(array $column): string
     {
-        if (isset($column['typeName']) && is_string($column['typeName'])) {
-            $type = $this->getType($column['typeName']);
-        } elseif (isset($column['type']) && $column['type'] instanceof Type) {
-            $type = $column['type'];
-        } else {
-            $type = null;
-        }
+        $type = $this->getColumnTypeOrNull($column);
 
         if ($type instanceof TextType || $type instanceof BlobType) {
             $column['default'] = null;
