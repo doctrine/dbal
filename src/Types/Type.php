@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types;
 
-use ArgumentCountError;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Exception\TypeArgumentCountError;
 use Doctrine\DBAL\Types\Exception\TypesException;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
-use function is_string;
+use function iterator_to_array;
 
 /**
  * The base class for so-called Doctrine mapping types.
@@ -21,43 +20,6 @@ use function is_string;
  */
 abstract class Type
 {
-    /**
-     * The map of supported doctrine mapping types.
-     */
-    private const BUILTIN_TYPES_MAP = [
-        Types::ASCII_STRING           => AsciiStringType::class,
-        Types::BIGINT                 => BigIntType::class,
-        Types::BINARY                 => BinaryType::class,
-        Types::BLOB                   => BlobType::class,
-        Types::BOOLEAN                => BooleanType::class,
-        Types::DATE_MUTABLE           => DateType::class,
-        Types::DATE_IMMUTABLE         => DateImmutableType::class,
-        Types::DATEINTERVAL           => DateIntervalType::class,
-        Types::DATETIME_MUTABLE       => DateTimeType::class,
-        Types::DATETIME_IMMUTABLE     => DateTimeImmutableType::class,
-        Types::DATETIME_UTC_MUTABLE   => DateTimeUtcType::class,
-        Types::DATETIME_UTC_IMMUTABLE => DateTimeUtcImmutableType::class,
-        Types::DATETIMETZ_MUTABLE     => DateTimeTzType::class,
-        Types::DATETIMETZ_IMMUTABLE   => DateTimeTzImmutableType::class,
-        Types::DECIMAL                => DecimalType::class,
-        Types::NUMBER                 => NumberType::class,
-        Types::ENUM                   => EnumType::class,
-        Types::FLOAT                  => FloatType::class,
-        Types::GUID                   => GuidType::class,
-        Types::INTEGER                => IntegerType::class,
-        Types::JSON                   => JsonType::class,
-        Types::JSON_OBJECT            => JsonObjectType::class,
-        Types::JSONB                  => JsonbType::class,
-        Types::JSONB_OBJECT           => JsonbObjectType::class,
-        Types::SIMPLE_ARRAY           => SimpleArrayType::class,
-        Types::SMALLFLOAT             => SmallFloatType::class,
-        Types::SMALLINT               => SmallIntType::class,
-        Types::STRING                 => StringType::class,
-        Types::TEXT                   => TextType::class,
-        Types::TIME_MUTABLE           => TimeType::class,
-        Types::TIME_IMMUTABLE         => TimeImmutableType::class,
-    ];
-
     private static ?TypeRegistry $typeRegistry = null;
 
     /**
@@ -100,25 +62,28 @@ abstract class Type
      */
     abstract public function getSQLDeclaration(array $column, AbstractPlatform $platform): string;
 
-    /** @throws TypesException */
+    /**
+     * @deprecated since doctrine/dbal 4.5. Use {@see Configuration::getTypeProvider()}, or inject
+     *             your own type provider. There will be no static type provider in DBAL 5.
+     */
     final public static function getTypeRegistry(): TypeRegistry
     {
-        return self::$typeRegistry ??= self::createTypeRegistry();
-    }
-
-    /** @throws TypesException */
-    private static function createTypeRegistry(): TypeRegistry
-    {
-        return new TypeRegistry(
-            array_map(
-                static fn ($class) => new $class(),
-                self::BUILTIN_TYPES_MAP,
-            ),
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7342',
+            '%s is deprecated. Use Configuration::getTypeProvider(), or inject your own type provider.',
+            __METHOD__,
         );
+
+        // @phpstan-ignore missingType.checkedException
+        return self::$typeRegistry ??= new TypeRegistry();
     }
 
     /**
      * Factory method to create type instances.
+     *
+     * @deprecated since doctrine/dbal 4.5. Resolve the type through the type provider of the
+     *             connection instead.
      *
      * @param string $name The name of the type.
      *
@@ -126,21 +91,42 @@ abstract class Type
      */
     public static function getType(string $name): self
     {
+        // Called from the deprecated Column::getType(), which triggers its own deprecation, so
+        // triggering unconditionally here would report the same call twice.
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7342',
+            '%s is deprecated. Resolve the type through the type provider of the connection instead.',
+            __METHOD__,
+        );
+
         return self::getTypeRegistry()->get($name);
     }
 
     /**
      * Finds a name for the given type.
      *
+     * @deprecated since doctrine/dbal 4.5. Track the type name instead of the instance.
+     *
      * @throws TypesException
      */
     public static function lookupName(self $type): string
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7342',
+            '%s is deprecated. Track the type name instead of the instance.',
+            __METHOD__,
+        );
+
         return self::getTypeRegistry()->lookupName($type);
     }
 
     /**
      * Adds a custom type to the type map.
+     *
+     * @deprecated since doctrine/dbal 4.5. Register the type in the type provider of the
+     *             connection instead.
      *
      * @param string                  $name The name of the type.
      * @param class-string<Type>|Type $type The custom type or the class name of the custom type.
@@ -149,19 +135,20 @@ abstract class Type
      */
     public static function addType(string $name, string|Type $type): void
     {
-        if (is_string($type)) {
-            try {
-                $type = new $type();
-            } catch (ArgumentCountError $e) { // @phpstan-ignore catch.neverThrown (it can be thrown)
-                throw TypeArgumentCountError::new($name, $e);
-            }
-        }
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7342',
+            '%s is deprecated. Register the type in the type provider of the connection instead.',
+            __METHOD__,
+        );
 
         self::getTypeRegistry()->register($name, $type);
     }
 
     /**
      * Checks if exists support for a type.
+     *
+     * @deprecated since doctrine/dbal 4.5. Ask the type provider of the connection instead.
      *
      * @param string $name The name of the type.
      *
@@ -171,11 +158,21 @@ abstract class Type
      */
     public static function hasType(string $name): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7342',
+            '%s is deprecated. Ask the type provider of the connection instead.',
+            __METHOD__,
+        );
+
         return self::getTypeRegistry()->has($name);
     }
 
     /**
      * Overrides an already defined type to use a different implementation.
+     *
+     * @deprecated since doctrine/dbal 4.5. Build a type provider with the type already overridden
+     *             instead.
      *
      * @param class-string<Type>|Type $type The custom type or the class name of the custom type.
      *
@@ -183,13 +180,12 @@ abstract class Type
      */
     public static function overrideType(string $name, string|Type $type): void
     {
-        if (is_string($type)) {
-            try {
-                $type = new $type();
-            } catch (ArgumentCountError $e) { // @phpstan-ignore catch.neverThrown (it can be thrown)
-                throw TypeArgumentCountError::new($name, $e);
-            }
-        }
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7342',
+            '%s is deprecated. Build a type provider with the type already overridden instead.',
+            __METHOD__,
+        );
 
         self::getTypeRegistry()->override($name, $type);
     }
@@ -207,15 +203,24 @@ abstract class Type
      * Gets the types array map which holds all registered types and the corresponding
      * type class
      *
+     * @deprecated since doctrine/dbal 4.5. Iterate the type provider of the connection instead.
+     *
      * @return array<string, string>
      *
      * @throws TypesException
      */
     public static function getTypesMap(): array
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7342',
+            '%s is deprecated. Iterate the type provider of the connection instead.',
+            __METHOD__,
+        );
+
         return array_map(
             static fn (Type $type): string => $type::class,
-            self::getTypeRegistry()->getMap(),
+            iterator_to_array(self::getTypeRegistry()),
         );
     }
 

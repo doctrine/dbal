@@ -7,6 +7,8 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Schema\SchemaManagerFactory;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeProvider;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
@@ -35,6 +37,8 @@ class Configuration
     protected bool $autoCommit = true;
 
     private ?SchemaManagerFactory $schemaManagerFactory = null;
+
+    private ?TypeProvider $typeProvider = null;
 
     public function __construct()
     {
@@ -130,6 +134,19 @@ class Configuration
     public function setSchemaManagerFactory(SchemaManagerFactory $schemaManagerFactory): self
     {
         $this->schemaManagerFactory = $schemaManagerFactory;
+
+        return $this;
+    }
+
+    public function getTypeProvider(): TypeProvider
+    {
+        return $this->typeProvider ??= Type::getTypeRegistry();
+    }
+
+    /** @return $this */
+    public function setTypeProvider(TypeProvider $typeProvider): self
+    {
+        $this->typeProvider = $typeProvider;
 
         return $this;
     }
