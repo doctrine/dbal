@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_change_key_case;
 
@@ -578,6 +579,74 @@ final class QueryBuilderTest extends FunctionalTestCase
 
         self::expectException(NotSupported::class);
         $qb->executeQuery();
+    }
+
+    public function testCommentedQueryIsUnderstoodByThePlatform(): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('id')
+            ->from('for_update')
+            ->where('id = 1')
+            ->addComment('a comment');
+
+        self::assertEquals([1], $qb->fetchFirstColumn());
+    }
+
+    public function testCommentedStatementIsUnderstoodByThePlatform(): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete('for_update')
+            ->where('id = 2')
+            ->addComment('a comment');
+
+        self::assertSame(1, $qb->executeStatement());
+    }
+
+    #[DataProvider('lineTerminatorProvider')]
+    public function testCommentSpanningMultipleLinesIsUnderstoodByThePlatform(string $lineTerminator): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('id')
+            ->from('for_update')
+            ->where('id = 1')
+            ->addComment('a comment' . $lineTerminator . 'spanning multiple lines');
+
+        self::assertEquals([1], $qb->fetchFirstColumn());
+    }
+
+    /**
+     * A line terminator inside a comment must not let its remainder escape into the query, otherwise
+     * the comment would be a way to inject arbitrary SQL.
+     */
+    #[DataProvider('lineTerminatorProvider')]
+    public function testCommentCannotEscapeIntoTheQuery(string $lineTerminator): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('id')
+            ->from('for_update')
+            ->addComment('a comment' . $lineTerminator . 'AND id = 2');
+
+        self::assertEquals([1, 2], $qb->fetchFirstColumn());
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function lineTerminatorProvider(): iterable
+    {
+        yield 'line feed' => ["\n"];
+        yield 'carriage return' => ["\r"];
+        yield 'carriage return and line feed' => ["\r\n"];
+    }
+
+    public function testCommentDoesNotContributeQueryParameters(): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('id')
+            ->from('for_update')
+            ->where('id = ?')
+            ->setParameter(0, 1, ParameterType::INTEGER)
+            ->addComment('is this a placeholder? no, it is not');
+
+        self::assertEquals([1], $qb->fetchFirstColumn());
     }
 
     /**
