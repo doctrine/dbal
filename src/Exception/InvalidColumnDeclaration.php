@@ -15,4 +15,12 @@ final class InvalidColumnDeclaration extends LogicException implements Exception
     {
         return new self(sprintf('Column "%s" has invalid type', $columnName), 0, $e);
     }
+
+    public static function fromMissingColumnType(string $columnName): self
+    {
+        return new self(sprintf(
+            'Column "%s" has no type. The column definition must contain a "typeName" key.',
+            $columnName,
+        ));
+    }
 }

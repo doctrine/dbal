@@ -312,7 +312,7 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     private function getTypeSQLDeclaration(Column $column): string
     {
-        $type = $this->getType($column->getTypeName());
+        $type = $this->getColumnType($column);
 
         // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
         $columnDefinition                  = $column->toArray(true);

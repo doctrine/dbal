@@ -764,19 +764,19 @@ class SQLitePlatform extends AbstractPlatform
         foreach ($diff->getAddedColumns() as $column) {
             $definition = $column->toArray(true);
 
-            $type = $this->getType($definition['typeName']);
+            $type    = $this->getColumnType($definition);
+            $default = $column->getDefault();
 
             switch (true) {
-                case isset($definition['columnDefinition']):
-                case $definition['autoincrement']:
-                case $definition['comment'] !== '':
+                case $column->getColumnDefinition() !== null:
+                case $column->getAutoincrement():
+                case $column->getComment() !== '':
                 // A non-constant default expression (e.g. CURRENT_TIMESTAMP) cannot be used with
                 // ALTER TABLE ... ADD COLUMN on a non-empty table, so fall back to a table rebuild.
-                case $definition['default'] instanceof DefaultExpression:
-                case $type instanceof Types\PhpDateTimeMappingType
-                    && $definition['default'] === $this->getCurrentTimestampSQL():
-                case $type instanceof Types\PhpDateMappingType && $definition['default'] === $this->getCurrentDateSQL():
-                case $type instanceof Types\PhpTimeMappingType && $definition['default'] === $this->getCurrentTimeSQL():
+                case $default instanceof DefaultExpression:
+                case $type instanceof Types\PhpDateTimeMappingType && $default === $this->getCurrentTimestampSQL():
+                case $type instanceof Types\PhpDateMappingType && $default === $this->getCurrentDateSQL():
+                case $type instanceof Types\PhpTimeMappingType && $default === $this->getCurrentTimeSQL():
                     return false;
             }
 

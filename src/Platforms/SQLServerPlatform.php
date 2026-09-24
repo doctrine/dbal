@@ -210,8 +210,10 @@ class SQLServerPlatform extends AbstractPlatform
                     ' ADD' . $this->getDefaultConstraintDeclarationSQL($column);
             }
 
-            if (! empty($column['comment']) || is_numeric($column['comment'])) {
-                $commentsSql[] = $this->getCreateColumnCommentSQL($name, $column['name'], $column['comment']);
+            $comment = $column['comment'] ?? '';
+
+            if (! empty($comment) || is_numeric($comment)) {
+                $commentsSql[] = $this->getCreateColumnCommentSQL($name, $column['name'], $comment);
             }
         }
 
@@ -1246,7 +1248,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $typeDecl    = $this->getType($column['typeName'])->getSQLDeclaration($column, $this);
+            $typeDecl    = $this->getColumnType($column)->getSQLDeclaration($column, $this);
             $declaration = $typeDecl . $collation . $notnull;
         }
 

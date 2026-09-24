@@ -151,8 +151,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
         // collation and character set for json columns as attempting to set them can cause an error.
         if (
             $this->getJsonTypeDeclarationSQL([]) === 'JSON'
-            && isset($column['typeName'])
-            && $this->getType($column['typeName']) instanceof JsonType
+            && $this->getColumnTypeOrNull($column) instanceof JsonType
         ) {
             unset($column['collation']);
             unset($column['charset']);

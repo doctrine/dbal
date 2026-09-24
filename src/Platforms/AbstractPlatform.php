@@ -890,12 +890,54 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Resolves the DBAL type instance for a column type name.
+     * Resolves the DBAL type instance of a column or of a column definition array.
+     *
+     * @param array<string, mixed>|Column $column Column properties.
      */
-    protected function getType(string $typeName): Type
+    final protected function getColumnType(array|Column $column): Type
     {
-        // @phpstan-ignore missingType.checkedException
-        return Type::getType($typeName);
+        if ($column instanceof Column) {
+            // @phpstan-ignore missingType.checkedException
+            return Type::getType($column->getTypeName());
+        }
+
+        $type = $this->getColumnTypeOrNull($column);
+
+        if ($type === null) {
+            $name = $column['name'] ?? '';
+
+            throw InvalidColumnDeclaration::fromMissingColumnType(is_string($name) ? $name : '');
+        }
+
+        return $type;
+    }
+
+    /**
+     * Resolves the DBAL type instance of a column or of a column definition array, or null when the definition
+     * carries no type.
+     *
+     * @param array<string, mixed> $column Column properties.
+     */
+    final protected function getColumnTypeOrNull(array $column): ?Type
+    {
+        if (isset($column['typeName']) && is_string($column['typeName'])) {
+            // @phpstan-ignore missingType.checkedException
+            return Type::getType($column['typeName']);
+        }
+
+        if (isset($column['type']) && $column['type'] instanceof Type) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7490',
+                'Providing a %s instance under the "type" key of a column definition array is deprecated.'
+                    . ' Provide the type name under the "typeName" key instead.',
+                Type::class,
+            );
+
+            return $column['type'];
+        }
+
+        return null;
     }
 
     /** @return list<string> */
@@ -1502,7 +1544,7 @@ abstract class AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $typeDecl    = $this->getType($column['typeName'])->getSQLDeclaration($column, $this);
+            $typeDecl    = $this->getColumnType($column)->getSQLDeclaration($column, $this);
             $declaration = $typeDecl . $charset . $default . $notnull . $collation;
 
             if ($this->supportsInlineColumnComments() && isset($column['comment']) && $column['comment'] !== '') {
@@ -1553,11 +1595,9 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $default->toSQL($this);
         }
 
-        if (isset($column['typeName']) && is_string($column['typeName'])) {
-            $type = $this->getType($column['typeName']);
-        } elseif (isset($column['type']) && $column['type'] instanceof Type) {
-            $type = $column['type'];
-        } else {
+        $type = $this->getColumnTypeOrNull($column);
+
+        if ($type === null) {
             return " DEFAULT '" . $default . "'";
         }
 

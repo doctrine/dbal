@@ -29,13 +29,13 @@ use function sprintf;
  * @extends AbstractNamedObject<UnqualifiedName>
  * @phpstan-type ColumnProperties = array{
  *     name: string,
- *     type?: Type,
- *     typeName: string,
- *     default: mixed,
+ *     type?: Type,       // Deprecated; use typeName instead.
+ *     typeName?: string, // Will be required in 5.0
+ *     default?: mixed,
  *     notnull?: bool,
- *     autoincrement: bool,
- *     columnDefinition: ?non-empty-string,
- *     comment: string,
+ *     autoincrement?: bool,
+ *     columnDefinition?: ?non-empty-string,
+ *     comment?: string,
  *     charset?: ?non-empty-string,
  *     collation?: ?non-empty-string,
  * }
@@ -621,19 +621,19 @@ class Column extends AbstractNamedObject
         }
 
         return array_merge([
-            'name'             => $this->_name,
-            'typeName'         => $this->_typeName,
-            'default'          => $this->_default,
-            'notnull'          => $this->_notnull,
-            'length'           => $this->_length,
-            'precision'        => $this->_precision,
-            'scale'            => $this->_scale,
+            'name'            => $this->_name,
+            'typeName'        => $this->_typeName,
+            'default'         => $this->_default,
+            'notnull'         => $this->_notnull,
+            'length'          => $this->_length,
+            'precision'       => $this->_precision,
+            'scale'           => $this->_scale,
             'fixed'            => $this->_fixed,
-            'unsigned'         => $this->_unsigned,
-            'autoincrement'    => $this->_autoincrement,
+            'unsigned'        => $this->_unsigned,
+            'autoincrement'   => $this->_autoincrement,
             'columnDefinition' => $this->_columnDefinition,
-            'comment'          => $this->_comment,
-            'values'           => $this->_values,
+            'comment'         => $this->_comment,
+            'values'          => $this->_values,
         // @phpstan-ignore missingType.checkedException
         ], $skipType ? [] : ['type' => $this->getType()], $this->_platformOptions);
     }
