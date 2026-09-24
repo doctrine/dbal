@@ -10,7 +10,7 @@ use function get_class;
 use function gettype;
 use function implode;
 use function is_object;
-use function spl_object_hash;
+use function spl_object_id;
 use function sprintf;
 
 class Exception extends \Exception
@@ -128,14 +128,14 @@ class Exception extends \Exception
     public static function typeNotRegistered(Type $type): self
     {
         return new self(
-            sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type)),
+            sprintf('Type of the class %s@%d is not registered.', get_class($type), spl_object_id($type)),
         );
     }
 
     public static function typeAlreadyRegistered(Type $type): self
     {
         return new self(
-            sprintf('Type of the class %s@%s is already registered.', get_class($type), spl_object_hash($type)),
+            sprintf('Type of the class %s@%d is already registered.', get_class($type), spl_object_id($type)),
         );
     }
 }
