@@ -251,6 +251,11 @@ class SQLitePlatform extends AbstractPlatform
         return 'TIME';
     }
 
+    public function getDateTimeTzFormatString(): string
+    {
+        return 'Y-m-d H:i:sp';
+    }
+
     /**
      * {@inheritDoc}
      */
