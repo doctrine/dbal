@@ -117,6 +117,13 @@ class QueryBuilder
     private array $join = [];
 
     /**
+     * The list of lateral joins.
+     *
+     * @var array<string, JoinLateral[]>
+     */
+    private array $joinLateral = [];
+
+    /**
      * The SET parts of an UPDATE query.
      *
      * @var string[]
@@ -918,6 +925,40 @@ class QueryBuilder
     }
 
     /**
+     * Creates and adds a left join lateral to the query.
+     *
+     * <code>
+     *     $qbLateral = $conn->createQueryBuilder()
+     *         ->select('COUNT(*) AS total_phone_numbers')
+     *         ->from('phone_number', 'pn')
+     *         ->where('pn.user_id = u.id');
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u.name', 'phone_count.total_phone_numbers')
+     *         ->from('users', 'u')
+     *         ->leftJoinLateral('u', $qbLateral, 'phone_count');
+     * </code>
+     *
+     * @param string              $fromAlias The alias that points to a from clause.
+     * @param string|QueryBuilder $query     The query of the join lateral.
+     * @param string              $alias     The alias of the join lateral.
+     * @param ?string             $condition The condition for the join lateral.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function leftJoinLateral(
+        string $fromAlias,
+        string|QueryBuilder $query,
+        string $alias,
+        ?string $condition = null,
+    ): self {
+        $this->joinLateral[$fromAlias][] = new JoinLateral($query, $alias, $condition);
+
+        $this->sql = null;
+
+        return $this;
+    }
+
+    /**
      * Sets a new value for a column in a bulk update query.
      *
      * <code>
@@ -1378,11 +1419,13 @@ class QueryBuilder
      * @return array<string, string>
      *
      * @throws QueryException
+     * @throws Exception
      */
     private function getFromClauses(): array
     {
-        $fromClauses  = [];
-        $knownAliases = [];
+        $fromClauses      = [];
+        $knownAliases     = [];
+        $databasePlatform = $this->connection->getDatabasePlatform();
 
         foreach ($this->from as $from) {
             if ($from->alias === null || $from->alias === $from->table) {
@@ -1395,7 +1438,16 @@ class QueryBuilder
 
             $knownAliases[$tableReference] = true;
 
-            $fromClauses[$tableReference] = $tableSql . $this->getSQLForJoins($tableReference, $knownAliases);
+            $joinLateralSQL = '';
+            if (isset($this->joinLateral[$tableReference])) {
+                $joinLateralSQL = $databasePlatform->createJoinLateralSQLBuilder()->buildSQL(
+                    $this->joinLateral[$tableReference],
+                    $knownAliases,
+                );
+            }
+
+            $fromClauses[$tableReference] = $tableSql . $joinLateralSQL .
+                $this->getSQLForJoins($tableReference, $knownAliases);
         }
 
         $this->verifyAllAliasesAreKnown($knownAliases);
@@ -1612,6 +1664,12 @@ class QueryBuilder
     {
         foreach ($this->from as $key => $from) {
             $this->from[$key] = clone $from;
+        }
+
+        foreach ($this->joinLateral as $fromAlias => $joinLaterals) {
+            foreach ($joinLaterals as $key => $joinLateral) {
+                $this->joinLateral[$fromAlias][$key] = clone $joinLateral;
+            }
         }
 
         foreach ($this->join as $fromAlias => $joins) {
