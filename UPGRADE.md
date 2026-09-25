@@ -8,6 +8,18 @@ awareness about deprecated code.
 
 # Upgrade to 4.5
 
+## Deprecated passing a value that is not shaped like a GUID to `GuidType`
+
+`GuidType` now expects a value shaped like a GUID, that is 32 hexadecimal digits, with optional surrounding braces and
+an optional hyphen after any group of four digits. Handling anything else is deprecated, both when converting to a
+database value and when converting to a PHP value. The value is still returned unchanged in 4.5, and will be rejected
+with a conversion exception in 5.0.
+
+Until now, a malformed value reached the database as is. On platforms with a native GUID type, the driver rejected it,
+for instance PostgreSQL reporting `SQLSTATE[22P02]: Invalid text representation: invalid input syntax for uuid`. On
+platforms without a native GUID type, the column is a plain `CHAR(36)` and could hold anything. If you store values
+that are not GUIDs in such a column, use the `string` type instead.
+
 ## Deprecated not implementing unique constraint introspection in `MetadataProvider`
 
 `Doctrine\DBAL\Schema\Metadata\MetadataProvider` implementations should now implement
