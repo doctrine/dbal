@@ -282,7 +282,11 @@ class Table extends AbstractNamedObject
         );
 
         $indexName ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $columnNames),
+            array_merge(
+                [$this->getName()],
+                $columnNames,
+                isset($options['where']) ? [$options['where']] : [],
+            ),
             'idx',
             $this->_getMaxIdentifierLength(),
         );
