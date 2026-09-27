@@ -14,6 +14,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SchemaManagerFactory;
@@ -51,9 +52,11 @@ class ConnectionTest extends TestCase
 
     private function getExecuteStatementMockConnection(): Connection&MockObject
     {
-        $platform = self::createStub(AbstractPlatform::class);
+        $platform = $this->getMockBuilder(MySQLPlatform::class)
+            ->onlyMethods(['getMaximumAmountOfBoundParameters', 'getMaximumInsertSQLLength'])
+            ->getMock();
         $platform->method('getMaximumAmountOfBoundParameters')->willReturn(1000);
-        $platform->method('supportsBulkInserts')->willReturn(true);
+        $platform->method('getMaximumInsertSQLLength')->willReturn(1048576);
         $driver = self::createStub(Driver::class);
 
         $driver->method('getDatabasePlatform')
@@ -412,24 +415,6 @@ class ConnectionTest extends TestCase
 
             ],
             ['c1' => 'integer'],
-        );
-    }
-
-    public function testInsertManyWithEmptyValues(): void
-    {
-        $conn = $this->getExecuteStatementMockConnection();
-
-        $conn->expects(self::once())
-            ->method('executeStatement')
-            ->with(
-                'INSERT INTO footable () VALUES (), ()',
-                [],
-                [],
-            );
-
-        $conn->insertMany(
-            'footable',
-            [[], []],
         );
     }
 

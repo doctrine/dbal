@@ -11,7 +11,7 @@ final class MaxBoundParamsExceeded extends InvalidArgumentException
     public static function new(int $boundParams, int $maximum): self
     {
         return new self(sprintf(
-            'The platform only supports %d bound parameters, this query uses %d.',
+            'The bound parameter limit is %d, this query uses %d.',
             $maximum,
             $boundParams,
         ));

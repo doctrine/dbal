@@ -44,6 +44,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
+use function array_fill;
 use function array_map;
 use function array_merge;
 use function array_unique;
@@ -2544,8 +2545,57 @@ abstract class AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
-    public function supportsBulkInserts(): bool
+    /**
+     * The caller selects the row count and is responsible for any overridden database limits.
+     *
+     * @param non-empty-list<string> $columns
+     * @param positive-int           $rowCount
+     */
+    public function getInsertManySQL(string $table, array $columns, int $rowCount): string
+    {
+        if (! $this->supportsMultiRowInsert()) {
+            throw NotSupported::new(__METHOD__);
+        }
+
+        $row = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
+
+        return 'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ') VALUES '
+            . implode(', ', array_fill(0, $rowCount, $row));
+    }
+
+    /**
+     * Returns the row limit for INSERT ... VALUES, or a conservative batch size when no fixed limit is known.
+     * The default 1,000 rows is a DBAL batching policy, not a documented database maximum.
+     * PostgreSQL recommends avoiding very large VALUES lists but gives no fixed row limit.
+     *
+     * @see https://www.postgresql.org/docs/17/sql-values.html
+     */
+    public function getMaximumRowsPerInsert(): int
+    {
+        return 1000;
+    }
+
+    public function supportsMultiRowInsert(): bool
     {
         return true;
+    }
+
+    /**
+     * Returns a SQL text budget in bytes, excluding bound values and protocol overhead.
+     * The default 1 MiB is a DBAL fallback when no usable database limit is known.
+     * Driver, encoding and runtime limits may impose additional restrictions.
+     *
+     * Oracle gives no fixed maximum; configuration and available resources determine the limit.
+     * PostgreSQL's roughly 1 GiB allocation ceiling can be preceded by other practical limits.
+     * SQL Server allows 65,536 times the negotiated packet size; do not assume the server default applies.
+     * These platforms therefore retain the fallback budget rather than advertising an exact byte limit.
+     *
+     * @see https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/logical-database-limits.html
+     * @see https://www.postgresql.org/message-id/2137371.1636996074%40sss.pgh.pa.us
+     * @see https://learn.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server
+     */
+    public function getMaximumInsertSQLLength(Connection $connection): int
+    {
+        return 1048576;
     }
 }

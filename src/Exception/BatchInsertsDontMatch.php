@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Exception;
 
-final class BatchInsertsDontMatch extends INvalidARgumentException
+final class BatchInsertsDontMatch extends InvalidArgumentException
 {
     public static function new(): self
     {

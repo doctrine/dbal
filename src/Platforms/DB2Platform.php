@@ -599,10 +599,23 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * Source: https://www.bmc.com/blogs/db2-limits/
+     * Conservative parameter budget below LUW's 32,767 host-variable-reference limit (Table 90).
+     *
+     * @see https://public.dhe.ibm.com/ps/products/db2/info/vr105/pdf/en_US/DB2SQLRefVol1-db2s1e1050.pdf
      */
     public function getMaximumAmountOfBoundParameters(Connection $connection): int
     {
         return 16000;
+    }
+
+    /**
+     * Db2 LUW SQL Reference, Table 90: maximum total SQL statement length is 2,097,152 bytes.
+     * No separate fixed row limit was found; the default batch size applies.
+     *
+     * @see https://public.dhe.ibm.com/ps/products/db2/info/vr105/pdf/en_US/DB2SQLRefVol1-db2s1e1050.pdf
+     */
+    public function getMaximumInsertSQLLength(Connection $connection): int
+    {
+        return 2097152;
     }
 }
