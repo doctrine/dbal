@@ -1116,6 +1116,35 @@ class ConnectionTest extends TestCase
         $connection->transactional(static function (): void {
         });
     }
+
+    public function testRollBackDecrementsNestingLevelWhenSavepointRollbackFails(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+        $conn->setNestTransactionsWithSavepoints(true);
+
+        $conn->method('executeStatement')
+            ->willReturnCallback(static function (string $sql): int {
+                if ($sql === 'ROLLBACK TO SAVEPOINT DOCTRINE_2') {
+                    throw new Exception('The savepoint no longer exists.');
+                }
+
+                return 1;
+            });
+
+        $conn->beginTransaction();
+        $conn->beginTransaction();
+
+        self::assertSame(2, $conn->getTransactionNestingLevel());
+
+        try {
+            $conn->rollBack();
+        } catch (Exception $e) {
+            self::assertSame('The savepoint no longer exists.', $e->getMessage());
+        }
+
+        // The savepoint is gone either way, so the connection must not stay at the stale level.
+        self::assertSame(1, $conn->getTransactionNestingLevel());
+    }
 }
 
 interface ConnectDispatchEventListener
