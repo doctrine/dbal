@@ -1338,4 +1338,22 @@ class SQLServerPlatform extends AbstractPlatform
     {
         return new SQLServerSchemaManager($connection, $this);
     }
+
+    /**
+     * Source: https://learn.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?view=sql-server-ver17
+     */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return 2100;
+    }
+
+    /**
+     * INSERT ... VALUES permits at most 1,000 rows (unlike a VALUES derived table).
+     *
+     * @see https://learn.microsoft.com/en-us/sql/t-sql/queries/table-value-constructor-transact-sql
+     */
+    public function getMaximumRowsPerInsert(): int
+    {
+        return 1000;
+    }
 }
