@@ -13,6 +13,8 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnPrecisionRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnScaleRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
+use Doctrine\DBAL\Exception\UnsupportedInsertModifier;
+use Doctrine\DBAL\InsertModify;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
@@ -2317,6 +2319,34 @@ abstract class AbstractPlatform
     public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string
     {
         return 'INSERT INTO ' . $quotedTableName . ' (' . $quotedIdentifierColumnName . ') VALUES (null)';
+    }
+
+    /**
+     * Applies an INSERT modifier to the given statement.
+     *
+     * Platforms that support no modifier throw {@see UnsupportedInsertModifier} rather than
+     * returning the statement unchanged, so a caller asking for an unsupported modifier gets a
+     * clear error instead of SQL the platform will reject.
+     *
+     * @throws UnsupportedInsertModifier
+     */
+    public function modifyInsertSQL(string $insertSQL, ?InsertModify $modify = null): string
+    {
+        if ($modify === null) {
+            return $insertSQL;
+        }
+
+        throw UnsupportedInsertModifier::new($this, $modify, $this->getSupportedInsertModifiers());
+    }
+
+    /**
+     * Returns the INSERT modifiers supported by this platform.
+     *
+     * @return list<InsertModify>
+     */
+    protected function getSupportedInsertModifiers(): array
+    {
+        return [];
     }
 
     /**

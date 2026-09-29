@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\InsertModify;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
@@ -38,6 +39,7 @@ use function explode;
 use function implode;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function strpos;
 use function strtolower;
 use function substr;
@@ -981,5 +983,25 @@ class SQLitePlatform extends AbstractPlatform
     public function getUnionSelectPartSQL(string $subQuery): string
     {
         return $subQuery;
+    }
+
+    /** {@inheritDoc} */
+    public function modifyInsertSQL(string $insertSQL, ?InsertModify $modify = null): string
+    {
+        if ($modify === null) {
+            return $insertSQL;
+        }
+
+        // SQLite spells the same modifier as INSERT OR IGNORE, so the syntax differs
+        // from MySQL and MariaDB for identical semantics.
+        return match ($modify) {
+            InsertModify::Ignore => 'INSERT OR IGNORE ' . substr($insertSQL, strlen('INSERT ')),
+        };
+    }
+
+    /** {@inheritDoc} */
+    protected function getSupportedInsertModifiers(): array
+    {
+        return [InsertModify::Ignore];
     }
 }
