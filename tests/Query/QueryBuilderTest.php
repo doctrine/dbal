@@ -9,11 +9,13 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Query\Exception\NonUniqueAlias;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
 use Doctrine\DBAL\Query\UnionType;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\SQL\Builder\DefaultJoinLateralSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
@@ -51,6 +53,12 @@ class QueryBuilderTest extends TestCase
             ->willReturn(new DefaultUnionSQLBuilder($platform));
         $platform->method('createWithSQLBuilder')
             ->willReturn(new WithSQLBuilder());
+        $platform->method('getJoinLateralSQL')
+            ->willReturn('LEFT JOIN LATERAL');
+        $platform->method('getJoinLateralConditionsSQL')
+            ->willReturnArgument(0);
+        $platform->method('createJoinLateralSQLBuilder')
+            ->willReturn(new DefaultJoinLateralSQLBuilder($platform));
 
         $this->conn->method('getDatabasePlatform')
             ->willReturn($platform);
@@ -167,6 +175,34 @@ class QueryBuilderTest extends TestCase
             ->fullJoin('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
 
         self::assertEquals('SELECT u.*, p.* FROM users u FULL JOIN phones p ON p.user_id = u.id', (string) $qb);
+    }
+
+    public function testSelectWithJoinLateral(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.*', 'jl.one')
+            ->from('users', 'u')
+            ->leftJoinLateral('u', 'SELECT 1 AS one', 'jl', 'u.id = jl.one');
+
+        $expected = 'SELECT u.*, jl.one FROM users u LEFT JOIN LATERAL (SELECT 1 AS one) jl ON u.id = jl.one';
+
+        self::assertEquals($expected, (string) $qb);
+    }
+
+    public function testSelectWithJoinLateralUsingNonUniqueAliasThrowException(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('for_update.id', 'unique_alias.lateral_field')
+            ->from('for_update')
+            ->leftJoinLateral('for_update', 'SELECT 1 as lateral_field', 'unique_alias')
+            ->leftJoinLateral('for_update', 'SELECT 2 as lateral_field', 'unique_alias')
+            ->where($qb->expr()->eq('for_update.id', ':id'))
+            ->setParameter('id', 2, ParameterType::INTEGER);
+
+        self::expectException(NonUniqueAlias::class);
+        $qb->getSQL();
     }
 
     public function testSelectWithAndWhereConditions(): void
