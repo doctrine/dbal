@@ -7,6 +7,8 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\SQL\Parser;
+use Doctrine\DBAL\SQL\Parser\Visitor;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -575,98 +577,70 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /** @return iterable<array{string, bool}> */
     private function tokenizeSQL(string $sql): iterable
     {
-        $length = strlen($sql);
+        $visitor = new class implements Visitor {
+            /** @var list<string> */
+            public array $fragments = [];
 
-        for ($offset = 0; $offset < $length;) {
-            $character = $sql[$offset];
-
-            if (strpos("\"'`[", $character) !== false) {
-                yield [$this->parseQuotedToken($sql, $offset), true];
-
-                continue;
+            public function acceptPositionalParameter(string $sql): void
+            {
+                $this->fragments[] = $sql;
             }
 
-            if ($character === '-' && $offset + 1 < $length && $sql[$offset + 1] === '-') {
-                $commentEnd = strpos($sql, "\n", $offset + 2);
-                $offset     = $commentEnd === false ? $length : $commentEnd + 1;
-
-                continue;
+            public function acceptNamedParameter(string $sql): void
+            {
+                $this->fragments[] = $sql;
             }
 
-            if ($character === '/' && $offset + 1 < $length && $sql[$offset + 1] === '*') {
-                $commentEnd = strpos($sql, '*/', $offset + 2);
-                $offset     = $commentEnd === false ? $length : $commentEnd + 2;
-
-                continue;
+            public function acceptOther(string $sql): void
+            {
+                $this->fragments[] = $sql;
             }
+        };
 
-            if (strpos('(),', $character) !== false) {
-                $offset++;
+        // SQLite line comments end at LF, not CR. Restore original bytes after lexing
+        // to preserve carriage returns in quoted identifiers and literals.
+        (new Parser(false))->parse(str_replace("\r", ' ', $sql), $visitor);
 
-                yield [$character, false];
-
-                continue;
-            }
-
-            if (trim($character) === '') {
-                $offset++;
-
-                continue;
-            }
-
-            $tokenStart = $offset;
-            while ($offset < $length) {
-                $character = $sql[$offset];
-                if (
-                    trim($character) === ''
-                    || strpos("(),\"'`[", $character) !== false
-                    || ($character === '-' && $offset + 1 < $length && $sql[$offset + 1] === '-')
-                    || ($character === '/' && $offset + 1 < $length && $sql[$offset + 1] === '*')
-                ) {
-                    break;
-                }
-
-                $offset++;
-            }
-
-            yield [substr($sql, $tokenStart, $offset - $tokenStart), false];
-        }
-    }
-
-    private function parseQuotedToken(string $sql, int &$offset): string
-    {
-        $openingDelimiter = $sql[$offset];
-        $closingDelimiter = $openingDelimiter === '[' ? ']' : $openingDelimiter;
-        $token            = '';
-        $length           = strlen($sql);
-        $offset++;
-
-        while ($offset < $length) {
-            $character = $sql[$offset];
-            if ($character !== $closingDelimiter) {
-                $token .= $character;
-                $offset++;
-
-                continue;
-            }
-
-            if (
-                $openingDelimiter !== '['
-                && $offset + 1 < $length
-                && $sql[$offset + 1] === $closingDelimiter
-            ) {
-                $token  .= $closingDelimiter;
-                $offset += 2;
-
-                continue;
-            }
-
-            $offset++;
-
-            break;
+        $offset = 0;
+        foreach ($visitor->fragments as $index => $fragment) {
+            $length                     = strlen($fragment);
+            $visitor->fragments[$index] = substr($sql, $offset, $length);
+            $offset                    += $length;
         }
 
-        return $token;
+        $quoted               = '';
+        $visitor->fragments[] = ' ';
+        foreach ($visitor->fragments as $fragment) {
+            // The parameter parser emits adjacent fragments for doubled delimiters.
+            if ($quoted !== '' && $quoted[0] !== '[' && $fragment[0] === $quoted[0]) {
+                $quoted .= $fragment;
+
+                continue;
+            }
+
+            if ($quoted !== '') {
+                $delimiter = $quoted[0];
+
+                yield [str_replace($delimiter . $delimiter, $delimiter, substr($quoted, 1, -1)), true];
+
+                $quoted = '';
+            }
+
+            if (strpos("\"'`[", $fragment[0]) !== false) {
+                $quoted = $fragment;
+
+                continue;
+            }
+
+            if (strpos($fragment, '--') === 0 || strpos($fragment, '/*') === 0) {
+                continue;
+            }
+
+            preg_match_all('/[(),]|[^\s(),]+/', $fragment, $matches);
+            foreach ($matches[0] as $token) {
+                yield [$token, false];
+            }
+        }
     }
 
     private function parseTableCommentFromSQL(string $table, string $sql): ?string

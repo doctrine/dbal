@@ -210,6 +210,72 @@ SQL);
         self::assertSame('NOCASE', $columns['column_999']->getPlatformOption('collation'));
     }
 
+    /** @dataProvider collationRoundTripProvider */
+    public function testColumnCollationRoundTrip(string $definition, string $collation): void
+    {
+        $this->dropTableIfExists('test_collation_round_trip');
+        $this->connection->executeStatement('CREATE TABLE test_collation_round_trip (' . $definition . ')');
+        $this->connection->executeStatement('CREATE INDEX collation_oracle ON test_collation_round_trip(value)');
+
+        $oracleSQL = "SELECT coll FROM pragma_index_xinfo('collation_oracle') WHERE name = 'value' AND key = 1";
+        self::assertSame($collation, $this->connection->fetchOne($oracleSQL));
+
+        $table = $this->schemaManager->introspectTable('test_collation_round_trip');
+        self::assertSame($collation, $table->getColumn('value')->getPlatformOption('collation'));
+
+        $createSQL = $this->connection->getDatabasePlatform()->getCreateTableSQL($table);
+        $this->schemaManager->dropTable('test_collation_round_trip');
+        foreach ($createSQL as $sql) {
+            $this->connection->executeStatement($sql);
+        }
+
+        self::assertSame($collation, $this->connection->fetchOne($oracleSQL));
+    }
+
+    /** @return iterable<string, array{string, string}> */
+    public static function collationRoundTripProvider(): iterable
+    {
+        yield 'quoted collation' => ['value TEXT COLLATE `NOCASE`, other TEXT', 'NOCASE'];
+        yield 'default literal' => ["value TEXT DEFAULT 'COLLATE `NOCASE`', other TEXT COLLATE RTRIM", 'BINARY'];
+        yield 'check expression' => ["value TEXT CHECK (value COLLATE `NOCASE` <> ''), other TEXT", 'BINARY'];
+        yield 'other column default' => ["value TEXT, other TEXT DEFAULT 'value' COLLATE `NOCASE`", 'BINARY'];
+        yield 'escaped default literal' => ["value TEXT DEFAULT 'it''s COLLATE `NOCASE`', other TEXT", 'BINARY'];
+        yield 'comment' => ['value TEXT /* COLLATE NOCASE */, other TEXT COLLATE RTRIM', 'BINARY'];
+        yield 'line comment' => ["value TEXT -- COLLATE NOCASE\n, other TEXT", 'BINARY'];
+        yield 'crlf line comment' => ["value TEXT -- COLLATE NOCASE\r\n, other TEXT", 'BINARY'];
+        yield 'carriage return in line comment' => ["value TEXT -- note\r COLLATE NOCASE\n, other TEXT", 'BINARY'];
+        yield 'collation after carriage return comment' => [
+            "value TEXT -- note\r COLLATE RTRIM\n COLLATE NOCASE, other TEXT",
+            'NOCASE',
+        ];
+
+        yield 'quote in carriage return comment' => [
+            "value TEXT -- note\r 'ignored\n COLLATE NOCASE, other TEXT -- '\n",
+            'NOCASE',
+        ];
+
+        yield 'block opener in carriage return comment' => [
+            "value TEXT -- note\r /* ignored\n COLLATE NOCASE, other TEXT -- */\n",
+            'NOCASE',
+        ];
+    }
+
+    public function testColumnCollationPreservesQuotedCarriageReturns(): void
+    {
+        $this->dropTableIfExists('test_collation_bytes');
+        $this->connection->executeStatement(
+            "CREATE TABLE test_collation_bytes (\"é\rvalue\" TEXT DEFAULT 'pré\rfix' COLLATE NOCASE)",
+        );
+        $this->connection->executeStatement("CREATE INDEX collation_bytes ON test_collation_bytes(\"é\rvalue\")");
+
+        $oracleSQL = "SELECT coll FROM pragma_index_xinfo('collation_bytes') WHERE key = 1";
+        self::assertSame('NOCASE', $this->connection->fetchOne($oracleSQL));
+
+        $columns = $this->schemaManager->listTableColumns('test_collation_bytes');
+        self::assertSame('NOCASE', $columns["é\rvalue"]->getPlatformOption('collation'));
+        self::assertSame("pré\rfix", $columns["é\rvalue"]->getDefault());
+    }
+
     /**
      * SQLite stores BINARY columns as BLOB
      */
