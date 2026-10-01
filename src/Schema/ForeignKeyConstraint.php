@@ -187,6 +187,15 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
         return Parsers::getUnqualifiedNameParser();
     }
 
+    public function getObjectName(): ?UnqualifiedName
+    {
+        if (! $this->isNameInitialized) {
+            throw InvalidState::objectNameNotInitialized();
+        }
+
+        return $this->name;
+    }
+
     /**
      * Returns the names of the referencing table columns the foreign key constraint is associated with.
      *

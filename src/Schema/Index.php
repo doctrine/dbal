@@ -150,6 +150,15 @@ class Index extends AbstractNamedObject
         return Parsers::getUnqualifiedNameParser();
     }
 
+    public function getObjectName(): UnqualifiedName
+    {
+        if (! $this->isNameInitialized) {
+            throw InvalidState::objectNameNotInitialized();
+        }
+
+        return $this->name;
+    }
+
     public function getType(): IndexType
     {
         if ($this->type === null) {
