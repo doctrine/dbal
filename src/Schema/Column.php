@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
@@ -115,6 +116,15 @@ class Column extends AbstractNamedObject
     protected function getNameParser(): UnqualifiedNameParser
     {
         return Parsers::getUnqualifiedNameParser();
+    }
+
+    public function getObjectName(): UnqualifiedName
+    {
+        if (! $this->isNameInitialized) {
+            throw InvalidState::objectNameNotInitialized();
+        }
+
+        return $this->name;
     }
 
     /**
