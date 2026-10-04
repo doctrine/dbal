@@ -258,6 +258,16 @@ class SQLitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * Values stored by older versions of DBAL do not contain the timezone offset.
+     */
+    public function getDateTimeTzFallbackFormatStrings(): array
+    {
+        return [$this->getDateTimeFormatString()];
+    }
+
+    /**
+     * {@inheritDoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {

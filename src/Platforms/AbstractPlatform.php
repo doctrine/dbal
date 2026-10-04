@@ -2249,6 +2249,18 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Gets the format strings, as accepted by the date() function, that are additionally
+     * accepted when converting a stored datetime with timezone value of this platform
+     * to a PHP value, e.g. in order to read values stored by older versions of DBAL.
+     *
+     * @return list<string> The format strings.
+     */
+    public function getDateTimeTzFallbackFormatStrings(): array
+    {
+        return [];
+    }
+
+    /**
      * Gets the format string, as accepted by the date() function, that describes
      * the format of a stored date value of this platform.
      *

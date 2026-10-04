@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Types;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 
@@ -66,9 +65,8 @@ class DateTimeTzImmutableType extends Type implements PhpDateTimeMappingType
             return $dateTime;
         }
 
-        // Fallback to DateTime format for SQLite to preserve compatibility with older versions of Doctrine DBAL
-        if ($platform instanceof SQLitePlatform) {
-             $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeFormatString(), $value);
+        foreach ($platform->getDateTimeTzFallbackFormatStrings() as $format) {
+            $dateTime = DateTimeImmutable::createFromFormat($format, $value);
 
             if ($dateTime !== false) {
                 return $dateTime;

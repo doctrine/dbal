@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 
@@ -79,9 +78,8 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             return $dateTime;
         }
 
-        // Fallback to DateTime format for SQLite to preserve compatibility with older versions of Doctrine DBAL
-        if ($platform instanceof SQLitePlatform) {
-             $dateTime = DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
+        foreach ($platform->getDateTimeTzFallbackFormatStrings() as $format) {
+            $dateTime = DateTime::createFromFormat($format, $value);
 
             if ($dateTime !== false) {
                 return $dateTime;
