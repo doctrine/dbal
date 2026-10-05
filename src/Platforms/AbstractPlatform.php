@@ -1379,7 +1379,7 @@ abstract class AbstractPlatform
      *
      * @param string $str The identifier name to be quoted.
      *
-     * @return string The quoted identifier string.
+     * @return non-empty-string The quoted identifier string.
      */
     public function quoteSingleIdentifier(string $str): string
     {
