@@ -194,7 +194,10 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 break;
 
             case 'nvarchar':
+                // TEXT type is returned as NVARCHAR(MAX) with a length of -1
                 if ($length === -1) {
+                    $dbType = 'text';
+
                     break;
                 }
 
