@@ -43,7 +43,11 @@ final readonly class GenericName implements Name
         return $this->joinIdentifiers(static fn (Identifier $identifier): string => $identifier->toString());
     }
 
-    /** @param callable(Identifier): string $mapper */
+    /**
+     * @param callable(Identifier): non-empty-string $mapper
+     *
+     * @return non-empty-string
+     */
     private function joinIdentifiers(callable $mapper): string
     {
         return implode('.', array_map($mapper, $this->identifiers));
