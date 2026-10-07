@@ -26,8 +26,10 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  * the offset and re-created from persistence with only the offset, not the original timezone
  * attached.
  */
-class DateTimeTzType extends Type implements PhpDateTimeMappingType
+class DateTimeTzType extends Type implements PhpDateTimeMappingType, EquatableType
 {
+    use DatabaseValueEquality;
+
     /**
      * {@inheritDoc}
      */
