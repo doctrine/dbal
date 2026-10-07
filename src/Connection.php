@@ -14,11 +14,13 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Exception\BatchInsertsDontMatch;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception\MaxBoundParamsExceeded;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
 use Doctrine\DBAL\Exception\ParseError;
 use Doctrine\DBAL\Exception\SavepointsNotSupported;
@@ -38,15 +40,24 @@ use SensitiveParameter;
 use Throwable;
 use Traversable;
 
+use function array_fill;
 use function array_key_exists;
+use function array_keys;
 use function array_merge;
+use function array_slice;
+use function assert;
 use function count;
 use function implode;
+use function intdiv;
 use function is_array;
 use function is_int;
 use function is_string;
 use function key;
+use function max;
+use function min;
+use function reset;
 use function sprintf;
+use function strlen;
 
 /**
  * A database abstraction-level connection that implements features like transaction isolation levels,
@@ -515,6 +526,111 @@ class Connection implements ServerVersionProvider
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
         );
+    }
+
+    /**
+     * Inserts multiple table rows with specified data.
+     *
+     * Table expression and columns are not escaped and are not safe for user-input.
+     * Each row must have the same keys, in any order. All rows are validated before inserting.
+     * Inserts are batched according to platform limits, without starting a transaction.
+     * Explicit row, SQL-length and parameter budgets replace the corresponding platform values.
+     *
+     * @param array<array<string, mixed>>              $rows
+     * @param array<string, string|ParameterType|Type> $types
+     * @param int|null                                 $maxRowsPerInsert          Row budget; null uses the platform.
+     * @param int|null                                 $maxInsertSQLLengthInBytes Byte budget; null uses the platform.
+     * @param int|null                                 $maximumParameters         Parameter budget; null uses platform.
+     *
+     * @return int|numeric-string The number of affected rows.
+     *
+     * @throws Exception
+     */
+    public function insertMany(
+        string $table,
+        array $rows,
+        array $types = [],
+        ?int $maxRowsPerInsert = null,
+        ?int $maxInsertSQLLengthInBytes = null,
+        ?int $maximumParameters = null,
+    ): int|string {
+        if ($maxRowsPerInsert !== null && $maxRowsPerInsert < 1) {
+            throw new InvalidArgumentException('The maximum number of rows per insert must be greater than zero.');
+        }
+
+        if ($maxInsertSQLLengthInBytes !== null && $maxInsertSQLLengthInBytes < 1) {
+            throw new InvalidArgumentException('The maximum insert SQL length must be greater than zero.');
+        }
+
+        if ($maximumParameters !== null && $maximumParameters < 1) {
+            throw new InvalidArgumentException('The maximum number of bound parameters must be greater than zero.');
+        }
+
+        if ($rows === []) {
+            return 0;
+        }
+
+        $columns = array_keys(reset($rows));
+        foreach ($rows as $row) {
+            if (count($row) !== count($columns)) {
+                throw BatchInsertsDontMatch::new();
+            }
+
+            foreach ($columns as $column) {
+                if (! array_key_exists($column, $row)) {
+                    throw BatchInsertsDontMatch::new();
+                }
+            }
+        }
+
+        if ($columns === []) {
+            throw new InvalidArgumentException('Inserting rows without columns is not supported.');
+        }
+
+        $platform = $this->getDatabasePlatform();
+        $types    = $this->extractTypeValues($columns, $types);
+
+        $maximumParameters ??= $platform->getMaximumAmountOfBoundParameters($this);
+        if (count($columns) > $maximumParameters) {
+            throw MaxBoundParamsExceeded::new(count($columns), $maximumParameters);
+        }
+
+        $batchSize = min(
+            count($rows),
+            intdiv($maximumParameters, count($columns)),
+            $maxRowsPerInsert ?? $platform->getMaximumRowsPerInsert(),
+        );
+        assert($batchSize > 0);
+        $maximumLength = $maxInsertSQLLengthInBytes ?? $platform->getMaximumInsertSQLLength($this);
+        $singleRowSQL  = $platform->getInsertManySQL($table, $columns, 1);
+        if (strlen($singleRowSQL) > $maximumLength) {
+            throw new InvalidArgumentException('A single insert exceeds the SQL length limit.');
+        }
+
+        // Find a batch size whose SQL fits without constructing the entire input statement.
+        while (strlen($platform->getInsertManySQL($table, $columns, $batchSize)) > $maximumLength) {
+            $batchSize = max(1, intdiv($batchSize, 2));
+        }
+
+        $affectedRows = 0;
+        for ($offset = 0; $offset < count($rows); $offset += $batchSize) {
+            $batch = array_slice($rows, $offset, $batchSize);
+            assert($batch !== []);
+            $values = [];
+            foreach ($batch as $row) {
+                foreach ($columns as $column) {
+                    $values[] = $row[$column];
+                }
+            }
+
+            $affectedRows += (int) $this->executeStatement(
+                $platform->getInsertManySQL($table, $columns, count($batch)),
+                $values,
+                array_merge(...array_fill(0, count($batch), $types)),
+            );
+        }
+
+        return $affectedRows;
     }
 
     /**
