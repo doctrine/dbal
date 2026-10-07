@@ -971,3 +971,56 @@ and register your type in it::
             ':P' => '😛',
         ]
     ));
+
+Detecting Changes on Value Objects
+----------------------------------
+
+By default, the ORM detects a change when the object stored in a mapped
+property is not the same instance as the one it loaded. Replacing a value
+object with an equal one therefore triggers an update, even when the mapped
+value did not change.
+
+Make your custom type implement the
+``Doctrine\DBAL\Types\EquatableType`` interface to compare values by value
+instead of by identity. The comparison lives in the type, so it also works for
+classes you cannot modify, such as a value object from a third-party library.
+The ``valuesAreEqual()`` method returns ``true`` when both values are equal,
+which prevents useless updates.
+
+Only object values are compared. Scalars are already compared by value with the
+strict comparison the ORM uses, so a type that maps a scalar does not need this
+interface.
+
+::
+
+    <?php
+
+    namespace My\Project\Types;
+
+    use Doctrine\DBAL\Platforms\AbstractPlatform;
+    use Doctrine\DBAL\Types\EquatableType;
+    use Doctrine\DBAL\Types\Type;
+    use Money\Money;
+
+    final class MoneyType extends Type implements EquatableType
+    {
+        // getSQLDeclaration(), convertToPHPValue() and
+        // convertToDatabaseValue() omitted
+
+        public function valuesAreEqual(object $a, object $b, AbstractPlatform $platform): bool
+        {
+            return $a instanceof Money
+                && $b instanceof Money
+                && $a->equals($b);
+        }
+    }
+
+The ``$platform`` argument lets the type compare the database representations
+of the values, which is the most reliable definition of equality for the data
+that is actually persisted. Use the
+``Doctrine\DBAL\Types\DatabaseValueEquality`` trait to compare the values
+through ``convertToDatabaseValue()`` instead of writing the method yourself.
+The built-in date and time types use this trait. This way, a type that only
+stores part of a value does not report a change the database does not store:
+``date`` ignores the time of day, ``time`` ignores the date, and
+``datetime_utc`` ignores the timezone.
