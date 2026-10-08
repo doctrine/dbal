@@ -44,7 +44,10 @@ class TypeTest extends TestCase
     public function testAddTypeWhenTypeRequiresArguments(): void
     {
         self::expectException(TypeArgumentCountError::class);
-        self::expectExceptionMessage('To register "some_type" pass an instance to `Type::addType` instead.');
+        self::expectExceptionMessage(
+            'Cannot register type "some_type" by class "' . TypeWithConstructor::class
+            . '": its constructor has required parameters. Pass an instance.',
+        );
 
         Type::addType('some_type', TypeWithConstructor::class);
     }

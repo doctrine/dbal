@@ -132,6 +132,7 @@ SQL,
         }
 
         $column = new Column($tableColumn['name'], $type, $options);
+        $column->setTypeProvider($this->connection->getConfiguration()->getTypeProvider());
 
         if ($tableColumn['default'] !== null) {
             $default = $this->parseDefaultExpression($tableColumn['default']);

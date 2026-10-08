@@ -9,8 +9,11 @@ use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeProvider;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\Deprecations\Deprecation;
 use TypeError;
 
@@ -81,6 +84,8 @@ class Column extends AbstractNamedObject
     protected ?string $_columnDefinition = null;
 
     protected string $_comment = '';
+
+    private ?TypeProvider $typeProvider = null;
 
     /**
      * @internal Use {@link Column::editor()} to instantiate an editor and {@link ColumnEditor::create()} to create a
@@ -158,10 +163,22 @@ class Column extends AbstractNamedObject
             __METHOD__,
         );
 
-        $this->_type     = $type;
-        $this->_typeName = Type::getTypeRegistry()->lookupName($type);
+        $this->_type = $type;
+        if ($this->typeProvider === null || $this->typeProvider instanceof TypeRegistry) {
+            $this->_typeName = ($this->typeProvider ?? Type::getTypeRegistry())->lookupName($type);
 
-        return $this;
+            return $this;
+        }
+
+        foreach ($this->typeProvider as $name => $candidate) {
+            if ($candidate === $type) {
+                $this->_typeName = $name;
+
+                return $this;
+            }
+        }
+
+        throw TypeNotRegistered::new($type);
     }
 
     public function setTypeName(string $typeName): self
@@ -364,7 +381,7 @@ class Column extends AbstractNamedObject
 
     /**
      * @deprecated Use {@see getTypeName()} to obtain the type name, or resolve the {@see Type}
-     *             instance from the type registry when needed.
+     *             instance via {@see Configuration::getTypeProvider()} when needed.
      *
      * @throws TypesException
      */
@@ -379,7 +396,7 @@ class Column extends AbstractNamedObject
             __METHOD__,
         );
 
-        return Type::getType($this->_typeName);
+        return ($this->typeProvider ?? Type::getTypeRegistry())->get($this->_typeName);
     }
 
     /**
@@ -665,5 +682,14 @@ class Column extends AbstractNamedObject
             ->setMaximumValue($this->getMaximumValue())
             ->setEnumType($this->getEnumType())
             ->setDefaultConstraintName($this->getDefaultConstraintName());
+    }
+
+    /**
+     * @internal This method if necessary for ensuring backward compatibility
+     * for the deprecated {@see getType} method.
+     */
+    public function setTypeProvider(?TypeProvider $typeProvider): void
+    {
+        $this->typeProvider = $typeProvider;
     }
 }

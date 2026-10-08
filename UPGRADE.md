@@ -6,6 +6,121 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 4.6
+
+## Types can be scoped to a connection
+
+`Configuration::getTypeProvider()` and `Configuration::setTypeProvider()` have been added. A
+connection now resolves every type through the provider of its own `Configuration`, so custom types
+no longer have to be registered in the process-wide singleton:
+
+```php
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Types\TypeRegistry;
+
+$configuration = new Configuration();
+$configuration->setTypeProvider(new TypeRegistry(['money' => new MoneyType()]));
+
+$connection = DriverManager::getConnection($params, $configuration);
+```
+
+Connections that never call `setTypeProvider()` keep using the singleton returned by
+`Type::getTypeRegistry()`, so existing code that relies on `Type::addType()` is unaffected.
+
+Types registered with `Type::addType()` are however invisible to a connection that was given its own
+provider. This is intentional: setting one means taking responsibility for everything it must
+contain.
+
+`new TypeRegistry()` now contains all built-in types. Previously it was empty and the built-ins lived
+in `Type`. Names passed to the constructor override the built-in of the same name rather than being
+rejected as duplicates.
+
+## Added the `TypeProvider` interface
+
+`Configuration` accepts and returns `Doctrine\DBAL\Types\TypeProvider` rather than the final
+`TypeRegistry`, so the type source can be replaced or stubbed:
+
+```php
+interface TypeProvider extends Traversable
+{
+    public function get(string $name): Type;
+
+    public function has(string $name): bool;
+}
+```
+
+`register()` and `override()` are deliberately absent, so `Type::getTypeRegistry()` still returns the
+concrete `TypeRegistry` that `Type::addType()` needs.
+
+## Added `AbstractPlatform::setTypeProvider()`
+
+`AbstractPlatform` resolves types through a provider too. `Connection` injects the provider of the
+connection `Configuration` right after creating the platform, so platforms obtained from a connection
+need nothing.
+
+A platform that was not given a provider falls back to the global registry, which is deprecated:
+
+```diff
++$platform->setTypeProvider($configuration->getTypeProvider());
+```
+
+Code that instantiates a platform directly and resolves types from it should inject a provider.
+Otherwise the platform keeps using the global registry, where it will not see the types of the
+connection.
+
+## Changed the `TypeRegistry` constructor
+
+```diff
+-public function __construct(array $instances = [])
++public function __construct(array|ServiceProviderInterface $types = [])
+```
+
+The first parameter was renamed from `$instances` to `$types`, which matters only if you passed it as
+a named argument.
+
+Each entry may now be a `Type` instance or a class name. A class name is instantiated only on the
+first `get()`:
+
+```php
+$registry = new TypeRegistry([
+    'money'     => MoneyType::class,
+    'encrypted' => EncryptedType::class,
+]);
+```
+
+The constructor also accepts a `Symfony\Contracts\Service\ServiceProviderInterface`, such as a
+Symfony service locator, keyed by type name:
+
+```php
+$registry = new TypeRegistry($serviceLocator);
+```
+
+## Deprecated the static `Type` methods
+
+`Type::getTypeRegistry()`, `Type::getType()`, `Type::addType()`, `Type::hasType()`,
+`Type::overrideType()`, `Type::getTypesMap()` and `Type::lookupName()` have been deprecated. They all
+operate on the process-wide registry, which produces surprising results as soon as a connection has
+its own type provider: a type registered with `Type::addType()` is invisible to that connection, and
+`Type::getType()` resolves against the global registry rather than the connection's.
+
+Go through the provider of the connection instead, or inject your own:
+
+```diff
+-Type::addType('money', MoneyType::class);
++$configuration->setTypeProvider(new TypeRegistry(['money' => new MoneyType()]));
+
+-$type = Type::getType('money');
++$type = $connection->getConfiguration()->getTypeProvider()->get('money');
+```
+
+DBAL 5 will have no static type provider at all.
+
+## Deprecated `TypeRegistry::lookupName()`
+
+Track the type name rather than the instance, typically via `Column::getTypeName()`. It will be
+removed in 5.0, along with the restriction that a type instance may only be registered under a
+single name.
+
 # Upgrade to 4.5
 
 ## Deprecated not implementing unique constraint introspection in `MetadataProvider`
