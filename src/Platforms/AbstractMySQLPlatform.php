@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
+use Doctrine\DBAL\InsertModify;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\MySQL\MySQLMetadataProvider;
@@ -33,7 +34,9 @@ use function is_array;
 use function is_numeric;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function strtolower;
+use function substr;
 
 /**
  * Provides the base implementation for the lowest versions of supported MySQL-like database platforms.
@@ -928,5 +931,25 @@ SQL;
     public function createSQLParser(): Parser
     {
         return new Parser(true);
+    }
+
+    /** {@inheritDoc} */
+    public function modifyInsertSQL(string $insertSQL, ?InsertModify $modify = null): string
+    {
+        if ($modify === null) {
+            return $insertSQL;
+        }
+
+        // MySQL and MariaDB spell the modifier as a bare IGNORE between INSERT and
+        // INTO, so the existing INSERT keyword is replaced rather than prefixed.
+        return match ($modify) {
+            InsertModify::Ignore => 'INSERT IGNORE ' . substr($insertSQL, strlen('INSERT ')),
+        };
+    }
+
+    /** {@inheritDoc} */
+    protected function getSupportedInsertModifiers(): array
+    {
+        return [InsertModify::Ignore];
     }
 }

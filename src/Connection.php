@@ -494,8 +494,12 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function insert(string $table, array $data, array $types = []): int|string
-    {
+    public function insert(
+        string $table,
+        array $data,
+        array $types = [],
+        ?InsertModify $modify = null,
+    ): int|string {
         if (count($data) === 0) {
             return $this->executeStatement('INSERT INTO ' . $table . ' () VALUES ()');
         }
@@ -510,9 +514,15 @@ class Connection implements ServerVersionProvider
             $set[]     = '?';
         }
 
+        $insertSQL = $this->getDatabasePlatform()
+            ->modifyInsertSQL(
+                'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ')' .
+                ' VALUES (' . implode(', ', $set) . ')',
+                $modify,
+            );
+
         return $this->executeStatement(
-            'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ')' .
-            ' VALUES (' . implode(', ', $set) . ')',
+            $insertSQL,
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
         );
