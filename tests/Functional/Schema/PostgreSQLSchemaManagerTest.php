@@ -206,7 +206,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(
             [
                 'CREATE TABLE dbal91_something (id INT NOT NULL, "table" INT DEFAULT NULL, PRIMARY KEY (id))',
-                'CREATE INDEX IDX_A9401304ECA7352B ON dbal91_something ("table")',
                 'ALTER TABLE dbal91_something ADD CONSTRAINT something_input FOREIGN KEY ("table")'
                     . ' REFERENCES dbal91_something (id) ON UPDATE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE',
             ],

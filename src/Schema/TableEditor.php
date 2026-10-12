@@ -50,6 +50,8 @@ final class TableEditor
 
     private ?TypeProvider $typeProvider = null;
 
+    private bool $addImplicitIndexes = true;
+
     /** @internal Use {@link Table::editor()} or {@link Table::edit()} to create an instance */
     public function __construct()
     {
@@ -580,6 +582,17 @@ final class TableEditor
         return $this;
     }
 
+    /**
+     * @internal Used by the schema manager, since the indexes of an introspected table must be the ones that exist
+     *           in the database.
+     */
+    public function disableImplicitIndexes(): self
+    {
+        $this->addImplicitIndexes = false;
+
+        return $this;
+    }
+
     public function create(): Table
     {
         if ($this->name === null) {
@@ -606,6 +619,7 @@ final class TableEditor
             $this->configuration,
             $this->primaryKeyConstraint,
             $this->renamedColumns,
+            $this->addImplicitIndexes,
         );
         $table->setTypeProvider($this->typeProvider);
 
