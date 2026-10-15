@@ -55,6 +55,7 @@ final class ExceptionConverter implements ExceptionConverterInterface
             case 1451:
             case 1452:
             case 1701:
+            case 4271:
                 return new ForeignKeyConstraintViolationException($exception, $query);
 
             case 1062:
