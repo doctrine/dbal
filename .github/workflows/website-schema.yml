@@ -13,6 +13,9 @@ on:
     paths:
       - ".doctrine-project.json"
       - ".github/workflows/website-schema.yml"
+permissions:
+  contents: read
+
 
 jobs:
   json-validate:

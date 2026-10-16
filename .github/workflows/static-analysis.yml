@@ -21,6 +21,9 @@ on:
       - src/**
       - static-analysis/**
       - tests/**
+permissions:
+  contents: read
+
 
 jobs:
   static-analysis-phpstan:

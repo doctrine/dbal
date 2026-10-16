@@ -3,9 +3,15 @@ name: Lock Closed Issues
 on:
   schedule:
     - cron: 0 0 * * *
+permissions:
+  contents: read
+
 
 jobs:
   lock:
+    permissions:
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: dessant/lock-threads@89ae32b08ed1a541efecbab17912962a5e38981c # v6.0.2

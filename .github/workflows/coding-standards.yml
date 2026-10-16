@@ -21,6 +21,9 @@ on:
       - phpcs.xml.dist
       - src/**
       - tests/**
+permissions:
+  contents: read
+
 
 jobs:
   coding-standards:

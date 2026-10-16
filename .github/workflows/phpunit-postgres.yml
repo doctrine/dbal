@@ -19,6 +19,9 @@ on:
         required: false
         type: string
         default: ''
+permissions:
+  contents: read
+
 
 jobs:
   phpunit-postgres:

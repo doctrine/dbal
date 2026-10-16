@@ -6,6 +6,9 @@ on:
       php-version:
         required: true
         type: string
+permissions:
+  contents: read
+
 
 jobs:
   phpunit-db2:

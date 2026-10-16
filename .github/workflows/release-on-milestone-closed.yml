@@ -4,9 +4,16 @@ on:
   milestone:
     types:
       - "closed"
+permissions:
+  contents: read
+
 
 jobs:
   release:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     name: "Git tag, release & create merge-up PR"
     runs-on: "ubuntu-22.04"
 

@@ -25,6 +25,9 @@ on:
       - tests/**
   schedule:
     - cron: "42 3 * * *"
+permissions:
+  contents: read
+
 
 jobs:
   phpunit-smoke-check:

@@ -15,6 +15,9 @@ on:
       collation:
         required: true
         type: string
+permissions:
+  contents: read
+
 
 jobs:
   phpunit-sqlserver:
