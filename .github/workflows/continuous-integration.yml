@@ -314,7 +314,7 @@ jobs:
         uses: "actions/checkout@v7"
 
       - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+        uses: "shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962" # 2.40.0
         with:
           php-version: "${{ matrix.php-version }}"
         env:
@@ -325,7 +325,7 @@ jobs:
           composer config minimum-stability dev
 
       - name: "Install development dependencies with Composer"
-        uses: "ramsey/composer-install@v4"
+        uses: "ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda" # 4.0.0
         with:
           composer-options: "--prefer-dist"
 
@@ -361,7 +361,7 @@ jobs:
         working-directory: reports
 
       - name: "Upload to Codecov"
-        uses: "codecov/codecov-action@v7"
+        uses: "codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5" # v7.1.1
         with:
           directory: reports
           fail_ci_if_error: true

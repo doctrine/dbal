@@ -15,7 +15,7 @@ jobs:
         uses: "actions/checkout@v7"
 
       - name: "Release"
-        uses: "laminas/automatic-releases@1.28.0"
+        uses: "laminas/automatic-releases@98204e32a52de981e1d75622d0d89a9520b6e87a" # 1.28.0
         with:
           command-name: "laminas:automatic-releases:release"
         env:

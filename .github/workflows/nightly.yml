@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 2
 
       - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+        uses: "shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962" # 2.40.0
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: "pcov"
@@ -57,7 +57,7 @@ jobs:
           fail-fast: true
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v4"
+        uses: "ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda" # 4.0.0
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -66,7 +66,7 @@ jobs:
 
       - name: Tell the MariaDB Folks if it failed
         if: ${{ failure() }}
-        uses: zulip/github-actions-zulip/send-message@v2
+        uses: zulip/github-actions-zulip/send-message@f675f2b4eb2a95fae974215476dcb7ad8dfeff6b # v2.0.2
         with:
           api-key: ${{ secrets.MARIADB_ZULIP_API_KEY }}
           email: "doctrine-bot@mariadb.zulipchat.com"
