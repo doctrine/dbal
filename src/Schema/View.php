@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
@@ -25,6 +26,15 @@ class View extends AbstractNamedObject
     protected function getNameParser(): OptionallyQualifiedNameParser
     {
         return Parsers::getOptionallyQualifiedNameParser();
+    }
+
+    public function getObjectName(): OptionallyQualifiedName
+    {
+        if (! $this->isNameInitialized) {
+            throw InvalidState::objectNameNotInitialized();
+        }
+
+        return $this->name;
     }
 
     public function getSql(): string

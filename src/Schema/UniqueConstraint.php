@@ -99,6 +99,15 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         return Parsers::getUnqualifiedNameParser();
     }
 
+    public function getObjectName(): ?UnqualifiedName
+    {
+        if (! $this->isNameInitialized) {
+            throw InvalidState::objectNameNotInitialized();
+        }
+
+        return $this->name;
+    }
+
     /**
      * Returns the names of the columns the constraint is associated with.
      *
