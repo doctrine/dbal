@@ -7,6 +7,8 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\SQL\Parser;
+use Doctrine\DBAL\SQL\Parser\Visitor;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -26,8 +28,10 @@ use function preg_replace;
 use function rtrim;
 use function str_replace;
 use function strcasecmp;
+use function strlen;
 use function strpos;
 use function strtolower;
+use function substr;
 use function trim;
 use function unlink;
 use function usort;
@@ -317,7 +321,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // inspect column collation and comments
-        $createSql = $this->getCreateTableSQL($table);
+        $createSql        = $this->getCreateTableSQL($table);
+        $columnCollations = $this->parseColumnCollationsFromSQL($createSql);
 
         foreach ($list as $columnName => $column) {
             $type = $column->getType();
@@ -325,7 +330,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             if ($type instanceof StringType || $type instanceof TextType) {
                 $column->setPlatformOption(
                     'collation',
-                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?? 'BINARY',
+                    $columnCollations[strtolower($column->getName())] ?? 'BINARY',
                 );
             }
 
@@ -506,16 +511,136 @@ class SqliteSchemaManager extends AbstractSchemaManager
         );
     }
 
-    private function parseColumnCollationFromSQL(string $column, string $sql): ?string
+    /** @return array<string, string> */
+    private function parseColumnCollationsFromSQL(string $sql): array
     {
-        $pattern = '{' . $this->buildIdentifierPattern($column)
-            . '[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}is';
+        $collations       = [];
+        $column           = null;
+        $depth            = -1;
+        $expectsCollation = false;
 
-        if (preg_match($pattern, $sql, $match) !== 1) {
-            return null;
+        foreach ($this->tokenizeSQL($sql) as [$token, $quoted]) {
+            if (! $quoted && $token === '(') {
+                $depth++;
+
+                continue;
+            }
+
+            if (! $quoted && $token === ')') {
+                if ($depth === 0) {
+                    break;
+                }
+
+                $depth--;
+
+                continue;
+            }
+
+            if (! $quoted && $token === ',' && $depth === 0) {
+                $column           = null;
+                $expectsCollation = false;
+
+                continue;
+            }
+
+            if ($depth !== 0) {
+                continue;
+            }
+
+            if ($column === null) {
+                $column = $token;
+
+                continue;
+            }
+
+            if ($expectsCollation) {
+                $collations[strtolower($column)] = $token;
+                $expectsCollation                = false;
+
+                continue;
+            }
+
+            if ($quoted) {
+                continue;
+            }
+
+            if (strcasecmp($token, 'COLLATE') !== 0) {
+                continue;
+            }
+
+            $expectsCollation = true;
         }
 
-        return $match[1];
+        return $collations;
+    }
+
+    /** @return iterable<array{string, bool}> */
+    private function tokenizeSQL(string $sql): iterable
+    {
+        $visitor = new class implements Visitor {
+            /** @var list<string> */
+            public array $fragments = [];
+
+            public function acceptPositionalParameter(string $sql): void
+            {
+                $this->fragments[] = $sql;
+            }
+
+            public function acceptNamedParameter(string $sql): void
+            {
+                $this->fragments[] = $sql;
+            }
+
+            public function acceptOther(string $sql): void
+            {
+                $this->fragments[] = $sql;
+            }
+        };
+
+        // SQLite line comments end at LF, not CR. Restore original bytes after lexing
+        // to preserve carriage returns in quoted identifiers and literals.
+        (new Parser(false))->parse(str_replace("\r", ' ', $sql), $visitor);
+
+        $offset = 0;
+        foreach ($visitor->fragments as $index => $fragment) {
+            $length                     = strlen($fragment);
+            $visitor->fragments[$index] = substr($sql, $offset, $length);
+            $offset                    += $length;
+        }
+
+        $quoted               = '';
+        $visitor->fragments[] = ' ';
+        foreach ($visitor->fragments as $fragment) {
+            // The parameter parser emits adjacent fragments for doubled delimiters.
+            if ($quoted !== '' && $quoted[0] !== '[' && $fragment[0] === $quoted[0]) {
+                $quoted .= $fragment;
+
+                continue;
+            }
+
+            if ($quoted !== '') {
+                $delimiter = $quoted[0];
+
+                yield [str_replace($delimiter . $delimiter, $delimiter, substr($quoted, 1, -1)), true];
+
+                $quoted = '';
+            }
+
+            if (strpos("\"'`[", $fragment[0]) !== false) {
+                $quoted = $fragment;
+
+                continue;
+            }
+
+            if (strpos($fragment, '--') === 0 || strpos($fragment, '/*') === 0) {
+                continue;
+            }
+
+            preg_match_all('/[(),]|[^\s(),]+/', $fragment, $matches);
+            foreach ($matches[0] as $token) {
+                yield [$token, false];
+            }
+        }
     }
 
     private function parseTableCommentFromSQL(string $table, string $sql): ?string
