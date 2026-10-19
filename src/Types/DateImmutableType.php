@@ -12,8 +12,10 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 /**
  * Immutable type of {@see DateType}.
  */
-class DateImmutableType extends Type implements PhpDateMappingType
+class DateImmutableType extends Type implements PhpDateMappingType, EquatableType
 {
+    use DatabaseValueEquality;
+
     /**
      * {@inheritDoc}
      */
