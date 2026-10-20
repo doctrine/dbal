@@ -10,6 +10,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Result as DriverResult;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
@@ -19,6 +21,11 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
+use Doctrine\DBAL\Tests\Types\CaseConvertingStringType;
+use Doctrine\DBAL\Types\PlatformAwareBindingType;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -457,6 +464,184 @@ class ConnectionTest extends TestCase
                 'name' => 'string',
             ],
         );
+    }
+
+    /** @param array<int<0, max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types */
+    #[DataProvider('insertTypesProvider')]
+    public function testInsertAppliesSQLConversionOfTypes(array $types, string $expectedSQL): void
+    {
+        $conn = $this->getExecuteStatementMockConnectionWithConvertingType();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with($expectedSQL, [1, 'Foo']);
+
+        $conn->insert('TestTable', ['id' => 1, 'name' => 'Foo'], $types);
+    }
+
+    /** @return iterable<string, array{array<int|string, string|ParameterType|Type>, string}> */
+    public static function insertTypesProvider(): iterable
+    {
+        yield 'named type names' => [
+            ['id' => Types::INTEGER, 'name' => CaseConvertingStringType::NAME],
+            'INSERT INTO TestTable (id, name) VALUES (?, LOWER(?))',
+        ];
+
+        yield 'positional type names' => [
+            [Types::INTEGER, CaseConvertingStringType::NAME],
+            'INSERT INTO TestTable (id, name) VALUES (?, LOWER(?))',
+        ];
+
+        yield 'sparse positional type' => [
+            [1 => CaseConvertingStringType::NAME],
+            'INSERT INTO TestTable (id, name) VALUES (?, LOWER(?))',
+        ];
+
+        yield 'type instance' => [
+            ['name' => new CaseConvertingStringType()],
+            'INSERT INTO TestTable (id, name) VALUES (?, LOWER(?))',
+        ];
+
+        yield 'binding types' => [
+            ['id' => ParameterType::INTEGER, 'name' => ParameterType::STRING],
+            'INSERT INTO TestTable (id, name) VALUES (?, ?)',
+        ];
+
+        yield 'no types' => [
+            [],
+            'INSERT INTO TestTable (id, name) VALUES (?, ?)',
+        ];
+    }
+
+    public function testUpdateAppliesSQLConversionOfTypes(): void
+    {
+        $conn = $this->getExecuteStatementMockConnectionWithConvertingType();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'UPDATE TestTable SET name = LOWER(?), id = ? WHERE deleted IS NULL AND code = LOWER(?)',
+                ['Foo', 1, 'Bar'],
+                [CaseConvertingStringType::NAME, Types::INTEGER, CaseConvertingStringType::NAME],
+            );
+
+        $conn->update(
+            'TestTable',
+            ['name' => 'Foo', 'id' => 1],
+            ['deleted' => null, 'code' => 'Bar'],
+            [
+                'name' => CaseConvertingStringType::NAME,
+                'id' => Types::INTEGER,
+                'code' => CaseConvertingStringType::NAME,
+            ],
+        );
+    }
+
+    public function testUpdateAppliesSQLConversionOfPositionalTypes(): void
+    {
+        $conn = $this->getExecuteStatementMockConnectionWithConvertingType();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'UPDATE TestTable SET name = ? WHERE code = LOWER(?)',
+                ['Foo', 'Bar'],
+                [1 => CaseConvertingStringType::NAME],
+            );
+
+        $conn->update('TestTable', ['name' => 'Foo'], ['code' => 'Bar'], [1 => CaseConvertingStringType::NAME]);
+    }
+
+    public function testDeleteAppliesSQLConversionOfTypes(): void
+    {
+        $conn = $this->getExecuteStatementMockConnectionWithConvertingType();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'DELETE FROM TestTable WHERE deleted IS NULL AND code = LOWER(?)',
+                ['Bar'],
+                [CaseConvertingStringType::NAME],
+            );
+
+        $conn->delete(
+            'TestTable',
+            ['deleted' => null, 'code' => 'Bar'],
+            ['deleted' => Types::BOOLEAN, 'code' => CaseConvertingStringType::NAME],
+        );
+    }
+
+    public function testConvertToDatabaseValueSQL(): void
+    {
+        $conn = $this->getExecuteStatementMockConnectionWithConvertingType();
+
+        self::assertSame('LOWER(:name)', $conn->convertToDatabaseValueSQL(':name', CaseConvertingStringType::NAME));
+        self::assertSame('LOWER(?)', $conn->convertToDatabaseValueSQL('?', new CaseConvertingStringType()));
+        self::assertSame('?', $conn->convertToDatabaseValueSQL('?', Types::STRING));
+    }
+
+    public function testConvertToPHPValueSQL(): void
+    {
+        $conn = $this->getExecuteStatementMockConnectionWithConvertingType();
+
+        self::assertSame('UPPER(t.name)', $conn->convertToPHPValueSQL('t.name', CaseConvertingStringType::NAME));
+        self::assertSame('UPPER(t.name)', $conn->convertToPHPValueSQL('t.name', new CaseConvertingStringType()));
+        self::assertSame('t.name', $conn->convertToPHPValueSQL('t.name', Types::STRING));
+    }
+
+    public function testPlatformAwareBindingType(): void
+    {
+        $platform = self::createStub(AbstractPlatform::class);
+
+        $type = new class ($platform) extends Type implements PlatformAwareBindingType {
+            public function __construct(private readonly AbstractPlatform $expectedPlatform)
+            {
+            }
+
+            /** {@inheritDoc} */
+            public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+            {
+                return 'BLOB';
+            }
+
+            public function getBindingTypeForPlatform(AbstractPlatform $platform): ParameterType
+            {
+                return $platform === $this->expectedPlatform ? ParameterType::BINARY : ParameterType::INTEGER;
+            }
+        };
+
+        $driverStatement = $this->createMock(DriverStatement::class);
+        $driverStatement->expects(self::exactly(2))
+            ->method('bindValue')
+            ->with(1, 'value', ParameterType::BINARY);
+        $driverStatement->method('execute')
+            ->willReturn(self::createStub(DriverResult::class));
+
+        $driverConnection = self::createStub(DriverConnection::class);
+        $driverConnection->method('prepare')
+            ->willReturn($driverStatement);
+
+        $driver = self::createStub(Driver::class);
+        $driver->method('connect')
+            ->willReturn($driverConnection);
+        $driver->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $connection = new Connection([], $driver);
+        $connection->executeStatement('INSERT INTO t (c) VALUES (?)', ['value'], [$type]);
+        $connection->prepare('INSERT INTO t (c) VALUES (?)')->bindValue(1, 'value', $type);
+    }
+
+    private function getExecuteStatementMockConnectionWithConvertingType(): Connection&MockObject
+    {
+        $configuration = (new Configuration())->setTypeProvider(new TypeRegistry([
+            CaseConvertingStringType::NAME => new CaseConvertingStringType(),
+        ]));
+
+        return $this->getMockBuilder(Connection::class)
+            ->onlyMethods(['executeStatement'])
+            ->setConstructorArgs([[], self::createStub(Driver::class), $configuration])
+            ->getMock();
     }
 
     /** @param non-empty-string $method */
