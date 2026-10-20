@@ -31,6 +31,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\DBAL\SQL\Parser;
+use Doctrine\DBAL\Types\PlatformAwareBindingType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
@@ -40,6 +41,7 @@ use Traversable;
 
 use function array_key_exists;
 use function array_merge;
+use function array_shift;
 use function count;
 use function implode;
 use function is_array;
@@ -352,15 +354,39 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * Adds condition based on the criteria to the query components
+     * Extracts the columns and values of the criteria that have to be bound as parameters
      *
      * @param array<string, mixed> $criteria Map of key columns to their values
      *
-     * @return array{list<string>, list<mixed>, list<string>}
+     * @return array{list<string>, list<mixed>}
      */
-    private function getCriteriaCondition(array $criteria): array
+    private function getCriteriaParameters(array $criteria): array
     {
-        $columns = $values = $conditions = [];
+        $columns = $values = [];
+
+        foreach ($criteria as $columnName => $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            $columns[] = $columnName;
+            $values[]  = $value;
+        }
+
+        return [$columns, $values];
+    }
+
+    /**
+     * Builds the conditions based on the criteria
+     *
+     * @param array<string, mixed> $criteria     Map of key columns to their values
+     * @param list<string>         $placeholders The placeholders of the non-NULL criteria, in order
+     *
+     * @return list<string>
+     */
+    private function getCriteriaConditions(array $criteria, array $placeholders): array
+    {
+        $conditions = [];
 
         foreach ($criteria as $columnName => $value) {
             if ($value === null) {
@@ -368,12 +394,10 @@ class Connection implements ServerVersionProvider
                 continue;
             }
 
-            $columns[]    = $columnName;
-            $values[]     = $value;
-            $conditions[] = $columnName . ' = ?';
+            $conditions[] = $columnName . ' = ' . array_shift($placeholders);
         }
 
-        return [$columns, $values, $conditions];
+        return $conditions;
     }
 
     /**
@@ -390,7 +414,16 @@ class Connection implements ServerVersionProvider
      */
     public function delete(string $table, array $criteria = [], array $types = []): int|string
     {
-        [$columns, $values, $conditions] = $this->getCriteriaCondition($criteria);
+        [$columns, $values] = $this->getCriteriaParameters($criteria);
+
+        if (is_string(key($types))) {
+            $types = $this->extractTypeValues($columns, $types);
+        }
+
+        $conditions = $this->getCriteriaConditions(
+            $criteria,
+            $this->getPlaceholders($types, 0, count($columns)),
+        );
 
         $sql = 'DELETE FROM ' . $table;
 
@@ -398,11 +431,7 @@ class Connection implements ServerVersionProvider
             $sql .= ' WHERE ' . implode(' AND ', $conditions);
         }
 
-        return $this->executeStatement(
-            $sql,
-            $values,
-            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
-        );
+        return $this->executeStatement($sql, $values, $types);
     }
 
     /**
@@ -455,23 +484,31 @@ class Connection implements ServerVersionProvider
      */
     public function update(string $table, array $data, array $criteria = [], array $types = []): int|string
     {
-        $columns = $values = $conditions = $set = [];
+        $columns = $values = $set = [];
 
         foreach ($data as $columnName => $value) {
             $columns[] = $columnName;
             $values[]  = $value;
-            $set[]     = $columnName . ' = ?';
         }
 
-        [$criteriaColumns, $criteriaValues, $criteriaConditions] = $this->getCriteriaCondition($criteria);
+        [$criteriaColumns, $criteriaValues] = $this->getCriteriaParameters($criteria);
 
-        $columns    = array_merge($columns, $criteriaColumns);
-        $values     = array_merge($values, $criteriaValues);
-        $conditions = array_merge($conditions, $criteriaConditions);
+        $setCount = count($columns);
+        $columns  = array_merge($columns, $criteriaColumns);
+        $values   = array_merge($values, $criteriaValues);
 
         if (is_string(key($types))) {
             $types = $this->extractTypeValues($columns, $types);
         }
+
+        foreach ($this->getPlaceholders($types, 0, $setCount) as $i => $placeholder) {
+            $set[] = $columns[$i] . ' = ' . $placeholder;
+        }
+
+        $conditions = $this->getCriteriaConditions(
+            $criteria,
+            $this->getPlaceholders($types, $setCount, count($criteriaColumns)),
+        );
 
         $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $set);
 
@@ -502,20 +539,47 @@ class Connection implements ServerVersionProvider
 
         $columns = [];
         $values  = [];
-        $set     = [];
 
         foreach ($data as $columnName => $value) {
             $columns[] = $columnName;
             $values[]  = $value;
-            $set[]     = '?';
+        }
+
+        if (is_string(key($types))) {
+            $types = $this->extractTypeValues($columns, $types);
         }
 
         return $this->executeStatement(
             'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ')' .
-            ' VALUES (' . implode(', ', $set) . ')',
+            ' VALUES (' . implode(', ', $this->getPlaceholders($types, 0, count($columns))) . ')',
             $values,
-            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
+            $types,
         );
+    }
+
+    /**
+     * Builds the placeholders of a range of positional parameters, applying the SQL-level conversion
+     * of the DBAL mapping types they are bound with.
+     *
+     * @param array<int|string, string|ParameterType|Type> $types Positional types
+     *
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    private function getPlaceholders(array $types, int $offset, int $count): array
+    {
+        $placeholders = [];
+
+        for ($i = $offset; $i < $offset + $count; $i++) {
+            $type = $types[$i] ?? ParameterType::STRING;
+
+            $placeholders[] = $type instanceof ParameterType
+                ? '?'
+                : $this->convertToDatabaseValueSQL('?', $type);
+        }
+
+        return $placeholders;
     }
 
     /**
@@ -1294,6 +1358,48 @@ class Connection implements ServerVersionProvider
     }
 
     /**
+     * Modifies an SQL expression (typically a parameter placeholder) to convert it to the database
+     * representation of a specific DBAL mapping type.
+     *
+     * {@see insert()}, {@see update()}, {@see delete()} and the query builder apply this conversion
+     * automatically. Hand-written SQL has to apply it to the placeholders of typed parameters.
+     *
+     * @param string      $sqlExpr The SQL expression to convert.
+     * @param string|Type $type    The DBAL mapping type or its name.
+     *
+     * @throws Exception
+     */
+    public function convertToDatabaseValueSQL(string $sqlExpr, string|Type $type): string
+    {
+        if (is_string($type)) {
+            $type = $this->_config->getTypeProvider()->get($type);
+        }
+
+        return $type->convertToDatabaseValueSQL($sqlExpr, $this->getDatabasePlatform());
+    }
+
+    /**
+     * Modifies an SQL expression (typically a column reference) to convert it to the representation
+     * that {@see convertToPHPValue()} expects for a specific DBAL mapping type.
+     *
+     * Results are never converted automatically. Hand-written SQL has to apply this conversion to
+     * the selected expressions of types that require it.
+     *
+     * @param string      $sqlExpr The SQL expression to convert.
+     * @param string|Type $type    The DBAL mapping type or its name.
+     *
+     * @throws Exception
+     */
+    public function convertToPHPValueSQL(string $sqlExpr, string|Type $type): string
+    {
+        if (is_string($type)) {
+            $type = $this->_config->getTypeProvider()->get($type);
+        }
+
+        return $type->convertToPHPValueSQL($sqlExpr, $this->getDatabasePlatform());
+    }
+
+    /**
      * Binds a set of parameters, some or all of which are typed with a PDO binding type
      * or DBAL mapping type, to a given statement.
      *
@@ -1360,8 +1466,11 @@ class Connection implements ServerVersionProvider
         }
 
         if ($type instanceof Type) {
-            $value       = $type->convertToDatabaseValue($value, $this->getDatabasePlatform());
-            $bindingType = $type->getBindingType();
+            $platform    = $this->getDatabasePlatform();
+            $value       = $type->convertToDatabaseValue($value, $platform);
+            $bindingType = $type instanceof PlatformAwareBindingType
+                ? $type->getBindingTypeForPlatform($platform)
+                : $type->getBindingType();
         } else {
             $bindingType = $type;
         }
