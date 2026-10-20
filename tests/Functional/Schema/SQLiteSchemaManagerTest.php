@@ -649,7 +649,6 @@ SQL;
                 'CREATE TABLE track (trackid INTEGER DEFAULT NULL, trackname CLOB DEFAULT NULL COLLATE "BINARY",'
                 . ' trackartist INTEGER DEFAULT NULL, FOREIGN KEY (trackartist) REFERENCES artist (artistid, isrc) ON'
                 . ' UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE)',
-                'CREATE INDEX IDX_D6E3F8A6FB96D8BC ON track (trackartist)',
             ],
             $createTableTrackSql,
         );
