@@ -59,6 +59,11 @@ final class InvalidGeometry extends InvalidArgumentException
         return new self(sprintf('Malformed SpatiaLite geometry: %s.', $reason));
     }
 
+    public static function malformedSQLServerGeometry(string $reason): self
+    {
+        return new self(sprintf('Malformed SQL Server geometry: %s.', $reason));
+    }
+
     public static function malformedWkt(string $reason, int $offset): self
     {
         return new self(sprintf('Malformed WKT at offset %d: %s.', $offset, $reason));
@@ -91,6 +96,41 @@ final class InvalidGeometry extends InvalidArgumentException
     public static function unsupportedEmptyGeometry(string $platform): self
     {
         return new self(sprintf('%s do not support empty geometries, except empty geometry collections.', $platform));
+    }
+
+    public static function unsupportedKind(string $platform, GeometryKind $kind): self
+    {
+        return new self(sprintf('%s does not support %s values.', $platform, $kind->value));
+    }
+
+    public static function unsupportedEmptyGeometries(string $platform): self
+    {
+        return new self(sprintf('%s does not support empty geometries.', $platform));
+    }
+
+    public static function unsupportedNestedCollection(string $platform, GeometryKind $kind): self
+    {
+        return new self(sprintf('%s does not support geometry collections containing a %s.', $platform, $kind->value));
+    }
+
+    public static function unsupportedCoordinate(string $platform, float $coordinate): self
+    {
+        return new self(sprintf('%s cannot store the coordinate %s.', $platform, $coordinate));
+    }
+
+    public static function unsupportedCurves(string $platform): self
+    {
+        return new self(sprintf('Curves stored in %s are not supported.', $platform));
+    }
+
+    public static function malformedSdoGeometry(string $reason): self
+    {
+        return new self(sprintf('Malformed SDO_GEOMETRY: %s.', $reason));
+    }
+
+    public static function unsupportedEmptyPoint(string $platform): self
+    {
+        return new self(sprintf('%s does not support empty points.', $platform));
     }
 
     public static function notACollection(GeometryKind $kind): self

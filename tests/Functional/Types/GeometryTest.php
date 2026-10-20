@@ -6,11 +6,14 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -25,7 +28,9 @@ use Doctrine\DBAL\Types\GeometryType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+use function preg_match;
 use function sprintf;
+use function str_contains;
 use function strtolower;
 
 final class GeometryTest extends FunctionalTestCase
@@ -47,6 +52,15 @@ final class GeometryTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the PostGIS extension.');
         }
 
+        if (
+            $platform instanceof DB2Platform
+            && $this->connection->fetchOne(
+                "SELECT 1 FROM SYSCAT.DATATYPES WHERE TYPESCHEMA = 'SYSIBM' AND TYPENAME = 'ST_GEOMETRY'",
+            ) === false
+        ) {
+            self::markTestSkipped('This test requires Db2 Spatial Analytics.');
+        }
+
         $this->dropTableIfExists('geometry_test');
     }
 
@@ -59,8 +73,22 @@ final class GeometryTest extends FunctionalTestCase
             self::markTestSkipped('MySQL and MariaDB only store non-empty two-dimensional geometries.');
         }
 
-        if ($platform instanceof SQLitePlatform && $isEmpty) {
-            self::markTestSkipped('SpatiaLite cannot represent empty geometries.');
+        if (($platform instanceof SQLitePlatform || $platform instanceof OraclePlatform) && $isEmpty) {
+            self::markTestSkipped('SpatiaLite and Oracle cannot represent empty geometries.');
+        }
+
+        if ($platform instanceof SQLServerPlatform && $wkt === 'SRID=4326;POINT EMPTY') {
+            self::markTestSkipped('SQL Server cannot build empty points from their WKB.');
+        }
+
+        if (
+            $platform instanceof DB2Platform
+            && ($isEmpty || str_contains($wkt, 'GEOMETRYCOLLECTION') || preg_match('/^SRID=(?!4326;)/', $wkt) === 1)
+        ) {
+            self::markTestSkipped(
+                'Db2 stores neither empty geometries nor geometry collections,'
+                    . ' and only predefines the spatial reference systems 0 and 4326 among the tested ones.',
+            );
         }
 
         $this->createTable(Column::editor()
@@ -110,8 +138,14 @@ final class GeometryTest extends FunctionalTestCase
 
     public function testEmptyGeometryCollection(): void
     {
-        if ($this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
-            self::markTestSkipped('SpatiaLite cannot represent empty geometries.');
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (
+            $platform instanceof SQLitePlatform
+            || $platform instanceof OraclePlatform
+            || $platform instanceof DB2Platform
+        ) {
+            self::markTestSkipped('SpatiaLite, Oracle and Db2 cannot represent empty geometries.');
         }
 
         $this->createTable(Column::editor()
@@ -187,6 +221,9 @@ final class GeometryTest extends FunctionalTestCase
 
             // the predicates of SpatiaLite return 1, 0 or -1 (error)
             $predicate .= ' = 1';
+        } elseif ($platform instanceof DB2Platform) {
+            // the predicates of Db2 return integers
+            $predicate .= ' = 1';
         } elseif (! $platform instanceof PostgreSQLPlatform && ! $platform instanceof AbstractMySQLPlatform) {
             self::markTestSkipped('This test uses the ST_Intersects() function of PostGIS, MySQL and SpatiaLite.');
         }
@@ -261,7 +298,16 @@ final class GeometryTest extends FunctionalTestCase
         $column = $introspectedTable->getColumn('point_4326');
 
         self::assertInstanceOf(GeometryType::class, $column->getType());
-        self::assertSame(GeometryKind::POINT, $column->getGeometryType());
+
+        // the kind is only part of the column declaration on these platforms
+        if (
+            $platform instanceof PostgreSQLPlatform
+            || $platform instanceof AbstractMySQLPlatform
+            || $platform instanceof SQLitePlatform
+            || $platform instanceof DB2Platform
+        ) {
+            self::assertSame(GeometryKind::POINT, $column->getGeometryType());
+        }
 
         if ($platform instanceof PostgreSQLPlatform || $platform instanceof MySQL80Platform) {
             self::assertSame(4326, $column->getSrid());
@@ -280,8 +326,10 @@ final class GeometryTest extends FunctionalTestCase
 
     public function testSpatialIndex(): void
     {
-        if ($this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
-            self::markTestSkipped('Spatial indexes are not supported on SQLite yet.');
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof PostgreSQLPlatform && ! $platform instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped(sprintf('Spatial indexes are not supported on %s yet.', $platform::class));
         }
 
         $table = $this->createTable(
@@ -446,6 +494,55 @@ final class GeometryTest extends FunctionalTestCase
                 $tableName,
             );
         }
+    }
+
+    public function testOracleGeometries(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof OraclePlatform) {
+            self::markTestSkipped('This test requires Oracle.');
+        }
+
+        $this->createTable(Column::editor()
+            ->setUnquotedName('geom')
+            ->setTypeName(Types::GEOMETRY)
+            ->create());
+
+        // a point stored in SDO_POINT and an optimized rectangle, as other tools write them
+        $this->connection->executeStatement(
+            'INSERT INTO geometry_test (id, geom)'
+                . ' VALUES (1, SDO_GEOMETRY(2001, 4326, SDO_POINT_TYPE(2.35, 48.85, NULL), NULL, NULL))',
+        );
+        $this->connection->executeStatement(
+            'INSERT INTO geometry_test (id, geom) VALUES (2, SDO_GEOMETRY(2003, NULL, NULL,'
+                . ' SDO_ELEM_INFO_ARRAY(1, 1003, 3), SDO_ORDINATE_ARRAY(1, 1, 5, 7)))',
+        );
+
+        // Oracle requires counterclockwise exterior rings and clockwise interior rings
+        $this->connection->insert(
+            'geometry_test',
+            ['id' => 3, 'geom' => Geometry::fromWkt('POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,2 1,2 2,1 2,1 1))')],
+            ['geom' => Types::GEOMETRY],
+        );
+
+        $expected = [
+            1 => 'SRID=4326;POINT(2.35 48.85)',
+            2 => 'POLYGON((1 1,5 1,5 7,1 7,1 1))',
+            3 => 'POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,1 2,2 2,2 1,1 1))',
+        ];
+
+        foreach ($expected as $id => $ewkt) {
+            self::assertSame(
+                $ewkt,
+                $this->connection->convertToPHPValue($this->fetchGeometry($id), Types::GEOMETRY)?->asEwkt(),
+            );
+        }
+
+        self::assertSame(
+            'TRUE',
+            $this->connection->fetchOne(
+                'SELECT SDO_GEOM.VALIDATE_GEOMETRY_WITH_CONTEXT(geom, 0.005) FROM geometry_test WHERE id = 3',
+            ),
+        );
     }
 
     private function requireSpatiaLite(): void

@@ -597,6 +597,24 @@ Spatial indexes are declared with ``Doctrine\DBAL\Schema\Index\IndexType::SPATIA
 |                | enforced, nor are the dimension and the SRID. Empty geometries cannot be     |
 |                | stored. Spatial indexes are not supported yet.                               |
 +----------------+------------------------------------------------------------------------------+
+| SQL Server     | ``geometry`` columns. The kind, the dimension and the SRID are not enforced. |
+|                | Empty points cannot be stored. Geometries cannot be compared with ``=``.     |
+|                | Spatial indexes are not supported yet.                                       |
++----------------+------------------------------------------------------------------------------+
+| Oracle         | ``SDO_GEOMETRY`` columns (Oracle Spatial). The kind, the dimension and the   |
+|                | SRID are not enforced. Empty geometries and collections containing           |
+|                | multi-line strings, multi-polygons or collections cannot be stored. The      |
+|                | rings of polygons are oriented as Oracle requires. With ``pdo_oci``, values  |
+|                | are limited to 1332 bytes of JSON, and ``fetchAll*()`` cannot read several   |
+|                | geometries. Spatial indexes are not supported yet.                           |
++----------------+------------------------------------------------------------------------------+
+| Db2            | Requires Db2 Spatial Analytics (Db2 11.5.4 or newer), enabled with           |
+|                | ``CALL SYSPROC.SYSINSTALLOBJECTS('GEO', 'C', NULL, NULL)``. The kind is      |
+|                | enforced by the column type. The SRID must be defined in Db2 (0, 4326, 4269  |
+|                | and 27700 are predefined), and the coordinates are rounded to the precision  |
+|                | of its definition. Empty geometries and geometry collections cannot be       |
+|                | stored. Spatial indexes are not supported.                                   |
++----------------+------------------------------------------------------------------------------+
 
 SpatiaLite can be loaded into every connection with the
 ``Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\LoadExtension`` middleware. It requires
@@ -616,7 +634,19 @@ be located in the directory configured by the ``sqlite3.extension_dir`` php.ini 
 The metadata tables, virtual tables and spatial index tables of SpatiaLite are excluded from the
 schema introspection.
 
-The coordinates are stored and retrieved without loss of precision. On MySQL 8.0, the
+The coordinates are stored and retrieved without loss of precision, except on Db2. Oracle and
+Db2 cannot bind or fetch their spatial objects: the type converts the values with SQL functions,
+which ``Connection::insert()``, ``Connection::update()``, ``Connection::delete()``, the query builder
+and the ORM apply automatically. In hand-written SQL, use ``Connection::convertToDatabaseValueSQL()``
+and ``Connection::convertToPHPValueSQL()``:
+
+::
+
+    <?php
+    $sql = 'SELECT ' . $connection->convertToPHPValueSQL('location', Types::GEOMETRY)
+        . ' FROM places WHERE id = ?';
+
+    $location = $connection->convertToPHPValue($connection->fetchOne($sql, [$id]), Types::GEOMETRY); On MySQL 8.0, the
 coordinates of geometries with a geographic SRID (e.g. 4326) are longitudes and latitudes
 in this order, as in all formats supported by ``Geometry``, even though MySQL's own
 WKT and WKB functions use the opposite axis order for such SRIDs.
