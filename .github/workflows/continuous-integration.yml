@@ -350,11 +350,12 @@ jobs:
   phpunit-db2:
     name: >
       Db2 - 
-      ${{ matrix.php-version || 'Ø' }}
+      ${{ matrix.php-version || 'Ø' }}${{ matrix.spatial && ' - Spatial Analytics' || '' }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-db2.yml
     with:
       php-version: ${{ matrix.php-version }}
+      spatial: ${{ matrix.spatial || false }}
 
     strategy:
       matrix:
@@ -362,6 +363,10 @@ jobs:
           - "8.2"
           # TODO: Running the tests on PHP 8.5 causes a seqfault. Switch as soon as this is fixed.
           - "8.4"
+        include:
+          # the PHP 8.2 job runs without spatial support
+          - php-version: "8.4"
+            spatial: true
 
   development-deps:
     name: >

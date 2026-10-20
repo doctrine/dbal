@@ -15,6 +15,9 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -27,6 +30,8 @@ use function count;
 use function current;
 use function explode;
 use function implode;
+use function is_string;
+use function pack;
 use function sprintf;
 use function str_contains;
 
@@ -63,11 +68,110 @@ class DB2Platform extends AbstractPlatform
             'integer'   => Types::INTEGER,
             'real'      => Types::SMALLFLOAT,
             'smallint'  => Types::SMALLINT,
+            'st_geomcollection' => Types::GEOMETRY,
+            'st_geometry' => Types::GEOMETRY,
+            'st_linestring' => Types::GEOMETRY,
+            'st_multilinestring' => Types::GEOMETRY,
+            'st_multipoint' => Types::GEOMETRY,
+            'st_multipolygon' => Types::GEOMETRY,
+            'st_point'  => Types::GEOMETRY,
+            'st_polygon' => Types::GEOMETRY,
             'time'      => Types::TIME_MUTABLE,
             'timestamp' => Types::DATETIME_MUTABLE,
             'varbinary' => Types::BINARY,
             'varchar'   => Types::STRING,
         ];
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Requires Db2 Spatial Analytics (Db2 11.5.4+), enabled in the database. The kind is enforced by the column type,
+     * the dimension and the SRID are not enforced. The geometries other than points are stored inline up to
+     * 1000 bytes, so that the default 4 KB pages can hold a few of them.
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        [$kind] = $this->getGeometryColumnOptions($column);
+
+        return match ($kind) {
+            GeometryKind::POINT => 'ST_POINT',
+            GeometryKind::LINESTRING => 'ST_LINESTRING',
+            GeometryKind::POLYGON => 'ST_POLYGON',
+            GeometryKind::MULTIPOINT => 'ST_MULTIPOINT',
+            GeometryKind::MULTILINESTRING => 'ST_MULTILINESTRING',
+            GeometryKind::MULTIPOLYGON => 'ST_MULTIPOLYGON',
+            GeometryKind::GEOMETRYCOLLECTION => 'ST_GEOMCOLLECTION',
+            default => 'ST_GEOMETRY',
+        } . ($kind === GeometryKind::POINT ? '' : ' INLINE LENGTH 1000');
+    }
+
+    /**
+     * The value is the SRID (4-byte unsigned little-endian integer) followed by the WKB of the geometry, from which
+     * {@see convertGeometryToDatabaseValueSQL()} builds the geometry: binding the internal format of Db2 would store
+     * corrupted values.
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): string
+    {
+        if ($geometry->getKind() === GeometryKind::GEOMETRYCOLLECTION) {
+            throw InvalidGeometry::unsupportedKind('Db2', $geometry->getKind());
+        }
+
+        if ($geometry->isEmpty() || self::containsEmptyMember($geometry)) {
+            throw InvalidGeometry::unsupportedEmptyGeometries('Db2');
+        }
+
+        return pack('V', $geometry->getSrid()) . $geometry->asWkb();
+    }
+
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        $srid = [];
+
+        for ($i = 1, $factor = 1; $i <= 4; $i++, $factor *= 256) {
+            $srid[] = $factor . ' * ASCII(CAST(SUBSTR(v, ' . $i . ', 1) AS CHAR(1) FOR BIT DATA))';
+        }
+
+        // the scalar fullselect references the parameter once, CASE preserves NULL values
+        return '(SELECT CASE WHEN v IS NULL THEN NULL'
+            . ' ELSE ST_GeomFromWKB(SUBSTR(v, 5), ' . implode(' + ', $srid) . ') END'
+            . ' FROM (VALUES CAST(' . $sqlExpr . ' AS BLOB(2G))) AS t(v))';
+    }
+
+    /**
+     * Selects the SRID and the WKT of the geometry, separated by a semicolon: the internal format of Db2 cannot be
+     * decoded, and the byte order of a binary SRID would depend on the server.
+     */
+    public function convertGeometryToPHPValueSQL(string $sqlExpr): string
+    {
+        return 'CASE WHEN ' . $sqlExpr . ' IS NULL THEN NULL'
+            . ' ELSE VARCHAR(ST_SrsId(' . $sqlExpr . ")) || ';' || ST_AsText(" . $sqlExpr . ') END';
+    }
+
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value) || ! str_contains($value, ';')) {
+            throw InvalidGeometry::malformedWkt('expected an SRID followed by a semicolon', 0);
+        }
+
+        [$srid, $wkt] = explode(';', $value, 2);
+
+        return Geometry::fromWkt($wkt, (int) $srid);
+    }
+
+    private static function containsEmptyMember(Geometry $geometry): bool
+    {
+        if ($geometry->getKind()->getMemberKind() === null) {
+            return false;
+        }
+
+        foreach ($geometry->getCoordinates() as $member) {
+            if ($member === []) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string

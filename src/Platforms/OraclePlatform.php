@@ -6,9 +6,11 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\DBAL\Platforms\Oracle\OracleMetadataProvider;
+use Doctrine\DBAL\Platforms\Oracle\SdoGeometry;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -16,6 +18,8 @@ use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
@@ -26,6 +30,7 @@ use function array_merge;
 use function count;
 use function explode;
 use function implode;
+use function is_string;
 use function sprintf;
 use function str_contains;
 use function strlen;
@@ -793,6 +798,79 @@ SQL,
         return sprintf('SELECT %s FROM DUAL', $expression);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Requires Oracle Spatial (Locator), which all editions include. The kind, the dimension and the SRID are not
+     * enforced.
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        return 'SDO_GEOMETRY';
+    }
+
+    /**
+     * The value is a JSON object of the components of the SDO_GEOMETRY object, which
+     * {@see convertGeometryToDatabaseValueSQL()} builds: SDO_GEOMETRY objects cannot be bound.
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): string
+    {
+        return SdoGeometry::encode($geometry);
+    }
+
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        // the scalar subquery references the parameter once, CASE preserves NULL values
+        return '(SELECT CASE WHEN v IS NULL THEN NULL ELSE SDO_GEOMETRY('
+            . "JSON_VALUE(v, '$.t' RETURNING NUMBER ERROR ON ERROR), "
+            . "JSON_VALUE(v, '$.s' RETURNING NUMBER ERROR ON ERROR), "
+            . 'NULL, '
+            . 'CAST(MULTISET(SELECT n FROM JSON_TABLE('
+            . "v, '$.e[*]' ERROR ON ERROR COLUMNS (i FOR ORDINALITY, n NUMBER PATH '$')"
+            . ') ORDER BY i) AS SDO_ELEM_INFO_ARRAY), '
+            . 'CAST(MULTISET(SELECT n FROM JSON_TABLE('
+            . "v, '$.o[*]' ERROR ON ERROR COLUMNS (i FOR ORDINALITY, n NUMBER PATH '$')"
+            . ') ORDER BY i) AS SDO_ORDINATE_ARRAY)'
+            . ') END FROM (SELECT TO_CLOB(' . $sqlExpr . ') AS v FROM DUAL))';
+    }
+
+    /**
+     * Selects the components of the SDO_GEOMETRY object as a JSON object: SDO_GEOMETRY objects cannot be fetched.
+     */
+    public function convertGeometryToPHPValueSQL(string $sqlExpr): string
+    {
+        $expression = '(' . $sqlExpr . ')';
+        $point      = '(' . $expression . '.SDO_POINT)';
+
+        return 'CASE WHEN ' . $sqlExpr . ' IS NULL THEN NULL ELSE JSON_OBJECT('
+            . "'t' VALUE " . $expression . '.SDO_GTYPE, '
+            . "'s' VALUE " . $expression . '.SDO_SRID, '
+            . "'p' VALUE CASE WHEN " . $point . ' IS NULL THEN NULL'
+            . ' ELSE JSON_ARRAY(' . $point . '.X, ' . $point . '.Y, ' . $point . '.Z NULL ON NULL) END FORMAT JSON, '
+            . "'e' VALUE (SELECT JSON_ARRAYAGG(c ORDER BY r NULL ON NULL RETURNING CLOB)"
+            . ' FROM (SELECT COLUMN_VALUE c, ROWNUM r FROM TABLE(' . $expression . '.SDO_ELEM_INFO))) FORMAT JSON, '
+            . "'o' VALUE (SELECT JSON_ARRAYAGG(c ORDER BY r NULL ON NULL RETURNING CLOB)"
+            . ' FROM (SELECT COLUMN_VALUE c, ROWNUM r FROM TABLE(' . $expression . '.SDO_ORDINATES))) FORMAT JSON'
+            . ' NULL ON NULL RETURNING CLOB) END';
+    }
+
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value)) {
+            throw InvalidGeometry::malformedSdoGeometry('expected a string');
+        }
+
+        return SdoGeometry::decode($value);
+    }
+
+    /**
+     * The value is bound as a string: pdo_oci cannot bind LOBs in expressions.
+     */
+    public function getGeometryBindingType(): ParameterType
+    {
+        return ParameterType::STRING;
+    }
+
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -815,6 +893,7 @@ SQL,
             'raw'            => Types::BINARY,
             'real'           => Types::SMALLFLOAT,
             'rowid'          => Types::STRING,
+            'sdo_geometry'   => Types::GEOMETRY,
             'timestamp'      => Types::DATETIME_MUTABLE,
             'timestamptz'    => Types::DATETIMETZ_MUTABLE,
             'urowid'         => Types::STRING,

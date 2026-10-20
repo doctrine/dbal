@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
+use Doctrine\DBAL\Platforms\SQLServer\SpatialSerialization;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Platforms\SQLServer\SQLServerMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
@@ -19,6 +20,9 @@ use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -34,6 +38,8 @@ use function implode;
 use function is_array;
 use function is_bool;
 use function is_numeric;
+use function is_string;
+use function pack;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -1119,6 +1125,80 @@ class SQLServerPlatform extends AbstractPlatform
         return 'Y-m-d H:i:s.u P';
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * The kind, the dimension and the SRID are not enforced.
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        // lower case, since the type names are case-sensitive in case-sensitive databases
+        return 'geometry';
+    }
+
+    /**
+     * The value is the SRID (4-byte big-endian integer) followed by the WKB of the geometry, from which
+     * {@see convertGeometryToDatabaseValueSQL()} builds the geometry. The native format cannot be bound as is: SQL
+     * Server would trust its validity flag, which only a geometry engine can compute.
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): string
+    {
+        if (self::containsEmptyPoint($geometry)) {
+            throw InvalidGeometry::unsupportedEmptyPoint('SQL Server');
+        }
+
+        return pack('N', $geometry->getSrid()) . $geometry->asWkb();
+    }
+
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        // the scalar subquery references the parameter once, CASE preserves NULL values
+        return '(SELECT CASE WHEN v.b IS NULL THEN NULL'
+            . ' ELSE geometry::STGeomFromWKB(SUBSTRING(v.b, 5, 2147483647), CAST(SUBSTRING(v.b, 1, 4) AS int)) END'
+            . ' FROM (SELECT CAST(' . $sqlExpr . ' AS varbinary(max)) AS b) AS v)';
+    }
+
+    /**
+     * The value is the native serialization of the geometry, which is what selecting a geometry column returns.
+     */
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value)) {
+            throw InvalidGeometry::malformedSQLServerGeometry('expected a binary string');
+        }
+
+        return SpatialSerialization::decode($value);
+    }
+
+    private static function containsEmptyPoint(Geometry $geometry): bool
+    {
+        $kind = $geometry->getKind();
+
+        if ($kind === GeometryKind::POINT) {
+            return $geometry->isEmpty();
+        }
+
+        if ($kind === GeometryKind::MULTIPOINT) {
+            foreach ($geometry->getCoordinates() as $position) {
+                if ($position === []) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if ($kind === GeometryKind::GEOMETRYCOLLECTION) {
+            foreach ($geometry->getGeometries() as $member) {
+                if (self::containsEmptyPoint($member)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -1135,6 +1215,7 @@ class SQLServerPlatform extends AbstractPlatform
             'double'           => Types::FLOAT,
             'double precision' => Types::FLOAT,
             'float'            => Types::FLOAT,
+            'geometry'         => Types::GEOMETRY,
             'image'            => Types::BLOB,
             'int'              => Types::INTEGER,
             'money'            => Types::INTEGER,
