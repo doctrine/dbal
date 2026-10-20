@@ -26,6 +26,7 @@ use Doctrine\DBAL\Spatial\Dimension;
 use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\Spatial\GeometryKind;
+use Doctrine\DBAL\Spatial\SpatialRelation;
 use Doctrine\DBAL\Tests\Functional\SpatialTestCase;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\GeometryType;
@@ -193,6 +194,38 @@ final class GeometryTest extends SpatialTestCase
             'SRID=4326;POINT(3 4)',
             $this->connection->convertToPHPValue($this->fetchGeometry(2), Types::GEOMETRY)?->asEwkt(),
         );
+    }
+
+    public function testParameterAsFunctionArgument(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLitePlatform) {
+            $this->requireSpatiaLite();
+        }
+
+        $predicate = $platform->getSpatialRelationExpression(
+            SpatialRelation::INTERSECTS,
+            'geom',
+            $this->connection->convertToDatabaseValueSQL('?', Types::GEOMETRY),
+        ) . ' = ' . $platform->convertBooleans(true);
+
+        $this->createTable(Column::editor()
+            ->setUnquotedName('geom')
+            ->setTypeName(Types::GEOMETRY)
+            ->create());
+
+        foreach ([1 => Geometry::point(1, 1), 2 => Geometry::point(5, 5)] as $id => $point) {
+            $this->connection->insert('geometry_test', ['id' => $id, 'geom' => $point], ['geom' => Types::GEOMETRY]);
+        }
+
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT id FROM geometry_test WHERE ' . $predicate,
+            [Geometry::fromWkt('POLYGON((0 0,2 0,2 2,0 2,0 0))')],
+            [Types::GEOMETRY],
+        );
+
+        self::assertEquals([1], $ids);
     }
 
     /**

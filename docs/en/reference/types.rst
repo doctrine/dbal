@@ -663,8 +663,8 @@ be located in the directory configured by the ``sqlite3.extension_dir`` php.ini 
 The metadata tables, virtual tables and spatial index tables of SpatiaLite are excluded from the
 schema introspection.
 
-The coordinates are stored and retrieved without loss of precision, except on Db2. Oracle and
-Db2 cannot bind or fetch their spatial objects: the type converts the values with SQL functions,
+The coordinates are stored and retrieved without loss of precision, except on Db2. On
+PostgreSQL, SQL Server, Oracle and Db2, the type converts the values with SQL expressions,
 which ``Connection::insert()``, ``Connection::update()``, ``Connection::delete()``, the query builder
 and the ORM apply automatically. In hand-written SQL, use ``Connection::convertToDatabaseValueSQL()``
 and ``Connection::convertToPHPValueSQL()``:
@@ -675,9 +675,10 @@ and ``Connection::convertToPHPValueSQL()``:
     $sql = 'SELECT ' . $connection->convertToPHPValueSQL('location', Types::GEOMETRY)
         . ' FROM places WHERE id = ?';
 
-    $location = $connection->convertToPHPValue($connection->fetchOne($sql, [$id]), Types::GEOMETRY); On MySQL 8.0, the
-coordinates of geometries with a geographic SRID (e.g. 4326) are longitudes and latitudes
-in this order, as in all formats supported by ``Geometry``, even though MySQL's own
+    $location = $connection->convertToPHPValue($connection->fetchOne($sql, [$id]), Types::GEOMETRY);
+
+On MySQL 8.0, the coordinates of geometries with a geographic SRID (e.g. 4326) are longitudes
+and latitudes in this order, as in all formats supported by ``Geometry``, even though MySQL's own
 WKT and WKB functions use the opposite axis order for such SRIDs.
 
 On PostgreSQL, the spatial indexes are GiST indexes. The indexes created with SQL with another
@@ -706,6 +707,57 @@ columns.
 On SQL Server, the orientation of the polygons that would be larger than a hemisphere is
 reversed, since its ``geography`` type considers the polygons whose exterior ring is oriented
 clockwise as the rest of the globe.
+
+Spatial functions
+^^^^^^^^^^^^^^^^^
+
+The platforms generate the SQL of the spatial functions that all of them support:
+
+- ``getSpatialRelationExpression()`` tests whether two geometries are in one of the spatial
+  relationships of the OGC Simple Features specification, listed by
+  ``Doctrine\DBAL\Spatial\SpatialRelation``: ``CONTAINS``, ``CROSSES``, ``DISJOINT``, ``EQUALS``,
+  ``INTERSECTS``, ``OVERLAPS``, ``TOUCHES`` and ``WITHIN``;
+- ``getSpatialWithinDistanceExpression()`` tests whether two geometries are within a distance of
+  each other;
+- ``getSpatialDistanceExpression()``, ``getSpatialAreaExpression()`` and
+  ``getSpatialLengthExpression()`` measure geometries;
+- ``getSpatialXExpression()``, ``getSpatialYExpression()`` and ``getSpatialSridExpression()``
+  return the coordinates of a point and the SRID of a geometry.
+
+Their arguments are SQL expressions, which are used once each. The tests evaluate to booleans
+as represented by the platform, which can be compared with ``AbstractPlatform::convertBooleans(true)``:
+
+::
+
+    <?php
+    use Doctrine\DBAL\Spatial\SpatialRelation;
+
+    $platform = $connection->getDatabasePlatform();
+
+    $sql = sprintf(
+        'SELECT name FROM places WHERE %s = %s',
+        $platform->getSpatialRelationExpression(
+            SpatialRelation::WITHIN,
+            'location',
+            $connection->convertToDatabaseValueSQL('?', Types::GEOMETRY),
+        ),
+        $platform->convertBooleans(true),
+    );
+
+    $names = $connection->fetchFirstColumn($sql, [$zone], [Types::GEOMETRY]);
+
+The other functions apply to geometries. The measures are computed in the plane of the
+coordinates and are expressed in their unit,
+whatever the spatial reference system: for instance, the distance between two longitude and
+latitude pairs is expressed in degrees. The relationships are evaluated by the database: for
+geographic spatial reference systems, MySQL 8.0+ and Oracle follow the geodesics between the
+vertices, while the other platforms follow straight lines. The Z and M coordinates are ignored,
+and the geometries must have the same SRID.
+
+Some platforms evaluate the relationships that are not defined for the dimensions of the
+geometries to ``NULL`` rather than to false, for instance a point crossing a polygon (MySQL 8.0+,
+MariaDB and Db2). MariaDB does not follow the specification for some geometries that touch each
+other: for instance, a polygon contains the points of its boundary.
 
 .. _mappingMatrix:
 

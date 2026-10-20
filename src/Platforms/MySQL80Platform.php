@@ -52,4 +52,41 @@ class MySQL80Platform extends MySQLPlatform
     {
         return $srid !== null ? ' SRID ' . $srid : '';
     }
+
+    public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return parent::getSpatialDistanceExpression(
+            $this->getCartesianGeometrySQL($geometry1),
+            $this->getCartesianGeometrySQL($geometry2),
+        );
+    }
+
+    public function getSpatialAreaExpression(string $geometry): string
+    {
+        return parent::getSpatialAreaExpression($this->getCartesianGeometrySQL($geometry));
+    }
+
+    public function getSpatialLengthExpression(string $geometry): string
+    {
+        return parent::getSpatialLengthExpression($this->getCartesianGeometrySQL($geometry));
+    }
+
+    public function getSpatialXExpression(string $point): string
+    {
+        return parent::getSpatialXExpression($this->getCartesianGeometrySQL($point));
+    }
+
+    public function getSpatialYExpression(string $point): string
+    {
+        return parent::getSpatialYExpression($this->getCartesianGeometrySQL($point));
+    }
+
+    /**
+     * Assigns the SRID 0 to the geometry: in a geographic spatial reference system, MySQL computes the measures on the
+     * ellipsoid, and ST_X() and ST_Y() return the coordinates in the axis order of the spatial reference system.
+     */
+    private function getCartesianGeometrySQL(string $geometry): string
+    {
+        return 'ST_SRID(' . $geometry . ', 0)';
+    }
 }
