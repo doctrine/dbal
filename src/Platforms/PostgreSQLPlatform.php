@@ -5,17 +5,22 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
+use Doctrine\DBAL\Platforms\PostgreSQL\GeometryTypeModifier;
 use Doctrine\DBAL\Platforms\PostgreSQL\PostgreSQLMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
@@ -24,7 +29,10 @@ use UnexpectedValueException;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function bin2hex;
+use function ctype_xdigit;
 use function explode;
+use function hex2bin;
 use function implode;
 use function in_array;
 use function is_array;
@@ -34,6 +42,7 @@ use function is_string;
 use function sprintf;
 use function str_contains;
 use function str_ends_with;
+use function strlen;
 use function strtolower;
 use function substr;
 use function trim;
@@ -739,6 +748,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'float'            => Types::FLOAT,
             'float4'           => Types::SMALLFLOAT,
             'float8'           => Types::FLOAT,
+            'geometry'         => Types::GEOMETRY,
             'inet'             => Types::STRING,
             'int'              => Types::INTEGER,
             'int2'             => Types::SMALLINT,
@@ -832,6 +842,53 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function getJsonbTypeDeclarationSQL(array $column): string
     {
         return 'JSONB';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Requires the PostGIS extension. The kind, the dimension and the SRID are enforced by the type modifier,
+     * e.g. geometry(PointZ,4326).
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        return GeometryTypeModifier::render('geometry', ...$this->getGeometryColumnOptions($column));
+    }
+
+    /**
+     * The value is the hexadecimal EWKB of the geometry, which PostGIS casts implicitly.
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): string
+    {
+        return bin2hex($geometry->asEwkb());
+    }
+
+    /**
+     * The value is the hexadecimal EWKB of the geometry, which is the text output of PostGIS.
+     */
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value) || strlen($value) % 2 !== 0 || ! ctype_xdigit($value)) {
+            throw InvalidGeometry::malformedWkb('expected hexadecimal EWKB');
+        }
+
+        return Geometry::fromWkb((string) hex2bin($value));
+    }
+
+    public function getGeometryBindingType(): ParameterType
+    {
+        return ParameterType::STRING;
+    }
+
+    public function getCreateIndexSQL(Index $index, string $table): string
+    {
+        if ($index->getType() !== IndexType::SPATIAL) {
+            return parent::getCreateIndexSQL($index, $table);
+        }
+
+        return 'CREATE INDEX ' . $index->getQuotedName($this) . ' ON ' . $table
+            . ' USING GIST (' . implode(', ', $index->getQuotedColumns($this)) . ')'
+            . $this->getPartialIndexSQL($index);
     }
 
     public function createMetadataProvider(Connection $connection): PostgreSQLMetadataProvider

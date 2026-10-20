@@ -524,6 +524,79 @@ jsonb_object
 This type is similar to ``json_object``. On PostgreSQL, it is mapped to the ``JSONB`` data type.
 On all other platforms, it is mapped to the same type as ``json``.
 
+Spatial types
+~~~~~~~~~~~~~
+
+Types that map geometries of the OGC Simple Features model.
+
+.. _geometry:
+geometry
+^^^^^^^^
+
+Maps and converts geometries (points, line strings, polygons and their collections) to
+``Doctrine\DBAL\Spatial\Geometry`` value objects, or ``null`` if no data is present.
+
+A ``Geometry`` is immutable and carries a spatial reference system identifier (SRID),
+``0`` meaning that it is not specified. It can be created from coordinates, from the
+well-known text (WKT) and binary (WKB) formats, including their extended PostGIS
+variants (EWKT, EWKB), and from GeoJSON:
+
+::
+
+    <?php
+    use Doctrine\DBAL\Spatial\Geometry;
+
+    $paris  = Geometry::point(2.3522219, 48.856614, 4326); // longitude, latitude, SRID
+    $zone   = Geometry::fromWkt('SRID=4326;POLYGON((2 48,3 48,3 49,2 49,2 48))');
+    $road   = Geometry::fromGeoJson('{"type":"LineString","coordinates":[[2.35,48.85],[2.29,48.86]]}');
+
+    $connection->insert('places', ['name' => 'Paris', 'location' => $paris], ['location' => Types::GEOMETRY]);
+
+    echo $paris->asWkt();     // POINT(2.3522219 48.856614)
+    echo $paris->asGeoJson(); // {"type":"Point","coordinates":[2.3522219,48.856614]}
+
+A column of the ``geometry`` type can restrict the kind of its geometries, their coordinate
+dimension and their SRID. Each platform enforces what it supports:
+
+::
+
+    <?php
+    use Doctrine\DBAL\Schema\Column;
+    use Doctrine\DBAL\Spatial\GeometryKind;
+
+    Column::editor()
+        ->setUnquotedName('location')
+        ->setTypeName(Types::GEOMETRY)
+        ->setGeometryType(GeometryKind::POINT)
+        ->setSrid(4326)
+        ->create();
+
+The same restrictions can be declared as the ``geometryType`` (e.g. ``POINT``),
+``coordinateDimension`` (``XY``, ``XYZ``, ``XYM`` or ``XYZM``) and ``srid`` platform
+options, for example in the column options of an ORM mapping.
+
+Spatial indexes are declared with ``Doctrine\DBAL\Schema\Index\IndexType::SPATIAL``.
+
++----------------+------------------------------------------------------------------------------+
+| Platform       | Support                                                                      |
++================+==============================================================================+
+| PostgreSQL     | Requires the PostGIS extension. ``geometry(Kind[Z|M|ZM],SRID)`` columns      |
+|                | enforce the kind, the dimension and the SRID. Spatial indexes are GiST       |
+|                | indexes. Empty geometries and Z/M coordinates are supported.                 |
++----------------+------------------------------------------------------------------------------+
+| MySQL          | The kind is enforced. The SRID is enforced since MySQL 8.0 and is required   |
+|                | for spatial indexes to be used. Only non-empty two-dimensional geometries    |
+|                | (and empty geometry collections) can be stored. Spatial indexes require      |
+|                | ``NOT NULL`` columns.                                                        |
++----------------+------------------------------------------------------------------------------+
+| MariaDB        | Like MySQL, but the SRID of the columns is not enforced.                     |
++----------------+------------------------------------------------------------------------------+
+
+The coordinates are stored and retrieved without loss of precision. On MySQL 8.0, the
+coordinates of geometries with a geographic SRID (e.g. 4326) are longitudes and latitudes
+in this order, as in all formats supported by ``Geometry``, even though MySQL's own
+WKT and WKB functions use the opposite axis order for such SRIDs.
+
 .. _mappingMatrix:
 
 Mapping Matrix

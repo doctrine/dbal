@@ -51,6 +51,7 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
         Types::NUMBER                 => NumberType::class,
         Types::ENUM                   => EnumType::class,
         Types::FLOAT                  => FloatType::class,
+        Types::GEOMETRY               => GeometryType::class,
         Types::GUID                   => GuidType::class,
         Types::INTEGER                => IntegerType::class,
         Types::JSON                   => JsonType::class,

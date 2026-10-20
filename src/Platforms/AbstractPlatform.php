@@ -14,6 +14,7 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnPrecisionRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnScaleRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
@@ -30,6 +31,10 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\Spatial\Dimension;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
@@ -341,6 +346,111 @@ abstract class AbstractPlatform
     public function getJsonbTypeDeclarationSQL(array $column): string
     {
         return $this->getJsonTypeDeclarationSQL($column);
+    }
+
+    /**
+     * Returns the SQL snippet to declare a column of the {@see Types\Types::GEOMETRY} type.
+     *
+     * The column may specify the kind of the geometries ("geometryType"), their coordinate dimension
+     * ("dimension") and their SRID ("srid"). Platforms only render the constraints they enforce.
+     *
+     * @param array<string, mixed> $column
+     *
+     * @throws Exception
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Converts a geometry to the value to bind to a column of the {@see Types\Types::GEOMETRY} type.
+     *
+     * @internal The method should be only used from within the {@see Types\GeometryType} class.
+     *
+     * @throws Exception
+     * @throws InvalidGeometry
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): mixed
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Converts the value of a column of the {@see Types\Types::GEOMETRY} type, as selected with
+     * {@see convertGeometryToPHPValueSQL()}, to a geometry.
+     *
+     * @internal The method should be only used from within the {@see Types\GeometryType} class.
+     *
+     * @throws Exception
+     * @throws InvalidGeometry
+     */
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Modifies the SQL expression of a value bound to a column of the {@see Types\Types::GEOMETRY} type.
+     *
+     * @internal The method should be only used from within the {@see Types\GeometryType} class.
+     */
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        return $sqlExpr;
+    }
+
+    /**
+     * Modifies the SQL expression selecting a column of the {@see Types\Types::GEOMETRY} type.
+     *
+     * @internal The method should be only used from within the {@see Types\GeometryType} class.
+     */
+    public function convertGeometryToPHPValueSQL(string $sqlExpr): string
+    {
+        return $sqlExpr;
+    }
+
+    /**
+     * Returns the binding type of the values bound to a column of the {@see Types\Types::GEOMETRY} type.
+     *
+     * @internal The method should be only used from within the {@see Types\GeometryType} class.
+     */
+    public function getGeometryBindingType(): ParameterType
+    {
+        return ParameterType::BINARY;
+    }
+
+    /**
+     * Returns the geometry kind, the coordinate dimension and the SRID that a spatial column declaration specifies.
+     * {@see GeometryKind::GEOMETRY} is returned as NULL, since it does not constrain the column.
+     *
+     * @param array<string, mixed> $column
+     *
+     * @return array{?GeometryKind, ?Dimension, ?int}
+     *
+     * @throws InvalidGeometry
+     */
+    protected function getGeometryColumnOptions(array $column): array
+    {
+        $kind = $column['geometryType'] ?? null;
+
+        if ($kind !== null && ! $kind instanceof GeometryKind) {
+            $kind = GeometryKind::fromName((string) $kind);
+        }
+
+        $dimension = $column['coordinateDimension'] ?? null;
+
+        if ($dimension !== null && ! $dimension instanceof Dimension) {
+            $dimension = Dimension::fromName((string) $dimension);
+        }
+
+        $srid = $column['srid'] ?? null;
+
+        return [
+            $kind === GeometryKind::GEOMETRY ? null : $kind,
+            $dimension,
+            $srid === null ? null : (int) $srid,
+        ];
     }
 
     /**
