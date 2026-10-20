@@ -199,8 +199,10 @@ class SQLServerPlatform extends AbstractPlatform
                 );
             }
 
-            if ($column['comment'] !== '') {
-                $commentsSql[] = $this->getCreateColumnCommentSQL($tableName, $column['name'], $column['comment']);
+            $comment = $column['comment'] ?? '';
+
+            if ($comment !== '') {
+                $commentsSql[] = $this->getCreateColumnCommentSQL($tableName, $column['name'], $comment);
             }
         }
 
@@ -345,7 +347,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($diff->getAddedColumns() as $column) {
-            $columnProperties = $column->toArray();
+            $columnProperties = $column->toArray(true);
 
             $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL($columnProperties);
 
@@ -419,8 +421,8 @@ class SQLServerPlatform extends AbstractPlatform
                 );
             }
 
-            $newDeclarationSQL     = $this->getColumnDeclarationSQL($newColumn->toArray());
-            $oldDeclarationSQL     = $this->getColumnDeclarationSQL($oldColumn->toArray());
+            $newDeclarationSQL     = $this->getColumnDeclarationSQL($newColumn->toArray(true));
+            $oldDeclarationSQL     = $this->getColumnDeclarationSQL($oldColumn->toArray(true));
             $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
 
             $defaultChanged = $columnDiff->hasDefaultChanged();
@@ -495,7 +497,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function getAlterTableAddDefaultConstraintClause(Column $column): string
     {
-        $columnDef         = $column->toArray();
+        $columnDef         = $column->toArray(true);
         $columnDef['name'] = $column->getObjectName();
 
         return 'ADD' . $this->getDefaultConstraintDeclarationSQL($columnDef);
@@ -1089,7 +1091,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
+            $typeDecl    = $this->getColumnType($column)->getSQLDeclaration($column, $this);
             $declaration = $typeDecl . $collation . $notnull;
         }
 
@@ -1112,8 +1114,8 @@ class SQLServerPlatform extends AbstractPlatform
             return false;
         }
 
-        return $this->getDefaultValueDeclarationSQL($column1->toArray())
-            === $this->getDefaultValueDeclarationSQL($column2->toArray());
+        return $this->getDefaultValueDeclarationSQL($column1->toArray(true))
+            === $this->getDefaultValueDeclarationSQL($column2->toArray(true));
     }
 
     /**

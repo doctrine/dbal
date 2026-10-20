@@ -530,7 +530,7 @@ SQL,
         }
 
         foreach ($diff->getAddedColumns() as $column) {
-            $addColumnSQL[] = $this->getColumnDeclarationSQL($column->toArray());
+            $addColumnSQL[] = $this->getColumnDeclarationSQL($column->toArray(true));
 
             $comment = $column->getComment();
 
@@ -568,7 +568,7 @@ SQL,
             // Oracle only supports binary type columns with variable length.
             // Avoids unnecessary table alteration statements.
             if (
-                $newColumn->getType() instanceof BinaryType &&
+                $this->getColumnType($newColumn) instanceof BinaryType &&
                 $columnDiff->hasFixedChanged() &&
                 $countChangedProperties === 1
             ) {
@@ -581,9 +581,9 @@ SQL,
              * Do not add query part if only comment has changed
              */
             if ($countChangedProperties > ($columnHasChangedComment ? 1 : 0)) {
-                $newColumnProperties = $newColumn->toArray();
+                $newColumnProperties = $newColumn->toArray(true);
 
-                $oldSQL = $this->getColumnDeclarationSQL($oldColumn->toArray());
+                $oldSQL = $this->getColumnDeclarationSQL($oldColumn->toArray(true));
                 $newSQL = $this->getColumnDeclarationSQL($newColumnProperties);
 
                 if ($newSQL !== $oldSQL) {
@@ -658,7 +658,7 @@ SQL,
                 $notnull = $column['notnull'] ? ' NOT NULL' : ' NULL';
             }
 
-            $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
+            $typeDecl    = $this->getColumnType($column)->getSQLDeclaration($column, $this);
             $declaration = $typeDecl . $default . $notnull;
         }
 

@@ -278,7 +278,7 @@ class DB2Platform extends AbstractPlatform
 
         $queryParts = [];
         foreach ($diff->getAddedColumns() as $column) {
-            $columnDef = $column->toArray();
+            $columnDef = $column->toArray(true);
             $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($columnDef);
 
             // Adding non-nullable columns to a table requires a default value to be specified.
@@ -421,7 +421,7 @@ class DB2Platform extends AbstractPlatform
     private function getAlterColumnClausesSQL(ColumnDiff $columnDiff, bool &$needsReorg): array
     {
         $newColumn   = $columnDiff->getNewColumn();
-        $columnArray = $newColumn->toArray();
+        $columnArray = $newColumn->toArray(true);
 
         $newName = $columnDiff->getNewColumn()->getObjectName()->toSQL($this);
         $oldName = $columnDiff->getOldColumn()->getObjectName()->toSQL($this);
@@ -448,7 +448,7 @@ class DB2Platform extends AbstractPlatform
             $columnDiff->hasFixedChanged()
         ) {
             $needsReorg = true;
-            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $newColumn->getType()
+            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $this->getColumnType($newColumn)
                     ->getSQLDeclaration($columnArray, $this);
         }
 

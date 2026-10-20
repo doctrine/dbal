@@ -12,18 +12,22 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\InvalidIdentifier;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 
 class ColumnTest extends TestCase
 {
+    use VerifyDeprecations;
+
     public function testGet(): void
     {
         $column = $this->createColumn();
 
         self::assertEquals(UnqualifiedName::unquoted('foo'), $column->getObjectName());
-        self::assertSame(Type::getType(Types::STRING), $column->getType());
+        self::assertSame(Types::STRING, $column->getTypeName());
 
         self::assertEquals(200, $column->getLength());
         self::assertEquals(5, $column->getPrecision());
@@ -38,11 +42,37 @@ class ColumnTest extends TestCase
         self::assertNull($column->getCollation());
     }
 
+    public function testToArrayWithType(): void
+    {
+        $expected = [
+            'name' => UnqualifiedName::unquoted('foo'),
+            'typeName' => Types::STRING,
+            'default' => 'baz',
+            'notnull' => false,
+            'length' => 200,
+            'precision' => 5,
+            'scale' => 2,
+            'fixed' => true,
+            'unsigned' => true,
+            'autoincrement' => false,
+            'columnDefinition' => null,
+            'comment' => '',
+            'values' => [],
+            'type' => Type::getType(Types::STRING),
+            'charset' => 'utf8',
+            'enumType' => self::class,
+        ];
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertEquals($expected, $this->createColumn()->toArray());
+    }
+
     public function testToArray(): void
     {
         $expected = [
             'name' => UnqualifiedName::unquoted('foo'),
-            'type' => Type::getType(Types::STRING),
+            'typeName' => Types::STRING,
             'default' => 'baz',
             'notnull' => false,
             'length' => 200,
@@ -58,7 +88,9 @@ class ColumnTest extends TestCase
             'enumType' => self::class,
         ];
 
-        self::assertEquals($expected, $this->createColumn()->toArray());
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertEquals($expected, $this->createColumn()->toArray(true));
     }
 
     public function createColumn(): Column
@@ -116,7 +148,7 @@ class ColumnTest extends TestCase
             ->create();
         self::assertEquals('foo', $column->getComment());
 
-        $columnArray = $column->toArray();
+        $columnArray = $column->toArray(true);
         self::assertArrayHasKey('comment', $columnArray);
         self::assertEquals('foo', $columnArray['comment']);
     }
@@ -128,7 +160,7 @@ class ColumnTest extends TestCase
 
         Column::editor()
             ->setUnquotedName('') /** @phpstan-ignore argument.type */
-            ->setType(Type::getType(Types::INTEGER))
+            ->setTypeName(Types::INTEGER)
             ->create();
     }
 
@@ -141,5 +173,29 @@ class ColumnTest extends TestCase
             ->create();
 
         self::assertEquals(Identifier::unquoted('id'), $column->getObjectName()->getIdentifier());
+    }
+
+    public function testGetTypeIsDeprecated(): void
+    {
+        $column = Column::editor()
+            ->setUnquotedName('foo')
+            ->setTypeName(Types::STRING)
+            ->create();
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertInstanceOf(StringType::class, $column->getType());
+    }
+
+    public function testGetTypeNameIsNotDeprecated(): void
+    {
+        $column = Column::editor()
+            ->setUnquotedName('foo')
+            ->setTypeName(Types::STRING)
+            ->create();
+
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        self::assertSame(Types::STRING, $column->getTypeName());
     }
 }

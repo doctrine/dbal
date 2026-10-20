@@ -156,6 +156,9 @@ and absolutely not portable.
 -  **unlogged** (boolean): Set a PostgreSQL table type as
   `unlogged <https://www.postgresql.org/docs/current/sql-createtable.html>`_
 
+-  **without_rowid** (boolean): Create the table as a
+  `WITHOUT ROWID <https://www.sqlite.org/withoutrowid.html>`_ table. Currently only supported on SQLite.
+
 Column
 ~~~~~~
 

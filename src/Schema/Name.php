@@ -13,6 +13,8 @@ interface Name
 {
     /**
      * Returns the SQL representation of the name for the given platform.
+     *
+     * @return non-empty-string
      */
     public function toSQL(AbstractPlatform $platform): string;
 
@@ -22,6 +24,8 @@ interface Name
      * The representation is intended for display, such as in error messages, not for parsing back into a name:
      * parsing does not always reproduce the original. If an unquoted part of the name contains whitespace, a dot,
      * or a quote character (", `, [, ]), parsing it will return a different name or fail.
+     *
+     * @return non-empty-string
      */
     public function toString(): string;
 }

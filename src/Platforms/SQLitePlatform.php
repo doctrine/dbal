@@ -284,14 +284,18 @@ class SQLitePlatform extends AbstractPlatform
             $tableComment = $this->getInlineCommentSQL($parameters['comment']);
         }
 
-        $query = [
-            sprintf(
-                'CREATE TABLE %s %s(%s)',
-                $tableName->toSQL($this),
-                $tableComment,
-                implode(', ', $elements),
-            ),
-        ];
+        $sql = sprintf(
+            'CREATE TABLE %s %s(%s)',
+            $tableName->toSQL($this),
+            $tableComment,
+            implode(', ', $elements),
+        );
+
+        if (isset($parameters['without_rowid']) && $parameters['without_rowid'] === true) {
+            $sql .= ' WITHOUT ROWID';
+        }
+
+        $query = [$sql];
 
         if (isset($parameters['alter']) && $parameters['alter'] === true) {
             return $query;
@@ -691,17 +695,15 @@ class SQLitePlatform extends AbstractPlatform
         $sql = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            $definition = $column->toArray();
-
-            $type = $definition['type'];
+            $definition = $column->toArray(true);
 
             switch (true) {
-                case isset($definition['columnDefinition']):
-                case $definition['autoincrement']:
-                case $definition['comment'] !== '':
+                case $column->getColumnDefinition() !== null:
+                case $column->getAutoincrement():
+                case $column->getComment() !== '':
                 // A non-constant default expression (e.g. CURRENT_TIMESTAMP) cannot be used with
                 // ALTER TABLE ... ADD COLUMN on a non-empty table, so fall back to a table rebuild.
-                case $definition['default'] instanceof DefaultExpression:
+                case $column->getDefault() instanceof DefaultExpression:
                     return false;
             }
 

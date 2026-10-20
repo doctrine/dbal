@@ -18,6 +18,7 @@ use Doctrine\DBAL\Types\Types;
 use function func_get_args;
 use function restore_error_handler;
 use function set_error_handler;
+use function sprintf;
 
 use const E_WARNING;
 
@@ -100,20 +101,22 @@ class TransactionTest extends FunctionalTestCase
         [$currentProcessQuery, $killProcessStatement] = match (true) {
             $databasePlatform instanceof AbstractMySqlPlatform => [
                 'SELECT CONNECTION_ID()',
-                'KILL ?',
+                'KILL %d',
             ],
             $databasePlatform instanceof PostgreSQLPlatform => [
                 'SELECT pg_backend_pid()',
-                'SELECT pg_terminate_backend(?)',
+                'SELECT pg_terminate_backend(%d)',
             ],
             default => self::markTestSkipped('Unsupported test platform.'),
         };
 
-        $privilegedConnection = TestUtil::getPrivilegedConnection();
-        $privilegedConnection->executeStatement(
+        $killProcessStatement = sprintf(
             $killProcessStatement,
-            [$this->connection->executeQuery($currentProcessQuery)->fetchOne()],
+            (int) $this->connection->executeQuery($currentProcessQuery)->fetchOne(),
         );
+
+        $privilegedConnection = TestUtil::getPrivilegedConnection();
+        $privilegedConnection->executeStatement($killProcessStatement);
     }
 
     public function testNestedTransactionWalkthrough(): void

@@ -6,10 +6,18 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use Override;
+use TypeError;
 
 use function array_merge;
+use function func_get_arg;
+use function func_num_args;
+use function get_debug_type;
+use function is_bool;
+use function sprintf;
 
 /**
  * Object representation of a database column.
@@ -17,12 +25,13 @@ use function array_merge;
  * @implements NamedObject<UnqualifiedName>
  * @phpstan-type ColumnProperties = array{
  *     name: UnqualifiedName,
- *     type: Type,
- *     default: mixed,
+ *     type?: Type,       // Deprecated; use typeName instead.
+ *     typeName?: string, // Will be required in 5.0
+ *     default?: mixed,
  *     notnull?: bool,
- *     autoincrement: bool,
- *     columnDefinition: ?non-empty-string,
- *     comment: string,
+ *     autoincrement?: bool,
+ *     columnDefinition?: ?non-empty-string,
+ *     comment?: string,
  *     charset?: ?non-empty-string,
  *     collation?: ?non-empty-string,
  * }
@@ -45,7 +54,7 @@ final readonly class Column implements NamedObject
      */
     public function __construct(
         private UnqualifiedName $name,
-        private Type $type,
+        private string $typeName,
         private ?int $length,
         private ?int $precision,
         private int $scale,
@@ -67,9 +76,32 @@ final readonly class Column implements NamedObject
         return $this->name;
     }
 
+    /**
+     * @deprecated Use {@see getTypeName()} to obtain the type name, or resolve the {@see Type}
+     *             instance via {@see Configuration::getTypeProvider()} when needed.
+     *
+     * @throws TypesException
+     */
     public function getType(): Type
     {
-        return $this->type;
+        // Called from toArray() when $skipType is false, which already triggers its own
+        // deprecation, so triggering unconditionally here would report the same call twice.
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7490',
+            '%s is deprecated. Use Column::getTypeName() instead.',
+            __METHOD__,
+        );
+
+        return Type::getTypeRegistry()->get($this->typeName);
+    }
+
+    /**
+     * Returns the name of the DBAL type of this column.
+     */
+    public function getTypeName(): string
+    {
+        return $this->typeName;
     }
 
     public function getLength(): ?int
@@ -186,12 +218,37 @@ final readonly class Column implements NamedObject
         return $this->values;
     }
 
-    /** @return ColumnProperties */
-    public function toArray(): array
+    /**
+     * Pass `true` as the first (virtual) argument to omit the resolved {@see Type} instance from the returned array
+     * and rely on the `typeName` key instead. Omitting the argument is deprecated.
+     *
+     * @return ColumnProperties
+     */
+    public function toArray(/* bool $skipType = false */): array
     {
+        $skipType = func_num_args() > 0 ? func_get_arg(0) : false;
+        if (! is_bool($skipType)) {
+            // @phpstan-ignore missingType.checkedException
+            throw new TypeError(sprintf(
+                'Argument 1 passed to %s must be a boolean, %s given',
+                __METHOD__,
+                get_debug_type($skipType),
+            ));
+        }
+
+        if (! $skipType) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7490',
+                'Calling %s() without the $skipType argument is deprecated. Pass true to omit the Type instance from '
+                . 'the returned array and read the "typeName" key instead.',
+                __METHOD__,
+            );
+        }
+
         return array_merge([
             'name'             => $this->getObjectName(),
-            'type'             => $this->type,
+            'typeName'         => $this->typeName,
             'default'          => $this->default,
             'notnull'          => $this->notnull,
             'length'           => $this->length,
@@ -203,7 +260,8 @@ final readonly class Column implements NamedObject
             'columnDefinition' => $this->columnDefinition,
             'comment'          => $this->comment,
             'values'           => $this->values,
-        ], $this->platformOptions);
+        // @phpstan-ignore missingType.checkedException
+        ], $skipType ? [] : ['type' => $this->getType()], $this->platformOptions);
     }
 
     public static function editor(): ColumnEditor
@@ -215,7 +273,7 @@ final readonly class Column implements NamedObject
     {
         return self::editor()
             ->setName($this->getObjectName())
-            ->setType($this->type)
+            ->setTypeName($this->typeName)
             ->setLength($this->length)
             ->setPrecision($this->precision)
             ->setScale($this->scale)

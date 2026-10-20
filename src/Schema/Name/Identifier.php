@@ -49,6 +49,7 @@ final readonly class Identifier
         return $this->toNormalizedValue($folding) === $other->toNormalizedValue($folding);
     }
 
+    /** @return non-empty-string */
     public function toSQL(AbstractPlatform $platform): string
     {
         return $platform->quoteSingleIdentifier(
@@ -72,6 +73,7 @@ final readonly class Identifier
         return $this->value;
     }
 
+    /** @return non-empty-string */
     public function toString(): string
     {
         if (! $this->isQuoted) {

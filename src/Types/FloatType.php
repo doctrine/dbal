@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Override;
 
-class FloatType extends Type
+class FloatType extends Type implements PhpFloatMappingType
 {
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string

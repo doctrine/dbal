@@ -50,6 +50,8 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeProvider;
+use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -95,9 +97,39 @@ abstract class AbstractPlatform
      */
     private readonly UnquotedIdentifierFolding $unquotedIdentifierFolding;
 
+    private ?TypeProvider $typeProvider = null;
+
     protected function __construct(UnquotedIdentifierFolding $unquotedIdentifierFolding)
     {
         $this->unquotedIdentifierFolding = $unquotedIdentifierFolding;
+    }
+
+    /**
+     * Sets the type provider used by this platform to resolve Doctrine types.
+     *
+     * Called by Connection after platform creation, replacing the former Configuration-based
+     * injection. Inject a type provider so the platform does not fall back to the global type
+     * registry.
+     */
+    public function setTypeProvider(TypeProvider $typeProvider): void
+    {
+        $this->typeProvider = $typeProvider;
+    }
+
+    private function getTypeProvider(): TypeProvider
+    {
+        if ($this->typeProvider === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7342',
+                'Not injecting a type provider is deprecated. Call %s::setTypeProvider() to provide one.',
+                self::class,
+            );
+
+            return Type::getTypeRegistry();
+        }
+
+        return $this->typeProvider;
     }
 
     /**
@@ -150,8 +182,8 @@ abstract class AbstractPlatform
     {
         $this->initializeDoctrineTypeMappings();
 
-        foreach (Type::getTypesMap() as $typeName => $className) {
-            foreach (Type::getType($typeName)->getMappedDatabaseTypes($this) as $dbType) {
+        foreach ($this->getTypeProvider() as $typeName => $type) {
+            foreach ($type->getMappedDatabaseTypes($this) as $dbType) {
                 $dbType                             = strtolower($dbType);
                 $this->doctrineTypeMapping[$dbType] = $typeName;
             }
@@ -368,7 +400,7 @@ abstract class AbstractPlatform
             $this->initializeAllDoctrineTypeMappings();
         }
 
-        if (! Types\Type::hasType($doctrineType)) {
+        if (! $this->getTypeProvider()->has($doctrineType)) {
             throw TypeNotFound::new($doctrineType);
         }
 
@@ -876,6 +908,59 @@ abstract class AbstractPlatform
         return $this->buildCreateTableSQL($table, false);
     }
 
+    /**
+     * Resolves the DBAL type instance of a column or of a column definition array.
+     *
+     * @param array<string, mixed>|Column $column Column properties.
+     */
+    final protected function getColumnType(array|Column $column): Type
+    {
+        if ($column instanceof Column) {
+            // @phpstan-ignore missingType.checkedException
+            return $this->getTypeProvider()->get($column->getTypeName());
+        }
+
+        $type = $this->getColumnTypeOrNull($column);
+
+        if ($type === null) {
+            $name = $column['name'] ?? null;
+
+            throw InvalidColumnDeclaration::fromMissingColumnType(
+                $name instanceof UnqualifiedName ? $name->toString() : '',
+            );
+        }
+
+        return $type;
+    }
+
+    /**
+     * Resolves the DBAL type instance of a column or of a column definition array, or null when the definition
+     * carries no type.
+     *
+     * @param array<string, mixed> $column Column properties.
+     */
+    final protected function getColumnTypeOrNull(array $column): ?Type
+    {
+        if (isset($column['typeName']) && is_string($column['typeName'])) {
+            // @phpstan-ignore missingType.checkedException
+            return $this->getTypeProvider()->get($column['typeName']);
+        }
+
+        if (isset($column['type']) && $column['type'] instanceof Type) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7490',
+                'Providing a %s instance under the "type" key of a column definition array is deprecated.'
+                    . ' Provide the type name under the "typeName" key instead.',
+                Type::class,
+            );
+
+            return $column['type'];
+        }
+
+        return null;
+    }
+
     /** @return list<string> */
     private function buildCreateTableSQL(Table $table, bool $createForeignKeys): array
     {
@@ -903,7 +988,7 @@ abstract class AbstractPlatform
         $columns = [];
 
         foreach ($table->getColumns() as $column) {
-            $columns[] = $column->toArray();
+            $columns[] = $column->toArray(true);
         }
 
         $sql = $this->_getCreateTableSQL($tableName, $columns, $parameters);
@@ -1223,6 +1308,8 @@ abstract class AbstractPlatform
 
     /**
      * Quotes a string so that it can be safely used as an identifier in SQL.
+     *
+     * @return non-empty-string
      */
     public function quoteSingleIdentifier(string $identifier): string
     {
@@ -1331,7 +1418,7 @@ abstract class AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
+            $typeDecl    = $this->getColumnType($column)->getSQLDeclaration($column, $this);
             $declaration = $typeDecl . $charset . $default . $notnull . $collation;
 
             if ($this->supportsInlineColumnComments() && isset($column['comment']) && $column['comment'] !== '') {
@@ -1380,11 +1467,11 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $default->toSQL($this);
         }
 
-        if (! isset($column['type'])) {
+        $type = $this->getColumnTypeOrNull($column);
+
+        if ($type === null) {
             return " DEFAULT '" . $default . "'";
         }
-
-        $type = $column['type'];
 
         if ($type instanceof Types\PhpIntegerMappingType) {
             return ' DEFAULT ' . $default;
@@ -1396,6 +1483,10 @@ abstract class AbstractPlatform
 
         if (is_int($default) || is_float($default)) {
             return ' DEFAULT ' . $default;
+        }
+
+        if ($type instanceof Types\PhpFloatMappingType) {
+            return ' DEFAULT ' . (float) $default;
         }
 
         return ' DEFAULT ' . $this->quoteStringLiteral($default);
@@ -2135,8 +2226,8 @@ abstract class AbstractPlatform
      */
     public function columnsEqual(Column $column1, Column $column2): bool
     {
-        $column1Array = $column1->toArray();
-        $column2Array = $column2->toArray();
+        $column1Array = $column1->toArray(true);
+        $column2Array = $column2->toArray(true);
 
         $name = UnqualifiedName::unquoted('dummy');
 

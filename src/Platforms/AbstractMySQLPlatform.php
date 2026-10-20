@@ -332,7 +332,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $queryParts = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            $columnProperties = array_merge($column->toArray());
+            $columnProperties = array_merge($column->toArray(true));
 
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($columnProperties);
         }
@@ -344,7 +344,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn = $columnDiff->getNewColumn();
 
-            $newColumnProperties = $newColumn->toArray();
+            $newColumnProperties = $newColumn->toArray(true);
 
             $oldColumn = $columnDiff->getOldColumn();
 

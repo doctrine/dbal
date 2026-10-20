@@ -33,6 +33,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -44,6 +45,8 @@ use function sprintf;
 /** @template T of AbstractPlatform */
 abstract class AbstractPlatformTestCase extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @var T */
     protected AbstractPlatform $platform;
 
@@ -257,6 +260,43 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function getGenerateConstraintPrimaryIndexSql(): string
     {
         return 'ALTER TABLE test ADD CONSTRAINT constraint_name PRIMARY KEY (test)';
+    }
+
+    /** @see https://github.com/doctrine/orm/blob/HEAD/src/Query/Exec/MultiTableUpdateExecutor.php */
+    public function testGetColumnDeclarationListSQLWithLegacyTypeKey(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        $name = UnqualifiedName::unquoted('id');
+
+        $expected = $this->platform->getColumnDeclarationListSQL([
+            ['name' => $name, 'notnull' => true, 'typeName' => Types::INTEGER],
+        ]);
+
+        self::assertSame($expected, $this->platform->getColumnDeclarationListSQL([
+            ['name' => $name, 'notnull' => true, 'type' => Type::getType(Types::INTEGER)],
+        ]));
+    }
+
+    public function testGetColumnDeclarationListSQLWithTypeNameDoesNotTriggerDeprecation(): void
+    {
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7490');
+
+        $this->platform->getColumnDeclarationListSQL([
+            ['name' => UnqualifiedName::unquoted('id'), 'typeName' => Types::INTEGER],
+        ]);
+    }
+
+    public function testGetColumnDeclarationListSQLWithoutType(): void
+    {
+        $columns = [
+            ['name' => UnqualifiedName::unquoted('id')],
+        ];
+
+        $this->expectException(InvalidColumnDeclaration::class);
+        $this->expectExceptionMessage('Column "id" has no type.');
+
+        $this->platform->getColumnDeclarationListSQL($columns);
     }
 
     public function testQuotedColumnInPrimaryKeyPropagation(): void
