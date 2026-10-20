@@ -201,6 +201,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = $this->schemaManager->introspectTableByUnquotedName('test_nvarchar_max');
 
+        self::assertSame(Types::TEXT, $table->getColumn('col_nvarchar_max')->getType()->getName());
+        self::assertSame(Types::STRING, $table->getColumn('col_nvarchar')->getType()->getName());
         self::assertSame(-1, $table->getColumn('col_nvarchar_max')->getLength());
         self::assertSame(128, $table->getColumn('col_nvarchar')->getLength());
     }
