@@ -54,6 +54,11 @@ final class InvalidGeometry extends InvalidArgumentException
         return new self(sprintf('Malformed WKB: %s.', $reason));
     }
 
+    public static function malformedSpatiaLiteBlob(string $reason): self
+    {
+        return new self(sprintf('Malformed SpatiaLite geometry: %s.', $reason));
+    }
+
     public static function malformedWkt(string $reason, int $offset): self
     {
         return new self(sprintf('Malformed WKT at offset %d: %s.', $offset, $reason));

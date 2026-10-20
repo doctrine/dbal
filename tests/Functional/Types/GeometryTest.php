@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -24,6 +26,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
+use function strtolower;
 
 final class GeometryTest extends FunctionalTestCase
 {
@@ -59,6 +62,10 @@ final class GeometryTest extends FunctionalTestCase
 
         if ($platform instanceof AbstractMySQLPlatform && ($requiresMeasuresOrElevation || $isEmpty)) {
             self::markTestSkipped('MySQL and MariaDB only store non-empty two-dimensional geometries.');
+        }
+
+        if ($platform instanceof SQLitePlatform && $isEmpty) {
+            self::markTestSkipped('SpatiaLite cannot represent empty geometries.');
         }
 
         $this->createTable(Column::editor()
@@ -108,6 +115,10 @@ final class GeometryTest extends FunctionalTestCase
 
     public function testEmptyGeometryCollection(): void
     {
+        if ($this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
+            self::markTestSkipped('SpatiaLite cannot represent empty geometries.');
+        }
+
         $this->createTable(Column::editor()
             ->setUnquotedName('geom')
             ->setTypeName(Types::GEOMETRY)
@@ -173,10 +184,16 @@ final class GeometryTest extends FunctionalTestCase
 
     public function testParameterAsFunctionArgument(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
+        $platform  = $this->connection->getDatabasePlatform();
+        $predicate = 'ST_Intersects(geom, ' . $this->connection->convertToDatabaseValueSQL('?', Types::GEOMETRY) . ')';
 
-        if (! $platform instanceof PostgreSQLPlatform && ! $platform instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('This test uses the ST_Intersects() function of PostGIS, MySQL and MariaDB.');
+        if ($platform instanceof SQLitePlatform) {
+            $this->requireSpatiaLite();
+
+            // the predicates of SpatiaLite return 1, 0 or -1 (error)
+            $predicate .= ' = 1';
+        } elseif (! $platform instanceof PostgreSQLPlatform && ! $platform instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('This test uses the ST_Intersects() function of PostGIS, MySQL and SpatiaLite.');
         }
 
         $this->createTable(Column::editor()
@@ -189,8 +206,7 @@ final class GeometryTest extends FunctionalTestCase
         }
 
         $ids = $this->connection->fetchFirstColumn(
-            'SELECT id FROM geometry_test WHERE ST_Intersects(geom, '
-                . $this->connection->convertToDatabaseValueSQL('?', Types::GEOMETRY) . ')',
+            'SELECT id FROM geometry_test WHERE ' . $predicate,
             [Geometry::fromWkt('POLYGON((0 0,2 0,2 2,0 2,0 0))')],
             [Types::GEOMETRY],
         );
@@ -269,6 +285,10 @@ final class GeometryTest extends FunctionalTestCase
 
     public function testSpatialIndex(): void
     {
+        if ($this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
+            self::markTestSkipped('Spatial indexes are not supported on SQLite yet.');
+        }
+
         $table = $this->createTable(
             [
                 Index::editor()
@@ -349,6 +369,107 @@ final class GeometryTest extends FunctionalTestCase
             ['id' => 1, 'geom' => Geometry::fromWkt('POINT Z (1 2 3)')],
             ['geom' => Types::GEOMETRY],
         );
+    }
+
+    public function testSpatiaLiteCompatibility(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
+            self::markTestSkipped('This test requires SQLite.');
+        }
+
+        $this->requireSpatiaLite();
+
+        $this->createTable(Column::editor()
+            ->setUnquotedName('geom')
+            ->setTypeName(Types::GEOMETRY)
+            ->create());
+
+        $geometry = Geometry::fromWkt(
+            'SRID=4326;POLYGON Z ((0 0 1,10 0 2,10 10 3,0 10 4,0 0 1),(1 1 0,1 2 0,2 2 0,1 1 0))',
+        );
+
+        $this->connection->insert('geometry_test', ['id' => 1, 'geom' => $geometry], ['geom' => Types::GEOMETRY]);
+
+        self::assertSame(
+            [
+                'srid' => 4326,
+                'wkt' => 'POLYGON Z((0 0 1, 10 0 2, 10 10 3, 0 10 4, 0 0 1), (1 1 0, 1 2 0, 2 2 0, 1 1 0))',
+                'area' => 99.5,
+            ],
+            $this->connection->fetchAssociative(
+                'SELECT ST_SRID(geom) AS srid, ST_AsText(geom) AS wkt, ST_Area(geom) AS area FROM geometry_test',
+            ),
+        );
+
+        $this->connection->executeStatement(
+            "INSERT INTO geometry_test (id, geom) VALUES (2, GeomFromText('POINT(1.5 2.5)', 2154))",
+        );
+
+        self::assertSame(
+            'SRID=2154;POINT(1.5 2.5)',
+            $this->connection->convertToPHPValue($this->fetchGeometry(2), Types::GEOMETRY)?->asEwkt(),
+        );
+    }
+
+    public function testSpatiaLiteObjectsAreNotIntrospected(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
+            self::markTestSkipped('This test requires SQLite.');
+        }
+
+        $this->requireSpatiaLite();
+
+        // the metadata and spatial index tables would otherwise remain in the database
+        $this->markConnectionNotReusable();
+
+        $this->createTable(Column::editor()
+            ->setUnquotedName('geom')
+            ->setTypeName(Types::GEOMETRY)
+            ->setGeometryType(GeometryKind::POINT)
+            ->setSrid(4326)
+            ->create());
+
+        $this->connection->executeStatement('SELECT InitSpatialMetadata(1)');
+        $this->connection->executeStatement(
+            "SELECT RecoverGeometryColumn('geometry_test', 'geom', 4326, 'POINT', 'XY')",
+        );
+        $this->connection->executeStatement("SELECT CreateSpatialIndex('geometry_test', 'geom')");
+
+        self::assertSame(
+            1,
+            (int) $this->connection->fetchOne(
+                "SELECT COUNT(*) FROM sqlite_master WHERE name = 'idx_geometry_test_geom'",
+            ),
+        );
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $tableNames    = [];
+
+        foreach ($schemaManager->introspectSchema()->getTables() as $table) {
+            $tableNames[] = strtolower($table->getObjectName()->toString());
+        }
+
+        self::assertContains('geometry_test', $tableNames);
+
+        foreach ($tableNames as $tableName) {
+            self::assertDoesNotMatchRegularExpression(
+                '/^(idx_geometry_test_geom|spatial|geometry_columns|views_|virts_|knn|elementary|sql_statements_log)/',
+                $tableName,
+            );
+        }
+    }
+
+    private function requireSpatiaLite(): void
+    {
+        try {
+            $this->connection->fetchOne('SELECT spatialite_version()');
+        } catch (DriverException) {
+            if (($GLOBALS['spatial'] ?? null) === 'required') {
+                self::fail('SpatiaLite is required but not loaded.');
+            }
+
+            self::markTestSkipped('This test requires SpatiaLite.');
+        }
     }
 
     /** @param list<Index>|Column $indexesOrColumn */
