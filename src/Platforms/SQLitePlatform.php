@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\Spatial\GeometryKind;
+use Doctrine\DBAL\Spatial\SpatialRelation;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -481,6 +482,17 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         return SpatiaLiteBlob::decode($value);
+    }
+
+    /**
+     * Requires SpatiaLite, whose functions return -1 instead of NULL when an argument is not a geometry.
+     */
+    public function getSpatialRelationExpression(
+        SpatialRelation $relation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        return 'NULLIF(' . parent::getSpatialRelationExpression($relation, $geometry1, $geometry2) . ', -1)';
     }
 
     /**

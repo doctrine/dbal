@@ -921,6 +921,11 @@ class PostgreSQLPlatform extends AbstractPlatform
         return 'CAST(' . $sqlExpr . ' AS geometry)';
     }
 
+    public function getSpatialWithinDistanceExpression(string $geometry1, string $geometry2, string $distance): string
+    {
+        return 'ST_DWithin(' . $geometry1 . ', ' . $geometry2 . ', ' . $distance . ')';
+    }
+
     /**
      * Returns the USING clause that converts the values of a spatial column whose declaration changes, which PostGIS
      * would reject otherwise: the SRID is assigned without transforming the coordinates (like UpdateGeometrySRID()),

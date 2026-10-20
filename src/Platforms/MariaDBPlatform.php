@@ -15,6 +15,7 @@ use function array_diff_key;
 use function array_merge;
 use function count;
 use function in_array;
+use function sprintf;
 
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB database platform of the oldest supported version.
@@ -28,6 +29,21 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
     {
         return 'CAST(' . $sqlExpr . ' AS BINARY)';
+    }
+
+    /**
+     * ST_Distance() does not reset its NULL flag, so that a NULL argument makes the distances of the following rows
+     * NULL as well. The NULL arguments are replaced by points farther than any geometry, whose distances are mapped
+     * back to NULL.
+     */
+    public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return sprintf(
+            "NULLIF(LEAST(ST_Distance(COALESCE(%s, ST_GeomFromText('POINT(1e150 0)')),"
+                . " COALESCE(%s, ST_GeomFromText('POINT(-1e150 0)'))), 1e149), 1e149)",
+            $geometry1,
+            $geometry2,
+        );
     }
 
     /**

@@ -25,6 +25,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\Spatial\GeometryKind;
+use Doctrine\DBAL\Spatial\SpatialRelation;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -49,9 +50,11 @@ use function str_contains;
 use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
+use function strtolower;
 use function strtoupper;
 use function substr;
 use function substr_count;
+use function ucfirst;
 use function var_export;
 
 use const PREG_OFFSET_CAPTURE;
@@ -1250,6 +1253,44 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return SpatialSerialization::decode($value, true);
+    }
+
+    public function getSpatialRelationExpression(
+        SpatialRelation $relation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        return '(' . $geometry1 . ').ST' . ucfirst(strtolower($relation->value)) . '(' . $geometry2 . ')';
+    }
+
+    public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return '(' . $geometry1 . ').STDistance(' . $geometry2 . ')';
+    }
+
+    public function getSpatialAreaExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STArea()';
+    }
+
+    public function getSpatialLengthExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STLength()';
+    }
+
+    public function getSpatialXExpression(string $point): string
+    {
+        return '(' . $point . ').STX';
+    }
+
+    public function getSpatialYExpression(string $point): string
+    {
+        return '(' . $point . ').STY';
+    }
+
+    public function getSpatialSridExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STSrid';
     }
 
     private static function containsEmptyPoint(Geometry $geometry): bool

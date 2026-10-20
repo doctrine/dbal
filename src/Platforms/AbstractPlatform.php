@@ -35,6 +35,7 @@ use Doctrine\DBAL\Spatial\Dimension;
 use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\Spatial\GeometryKind;
+use Doctrine\DBAL\Spatial\SpatialRelation;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
@@ -74,6 +75,7 @@ use function str_replace;
 use function strlen;
 use function strtolower;
 use function strtoupper;
+use function ucfirst;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -1028,6 +1030,117 @@ abstract class AbstractPlatform
     public function getBitOrComparisonExpression(string $value1, string $value2): string
     {
         return '(' . $value1 . ' | ' . $value2 . ')';
+    }
+
+    /**
+     * Returns the SQL snippet that tests whether two geometries are in the given spatial relationship, as defined by
+     * the OGC Simple Features specification.
+     *
+     * The snippet evaluates to a boolean as represented by the platform (see {@see convertBooleans()}), or to NULL if
+     * a geometry is NULL. The relationship is evaluated by the database: for geographic spatial reference systems,
+     * MySQL 8.0+ and Oracle follow the geodesics between the vertices, while the other platforms follow straight
+     * lines in the plane of the coordinates. The Z and M coordinates are ignored.
+     *
+     * @param string $geometry1 SQL expression producing the first geometry.
+     * @param string $geometry2 SQL expression producing the second geometry, with the same SRID.
+     */
+    public function getSpatialRelationExpression(
+        SpatialRelation $relation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        return 'ST_' . ucfirst(strtolower($relation->value)) . '(' . $geometry1 . ', ' . $geometry2 . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the distance between two geometries.
+     *
+     * The distance is computed in the plane of the coordinates and is expressed in their unit (for instance, in
+     * degrees for longitudes and latitudes), whatever the spatial reference system. The Z and M coordinates are
+     * ignored.
+     *
+     * @param string $geometry1 SQL expression producing the first geometry.
+     * @param string $geometry2 SQL expression producing the second geometry, with the same SRID.
+     */
+    public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return 'ST_Distance(' . $geometry1 . ', ' . $geometry2 . ')';
+    }
+
+    /**
+     * Returns the SQL snippet that tests whether the distance between two geometries, as computed by
+     * {@see getSpatialDistanceExpression()}, is less than or equal to the given distance.
+     *
+     * The snippet evaluates to a boolean as represented by the platform (see {@see convertBooleans()}), or to NULL if
+     * an argument is NULL.
+     *
+     * @param string $geometry1 SQL expression producing the first geometry.
+     * @param string $geometry2 SQL expression producing the second geometry, with the same SRID.
+     * @param string $distance  SQL expression producing the distance.
+     */
+    public function getSpatialWithinDistanceExpression(string $geometry1, string $geometry2, string $distance): string
+    {
+        // maps the sign of the difference to 1 or 0, which references every argument once and preserves NULL values
+        return 'CASE SIGN(' . $this->getSpatialDistanceExpression($geometry1, $geometry2) . ' - (' . $distance . '))'
+            . ' WHEN 1 THEN 0 WHEN 0 THEN 1 WHEN -1 THEN 1 END';
+    }
+
+    /**
+     * Returns the SQL snippet to get the area of a polygon or a multi-polygon.
+     *
+     * The area is computed in the plane of the coordinates and is expressed in the square of their unit, whatever the
+     * spatial reference system.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialAreaExpression(string $geometry): string
+    {
+        return 'ST_Area(' . $geometry . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the length of a line string or a multi-line string.
+     *
+     * The length is computed in the plane of the coordinates and is expressed in their unit, whatever the spatial
+     * reference system. The Z and M coordinates are ignored.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialLengthExpression(string $geometry): string
+    {
+        return 'ST_Length(' . $geometry . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the X coordinate of a point (its longitude in a geographic spatial reference
+     * system).
+     *
+     * @param string $point SQL expression producing the point.
+     */
+    public function getSpatialXExpression(string $point): string
+    {
+        return 'ST_X(' . $point . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the Y coordinate of a point (its latitude in a geographic spatial reference
+     * system).
+     *
+     * @param string $point SQL expression producing the point.
+     */
+    public function getSpatialYExpression(string $point): string
+    {
+        return 'ST_Y(' . $point . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the SRID of a geometry.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialSridExpression(string $geometry): string
+    {
+        return 'ST_SRID(' . $geometry . ')';
     }
 
     /**
