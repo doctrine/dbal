@@ -857,6 +857,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
+    /**
+     * MySQL 5.7 and MariaDB compute the distance on a sphere, and only between points.
+     */
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return 'ST_Distance_Sphere(' . $geometry1 . ', ' . $geometry2 . ')';
+    }
+
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [

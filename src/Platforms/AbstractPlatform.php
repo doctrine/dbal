@@ -1080,9 +1080,10 @@ abstract class AbstractPlatform
      */
     public function getSpatialWithinDistanceExpression(string $geometry1, string $geometry2, string $distance): string
     {
-        // maps the sign of the difference to 1 or 0, which references every argument once and preserves NULL values
-        return 'CASE SIGN(' . $this->getSpatialDistanceExpression($geometry1, $geometry2) . ' - (' . $distance . '))'
-            . ' WHEN 1 THEN 0 WHEN 0 THEN 1 WHEN -1 THEN 1 END';
+        return $this->getDistanceComparisonSQL(
+            $this->getSpatialDistanceExpression($geometry1, $geometry2),
+            $distance,
+        );
     }
 
     /**
@@ -1141,6 +1142,88 @@ abstract class AbstractPlatform
     public function getSpatialSridExpression(string $geometry): string
     {
         return 'ST_SRID(' . $geometry . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the geodesic distance between two geometries or geographies, in meters.
+     *
+     * The coordinates are interpreted as longitudes and latitudes on the WGS 84 ellipsoid (SRID 4326). PostgreSQL
+     * uses the ellipsoid of the other geographic spatial reference systems, and raises an error for the projected
+     * ones. MySQL 5.7 and MariaDB compute on a sphere, and only between points.
+     *
+     * @param string $geometry1 SQL expression producing the first geometry or geography.
+     * @param string $geometry2 SQL expression producing the second geometry or geography.
+     *
+     * @throws Exception
+     */
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL snippet that tests whether the geodesic distance between two geometries or geographies, as
+     * computed by {@see getSpatialGeodesicDistanceExpression()}, is less than or equal to the given distance in meters.
+     *
+     * The snippet evaluates to a boolean as represented by the platform (see {@see convertBooleans()}), or to NULL if
+     * an argument is NULL. On PostgreSQL, it uses the spatial index of a geography column.
+     *
+     * @param string $geometry1 SQL expression producing the first geometry or geography.
+     * @param string $geometry2 SQL expression producing the second geometry or geography.
+     * @param string $distance  SQL expression producing the distance in meters.
+     *
+     * @throws Exception
+     */
+    public function getSpatialGeodesicWithinDistanceExpression(
+        string $geometry1,
+        string $geometry2,
+        string $distance,
+    ): string {
+        return $this->getDistanceComparisonSQL(
+            $this->getSpatialGeodesicDistanceExpression($geometry1, $geometry2),
+            $distance,
+        );
+    }
+
+    /**
+     * Returns the SQL snippet to get the geodesic area of a polygon or a multi-polygon, in square meters.
+     *
+     * The coordinates are interpreted as longitudes and latitudes on the WGS 84 ellipsoid (SRID 4326), like by
+     * {@see getSpatialGeodesicDistanceExpression()}. MySQL 5.7 and MariaDB do not support it.
+     *
+     * @param string $geometry SQL expression producing the geometry or the geography.
+     *
+     * @throws Exception
+     */
+    public function getSpatialGeodesicAreaExpression(string $geometry): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL snippet to get the geodesic length of a line string or a multi-line string, in meters.
+     *
+     * The coordinates are interpreted as longitudes and latitudes on the WGS 84 ellipsoid (SRID 4326), like by
+     * {@see getSpatialGeodesicDistanceExpression()}. MySQL 5.7 and MariaDB do not support it.
+     *
+     * @param string $geometry SQL expression producing the geometry or the geography.
+     *
+     * @throws Exception
+     */
+    public function getSpatialGeodesicLengthExpression(string $geometry): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL snippet that tests whether a distance is less than or equal to another one, as a boolean of the
+     * platform: maps the sign of their difference to 1 or 0, which references every argument once and preserves NULL
+     * values.
+     */
+    private function getDistanceComparisonSQL(string $distance, string $maximumDistance): string
+    {
+        return 'CASE SIGN(' . $distance . ' - (' . $maximumDistance . '))'
+            . ' WHEN 1 THEN 0 WHEN 0 THEN 1 WHEN -1 THEN 1 END';
     }
 
     /**

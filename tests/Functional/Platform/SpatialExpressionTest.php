@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -16,6 +19,7 @@ use Doctrine\DBAL\Tests\Functional\SpatialTestCase;
 use Doctrine\DBAL\Types\Types;
 
 use function array_combine;
+use function array_intersect_key;
 use function array_map;
 use function in_array;
 use function round;
@@ -24,6 +28,12 @@ use function strtolower;
 final class SpatialExpressionTest extends SpatialTestCase
 {
     private const POLYGON = 'POLYGON((0 0,10 0,10 10,0 10,0 0))';
+
+    private const PARIS  = 'POINT(2.3522 48.8566)';
+    private const LONDON = 'POINT(-0.1276 51.5072)';
+
+    /** The geodesic distance between Paris and London on the WGS 84 ellipsoid, in meters, as computed by PostGIS */
+    private const PARIS_LONDON_DISTANCE = 343896.891;
 
     private const DIMENSION_DEPENDENT_RELATIONS = [
         SpatialRelation::CROSSES,
@@ -242,6 +252,87 @@ final class SpatialExpressionTest extends SpatialTestCase
         );
     }
 
+    public function testGeodesicDistance(): void
+    {
+        $this->initializeSpatiaLiteMetadata();
+
+        $platform = $this->connection->getDatabasePlatform();
+
+        $geometries = [
+            'points' => ['SRID=4326;' . self::PARIS, 'SRID=4326;' . self::LONDON],
+            'null' => [null, 'SRID=4326;' . self::LONDON],
+        ];
+
+        // Db2 rounds the coordinates of the geometries without SRID to integers
+        if (! $platform instanceof DB2Platform) {
+            $geometries['points without SRID'] = [self::PARIS, self::LONDON];
+        }
+
+        $this->insertGeometries($geometries);
+
+        $distances = $this->fetchNumbers($platform->getSpatialGeodesicDistanceExpression('a', 'b'));
+
+        self::assertNull($distances['null']);
+        unset($distances['null']);
+
+        // MySQL 5.7 and MariaDB compute on a sphere
+        foreach ($distances as $distance) {
+            self::assertEqualsWithDelta(self::PARIS_LONDON_DISTANCE, $distance, self::PARIS_LONDON_DISTANCE * 0.005);
+        }
+
+        self::assertSame(
+            ['points' => true, 'null' => null],
+            array_intersect_key(
+                $this->fetchBooleans($platform->getSpatialGeodesicWithinDistanceExpression('a', 'b', '350000')),
+                ['points' => true, 'null' => true],
+            ),
+        );
+
+        self::assertSame(
+            ['points' => false, 'null' => null],
+            array_intersect_key(
+                $this->fetchBooleans($platform->getSpatialGeodesicWithinDistanceExpression('a', 'b', '300000')),
+                ['points' => true, 'null' => true],
+            ),
+        );
+    }
+
+    public function testGeodesicAreaAndLength(): void
+    {
+        $this->initializeSpatiaLiteMetadata();
+
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof AbstractMySQLPlatform && ! $platform instanceof MySQL80Platform) {
+            $this->expectException(NotSupported::class);
+        }
+
+        $areaExpression   = $platform->getSpatialGeodesicAreaExpression('a');
+        $lengthExpression = $platform->getSpatialGeodesicLengthExpression('b');
+
+        $this->insertGeometries([
+            'geometries' => [
+                'SRID=4326;POLYGON((2 48,3 48,3 49,2 49,2 48))',
+                'SRID=4326;LINESTRING(2.3522 48.8566,-0.1276 51.5072)',
+            ],
+            'null' => [null, null],
+        ]);
+
+        $areas = $this->fetchNumbers($areaExpression);
+
+        self::assertNull($areas['null']);
+        self::assertEqualsWithDelta(8217589924.77, $areas['geometries'], 8217589924.77 * 0.001);
+
+        $lengths = $this->fetchNumbers($lengthExpression);
+
+        self::assertNull($lengths['null']);
+        self::assertEqualsWithDelta(
+            self::PARIS_LONDON_DISTANCE,
+            $lengths['geometries'],
+            self::PARIS_LONDON_DISTANCE * 0.001,
+        );
+    }
+
     public function testParameters(): void
     {
         $this->insertGeometries([
@@ -272,6 +363,22 @@ final class SpatialExpressionTest extends SpatialTestCase
             [Geometry::point(0, 0), Geometry::point(3, 4)],
             [Types::GEOMETRY, Types::GEOMETRY],
         ));
+    }
+
+    /**
+     * The geodesic functions of SpatiaLite read the ellipsoid of the SRID from the spatial_ref_sys table, which
+     * InitSpatialMetadata() creates.
+     */
+    private function initializeSpatiaLiteMetadata(): void
+    {
+        if (
+            ! $this->connection->getDatabasePlatform() instanceof SQLitePlatform
+            || $this->connection->fetchOne("SELECT 1 FROM sqlite_master WHERE name = 'spatial_ref_sys'") !== false
+        ) {
+            return;
+        }
+
+        $this->connection->executeQuery("SELECT InitSpatialMetadata(1, 'WGS84_ONLY')");
     }
 
     /** @param array<string, array{?string, ?string}> $geometries */

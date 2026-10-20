@@ -496,6 +496,24 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
+     * Requires SpatiaLite, which computes on the ellipsoid when the last argument of its functions is 1.
+     */
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return 'ST_Distance(SetSRID(' . $geometry1 . ', 4326), SetSRID(' . $geometry2 . ', 4326), 1)';
+    }
+
+    public function getSpatialGeodesicAreaExpression(string $geometry): string
+    {
+        return 'ST_Area(SetSRID(' . $geometry . ', 4326), 1)';
+    }
+
+    public function getSpatialGeodesicLengthExpression(string $geometry): string
+    {
+        return 'ST_Length(SetSRID(' . $geometry . ', 4326), 1)';
+    }
+
+    /**
      * Returns the SQL condition that excludes the tables that are not user tables from the introspection: the
      * internal tables of SQLite and the metadata tables, virtual tables and spatial index tables of SpatiaLite.
      *

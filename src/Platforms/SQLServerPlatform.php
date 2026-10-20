@@ -1293,6 +1293,34 @@ class SQLServerPlatform extends AbstractPlatform
         return '(' . $geometry . ').STSrid';
     }
 
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return $this->getGeographySQL($geometry1) . '.STDistance(' . $this->getGeographySQL($geometry2) . ')';
+    }
+
+    public function getSpatialGeodesicAreaExpression(string $geometry): string
+    {
+        return $this->getGeographySQL($geometry) . '.STArea()';
+    }
+
+    public function getSpatialGeodesicLengthExpression(string $geometry): string
+    {
+        return $this->getGeographySQL($geometry) . '.STLength()';
+    }
+
+    /**
+     * Converts the geometry to a geography with the SRID 4326, whose methods compute on the WGS 84 ellipsoid. The
+     * geography type considers the polygons whose exterior ring is oriented clockwise as the rest of the globe, so the
+     * orientation of the geographies larger than a hemisphere is reversed. The scalar subquery references the geometry
+     * once.
+     */
+    private function getGeographySQL(string $geometry): string
+    {
+        return '(SELECT CASE WHEN w.geog.EnvelopeAngle() > 90 THEN w.geog.ReorientObject() ELSE w.geog END'
+            . ' FROM (SELECT geography::STGeomFromWKB(v.geom.STAsBinary(), 4326) AS geog'
+            . ' FROM (SELECT ' . $geometry . ' AS geom) AS v) AS w)';
+    }
+
     private static function containsEmptyPoint(Geometry $geometry): bool
     {
         $kind = $geometry->getKind();

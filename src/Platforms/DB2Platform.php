@@ -167,6 +167,31 @@ class DB2Platform extends AbstractPlatform
         return Geometry::fromWkt($wkt, (int) $srid);
     }
 
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return 'ST_Distance(' . $this->getGeographicGeometrySQL($geometry1) . ', '
+            . $this->getGeographicGeometrySQL($geometry2) . ", 'METRE')";
+    }
+
+    public function getSpatialGeodesicAreaExpression(string $geometry): string
+    {
+        return 'ST_Area(' . $this->getGeographicGeometrySQL($geometry) . ", 'METRE')";
+    }
+
+    public function getSpatialGeodesicLengthExpression(string $geometry): string
+    {
+        return 'ST_Length(' . $this->getGeographicGeometrySQL($geometry) . ", 'METRE')";
+    }
+
+    /**
+     * Assigns the SRID 4326 to the geometry, so that Db2 computes on the WGS 84 ellipsoid when a linear unit is
+     * passed.
+     */
+    private function getGeographicGeometrySQL(string $geometry): string
+    {
+        return 'ST_GeomFromWKB(ST_AsBinary(' . $geometry . '), 4326)';
+    }
+
     private static function containsEmptyMember(Geometry $geometry): bool
     {
         if ($geometry->getKind()->getMemberKind() === null) {

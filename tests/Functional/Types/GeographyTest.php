@@ -23,6 +23,7 @@ use Doctrine\DBAL\Types\GeometryType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+use function implode;
 use function sprintf;
 
 final class GeographyTest extends SpatialTestCase
@@ -176,6 +177,97 @@ final class GeographyTest extends SpatialTestCase
 
         self::assertSame(IndexType::SPATIAL, $introspectedTable->getIndex('geography_test_location')->getType());
         self::assertTrue($schemaManager->createComparator()->compareTables($introspectedTable, $table)->isEmpty());
+    }
+
+    public function testGeodesicWithinDistance(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLitePlatform) {
+            $this->requireSpatiaLite();
+
+            // the geodesic functions of SpatiaLite read the ellipsoids from the spatial_ref_sys table
+            if ($this->connection->fetchOne("SELECT 1 FROM sqlite_master WHERE name = 'spatial_ref_sys'") === false) {
+                $this->connection->executeQuery("SELECT InitSpatialMetadata(1, 'WGS84_ONLY')");
+            }
+        }
+
+        $this->createTable(
+            [],
+            Column::editor()
+                ->setUnquotedName('location')
+                ->setTypeName(Types::GEOGRAPHY)
+                ->create(),
+        );
+
+        foreach ([1 => [2.3522219, 48.856614], 2 => [-0.1276, 51.5072], 3 => [13.405, 52.52]] as $id => [$x, $y]) {
+            $this->connection->insert(
+                'geography_test',
+                ['id' => $id, 'location' => Geometry::point($x, $y)],
+                ['location' => Types::GEOGRAPHY],
+            );
+        }
+
+        $ids = $this->connection->fetchFirstColumn(
+            sprintf(
+                'SELECT id FROM geography_test WHERE %s = %s ORDER BY id',
+                $platform->getSpatialGeodesicWithinDistanceExpression(
+                    'location',
+                    $this->connection->convertToDatabaseValueSQL('?', Types::GEOGRAPHY),
+                    '?',
+                ),
+                $platform->convertBooleans(true),
+            ),
+            [Geometry::point(2.3522219, 48.856614), 350000],
+            [Types::GEOGRAPHY, Types::INTEGER],
+        );
+
+        self::assertEquals([1, 2], $ids);
+    }
+
+    /**
+     * PostgreSQL uses the index of a geography column for the geodesic tests of distance.
+     */
+    public function testGeodesicWithinDistanceUsesTheIndexOnPostgreSQL(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof PostgreSQLPlatform) {
+            self::markTestSkipped('This test covers the index of PostgreSQL geography columns.');
+        }
+
+        $this->createTable(
+            [
+                Index::editor()
+                    ->setUnquotedName('geography_test_location')
+                    ->setUnquotedColumnNames('location')
+                    ->setType(IndexType::SPATIAL)
+                    ->create(),
+            ],
+            Column::editor()
+                ->setUnquotedName('location')
+                ->setTypeName(Types::GEOGRAPHY)
+                ->create(),
+        );
+
+        $this->connection->beginTransaction();
+
+        try {
+            $this->connection->executeStatement('SET LOCAL enable_seqscan = off');
+
+            $plan = $this->connection->fetchFirstColumn(sprintf(
+                'EXPLAIN SELECT id FROM geography_test WHERE %s',
+                $platform->getSpatialGeodesicWithinDistanceExpression(
+                    'location',
+                    "'SRID=4326;POINT(2.3522219 48.856614)'::geography",
+                    '1000',
+                ),
+            ));
+        } finally {
+            $this->connection->rollBack();
+        }
+
+        self::assertStringContainsString('geography_test_location', implode("\n", $plan));
     }
 
     /** @param list<Index> $indexes */
