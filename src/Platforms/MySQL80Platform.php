@@ -81,6 +81,30 @@ class MySQL80Platform extends MySQLPlatform
         return parent::getSpatialYExpression($this->getCartesianGeometrySQL($point));
     }
 
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return 'ST_Distance(' . $this->getGeographicGeometrySQL($geometry1) . ', '
+            . $this->getGeographicGeometrySQL($geometry2) . ')';
+    }
+
+    public function getSpatialGeodesicAreaExpression(string $geometry): string
+    {
+        return 'ST_Area(' . $this->getGeographicGeometrySQL($geometry) . ')';
+    }
+
+    public function getSpatialGeodesicLengthExpression(string $geometry): string
+    {
+        return 'ST_Length(' . $this->getGeographicGeometrySQL($geometry) . ')';
+    }
+
+    /**
+     * Assigns the SRID 4326 to the geometry, so that MySQL computes on the WGS 84 ellipsoid.
+     */
+    private function getGeographicGeometrySQL(string $geometry): string
+    {
+        return 'ST_SRID(' . $geometry . ', 4326)';
+    }
+
     /**
      * Assigns the SRID 0 to the geometry: in a geographic spatial reference system, MySQL computes the measures on the
      * ellipsoid, and ST_X() and ST_Y() return the coordinates in the axis order of the spatial reference system.

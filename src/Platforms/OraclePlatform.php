@@ -1108,15 +1108,61 @@ SQL,
         return preg_match('/^[A-Z][A-Z0-9_$#]*$/', $name) === 1 ? $name : '"' . $name . '"';
     }
 
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return sprintf(
+            'SDO_GEOM.SDO_DISTANCE(%s, %s, %s)',
+            $this->getGeodeticGeometrySQL($geometry1),
+            $this->getGeodeticGeometrySQL($geometry2),
+            self::SPATIAL_TOLERANCE,
+        );
+    }
+
+    public function getSpatialGeodesicAreaExpression(string $geometry): string
+    {
+        return sprintf(
+            'SDO_GEOM.SDO_AREA(%s, %s)',
+            $this->getGeodeticGeometrySQL($geometry),
+            self::SPATIAL_TOLERANCE,
+        );
+    }
+
+    public function getSpatialGeodesicLengthExpression(string $geometry): string
+    {
+        return sprintf(
+            'SDO_GEOM.SDO_LENGTH(%s, %s)',
+            $this->getGeodeticGeometrySQL($geometry),
+            self::SPATIAL_TOLERANCE,
+        );
+    }
+
     /**
      * Removes the Z and M coordinates and the SRID of the geometry, so that Oracle computes in the plane of the
-     * coordinates rather than on the ellipsoid of a geodetic coordinate system. The scalar subquery references the
-     * geometry once.
+     * coordinates rather than on the ellipsoid of a geodetic coordinate system.
      */
     private function getPlanarGeometrySQL(string $geometry): string
     {
+        return $this->getTwoDimensionalGeometrySQL($geometry, 'NULL');
+    }
+
+    /**
+     * Removes the Z and M coordinates of the geometry and assigns it the SRID 4326, so that Oracle computes on the
+     * WGS 84 ellipsoid.
+     */
+    private function getGeodeticGeometrySQL(string $geometry): string
+    {
+        return $this->getTwoDimensionalGeometrySQL($geometry, '4326');
+    }
+
+    /**
+     * Removes the Z and M coordinates of the geometry and assigns it the given SRID. The scalar subquery references
+     * the geometry once.
+     */
+    private function getTwoDimensionalGeometrySQL(string $geometry, string $srid): string
+    {
         return '(SELECT CASE WHEN p.g IS NULL THEN NULL'
-            . ' ELSE SDO_GEOMETRY(p.g.SDO_GTYPE, NULL, p.g.SDO_POINT, p.g.SDO_ELEM_INFO, p.g.SDO_ORDINATES) END'
+            . ' ELSE SDO_GEOMETRY(p.g.SDO_GTYPE, ' . $srid . ','
+            . ' p.g.SDO_POINT, p.g.SDO_ELEM_INFO, p.g.SDO_ORDINATES) END'
             . ' FROM (SELECT SDO_CS.MAKE_2D(' . $geometry . ') g FROM DUAL) p)';
     }
 
