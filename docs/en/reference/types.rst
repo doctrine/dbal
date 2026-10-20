@@ -591,6 +591,30 @@ Spatial indexes are declared with ``Doctrine\DBAL\Schema\Index\IndexType::SPATIA
 +----------------+------------------------------------------------------------------------------+
 | MariaDB        | Like MySQL, but the SRID of the columns is not enforced.                     |
 +----------------+------------------------------------------------------------------------------+
+| SQLite         | Values are stored in the geometry format of SpatiaLite, which spatial        |
+|                | functions require, so that they can be used once SpatiaLite is loaded (see   |
+|                | below). Columns are declared with the name of the kind, which is not         |
+|                | enforced, nor are the dimension and the SRID. Empty geometries cannot be     |
+|                | stored. Spatial indexes are not supported yet.                               |
++----------------+------------------------------------------------------------------------------+
+
+SpatiaLite can be loaded into every connection with the
+``Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\LoadExtension`` middleware. It requires
+PHP 8.4 or newer with the ``pdo_sqlite`` driver. With the ``sqlite3`` driver, the extension has to
+be located in the directory configured by the ``sqlite3.extension_dir`` php.ini setting:
+
+::
+
+    <?php
+    use Doctrine\DBAL\Configuration;
+    use Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\LoadExtension;
+
+    $configuration = (new Configuration())->setMiddlewares([
+        new LoadExtension('/usr/lib/x86_64-linux-gnu/mod_spatialite.so'),
+    ]);
+
+The metadata tables, virtual tables and spatial index tables of SpatiaLite are excluded from the
+schema introspection.
 
 The coordinates are stored and retrieved without loss of precision. On MySQL 8.0, the
 coordinates of geometries with a geographic SRID (e.g. 4326) are longitudes and latitudes
