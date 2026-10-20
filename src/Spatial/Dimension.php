@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Spatial;
 
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+
+use function strtoupper;
+use function trim;
+
 /**
  * The coordinate dimension of a geometry: X and Y, optionally with an elevation (Z) and/or a measure (M).
  */
@@ -13,6 +18,18 @@ enum Dimension: string
     case XYZ  = 'XYZ';
     case XYM  = 'XYM';
     case XYZM = 'XYZM';
+
+    /**
+     * Returns the dimension for the given name, ignoring case.
+     *
+     * @throws InvalidGeometry
+     */
+    public static function fromName(string $name): self
+    {
+        $name = strtoupper(trim($name));
+
+        return self::tryFrom($name) ?? throw InvalidGeometry::unknownDimension($name);
+    }
 
     public static function fromFlags(bool $hasZ, bool $hasM): self
     {

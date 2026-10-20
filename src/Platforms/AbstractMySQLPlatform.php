@@ -14,6 +14,10 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Dimension;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\SQL\Parser;
@@ -31,9 +35,14 @@ use function implode;
 use function in_array;
 use function is_array;
 use function is_numeric;
+use function is_string;
+use function pack;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function strtolower;
+use function substr;
+use function unpack;
 
 /**
  * Provides the base implementation for the lowest versions of supported MySQL-like database platforms.
@@ -251,6 +260,94 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getColumnTypeSQLSnippet(string $tableAlias, string $databaseName): string
     {
         return $tableAlias . '.DATA_TYPE';
+    }
+
+    /**
+     * Returns the SQL snippet selecting the SRID of a spatial column from information_schema.COLUMNS, or NULL if
+     * the platform does not support column SRIDs.
+     *
+     * @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy.
+     */
+    public function getColumnSridSQLSnippet(string $tableAlias): string
+    {
+        return 'NULL';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The kind is enforced by the column type. MySQL and MariaDB only store two-dimensional geometries.
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        [$kind, , $srid] = $this->getGeometryColumnOptions($column);
+
+        return ($kind ?? GeometryKind::GEOMETRY)->value . $this->getGeometrySridDeclarationSQL($srid);
+    }
+
+    /**
+     * Returns the SQL snippet that constrains the SRID of a spatial column, if the platform supports it.
+     */
+    protected function getGeometrySridDeclarationSQL(?int $srid): string
+    {
+        return '';
+    }
+
+    /**
+     * The value is the internal format of MySQL and MariaDB: the SRID (4-byte unsigned little-endian integer)
+     * followed by the little-endian WKB of the geometry.
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): string
+    {
+        if ($geometry->getDimension() !== Dimension::XY) {
+            throw InvalidGeometry::unsupportedDimension($geometry->getDimension(), 'MySQL and MariaDB');
+        }
+
+        if (
+            ($geometry->getKind() !== GeometryKind::GEOMETRYCOLLECTION && $geometry->isEmpty())
+            || self::containsEmptyMember($geometry)
+        ) {
+            throw InvalidGeometry::unsupportedEmptyGeometry('MySQL and MariaDB');
+        }
+
+        return pack('V', $geometry->getSrid()) . $geometry->asWkb();
+    }
+
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value) || strlen($value) < 9) {
+            throw InvalidGeometry::malformedWkb('expected the internal geometry format of MySQL');
+        }
+
+        /** @var array{1: int} $srid */
+        $srid = unpack('V', $value);
+
+        return Geometry::fromWkb(substr($value, 4), $srid[1]);
+    }
+
+    private static function containsEmptyMember(Geometry $geometry): bool
+    {
+        if ($geometry->getKind() === GeometryKind::GEOMETRYCOLLECTION) {
+            foreach ($geometry->getGeometries() as $member) {
+                if ($member->isEmpty() || self::containsEmptyMember($member)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if ($geometry->getKind()->getMemberKind() === null) {
+            return false;
+        }
+
+        foreach ($geometry->getCoordinates() as $member) {
+            if ($member === []) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -767,15 +864,24 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             'double'     => Types::FLOAT,
             'enum'       => Types::ENUM,
             'float'      => Types::SMALLFLOAT,
+            'geomcollection' => Types::GEOMETRY,
+            'geometry'   => Types::GEOMETRY,
+            'geometrycollection' => Types::GEOMETRY,
             'int'        => Types::INTEGER,
             'integer'    => Types::INTEGER,
             'json'       => Types::JSON,
+            'linestring' => Types::GEOMETRY,
             'longblob'   => Types::BLOB,
             'longtext'   => Types::TEXT,
             'mediumblob' => Types::BLOB,
             'mediumint'  => Types::INTEGER,
             'mediumtext' => Types::TEXT,
+            'multilinestring' => Types::GEOMETRY,
+            'multipoint' => Types::GEOMETRY,
+            'multipolygon' => Types::GEOMETRY,
             'numeric'    => Types::DECIMAL,
+            'point'      => Types::GEOMETRY,
+            'polygon'    => Types::GEOMETRY,
             'real'       => Types::FLOAT,
             'set'        => Types::SIMPLE_ARRAY,
             'smallint'   => Types::SMALLINT,

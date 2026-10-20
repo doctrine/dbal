@@ -38,4 +38,18 @@ class MySQL80Platform extends MySQLPlatform
     {
         return AbstractPlatform::createWithSQLBuilder();
     }
+
+    /** @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy. */
+    public function getColumnSridSQLSnippet(string $tableAlias): string
+    {
+        return $tableAlias . '.SRS_ID';
+    }
+
+    /**
+     * The SRID attribute is enforced, and is required for MySQL to use a spatial index.
+     */
+    protected function getGeometrySridDeclarationSQL(?int $srid): string
+    {
+        return $srid !== null ? ' SRID ' . $srid : '';
+    }
 }

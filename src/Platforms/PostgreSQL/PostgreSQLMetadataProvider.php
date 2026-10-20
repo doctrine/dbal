@@ -172,7 +172,8 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                        WHEN coll.collprovider = 'd'
                            THEN NULL
                        ELSE coll.collname
-                       END
+                       END,
+                   a.atttypmod
             FROM pg_attribute a
                      JOIN pg_class c
                           ON c.oid = a.attrelid
@@ -234,6 +235,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             $defaultExpression,
             $description,
             $collationName,
+            $typeModifier,
         ] = $row;
 
         $editor = Column::editor()
@@ -276,6 +278,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
 
         if ($typeName === 'bpchar') {
             $editor->setFixed(true);
+        } elseif ($typeName === 'geometry') {
+            [$geometryType, $dimension, $srid] = GeometryTypeModifier::parse((int) $typeModifier);
+
+            $editor->setGeometryType($geometryType)
+                ->setCoordinateDimension($dimension)
+                ->setSrid($srid);
         }
 
         $editor
@@ -373,16 +381,20 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                    ic.relname,
                    i.indisunique,
                    pg_get_expr(indpred, indrelid),
-                   attname
+                   attname,
+                   COALESCE(am.amname IN ('gist', 'spgist') AND opct.typname IN ('geometry', 'geography'), FALSE)
             FROM pg_index i
                      JOIN pg_class AS c ON c.oid = i.indrelid
                      JOIN pg_namespace n ON n.oid = c.relnamespace
                      JOIN pg_class AS ic ON ic.oid = i.indexrelid
+                     JOIN pg_am am ON am.oid = ic.relam
                      JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                           ON TRUE
                      JOIN pg_attribute a
                           ON a.attrelid = c.oid
                               AND a.attnum = keys.attnum
+                     LEFT JOIN pg_opclass opc ON opc.oid = i.indclass[keys.ord - 1]
+                     LEFT JOIN pg_type opct ON opct.oid = opc.opcintype
             WHERE %s
               AND i.indisprimary = false
             ORDER BY n.nspname,
@@ -398,7 +410,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 schemaName: $row[0],
                 tableName: $row[1],
                 indexName: $row[2],
-                type: $row[3] ? IndexType::UNIQUE : IndexType::REGULAR,
+                type: $row[6] ? IndexType::SPATIAL : ($row[3] ? IndexType::UNIQUE : IndexType::REGULAR),
                 isClustered: false,
                 predicate: $row[4],
                 columnName: $row[5],
