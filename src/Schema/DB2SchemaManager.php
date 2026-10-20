@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
@@ -99,6 +100,13 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $column = new Column($tableColumn['colname'], $type, $options);
         $column->setTypeProvider($this->connection->getConfiguration()->getTypeProvider());
+
+        if ($type === Types::GEOMETRY) {
+            $column->setPlatformOption(
+                'geometryType',
+                GeometryKind::fromName(substr($tableColumn['typename'], 3))->value,
+            );
+        }
 
         return $column;
     }
