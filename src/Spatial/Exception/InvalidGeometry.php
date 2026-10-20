@@ -22,6 +22,11 @@ final class InvalidGeometry extends InvalidArgumentException
         return new self(sprintf('Unknown geometry type "%s".', $name));
     }
 
+    public static function unknownDimension(string $name): self
+    {
+        return new self(sprintf('Unknown coordinate dimension "%s", expected XY, XYZ, XYM or XYZM.', $name));
+    }
+
     public static function unsupportedWkbType(int $code): self
     {
         return new self(sprintf(
@@ -76,6 +81,11 @@ final class InvalidGeometry extends InvalidArgumentException
     public static function unsupportedDimension(Dimension $dimension, string $format): self
     {
         return new self(sprintf('%s does not support geometries with %s coordinates.', $format, $dimension->value));
+    }
+
+    public static function unsupportedEmptyGeometry(string $platform): self
+    {
+        return new self(sprintf('%s do not support empty geometries, except empty geometry collections.', $platform));
     }
 
     public static function notACollection(GeometryKind $kind): self

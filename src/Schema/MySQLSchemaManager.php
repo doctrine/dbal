@@ -17,6 +17,8 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTime;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
+use Doctrine\DBAL\Spatial\GeometryKind;
+use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
 use function array_map;
@@ -218,6 +220,14 @@ class MySQLSchemaManager extends AbstractSchemaManager
         $column->setPlatformOption('charset', $tableColumn['characterset']);
         $column->setPlatformOption('collation', $tableColumn['collation']);
 
+        if ($type === Types::GEOMETRY) {
+            $column->setPlatformOption('geometryType', GeometryKind::fromName($dbType)->value);
+
+            if ($tableColumn['srs_id'] !== null) {
+                $column->setPlatformOption('srid', (int) $tableColumn['srs_id']);
+            }
+        }
+
         return $column;
     }
 
@@ -390,7 +400,8 @@ SELECT
        c.EXTRA,
        c.COLUMN_COMMENT     AS comment,
        c.CHARACTER_SET_NAME AS characterset,
-       c.COLLATION_NAME     AS collation
+       c.COLLATION_NAME     AS collation,
+       %s                   AS srs_id
 FROM information_schema.COLUMNS c
     INNER JOIN information_schema.TABLES t
         ON t.TABLE_NAME = c.TABLE_NAME
@@ -400,6 +411,7 @@ ORDER BY c.TABLE_NAME,
          c.ORDINAL_POSITION
 SQL,
             $this->platform->getColumnTypeSQLSnippet('c', $databaseName),
+            $this->platform->getColumnSridSQLSnippet('c'),
             implode(' AND ', $conditions),
         );
 
