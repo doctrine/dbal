@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL;
+use Doctrine\DBAL\Platforms\PostgreSQL\GeometryTypeModifier;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Types;
@@ -183,6 +184,7 @@ SQL,
                     'primary' => (bool) $row['indisprimary'],
                     'where' => $row['where'],
                     'column_name' => $row['attname'],
+                    'flags' => $row['is_spatial'] ? ['SPATIAL'] : [],
                 ];
             },
             $rows,
@@ -293,6 +295,20 @@ SQL,
 
         if ($type === Types::JSON) {
             $column->setPlatformOption('jsonb', $jsonb);
+        } elseif ($dbType === 'geometry') {
+            [$geometryType, $dimension, $srid] = GeometryTypeModifier::parse((int) $tableColumn['type_modifier']);
+
+            if ($geometryType !== null) {
+                $column->setPlatformOption('geometryType', $geometryType->value);
+            }
+
+            if ($dimension !== null) {
+                $column->setPlatformOption('coordinateDimension', $dimension->value);
+            }
+
+            if ($srid !== null) {
+                $column->setPlatformOption('srid', $srid);
+            }
         }
 
         return $column;
@@ -384,7 +400,8 @@ SQL;
                        WHEN coll.collprovider = 'd'
                            THEN NULL
                        ELSE coll.collname
-                       END                              AS collation
+                       END                              AS collation,
+                   a.atttypmod                          AS type_modifier
             FROM pg_attribute a
                      JOIN pg_class c
                           ON c.oid = a.attrelid
@@ -441,16 +458,23 @@ SQL;
                    i.indkey,
                    i.indrelid,
                    pg_get_expr(indpred, indrelid) AS "where",
-                   quote_ident(attname) AS attname
+                   quote_ident(attname) AS attname,
+                   COALESCE(
+                       am.amname IN ('gist', 'spgist') AND opct.typname IN ('geometry', 'geography'),
+                       FALSE
+                   ) AS is_spatial
               FROM pg_index i
                    JOIN pg_class AS c ON c.oid = i.indrelid
                    JOIN pg_namespace n ON n.oid = c.relnamespace
                    JOIN pg_class AS ic ON ic.oid = i.indexrelid
+                   JOIN pg_am am ON am.oid = ic.relam
                    JOIN LATERAL UNNEST(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                         ON TRUE
                    JOIN pg_attribute a
                         ON a.attrelid = c.oid
                             AND a.attnum = keys.attnum
+                   LEFT JOIN pg_opclass opc ON opc.oid = i.indclass[keys.ord - 1]
+                   LEFT JOIN pg_type opct ON opct.oid = opc.opcintype
              WHERE %s
              ORDER BY 1, 2, keys.ord;
             SQL,

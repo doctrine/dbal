@@ -153,6 +153,44 @@ jobs:
             extension: "pdo_pgsql"
             config-file-suffix: "-stringify_fetches"
 
+  phpunit-postgis:
+    name: >
+      ${{ format('PostgreSQL {0} with PostGIS {1} - PHP {2} - ext. {3}',
+        matrix.postgres-version || 'Ø',
+        matrix.postgis-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-postgres.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      postgres-version: ${{ matrix.postgres-version }}
+      postgis-version: ${{ matrix.postgis-version }}
+      extension: ${{ matrix.extension }}
+      postgres-locale-provider: "libc"
+      config-file-suffix: "-postgis"
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.5"
+        postgres-version:
+          - "10"
+          - "18"
+        extension:
+          - "pgsql"
+          - "pdo_pgsql"
+        include:
+          - postgres-version: "10"
+            postgis-version: "3.2"
+          - postgres-version: "18"
+            postgis-version: "3.6"
+          - php-version: "8.2"
+            postgres-version: "15"
+            postgis-version: "3.6"
+            extension: "pdo_pgsql"
+
   phpunit-mariadb:
     name: >
       ${{ format('MariaDB {0} - PHP {1} - ext. {2}',
@@ -341,6 +379,7 @@ jobs:
       - "phpunit-smoke-check"
       - "phpunit-oracle"
       - "phpunit-postgres"
+      - "phpunit-postgis"
       - "phpunit-mariadb"
       - "phpunit-mysql"
       - "phpunit-mssql"

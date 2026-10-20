@@ -19,6 +19,11 @@ on:
         required: false
         type: string
         default: ''
+      postgis-version:
+        description: 'Runs the tests on the PostGIS image of this version, with PostGIS installed in template1'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   phpunit-postgres:
@@ -26,7 +31,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:${{ inputs.postgres-version }}
+        image: ${{ inputs.postgis-version != '' && format('postgis/postgis:{0}-{1}', inputs.postgres-version, inputs.postgis-version) || format('postgres:{0}', inputs.postgres-version) }}
         ports:
           - '5432:5432'
         env:
@@ -54,11 +59,15 @@ jobs:
         with:
           composer-options: '--ignore-platform-req=php+'
 
+      - name: Install PostGIS
+        if: ${{ inputs.postgis-version != '' }}
+        run: docker exec "${{ job.services.postgres.id }}" psql -U postgres -d template1 -c "CREATE EXTENSION IF NOT EXISTS postgis"
+
       - name: Run PHPUnit
         run: vendor/bin/phpunit -c ci/github/phpunit/${{ inputs.extension }}${{ inputs.config-file-suffix }}.xml --coverage-clover=coverage.xml
 
       - name: Upload coverage file
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.job }}-${{ inputs.postgres-version }}-php-${{ inputs.php-version }}-${{ inputs.extension }}${{ inputs.config-file-suffix }}.coverage
+          name: ${{ github.job }}-${{ inputs.postgres-version }}${{ inputs.postgis-version != '' && format('-postgis-{0}', inputs.postgis-version) || '' }}-php-${{ inputs.php-version }}-${{ inputs.extension }}${{ inputs.config-file-suffix }}.coverage
           path: coverage.xml
