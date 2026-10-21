@@ -6,7 +6,9 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -158,6 +160,33 @@ class IndexEditorTest extends TestCase
             ->create();
 
         self::assertSame($flags, $index2->getFlags());
+    }
+
+    public function testSetBoundingBox(): void
+    {
+        $boundingBox = new BoundingBox(0, 0, 100, 50);
+
+        $index = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->setType(IndexType::SPATIAL)
+            ->setBoundingBox($boundingBox)
+            ->create();
+
+        self::assertSame($boundingBox, $index->getBoundingBox());
+        self::assertSame($boundingBox, $index->edit()->create()->getBoundingBox());
+    }
+
+    public function testBoundingBoxOfNonSpatialIndex(): void
+    {
+        $editor = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->setBoundingBox(new BoundingBox(0, 0, 100, 50));
+
+        $this->expectException(InvalidIndexDefinition::class);
+
+        $editor->create();
     }
 
     private function createName(): UnqualifiedName

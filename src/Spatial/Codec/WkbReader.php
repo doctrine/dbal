@@ -19,7 +19,8 @@ use function strlen;
 use function unpack;
 
 /**
- * Reads the ISO and extended (PostGIS) well-known binary formats, in both byte orders.
+ * Reads the ISO and extended (PostGIS) well-known binary formats, in both byte orders, including the curves and
+ * surfaces of ISO 13249-3 (SQL/MM).
  *
  * @internal
  */
@@ -133,8 +134,10 @@ final class WkbReader
 
         $coordinates = match ($kind) {
             GeometryKind::POINT => $this->readPoint($dimension, $littleEndian),
-            GeometryKind::LINESTRING => $this->readPositions($dimension, $littleEndian),
-            GeometryKind::POLYGON => $this->readRings($dimension, $littleEndian),
+            GeometryKind::LINESTRING,
+            GeometryKind::CIRCULARSTRING => $this->readPositions($dimension, $littleEndian),
+            GeometryKind::POLYGON,
+            GeometryKind::TRIANGLE => $this->readRings($dimension, $littleEndian),
             default => $this->readMembers($kind, $dimension, $srid, $littleEndian),
         };
 

@@ -50,6 +50,12 @@ final class SpatiaLiteBlob
     /** @throws InvalidGeometry */
     public static function encode(Geometry $geometry): string
     {
+        $extendedKind = $geometry->findExtendedKind();
+
+        if ($extendedKind !== null) {
+            throw InvalidGeometry::unsupportedKind('SQLite', $extendedKind);
+        }
+
         if ($geometry->isEmpty() || self::containsEmptyMember($geometry)) {
             throw InvalidGeometry::unsupportedEmptyGeometry('SQLite');
         }

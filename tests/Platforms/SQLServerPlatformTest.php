@@ -16,6 +16,8 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -25,12 +27,41 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+use function sprintf;
+
 /** @extends AbstractPlatformTestCase<SQLServerPlatform> */
 class SQLServerPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
     {
         return new SQLServerPlatform();
+    }
+
+    public function testCreateSpatialIndex(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('idx_location')
+            ->setUnquotedColumnNames('location')
+            ->setType(IndexType::SPATIAL);
+
+        $sql = "IF TYPE_NAME((SELECT user_type_id FROM sys.columns WHERE object_id = OBJECT_ID('places')"
+            . " AND name = 'location')) = 'geography'"
+            . " EXEC('CREATE SPATIAL INDEX idx_location ON places (location) USING GEOGRAPHY_AUTO_GRID')"
+            . " ELSE EXEC('CREATE SPATIAL INDEX idx_location ON places (location) USING GEOMETRY_AUTO_GRID"
+            . ' WITH (BOUNDING_BOX = (%s))\')';
+
+        self::assertSame(
+            sprintf($sql, '-180.0, -90.0, 180.0, 90.0'),
+            $this->platform->getCreateIndexSQL($index->create(), 'places'),
+        );
+
+        self::assertSame(
+            sprintf($sql, '-0.5, 0.0, 1.0E+20, 500.25'),
+            $this->platform->getCreateIndexSQL(
+                $index->setBoundingBox(new BoundingBox(-0.5, 0, 1e20, 500.25))->create(),
+                'places',
+            ),
+        );
     }
 
     protected function createComparator(): Comparator

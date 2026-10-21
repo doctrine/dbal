@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
@@ -345,5 +347,32 @@ class IndexTest extends TestCase
     {
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
         new Index('idx_user_name', ['user_id'], false, false, [$flag], ['where' => 'is_active = 1']);
+    }
+
+    public function testBoundingBoxOption(): void
+    {
+        $index = new Index('idx_location', ['location'], false, false, ['spatial'], [
+            'bounding_box' => [0, -10, 100, 50.5],
+        ]);
+
+        self::assertEquals(new BoundingBox(0, -10, 100, 50.5), $index->getBoundingBox());
+    }
+
+    public function testBoundingBoxOptionOfNonSpatialIndex(): void
+    {
+        $this->expectException(InvalidIndexDefinition::class);
+
+        new Index('idx_location', ['location'], false, false, [], ['bounding_box' => [0, 0, 100, 50]]);
+    }
+
+    #[TestWith(['0 0 100 50'])]
+    #[TestWith([[0, 0, 100]])]
+    #[TestWith([[0, 0, 100, '50']])]
+    #[TestWith([['minX' => 0, 'minY' => 0, 'maxX' => 100, 'maxY' => 50]])]
+    public function testMalformedBoundingBoxOption(mixed $boundingBox): void
+    {
+        $this->expectException(InvalidIndexDefinition::class);
+
+        new Index('idx_location', ['location'], false, false, ['spatial'], ['bounding_box' => $boundingBox]);
     }
 }

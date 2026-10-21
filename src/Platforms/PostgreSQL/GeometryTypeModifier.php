@@ -68,7 +68,7 @@ final class GeometryTypeModifier
         $srid = ($typeModifier & 0x0FFFFF00) >> 8;
 
         return [
-            $code <= 7 ? GeometryKind::fromWkbCode($code) : GeometryKind::GEOMETRY,
+            self::getKind($code),
             Dimension::fromFlags(($typeModifier & 0x02) !== 0, ($typeModifier & 0x01) !== 0),
             $srid !== 0 ? $srid : null,
         ];
@@ -88,6 +88,27 @@ final class GeometryTypeModifier
             GeometryKind::MULTILINESTRING => 'MultiLineString',
             GeometryKind::MULTIPOLYGON => 'MultiPolygon',
             GeometryKind::GEOMETRYCOLLECTION => 'GeometryCollection',
+            GeometryKind::CIRCULARSTRING => 'CircularString',
+            GeometryKind::COMPOUNDCURVE => 'CompoundCurve',
+            GeometryKind::CURVEPOLYGON => 'CurvePolygon',
+            GeometryKind::MULTICURVE => 'MultiCurve',
+            GeometryKind::MULTISURFACE => 'MultiSurface',
+            GeometryKind::POLYHEDRALSURFACE => 'PolyhedralSurface',
+            GeometryKind::TIN => 'Tin',
+            GeometryKind::TRIANGLE => 'Triangle',
+        };
+    }
+
+    /**
+     * Returns the kind of the given code of a type modifier, numbered by PostGIS like the WKB type codes up to 12.
+     */
+    private static function getKind(int $code): GeometryKind
+    {
+        return match ($code) {
+            13 => GeometryKind::POLYHEDRALSURFACE,
+            14 => GeometryKind::TRIANGLE,
+            15 => GeometryKind::TIN,
+            default => $code <= 12 ? GeometryKind::fromWkbCode($code) : GeometryKind::GEOMETRY,
         };
     }
 }
