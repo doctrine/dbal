@@ -749,13 +749,31 @@ as represented by the platform, which can be compared with ``AbstractPlatform::c
 
     $names = $connection->fetchFirstColumn($sql, [$zone], [Types::GEOMETRY]);
 
-The other functions apply to geometries. The measures are computed in the plane of the
-coordinates and are expressed in their unit,
-whatever the spatial reference system: for instance, the distance between two longitude and
-latitude pairs is expressed in degrees. The relationships are evaluated by the database: for
-geographic spatial reference systems, MySQL 8.0+ and Oracle follow the geodesics between the
-vertices, while the other platforms follow straight lines. The Z and M coordinates are ignored,
-and the geometries must have the same SRID.
+The functions other than the geodesic ones apply to geometries. The measures are computed in the
+plane of the coordinates and are expressed in their unit, whatever the spatial reference system:
+for instance, the distance between two longitude and latitude pairs is expressed in degrees. The
+relationships are evaluated by the database: for geographic spatial reference systems, MySQL 8.0+
+and Oracle follow the geodesics between the vertices, while the other platforms follow straight
+lines. The Z and M coordinates are ignored, and the geometries must have the same SRID.
+
+Ordering rows by their distance to a geometry, with a limit, finds its nearest neighbours.
+PostgreSQL and SQL Server use the spatial index if the query also filters out the ``NULL``
+distances, which SQL Server requires; the other platforms compute the distance of every row:
+
+::
+
+    <?php
+    $distance = $platform->getSpatialDistanceExpression(
+        'location',
+        $connection->convertToDatabaseValueSQL('?', Types::GEOMETRY),
+    );
+
+    $sql = $platform->modifyLimitQuery(
+        'SELECT name FROM places WHERE ' . $distance . ' IS NOT NULL ORDER BY ' . $distance,
+        5,
+    );
+
+    $names = $connection->fetchFirstColumn($sql, [$here, $here], [Types::GEOMETRY, Types::GEOMETRY]);
 
 The geodesic measures apply to geometries and geographies, interpret the coordinates as longitudes
 and latitudes on the WGS 84 ellipsoid (SRID 4326), and are expressed in meters (or square
