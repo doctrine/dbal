@@ -8,6 +8,30 @@ awareness about deprecated code.
 
 # Upgrade to 4.6
 
+## SQL-level type conversion is applied by the connection and the query builder
+
+The SQL built by `Connection::insert()`, `Connection::update()`, `Connection::delete()`,
+`QueryBuilder::createNamedParameter()` and `QueryBuilder::createPositionalParameter()` now applies
+`Type::convertToDatabaseValueSQL()` to the placeholder of every parameter bound with a DBAL mapping
+type (a type name or a `Type` instance), the same way the ORM already does. Parameters bound with a
+`ParameterType` or an `ArrayParameterType` are not affected:
+
+```php
+// with a type whose convertToDatabaseValueSQL() returns "MY_FUNCTION(?)"
+$connection->insert('products', ['price' => $money], ['price' => 'money']);
+// INSERT INTO products (price) VALUES (MY_FUNCTION(?))
+```
+
+Custom types that override `convertToDatabaseValueSQL()` get the same SQL from these methods as from
+the ORM. Hand-written SQL can apply the conversions with the new `Connection::convertToDatabaseValueSQL()`
+and `Connection::convertToPHPValueSQL()` methods; results are never converted automatically.
+
+## Added the `PlatformAwareBindingType` interface
+
+A type implementing `Doctrine\DBAL\Types\PlatformAwareBindingType` is bound with the result of its
+`getBindingTypeForPlatform()` method instead of `Type::getBindingType()`, so the binding type of its
+values can depend on the database platform.
+
 ## Types can be scoped to a connection
 
 `Configuration::getTypeProvider()` and `Configuration::setTypeProvider()` have been added. A
