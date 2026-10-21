@@ -11,11 +11,13 @@ use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Throwable;
 
@@ -371,6 +373,87 @@ class WriteTest extends FunctionalTestCase
         $data = $this->connection->fetchAllAssociative('SELECT * FROM write_table WHERE test_int = 30');
 
         self::assertCount(0, $data);
+    }
+
+    public function testInsertMany(): void
+    {
+        $this->expectUnsupportedInsertManyIfNecessary();
+
+        $count = $this->connection->insertMany(
+            'write_table',
+            [
+                ['test_int' => '30', 'test_string' => 'one'],
+                ['test_int' => '20', 'test_string' => 'two'],
+                ['test_string' => 'three', 'test_int' => '10' ],
+            ],
+            ['test_int' => 'integer'],
+        );
+
+        $data = $this->connection->fetchFirstColumn(
+            'SELECT test_string FROM write_table WHERE test_int IN(10,20,30) ORDER BY test_int',
+        );
+
+        self::assertSame(3, $count);
+
+        self::assertEquals(
+            [
+                'three',
+                'two',
+                'one',
+            ],
+            $data,
+        );
+    }
+
+    public function testInsertManyNulls(): void
+    {
+        $this->expectUnsupportedInsertManyIfNecessary();
+
+        self::assertSame(2, $this->connection->insertMany('write_table', [
+            ['test_int' => 1, 'test_string' => null],
+            ['test_string' => 'two', 'test_int' => 2],
+        ], ['test_int' => Types::INTEGER]));
+        self::assertSame([null, 'two'], $this->connection->fetchFirstColumn(
+            'SELECT test_string FROM write_table ORDER BY test_int',
+        ));
+    }
+
+    public function testInsertManyAcrossBatches(): void
+    {
+        $this->expectUnsupportedInsertManyIfNecessary();
+
+        $rows = [];
+        for ($i = 0; $i < 1001; ++$i) {
+            $rows[] = ['test_int' => $i, 'test_string' => 'value'];
+        }
+
+        self::assertSame(1001, $this->connection->insertMany('write_table', $rows));
+        self::assertEquals(1001, $this->connection->fetchOne('SELECT COUNT(*) FROM write_table'));
+        self::assertEquals(1000, $this->connection->fetchOne('SELECT MAX(test_int) FROM write_table'));
+    }
+
+    public function testInsertManyConvertsTypes(): void
+    {
+        $this->expectUnsupportedInsertManyIfNecessary();
+
+        $date = new DateTime('2013-04-14 10:10:10');
+        self::assertSame(2, $this->connection->insertMany('write_table', [
+            ['test_int' => 1, 'test_string' => $date],
+            ['test_int' => 2, 'test_string' => $date],
+        ], ['test_int' => Types::INTEGER, 'test_string' => Type::getType(Types::DATETIME_MUTABLE)]));
+        $formatted = $date->format($this->connection->getDatabasePlatform()->getDateTimeFormatString());
+        self::assertSame([$formatted, $formatted], $this->connection->fetchFirstColumn(
+            'SELECT test_string FROM write_table ORDER BY test_int',
+        ));
+    }
+
+    private function expectUnsupportedInsertManyIfNecessary(): void
+    {
+        if ($this->connection->getDatabasePlatform()->supportsMultiRowInsert()) {
+            return;
+        }
+
+        $this->expectException(NotSupported::class);
     }
 
     /** @param class-string<Driver\Exception> $expectedClass */

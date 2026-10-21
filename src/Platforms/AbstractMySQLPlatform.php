@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
@@ -20,6 +21,7 @@ use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
+use WeakMap;
 
 use function array_diff;
 use function array_map;
@@ -47,6 +49,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     final public const LENGTH_LIMIT_TINYBLOB   = 255;
     final public const LENGTH_LIMIT_BLOB       = 65535;
     final public const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
+
+    /** @var WeakMap<Connection, int>|null */
+    private ?WeakMap $maximumInsertSQLLengths = null;
 
     public function __construct()
     {
@@ -928,5 +933,35 @@ SQL;
     public function createSQLParser(): Parser
     {
         return new Parser(true);
+    }
+
+    /** @see https://dev.mysql.com/worklog/task/?id=1803 */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return 65535;
+    }
+
+    /**
+     * The packet limit bounds statement size; reserve one byte for the COM_STMT_PREPARE command.
+     * This only limits SQL text: bound values and client-side packet limits are checked by the driver/server.
+     * No separate fixed row limit is documented, so getMaximumRowsPerInsert() uses the default batch size.
+     *
+     * @see https://dev.mysql.com/doc/refman/8.4/en/packet-too-large.html
+     * @see https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_stmt_prepare.html
+     * @see https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/how-to-quickly-insert-data-into-mariadb
+     *
+     * @throws Exception
+     */
+    public function getMaximumInsertSQLLength(Connection $connection): int
+    {
+        if ($this->maximumInsertSQLLengths === null) {
+            /** @var WeakMap<Connection, int> $limits */
+            $limits                        = new WeakMap();
+            $this->maximumInsertSQLLengths = $limits;
+        }
+
+        return $this->maximumInsertSQLLengths[$connection] ??= (int) $connection->fetchOne(
+            'SELECT @@max_allowed_packet',
+        ) - 1;
     }
 }

@@ -530,6 +530,70 @@ data.
     $conn->insert('user', ['username' => 'jwage']);
     // INSERT INTO user (username) VALUES (?) (jwage)
 
+insertMany()
+~~~~~~~~~~~~
+
+Insert multiple rows and return the total number of affected rows. Every row
+must contain the same column names, but their order may differ. A missing or
+extra column raises ``BatchInsertsDontMatch`` before any row is inserted.
+
+.. code-block:: php
+
+    <?php
+    $count = $conn->insertMany('user', [
+        ['username' => 'jwage', 'age' => 30],
+        ['age' => 25, 'username' => 'zezima'],
+    ], ['age' => Types::INTEGER]);
+
+Types are keyed by column name and applied to every row. Unspecified types
+default to ``ParameterType::STRING``; types for unused columns are ignored.
+Table and column names are not quoted and must not contain untrusted input.
+
+DBAL splits rows into batches according to platform parameter, row-count, and
+SQL-text limits. Where no usable vendor limit is available, DBAL uses a batching
+budget of 1,000 rows or 1 MiB of SQL text. These fallbacks are not database maxima.
+A single row that exceeds a limit or budget raises an exception.
+You can override the row, SQL-text and bound-parameter budgets with
+``maxRowsPerInsert``, ``maxInsertSQLLengthInBytes`` and ``maximumParameters``.
+Each accepts a positive integer; ``null`` (the default)
+uses the corresponding platform value. SQL length is measured in bytes,
+excluding bound values. The parameter budget applies to each generated statement.
+
+.. code-block:: php
+
+    <?php
+    $count = $conn->insertMany(
+        'user',
+        $rows,
+        $types,
+        maxRowsPerInsert: 500,
+        maxInsertSQLLengthInBytes: 65536,
+        maximumParameters: 1000,
+    );
+
+Overrides can increase or decrease the platform budgets. When increasing them,
+the caller must ensure the database and driver support the chosen values.
+Bound-value sizes and externally lowered driver limits can still cause a database
+error. Oracle versions before 23 do not support ``insertMany()`` and raise
+``Doctrine\DBAL\Platforms\Exception\NotSupported`` for non-empty, valid rows,
+even when ``maxRowsPerInsert`` is set to ``1``. Use ``insert()`` on those versions.
+Oracle 23 and newer support multi-row inserts.
+
+An empty list returns zero without connecting to the database. Default-only rows
+(``[[]]`` or ``[[], []]``) are not supported and raise ``InvalidArgumentException``
+before connecting to the database. Every supplied row must contain at least one column.
+
+No transaction is started automatically. If a later batch fails, earlier batches
+may already have been written. Use ``transactional()`` when all rows must succeed
+or fail together:
+
+.. code-block:: php
+
+    <?php
+    $count = $conn->transactional(
+        static fn (Connection $conn) => $conn->insertMany('user', $rows, $types),
+    );
+
 update()
 ~~~~~~~~~
 

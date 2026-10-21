@@ -8,8 +8,11 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
 use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\OCI\ExceptionConverter;
+use Doctrine\DBAL\Platforms\Oracle23Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+
+use function version_compare;
 
 /**
  * Abstract base implementation of the {@see Driver} interface for Oracle based drivers.
@@ -18,6 +21,10 @@ abstract class AbstractOracleDriver implements Driver
 {
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): OraclePlatform
     {
+        if (version_compare($versionProvider->getServerVersion(), '23.0.0', '>=')) {
+            return new Oracle23Platform();
+        }
+
         return new OraclePlatform();
     }
 
