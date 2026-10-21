@@ -6,9 +6,12 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
+use Doctrine\DBAL\Spatial\SpatialSetOperation;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
 use Doctrine\Deprecations\Deprecation;
+
+use function implode;
 
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 8.0 database platform.
@@ -95,6 +98,79 @@ class MySQL80Platform extends MySQLPlatform
     public function getSpatialGeodesicLengthExpression(string $geometry): string
     {
         return 'ST_Length(' . $this->getGeographicGeometrySQL($geometry) . ')';
+    }
+
+    public function getSpatialSetOperationExpression(
+        SpatialSetOperation $operation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        return $this->getCartesianOperationSQL(
+            parent::getSpatialSetOperationExpression(
+                $operation,
+                $this->getCartesianGeometrySQL('o.g0'),
+                $this->getCartesianGeometrySQL('o.g1'),
+            ),
+            $geometry1,
+            $geometry2,
+        );
+    }
+
+    public function getSpatialBufferExpression(string $geometry, string $distance): string
+    {
+        return $this->getCartesianOperationSQL(
+            parent::getSpatialBufferExpression($this->getCartesianGeometrySQL('o.g0'), $distance),
+            $geometry,
+        );
+    }
+
+    public function getSpatialCentroidExpression(string $geometry): string
+    {
+        return $this->getCartesianOperationSQL(
+            parent::getSpatialCentroidExpression($this->getCartesianGeometrySQL('o.g0')),
+            $geometry,
+        );
+    }
+
+    public function getSpatialConvexHullExpression(string $geometry): string
+    {
+        return $this->getCartesianOperationSQL(
+            parent::getSpatialConvexHullExpression($this->getCartesianGeometrySQL('o.g0')),
+            $geometry,
+        );
+    }
+
+    public function getSpatialEnvelopeExpression(string $geometry): string
+    {
+        return $this->getCartesianOperationSQL(
+            parent::getSpatialEnvelopeExpression($this->getCartesianGeometrySQL('o.g0')),
+            $geometry,
+        );
+    }
+
+    /**
+     * Applies an operation to geometries in the plane of their coordinates, and assigns the SRID of the first one to
+     * the result: in a geographic spatial reference system, MySQL computes on the ellipsoid, or does not implement the
+     * operation. The derived table, which requires MySQL 8.0.14 or later, references each geometry once, as a binary
+     * string that keeps the bytes of the parameters bound as strings.
+     *
+     * The NULL geometries are not passed to the operation: ST_Intersection() and the other set-theoretic operations
+     * do not reset their NULL flag, so that a NULL argument would make the results of the following rows NULL as well.
+     *
+     * @param string $operation SQL of the operation applied to the columns o.g0, o.g1… of the derived table.
+     */
+    private function getCartesianOperationSQL(string $operation, string ...$geometries): string
+    {
+        $conditions = $selections = [];
+
+        foreach ($geometries as $i => $geometry) {
+            $conditions[] = 'o.g' . $i . ' IS NULL';
+            $selections[] = 'CAST(' . $geometry . ' AS BINARY) AS g' . $i;
+        }
+
+        return '(SELECT CASE WHEN ' . implode(' OR ', $conditions) . ' THEN NULL'
+            . ' ELSE ST_SRID(' . $operation . ', ST_SRID(o.g0)) END'
+            . ' FROM (SELECT ' . implode(', ', $selections) . ') AS o)';
     }
 
     /**

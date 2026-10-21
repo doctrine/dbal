@@ -24,6 +24,7 @@ use Doctrine\DBAL\Spatial\Dimension;
 use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\Spatial\SpatialRelation;
+use Doctrine\DBAL\Spatial\SpatialSetOperation;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\GeographyType;
@@ -973,6 +974,74 @@ SQL,
         );
     }
 
+    public function getSpatialSetOperationExpression(
+        SpatialSetOperation $operation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        $function = match ($operation) {
+            SpatialSetOperation::DIFFERENCE => 'SDO_DIFFERENCE',
+            SpatialSetOperation::INTERSECTION => 'SDO_INTERSECTION',
+            SpatialSetOperation::SYMMETRIC_DIFFERENCE => 'SDO_XOR',
+            SpatialSetOperation::UNION => 'SDO_UNION',
+        };
+
+        return $this->getPlanarOperationSQL(
+            sprintf(
+                'SDO_GEOM.%s(%s, %s, %s)',
+                $function,
+                $this->getPlanarGeometrySQL('a.a0'),
+                $this->getPlanarGeometrySQL('a.a1'),
+                self::SPATIAL_TOLERANCE,
+            ),
+            $geometry1,
+            $geometry2,
+        );
+    }
+
+    /**
+     * The arcs of the buffer are approximated by straight segments, with 32 segments per circle like on PostgreSQL.
+     * SDO_GEOM.SDO_BUFFER() returns NULL in the databases without Java.
+     */
+    public function getSpatialBufferExpression(string $geometry, string $distance): string
+    {
+        // the distance is the column a.a1, which can be referenced twice
+        return $this->getPlanarOperationSQL(
+            sprintf(
+                "SDO_GEOM.SDO_ARC_DENSIFY(SDO_GEOM.SDO_BUFFER(%s, a.a1, %2\$s), %2\$s, 'arc_tolerance='"
+                    . " || TO_CHAR(GREATEST(a.a1 * 0.0048, 0.00000001), 'TM', 'NLS_NUMERIC_CHARACTERS = ''.,'''))",
+                $this->getPlanarGeometrySQL('a.a0'),
+                self::SPATIAL_TOLERANCE,
+            ),
+            $geometry,
+            $distance,
+        );
+    }
+
+    public function getSpatialCentroidExpression(string $geometry): string
+    {
+        return $this->getPlanarOperationSQL(
+            sprintf('SDO_GEOM.SDO_CENTROID(%s, %s)', $this->getPlanarGeometrySQL('a.a0'), self::SPATIAL_TOLERANCE),
+            $geometry,
+        );
+    }
+
+    public function getSpatialConvexHullExpression(string $geometry): string
+    {
+        return $this->getPlanarOperationSQL(
+            sprintf('SDO_GEOM.SDO_CONVEXHULL(%s, %s)', $this->getPlanarGeometrySQL('a.a0'), self::SPATIAL_TOLERANCE),
+            $geometry,
+        );
+    }
+
+    public function getSpatialEnvelopeExpression(string $geometry): string
+    {
+        return $this->getPlanarOperationSQL(
+            'SDO_GEOM.SDO_MBR(' . $this->getPlanarGeometrySQL('a.a0') . ')',
+            $geometry,
+        );
+    }
+
     public function getSpatialAreaExpression(string $geometry): string
     {
         return sprintf(
@@ -1134,6 +1203,29 @@ SQL,
             $this->getGeodeticGeometrySQL($geometry),
             self::SPATIAL_TOLERANCE,
         );
+    }
+
+    /**
+     * Applies an operation to its arguments, the first of which is a geometry, and assigns the SRID of this geometry
+     * to the result. The operation is not applied to NULL arguments, which some operations consider as empty
+     * geometries. The scalar subquery references each argument once.
+     *
+     * @param string $operation SQL of the operation applied to the columns a.a0, a.a1… of the inline view.
+     */
+    private function getPlanarOperationSQL(string $operation, string ...$arguments): string
+    {
+        $conditions = $selections = [];
+
+        foreach ($arguments as $i => $argument) {
+            $conditions[] = 'a.a' . $i . ' IS NULL';
+            $selections[] = $argument . ' a' . $i;
+        }
+
+        return '(SELECT CASE WHEN r.g IS NULL THEN NULL'
+            . ' ELSE SDO_GEOMETRY(r.g.SDO_GTYPE, r.s, r.g.SDO_POINT, r.g.SDO_ELEM_INFO, r.g.SDO_ORDINATES) END'
+            . ' FROM (SELECT CASE WHEN ' . implode(' OR ', $conditions) . ' THEN NULL'
+            . ' ELSE ' . $operation . ' END g, a.a0.SDO_SRID s'
+            . ' FROM (SELECT ' . implode(', ', $selections) . ' FROM DUAL) a) r)';
     }
 
     /**

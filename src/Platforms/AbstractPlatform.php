@@ -36,6 +36,7 @@ use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Spatial\SpatialRelation;
+use Doctrine\DBAL\Spatial\SpatialSetOperation;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
@@ -1145,6 +1146,85 @@ abstract class AbstractPlatform
     public function getSpatialSridExpression(string $geometry): string
     {
         return 'ST_SRID(' . $geometry . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the geometry resulting from a set-theoretic operation between two geometries, as
+     * defined by the OGC Simple Features specification.
+     *
+     * The operation is computed in the plane of the coordinates, whatever the spatial reference system, and the result
+     * has the SRID of the geometries (MariaDB returns the SRID 0). The Z and M coordinates are ignored. An empty
+     * result is NULL on Oracle and SQLite.
+     *
+     * @param string $geometry1 SQL expression producing the first geometry.
+     * @param string $geometry2 SQL expression producing the second geometry, with the same SRID.
+     */
+    public function getSpatialSetOperationExpression(
+        SpatialSetOperation $operation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        return match ($operation) {
+            SpatialSetOperation::DIFFERENCE => 'ST_Difference',
+            SpatialSetOperation::INTERSECTION => 'ST_Intersection',
+            SpatialSetOperation::SYMMETRIC_DIFFERENCE => 'ST_SymDifference',
+            SpatialSetOperation::UNION => 'ST_Union',
+        } . '(' . $geometry1 . ', ' . $geometry2 . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the polygon that covers the points within the given distance of a geometry,
+     * whose curves are approximated by straight segments.
+     *
+     * The buffer is computed in the plane of the coordinates, the distance is expressed in their unit, and the result
+     * has the SRID of the geometry (MariaDB returns the SRID 0). The Z and M coordinates are ignored. Oracle returns
+     * NULL in the databases without Java, and Db2 cannot compute buffers in the spatial reference system 0.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     * @param string $distance SQL expression producing the positive distance.
+     */
+    public function getSpatialBufferExpression(string $geometry, string $distance): string
+    {
+        return 'ST_Buffer(' . $geometry . ', ' . $distance . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the centroid of a polygon or a multi-polygon, as a point.
+     *
+     * The centroid is computed in the plane of the coordinates, and has the SRID of the geometry. Db2 does not support
+     * it.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialCentroidExpression(string $geometry): string
+    {
+        return 'ST_Centroid(' . $geometry . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the convex hull of a geometry whose points are not all on the same line, as a
+     * polygon.
+     *
+     * The convex hull is computed in the plane of the coordinates, and has the SRID of the geometry (MariaDB returns
+     * the SRID 0). The Z and M coordinates are ignored.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialConvexHullExpression(string $geometry): string
+    {
+        return 'ST_ConvexHull(' . $geometry . ')';
+    }
+
+    /**
+     * Returns the SQL snippet to get the bounding box of a geometry that extends along both axes, as a polygon.
+     *
+     * The bounding box has the SRID of the geometry. The Z and M coordinates are ignored.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialEnvelopeExpression(string $geometry): string
+    {
+        return 'ST_Envelope(' . $geometry . ')';
     }
 
     /**

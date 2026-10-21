@@ -26,6 +26,7 @@ use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Spatial\SpatialRelation;
+use Doctrine\DBAL\Spatial\SpatialSetOperation;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -1266,6 +1267,39 @@ class SQLServerPlatform extends AbstractPlatform
     public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
     {
         return '(' . $geometry1 . ').STDistance(' . $geometry2 . ')';
+    }
+
+    public function getSpatialSetOperationExpression(
+        SpatialSetOperation $operation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        return '(' . $geometry1 . ').' . match ($operation) {
+            SpatialSetOperation::DIFFERENCE => 'STDifference',
+            SpatialSetOperation::INTERSECTION => 'STIntersection',
+            SpatialSetOperation::SYMMETRIC_DIFFERENCE => 'STSymDifference',
+            SpatialSetOperation::UNION => 'STUnion',
+        } . '(' . $geometry2 . ')';
+    }
+
+    public function getSpatialBufferExpression(string $geometry, string $distance): string
+    {
+        return '(' . $geometry . ').STBuffer(' . $distance . ')';
+    }
+
+    public function getSpatialCentroidExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STCentroid()';
+    }
+
+    public function getSpatialConvexHullExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STConvexHull()';
+    }
+
+    public function getSpatialEnvelopeExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STEnvelope()';
     }
 
     public function getSpatialAreaExpression(string $geometry): string

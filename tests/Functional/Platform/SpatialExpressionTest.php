@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -17,21 +18,29 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Spatial\Geometry;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Spatial\SpatialRelation;
+use Doctrine\DBAL\Spatial\SpatialSetOperation;
 use Doctrine\DBAL\Tests\Functional\SpatialTestCase;
 use Doctrine\DBAL\Types\Types;
 
 use function array_combine;
 use function array_intersect_key;
 use function array_map;
+use function array_pop;
 use function implode;
 use function in_array;
 use function round;
 use function strtolower;
 
+use const M_PI;
+
 final class SpatialExpressionTest extends SpatialTestCase
 {
     private const POLYGON = 'POLYGON((0 0,10 0,10 10,0 10,0 0))';
+
+    /** A polygon of area 7, whose convex hull has an area of 11.5 and whose bounding box has an area of 16 */
+    private const L_SHAPE = 'POLYGON((0 0,4 0,4 1,1 1,1 4,0 4,0 0))';
 
     private const PARIS  = 'POINT(2.3522 48.8566)';
     private const LONDON = 'POINT(-0.1276 51.5072)';
@@ -302,6 +311,219 @@ final class SpatialExpressionTest extends SpatialTestCase
         self::assertSame(
             $expected,
             $this->fetchNumbers($this->connection->getDatabasePlatform()->getSpatialLengthExpression('a')),
+        );
+    }
+
+    public function testSetOperations(): void
+    {
+        $this->insertGeometries([
+            'null' => [null, self::POLYGON],
+            'overlapping squares' => [self::POLYGON, 'POLYGON((5 5,15 5,15 15,5 15,5 5))'],
+            'geographic squares' => [
+                'SRID=4326;POLYGON((0 40,10 40,10 50,0 50,0 40))',
+                'SRID=4326;POLYGON((5 45,15 45,15 55,5 55,5 45))',
+            ],
+        ]);
+
+        $platform = $this->connection->getDatabasePlatform();
+
+        // MariaDB returns the results with the SRID 0
+        $srid = $platform instanceof MariaDBPlatform ? 0.0 : 4326.0;
+
+        foreach (
+            [
+                [SpatialSetOperation::DIFFERENCE, 75.0],
+                [SpatialSetOperation::INTERSECTION, 25.0],
+                [SpatialSetOperation::SYMMETRIC_DIFFERENCE, 150.0],
+                [SpatialSetOperation::UNION, 175.0],
+            ] as [$operation, $area]
+        ) {
+            $result = $platform->getSpatialSetOperationExpression($operation, 'a', 'b');
+
+            // the areas are computed in the plane of the coordinates, also for the geographic squares
+            self::assertSame(
+                ['null' => null, 'overlapping squares' => $area, 'geographic squares' => $area],
+                $this->fetchNumbers($platform->getSpatialAreaExpression($result)),
+                $operation->name,
+            );
+
+            self::assertSame(
+                ['null' => null, 'overlapping squares' => 0.0, 'geographic squares' => $srid],
+                $this->fetchNumbers($platform->getSpatialSridExpression($result)),
+                $operation->name,
+            );
+        }
+    }
+
+    public function testSetOperationOfParameters(): void
+    {
+        $platform  = $this->connection->getDatabasePlatform();
+        $parameter = $this->connection->convertToDatabaseValueSQL('?', Types::GEOMETRY);
+
+        $value = $this->connection->fetchOne(
+            $platform->getDummySelectSQL($this->connection->convertToPHPValueSQL(
+                $platform->getSpatialSetOperationExpression(SpatialSetOperation::INTERSECTION, $parameter, $parameter),
+                Types::GEOMETRY,
+            )),
+            [
+                Geometry::fromWkt('SRID=4326;POLYGON((0 40,10 40,10 50,0 50,0 40))'),
+                Geometry::fromWkt('SRID=4326;POLYGON((5 45,15 45,15 55,5 55,5 45))'),
+            ],
+            [Types::GEOMETRY, Types::GEOMETRY],
+        );
+
+        $intersection = $this->connection->convertToPHPValue($value, Types::GEOMETRY);
+
+        self::assertInstanceOf(Geometry::class, $intersection);
+        self::assertSame(GeometryKind::POLYGON, $intersection->getKind());
+        self::assertSame($platform instanceof MariaDBPlatform ? 0 : 4326, $intersection->getSrid());
+
+        // the platforms start the ring at different vertices, in different directions, and with rounding errors
+        $ring = array_map(
+            static fn (array $point): array => [round($point[0], 9), round($point[1], 9)],
+            $intersection->getCoordinates()[0],
+        );
+        array_pop($ring);
+
+        self::assertEqualsCanonicalizing([[5.0, 45.0], [10.0, 45.0], [10.0, 50.0], [5.0, 50.0]], $ring);
+    }
+
+    public function testBuffer(): void
+    {
+        // Db2 cannot compute buffers in the spatial reference system 0, whose coordinates are non-negative integers
+        $this->insertGeometries([
+            'null' => [null, null],
+            'point' => ['SRID=4326;POINT(2 48)', null],
+            'square' => ['SRID=4326;POLYGON((0 40,10 40,10 50,0 50,0 40))', null],
+        ]);
+
+        $platform = $this->connection->getDatabasePlatform();
+        $buffer   = $platform->getSpatialBufferExpression('a', '1');
+
+        if (
+            $platform instanceof OraclePlatform
+            && $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM geometry_expression_test WHERE ' . $buffer . ' IS NULL',
+            ) > 1
+        ) {
+            self::markTestSkipped('Oracle computes the buffers in Java, which the database does not have.');
+        }
+
+        $areas = $this->fetchNumbers($platform->getSpatialAreaExpression($buffer));
+
+        // the areas are computed in the plane of the coordinates, the arcs are approximated by straight segments
+        self::assertNull($areas['null']);
+        self::assertEqualsWithDelta(M_PI, $areas['point'], 0.02 * M_PI);
+        self::assertEqualsWithDelta(140 + M_PI, $areas['square'], 0.02 * M_PI);
+
+        // MariaDB returns the buffers with the SRID 0
+        $srid = $platform instanceof MariaDBPlatform ? 0.0 : 4326.0;
+
+        self::assertSame(
+            ['null' => null, 'point' => $srid, 'square' => $srid],
+            $this->fetchNumbers($platform->getSpatialSridExpression($buffer)),
+        );
+    }
+
+    public function testCentroid(): void
+    {
+        $this->insertGeometries([
+            'null' => [null, null],
+            'square' => [self::POLYGON, null],
+            // Db2 rounds the coordinates of the spatial reference system 0 to integers
+            'geographic L shape' => ['SRID=4326;POLYGON((0 40,4 40,4 41,1 41,1 44,0 44,0 40))', null],
+            'geographic multi-polygon' => [
+                'SRID=4326;MULTIPOLYGON(((0 40,2 40,2 42,0 42,0 40)),((4 40,6 40,6 42,4 42,4 40)))',
+                null,
+            ],
+        ]);
+
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof DB2Platform) {
+            $this->expectException(NotSupported::class);
+        }
+
+        $centroid = $platform->getSpatialCentroidExpression('a');
+
+        self::assertSame(
+            [
+                'null' => null,
+                'square' => 5.0,
+                'geographic L shape' => round(9.5 / 7, 9),
+                'geographic multi-polygon' => 3.0,
+            ],
+            $this->fetchNumbers($platform->getSpatialXExpression($centroid)),
+        );
+
+        self::assertSame(
+            [
+                'null' => null,
+                'square' => 5.0,
+                'geographic L shape' => round(40 + 9.5 / 7, 9),
+                'geographic multi-polygon' => 41.0,
+            ],
+            $this->fetchNumbers($platform->getSpatialYExpression($centroid)),
+        );
+
+        self::assertSame(
+            ['null' => null, 'square' => 0.0, 'geographic L shape' => 4326.0, 'geographic multi-polygon' => 4326.0],
+            $this->fetchNumbers($platform->getSpatialSridExpression($centroid)),
+        );
+    }
+
+    public function testConvexHull(): void
+    {
+        $this->insertGeometries([
+            'null' => [null, null],
+            'L shape' => [self::L_SHAPE, null],
+            'points' => ['MULTIPOINT((0 0),(10 0),(5 5),(10 10),(0 10))', null],
+            'geographic multi-polygon' => [
+                'SRID=4326;MULTIPOLYGON(((0 40,2 40,2 42,0 42,0 40)),((4 40,6 40,6 42,4 42,4 40)))',
+                null,
+            ],
+        ]);
+
+        $platform   = $this->connection->getDatabasePlatform();
+        $convexHull = $platform->getSpatialConvexHullExpression('a');
+
+        self::assertSame(
+            ['null' => null, 'L shape' => 11.5, 'points' => 100.0, 'geographic multi-polygon' => 12.0],
+            $this->fetchNumbers($platform->getSpatialAreaExpression($convexHull)),
+        );
+
+        // MariaDB returns the convex hulls with the SRID 0
+        self::assertSame(
+            [
+                'null' => null,
+                'L shape' => 0.0,
+                'points' => 0.0,
+                'geographic multi-polygon' => $platform instanceof MariaDBPlatform ? 0.0 : 4326.0,
+            ],
+            $this->fetchNumbers($platform->getSpatialSridExpression($convexHull)),
+        );
+    }
+
+    public function testEnvelope(): void
+    {
+        $this->insertGeometries([
+            'null' => [null, null],
+            'L shape' => [self::L_SHAPE, null],
+            'points' => ['MULTIPOINT((0 0),(10 0),(5 5),(10 10),(0 10))', null],
+            'geographic line' => ['SRID=4326;LINESTRING(1 42,4 46)', null],
+        ]);
+
+        $platform = $this->connection->getDatabasePlatform();
+        $envelope = $platform->getSpatialEnvelopeExpression('a');
+
+        self::assertSame(
+            ['null' => null, 'L shape' => 16.0, 'points' => 100.0, 'geographic line' => 12.0],
+            $this->fetchNumbers($platform->getSpatialAreaExpression($envelope)),
+        );
+
+        self::assertSame(
+            ['null' => null, 'L shape' => 0.0, 'points' => 0.0, 'geographic line' => 4326.0],
+            $this->fetchNumbers($platform->getSpatialSridExpression($envelope)),
         );
     }
 
