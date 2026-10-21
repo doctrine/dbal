@@ -935,6 +935,14 @@ class PostgreSQLPlatform extends AbstractPlatform
         return 'ST_DWithin(' . $geometry1 . ', ' . $geometry2 . ', ' . $distance . ')';
     }
 
+    /**
+     * ST_GeometryType() returns the name prefixed with "ST_", e.g. ST_Polygon.
+     */
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        return 'UPPER(SUBSTR(ST_GeometryType(' . $geometry . '), 4))';
+    }
+
     public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
     {
         return 'ST_Distance(' . $this->getGeographySQL($geometry1) . ', ' . $this->getGeographySQL($geometry2) . ')';

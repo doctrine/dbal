@@ -1149,6 +1149,45 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to get the kind of a geometry, as the value of a {@see GeometryKind} case (for instance
+     * POLYGON).
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        return 'ST_GeometryType(' . $geometry . ')';
+    }
+
+    /**
+     * Returns the SQL snippet that tests whether a geometry is empty.
+     *
+     * The snippet evaluates to a boolean as represented by the platform (see {@see convertBooleans()}), or to NULL if
+     * the geometry is NULL. Oracle does not have empty geometries.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialIsEmptyExpression(string $geometry): string
+    {
+        return 'ST_IsEmpty(' . $geometry . ')';
+    }
+
+    /**
+     * Returns the SQL snippet that tests whether a geometry is valid, as defined by the OGC Simple Features
+     * specification: for instance, the boundary of a polygon does not cross itself.
+     *
+     * The snippet evaluates to a boolean as represented by the platform (see {@see convertBooleans()}), or to NULL if
+     * the geometry is NULL. The validity is evaluated in the plane of the coordinates. MariaDB does not support it, and
+     * Db2 does not store invalid geometries.
+     *
+     * @param string $geometry SQL expression producing the geometry.
+     */
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        return 'ST_IsValid(' . $geometry . ')';
+    }
+
+    /**
      * Returns the SQL snippet to get the geometry resulting from a set-theoretic operation between two geometries, as
      * defined by the OGC Simple Features specification.
      *

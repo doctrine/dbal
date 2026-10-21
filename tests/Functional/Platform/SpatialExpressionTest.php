@@ -527,6 +527,68 @@ final class SpatialExpressionTest extends SpatialTestCase
         );
     }
 
+    public function testGeometryTypeEmptinessAndValidity(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        $geometries = [
+            'null' => [null, null],
+            'point' => ['POINT(1 2)', 'POINT(5 5)'],
+            'line' => ['LINESTRING(0 0,1 1)', null],
+            'polygon' => [self::POLYGON, null],
+            'geographic multi-polygon' => [
+                'SRID=4326;MULTIPOLYGON(((0 40,1 40,1 41,0 40)),((2 42,3 42,3 43,2 42)))',
+                null,
+            ],
+        ];
+
+        // Db2 does not store geometry collections and invalid geometries
+        if (! $platform instanceof DB2Platform) {
+            $geometries['collection'] = ['GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(0 0,1 1))', null];
+            $geometries['bow tie']    = ['POLYGON((0 0,10 10,10 0,0 10,0 0))', null];
+        }
+
+        $this->insertGeometries($geometries);
+
+        self::assertSame(
+            array_intersect_key([
+                'null' => null,
+                'point' => 'POINT',
+                'line' => 'LINESTRING',
+                'polygon' => 'POLYGON',
+                'geographic multi-polygon' => 'MULTIPOLYGON',
+                'collection' => 'GEOMETRYCOLLECTION',
+                'bow tie' => 'POLYGON',
+            ], $geometries),
+            $this->fetchValues($platform->getSpatialGeometryTypeExpression('a')),
+        );
+
+        self::assertSame(
+            array_map(static fn (array $geometry): ?bool => $geometry[0] === null ? null : false, $geometries),
+            $this->fetchBooleans($platform->getSpatialIsEmptyExpression('a')),
+        );
+
+        // the intersection of disjoint points is empty, and NULL on Oracle and SQLite
+        self::assertSame(
+            $platform instanceof OraclePlatform || $platform instanceof SQLitePlatform ? null : true,
+            $this->fetchBooleans($platform->getSpatialIsEmptyExpression(
+                $platform->getSpatialSetOperationExpression(SpatialSetOperation::INTERSECTION, 'a', 'b'),
+            ))['point'],
+        );
+
+        if ($platform instanceof MariaDBPlatform) {
+            $this->expectException(NotSupported::class);
+        }
+
+        $validity = array_map(static fn (array $geometry): ?bool => $geometry[0] === null ? null : true, $geometries);
+
+        if (isset($validity['bow tie'])) {
+            $validity['bow tie'] = false;
+        }
+
+        self::assertSame($validity, $this->fetchBooleans($platform->getSpatialIsValidExpression('a')));
+    }
+
     public function testCoordinatesAndSrid(): void
     {
         $this->insertGeometries([

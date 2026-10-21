@@ -1327,6 +1327,26 @@ class SQLServerPlatform extends AbstractPlatform
         return '(' . $geometry . ').STSrid';
     }
 
+    /**
+     * The kind is read from the WKB of the geometry, since STGeometryType() fails for invalid geometries.
+     */
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        return 'CASE CAST(SUBSTRING((' . $geometry . ").STAsBinary(), 2, 1) AS int) WHEN 1 THEN 'POINT'"
+            . " WHEN 2 THEN 'LINESTRING' WHEN 3 THEN 'POLYGON' WHEN 4 THEN 'MULTIPOINT' WHEN 5 THEN 'MULTILINESTRING'"
+            . " WHEN 6 THEN 'MULTIPOLYGON' WHEN 7 THEN 'GEOMETRYCOLLECTION' END";
+    }
+
+    public function getSpatialIsEmptyExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STIsEmpty()';
+    }
+
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STIsValid()';
+    }
+
     public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
     {
         return $this->getGeographySQL($geometry1) . '.STDistance(' . $this->getGeographySQL($geometry2) . ')';

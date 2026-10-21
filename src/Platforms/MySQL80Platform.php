@@ -100,6 +100,19 @@ class MySQL80Platform extends MySQLPlatform
         return 'ST_Length(' . $this->getGeographicGeometrySQL($geometry) . ')';
     }
 
+    /**
+     * ST_GeometryType() returns GEOMCOLLECTION for the geometry collections.
+     */
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        return 'REPLACE(ST_GeometryType(' . $geometry . "), 'GEOMCOLLECTION', 'GEOMETRYCOLLECTION')";
+    }
+
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        return 'ST_IsValid(' . $this->getCartesianGeometrySQL($geometry) . ')';
+    }
+
     public function getSpatialSetOperationExpression(
         SpatialSetOperation $operation,
         string $geometry1,

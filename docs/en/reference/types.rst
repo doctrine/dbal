@@ -723,6 +723,10 @@ The platforms generate the SQL of the spatial functions that all of them support
   ``getSpatialLengthExpression()`` measure geometries;
 - ``getSpatialXExpression()``, ``getSpatialYExpression()`` and ``getSpatialSridExpression()``
   return the coordinates of a point and the SRID of a geometry;
+- ``getSpatialGeometryTypeExpression()`` returns the kind of a geometry, as the value of a
+  ``Doctrine\DBAL\Spatial\GeometryKind`` case (e.g. ``POLYGON``), and
+  ``getSpatialIsEmptyExpression()`` and ``getSpatialIsValidExpression()`` test whether a geometry is
+  empty and valid;
 - ``getSpatialSetOperationExpression()`` returns the result of one of the set-theoretic operations
   of the OGC Simple Features specification, listed by ``Doctrine\DBAL\Spatial\SpatialSetOperation``:
   ``DIFFERENCE``, ``INTERSECTION``, ``SYMMETRIC_DIFFERENCE`` and ``UNION``;
@@ -822,6 +826,13 @@ of the geodesic distance use the spatial index of a ``geography`` column. MySQL 
 the distance on a sphere (with an error of up to 0.5%) and only between points, and support
 neither the geodesic area nor the geodesic length. On SQLite, SpatiaLite reads the ellipsoid from
 its ``spatial_ref_sys`` table, which ``SELECT InitSpatialMetadata(1)`` creates.
+
+Oracle does not have empty geometries, Db2 does not store invalid geometries, and MariaDB does not
+support the test of validity.
+
+The aggregates (union, extent), the 3D functions, the bounding box operators and the other
+functions of PostGIS that the other platforms lack are left to platform-specific libraries, which
+can register them as custom DQL functions.
 
 Some platforms evaluate the relationships that are not defined for the dimensions of the
 geometries to ``NULL`` rather than to false, for instance a point crossing a polygon (MySQL 8.0+,

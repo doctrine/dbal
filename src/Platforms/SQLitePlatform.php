@@ -496,6 +496,30 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
+     * SpatiaLite returns -1 for the NULL geometries.
+     */
+    public function getSpatialIsEmptyExpression(string $geometry): string
+    {
+        return 'NULLIF(' . parent::getSpatialIsEmptyExpression($geometry) . ', -1)';
+    }
+
+    /**
+     * SpatiaLite returns -1 for the NULL geometries.
+     */
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        return 'NULLIF(' . parent::getSpatialIsValidExpression($geometry) . ', -1)';
+    }
+
+    /**
+     * GeometryType() of SpatiaLite suffixes the name with the dimension, e.g. POLYGON Z.
+     */
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        return 'REPLACE(REPLACE(REPLACE(GeometryType(' . $geometry . "), ' ZM', ''), ' Z', ''), ' M', '')";
+    }
+
+    /**
      * Requires SpatiaLite, which computes on the ellipsoid when the last argument of its functions is 1.
      */
     public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string

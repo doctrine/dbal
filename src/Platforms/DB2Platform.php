@@ -168,6 +168,16 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * ST_GeometryType() returns the qualified name of the structured type, e.g. SYSIBM.ST_POLYGON or
+     * "DB2GSE  "."ST_POLYGON". The scalar fullselect references the geometry once.
+     */
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        return "(SELECT REPLACE(RTRIM(SUBSTR(t, LOCATE('ST_', t) + 3), '\"'), 'GEOMCOLLECTION', 'GEOMETRYCOLLECTION')"
+            . ' FROM TABLE(VALUES VARCHAR(ST_GeometryType(' . $geometry . '))) AS v(t))';
+    }
+
+    /**
      * ST_Centroid() returns the center of the bounding box of the geometry.
      */
     public function getSpatialCentroidExpression(string $geometry): string
