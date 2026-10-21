@@ -16,6 +16,8 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
@@ -50,6 +52,7 @@ use function str_starts_with;
 use function strtoupper;
 use function substr;
 use function substr_count;
+use function var_export;
 
 use const PREG_OFFSET_CAPTURE;
 
@@ -350,6 +353,10 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function getCreateIndexSQL(Index $index, string $table): string
     {
+        if ($index->getType() === IndexType::SPATIAL) {
+            return $this->getCreateSpatialIndexSQL($index, $table);
+        }
+
         $constraint = parent::getCreateIndexSQL($index, $table);
 
         if ($index->isUnique() && ! $index->isPrimary()) {
@@ -373,6 +380,34 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return $type;
+    }
+
+    /**
+     * The tessellation depends on the type of the column, which only the database knows: geography columns take no
+     * bounding box, and the one of geometry columns defaults to the extent of the longitudes and latitudes. The
+     * tessellation is specified, since its default depends on the compatibility level of the database.
+     */
+    private function getCreateSpatialIndexSQL(Index $index, string $table): string
+    {
+        $boundingBox = $index->getBoundingBox() ?? new BoundingBox(-180, -90, 180, 90);
+        $indexSQL    = 'CREATE SPATIAL INDEX ' . $index->getQuotedName($this) . ' ON ' . $table
+            . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')';
+
+        return sprintf(
+            'IF TYPE_NAME((SELECT user_type_id FROM sys.columns WHERE object_id = OBJECT_ID(%s) AND name = %s))'
+                . " = 'geography' EXEC(%s) ELSE EXEC(%s)",
+            $this->quoteStringLiteral($table),
+            $this->quoteStringLiteral($index->getIndexedColumns()[0]->getColumnName()->getIdentifier()->getValue()),
+            $this->quoteStringLiteral($indexSQL . ' USING GEOGRAPHY_AUTO_GRID'),
+            $this->quoteStringLiteral(sprintf(
+                '%s USING GEOMETRY_AUTO_GRID WITH (BOUNDING_BOX = (%s, %s, %s, %s))',
+                $indexSQL,
+                var_export($boundingBox->getMinX(), true),
+                var_export($boundingBox->getMinY(), true),
+                var_export($boundingBox->getMaxX(), true),
+                var_export($boundingBox->getMaxY(), true),
+            )),
+        );
     }
 
     /**
@@ -1132,6 +1167,9 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getGeometryTypeDeclarationSQL(array $column): string
     {
+        // the options are only validated
+        $this->getGeometryColumnOptions($column);
+
         // lower case, since the type names are case-sensitive in case-sensitive databases
         return 'geometry';
     }
@@ -1143,6 +1181,12 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function convertGeometryToDatabaseValue(Geometry $geometry): string
     {
+        $extendedKind = $geometry->findExtendedKind();
+
+        if ($extendedKind !== null) {
+            throw InvalidGeometry::unsupportedKind('SQL Server', $extendedKind);
+        }
+
         if (self::containsEmptyPoint($geometry)) {
             throw InvalidGeometry::unsupportedEmptyPoint('SQL Server');
         }
@@ -1168,6 +1212,44 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return SpatialSerialization::decode($value);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The kind, the dimension and the SRID are not enforced.
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        // lower case, since the type names are case-sensitive in case-sensitive databases
+        return 'geography';
+    }
+
+    /**
+     * The geography type considers the polygons whose exterior ring is oriented clockwise as the rest of the globe:
+     * the orientation of the geographies larger than a hemisphere is reversed, as other databases do not support
+     * them.
+     */
+    public function convertGeographyToDatabaseValueSQL(string $sqlExpr): string
+    {
+        // the scalar subquery references the parameter once
+        return '(SELECT CASE WHEN w.g IS NULL THEN NULL WHEN w.g.EnvelopeAngle() > 90 THEN w.g.ReorientObject()'
+            . ' ELSE w.g END'
+            . ' FROM (SELECT CASE WHEN v.b IS NULL THEN NULL ELSE geography::STGeomFromWKB('
+            . 'SUBSTRING(v.b, 5, 2147483647), CAST(SUBSTRING(v.b, 1, 4) AS int)) END AS g'
+            . ' FROM (SELECT CAST(' . $sqlExpr . ' AS varbinary(max)) AS b) AS v) AS w)';
+    }
+
+    /**
+     * The value is the native serialization of the geography, which stores the latitudes first.
+     */
+    public function convertGeographyToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value)) {
+            throw InvalidGeometry::malformedSQLServerGeometry('expected a binary string');
+        }
+
+        return SpatialSerialization::decode($value, true);
     }
 
     private static function containsEmptyPoint(Geometry $geometry): bool
@@ -1215,6 +1297,7 @@ class SQLServerPlatform extends AbstractPlatform
             'double'           => Types::FLOAT,
             'double precision' => Types::FLOAT,
             'float'            => Types::FLOAT,
+            'geography'        => Types::GEOGRAPHY,
             'geometry'         => Types::GEOMETRY,
             'image'            => Types::BLOB,
             'int'              => Types::INTEGER,

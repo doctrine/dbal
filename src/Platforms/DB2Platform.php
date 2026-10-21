@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
@@ -113,6 +114,12 @@ class DB2Platform extends AbstractPlatform
      */
     public function convertGeometryToDatabaseValue(Geometry $geometry): string
     {
+        $extendedKind = $geometry->findExtendedKind();
+
+        if ($extendedKind !== null) {
+            throw InvalidGeometry::unsupportedKind('Db2', $extendedKind);
+        }
+
         if ($geometry->getKind() === GeometryKind::GEOMETRYCOLLECTION) {
             throw InvalidGeometry::unsupportedKind('Db2', $geometry->getKind());
         }
@@ -140,12 +147,13 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * Selects the SRID and the WKT of the geometry, separated by a semicolon: the internal format of Db2 cannot be
-     * decoded, and the byte order of a binary SRID would depend on the server.
+     * decoded, and the byte order of a binary SRID would depend on the server. The scalar fullselect references the
+     * expression once, which may contain parameters.
      */
     public function convertGeometryToPHPValueSQL(string $sqlExpr): string
     {
-        return 'CASE WHEN ' . $sqlExpr . ' IS NULL THEN NULL'
-            . ' ELSE VARCHAR(ST_SrsId(' . $sqlExpr . ")) || ';' || ST_AsText(" . $sqlExpr . ') END';
+        return "(SELECT CASE WHEN g IS NULL THEN NULL ELSE VARCHAR(ST_SrsId(g)) || ';' || ST_AsText(g) END"
+            . ' FROM TABLE(VALUES ' . $sqlExpr . ') AS t(g))';
     }
 
     public function convertGeometryToPHPValue(mixed $value): Geometry
@@ -344,6 +352,18 @@ class DB2Platform extends AbstractPlatform
     public function getCurrentTimestampSQL(): string
     {
         return 'CURRENT TIMESTAMP';
+    }
+
+    /**
+     * Db2 Spatial Analytics provides no spatial index, and spatial columns cannot be part of other indexes.
+     */
+    public function getCreateIndexSQL(Index $index, string $table): string
+    {
+        if ($index->getType() === IndexType::SPATIAL) {
+            throw NotSupported::new('spatial index');
+        }
+
+        return parent::getCreateIndexSQL($index, $table);
     }
 
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */

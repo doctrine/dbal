@@ -299,6 +299,12 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function convertGeometryToDatabaseValue(Geometry $geometry): string
     {
+        $extendedKind = $geometry->findExtendedKind();
+
+        if ($extendedKind !== null) {
+            throw InvalidGeometry::unsupportedKind('MySQL and MariaDB', $extendedKind);
+        }
+
         if ($geometry->getDimension() !== Dimension::XY) {
             throw InvalidGeometry::unsupportedDimension($geometry->getDimension(), 'MySQL and MariaDB');
         }

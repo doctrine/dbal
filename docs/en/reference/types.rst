@@ -536,6 +536,11 @@ geometry
 Maps and converts geometries (points, line strings, polygons and their collections) to
 ``Doctrine\DBAL\Spatial\Geometry`` value objects, or ``null`` if no data is present.
 
+On PostgreSQL, the geometries can also be the curves and surfaces of ISO 13249-3 (SQL/MM):
+circular strings, compound curves, curve polygons, multi-curves, multi-surfaces, polyhedral
+surfaces, TINs and triangles. The other platforms reject them, as well as the columns declared
+with these kinds, and GeoJSON cannot represent them.
+
 A ``Geometry`` is immutable and carries a spatial reference system identifier (SRID),
 ``0`` meaning that it is not specified. It can be created from coordinates, from the
 well-known text (WKT) and binary (WKB) formats, including their extended PostGIS
@@ -573,9 +578,29 @@ dimension and their SRID. Each platform enforces what it supports:
 
 The same restrictions can be declared as the ``geometryType`` (e.g. ``POINT``),
 ``coordinateDimension`` (``XY``, ``XYZ``, ``XYM`` or ``XYZM``) and ``srid`` platform
-options, for example in the column options of an ORM mapping.
+options, for example in the column options of an ORM mapping. ``geometry_type`` is accepted
+as an alias of ``geometryType``, as it is named in the mappings written for other spatial
+libraries.
 
-Spatial indexes are declared with ``Doctrine\DBAL\Schema\Index\IndexType::SPATIAL``.
+Spatial indexes are declared with ``Doctrine\DBAL\Schema\Index\IndexType::SPATIAL``. SQL Server
+requires the extent of the indexed geometries, which defaults to the extent of the longitudes and
+latitudes, for instance for Lambert-93 coordinates (SRID 2154):
+
+::
+
+    <?php
+    use Doctrine\DBAL\Schema\Index;
+    use Doctrine\DBAL\Schema\Index\BoundingBox;
+    use Doctrine\DBAL\Schema\Index\IndexType;
+
+    Index::editor()
+        ->setUnquotedName('idx_places_location')
+        ->setUnquotedColumnNames('location')
+        ->setType(IndexType::SPATIAL)
+        ->setBoundingBox(new BoundingBox(-357823.24, 6037008.69, 1313632.36, 7230727.37))
+        ->create();
+
+The comparator does not detect the changes of the bounding box of an existing index.
 
 +----------------+------------------------------------------------------------------------------+
 | Platform       | Support                                                                      |
@@ -595,25 +620,29 @@ Spatial indexes are declared with ``Doctrine\DBAL\Schema\Index\IndexType::SPATIA
 |                | functions require, so that they can be used once SpatiaLite is loaded (see   |
 |                | below). Columns are declared with the name of the kind, which is not         |
 |                | enforced, nor are the dimension and the SRID. Empty geometries cannot be     |
-|                | stored. Spatial indexes are not supported yet.                               |
+|                | stored. Spatial indexes are created as regular indexes, since the spatial    |
+|                | indexes of SpatiaLite are only used by explicit queries.                     |
 +----------------+------------------------------------------------------------------------------+
 | SQL Server     | ``geometry`` columns. The kind, the dimension and the SRID are not enforced. |
 |                | Empty points cannot be stored. Geometries cannot be compared with ``=``.     |
-|                | Spatial indexes are not supported yet.                                       |
+|                | Spatial indexes use the ``GEOMETRY_AUTO_GRID`` tessellation and require a    |
+|                | clustered primary key.                                                       |
 +----------------+------------------------------------------------------------------------------+
-| Oracle         | ``SDO_GEOMETRY`` columns (Oracle Spatial). The kind, the dimension and the   |
-|                | SRID are not enforced. Empty geometries and collections containing           |
-|                | multi-line strings, multi-polygons or collections cannot be stored. The      |
-|                | rings of polygons are oriented as Oracle requires. With ``pdo_oci``, values  |
-|                | are limited to 1332 bytes of JSON, and ``fetchAll*()`` cannot read several   |
-|                | geometries. Spatial indexes are not supported yet.                           |
+| Oracle         | ``SDO_GEOMETRY`` columns (Oracle Spatial), registered with their SRID and    |
+|                | dimension in ``USER_SDO_GEOM_METADATA`` as spatial indexes require. Only     |
+|                | spatial indexes enforce the SRID and the dimension, and the kind is not      |
+|                | enforced. Empty geometries and collections containing multi-line strings,    |
+|                | multi-polygons or collections cannot be stored. The rings of polygons are    |
+|                | oriented as Oracle requires. With ``pdo_oci``, values are limited to 1332    |
+|                | bytes of JSON, and ``fetchAll*()`` cannot read several geometries.           |
 +----------------+------------------------------------------------------------------------------+
 | Db2            | Requires Db2 Spatial Analytics (Db2 11.5.4 or newer), enabled with           |
 |                | ``CALL SYSPROC.SYSINSTALLOBJECTS('GEO', 'C', NULL, NULL)``. The kind is      |
 |                | enforced by the column type. The SRID must be defined in Db2 (0, 4326, 4269  |
 |                | and 27700 are predefined), and the coordinates are rounded to the precision  |
 |                | of its definition. Empty geometries and geometry collections cannot be       |
-|                | stored. Spatial indexes are not supported.                                   |
+|                | stored. Spatial indexes are not supported: declaring one throws an           |
+|                | exception.                                                                   |
 +----------------+------------------------------------------------------------------------------+
 
 SpatiaLite can be loaded into every connection with the
@@ -650,6 +679,33 @@ and ``Connection::convertToPHPValueSQL()``:
 coordinates of geometries with a geographic SRID (e.g. 4326) are longitudes and latitudes
 in this order, as in all formats supported by ``Geometry``, even though MySQL's own
 WKT and WKB functions use the opposite axis order for such SRIDs.
+
+On PostgreSQL, the spatial indexes are GiST indexes. The indexes created with SQL with another
+access method (SP-GiST, BRIN) or operator class (e.g. ``gist_geometry_ops_nd``) are introspected
+as spatial indexes, so that the comparator keeps them.
+
+On PostgreSQL, the values of a column whose kind, dimension, SRID or type (``geometry`` or
+``geography``) changes are converted: the new SRID is assigned without transforming the
+coordinates (like ``UpdateGeometrySRID()``), the Z and M coordinates are added with 0 or removed,
+and single geometries become multi-geometries. The other platforms reject the existing values that
+do not fit the new declaration.
+
+geography
+^^^^^^^^^
+
+Maps and converts geographies, i.e. geometries whose coordinates are longitudes and latitudes, to
+``Doctrine\DBAL\Spatial\Geometry`` value objects, or ``null`` if no data is present. The values
+without SRID are given the SRID 4326 (WGS 84). The columns accept the same options as the
+columns of the ``geometry`` type.
+
+PostgreSQL and SQL Server declare ``geography`` columns, whose functions compute on the ellipsoid.
+The other platforms declare the same columns as for the ``geometry`` type, whose SRID defaults to
+4326 on the platforms that constrain it, so that these columns are introspected as ``geometry``
+columns.
+
+On SQL Server, the orientation of the polygons that would be larger than a hemisphere is
+reversed, since its ``geography`` type considers the polygons whose exterior ring is oriented
+clockwise as the rest of the globe.
 
 .. _mappingMatrix:
 

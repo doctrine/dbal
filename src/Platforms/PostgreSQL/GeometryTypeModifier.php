@@ -27,6 +27,23 @@ final class GeometryTypeModifier
         GeometryKind::MULTILINESTRING->value => 'MultiLineString',
         GeometryKind::MULTIPOLYGON->value => 'MultiPolygon',
         GeometryKind::GEOMETRYCOLLECTION->value => 'GeometryCollection',
+        GeometryKind::CIRCULARSTRING->value => 'CircularString',
+        GeometryKind::COMPOUNDCURVE->value => 'CompoundCurve',
+        GeometryKind::CURVEPOLYGON->value => 'CurvePolygon',
+        GeometryKind::MULTICURVE->value => 'MultiCurve',
+        GeometryKind::MULTISURFACE->value => 'MultiSurface',
+        GeometryKind::POLYHEDRALSURFACE->value => 'PolyhedralSurface',
+        GeometryKind::TIN->value => 'Tin',
+        GeometryKind::TRIANGLE->value => 'Triangle',
+    ];
+
+    /**
+     * The kinds of the type modifier, numbered by PostGIS like the WKB type codes up to 12.
+     */
+    private const KINDS = [
+        13 => GeometryKind::POLYHEDRALSURFACE,
+        14 => GeometryKind::TRIANGLE,
+        15 => GeometryKind::TIN,
     ];
 
     /** @codeCoverageIgnore */
@@ -79,7 +96,7 @@ final class GeometryTypeModifier
         $srid = ($typeModifier & 0x0FFFFF00) >> 8;
 
         return [
-            $code <= 7 ? GeometryKind::fromWkbCode($code) : GeometryKind::GEOMETRY,
+            self::KINDS[$code] ?? ($code <= 12 ? GeometryKind::fromWkbCode($code) : GeometryKind::GEOMETRY),
             Dimension::fromFlags(($typeModifier & 0x02) !== 0, ($typeModifier & 0x01) !== 0),
             $srid !== 0 ? $srid : null,
         ];

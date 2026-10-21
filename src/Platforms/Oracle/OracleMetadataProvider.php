@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Spatial\Dimension;
 use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function assert;
@@ -73,9 +74,11 @@ final readonly class OracleMetadataProvider implements MetadataProvider
      */
     public function getAllTableNames(): iterable
     {
+        // the secondary tables are the storage of domain indexes, such as spatial indexes
         $sql = <<<'SQL'
         SELECT TABLE_NAME
         FROM USER_TABLES
+        WHERE SECONDARY = 'N'
         ORDER BY TABLE_NAME
         SQL;
 
@@ -132,23 +135,36 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                                ON D.TABLE_NAME = C.TABLE_NAME
                                    AND D.COLUMN_NAME = C.COLUMN_NAME
             WHERE %s
+              AND T.SECONDARY = 'N'
             ORDER BY C.TABLE_NAME,
                      C.COLUMN_ID
             SQL,
             $this->buildTableQueryPredicate('C', $tableName, $params),
         );
 
+        $rows               = [];
+        $hasGeometryColumns = false;
+
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
-            yield $this->createTableColumn($row);
+            $rows[]             = $row;
+            $hasGeometryColumns = $hasGeometryColumns || $row[2] === 'SDO_GEOMETRY';
+        }
+
+        // the metadata of the geometry columns requires Oracle Spatial
+        $geometryMetadata = $hasGeometryColumns ? GeometryMetadata::fetch($this->connection, $tableName) : [];
+
+        foreach ($rows as $row) {
+            yield $this->createTableColumn($row, $geometryMetadata[$row[0]][$row[1]] ?? null);
         }
     }
 
     /**
-     * @param list<mixed> $row
+     * @param list<mixed>              $row
+     * @param ?array{?int, ?Dimension} $geometryMetadata The SRID and the coordinate dimension of a geometry column.
      *
      * @throws TypesException
      */
-    private function createTableColumn(array $row): TableColumnMetadataRow
+    private function createTableColumn(array $row, ?array $geometryMetadata): TableColumnMetadataRow
     {
         [
             $tableName,
@@ -240,6 +256,14 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             $editor->setComment($comments);
         }
 
+        if ($geometryMetadata !== null) {
+            [$srid, $dimension] = $geometryMetadata;
+
+            $editor
+                ->setSrid($srid)
+                ->setCoordinateDimension($dimension);
+        }
+
         return new TableColumnMetadataRow(null, $tableName, $editor->create());
     }
 
@@ -296,7 +320,9 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             SELECT I.TABLE_NAME,
                    I.INDEX_NAME,
                    I.UNIQUENESS,
-                   IC.COLUMN_NAME
+                   IC.COLUMN_NAME,
+                   I.ITYP_OWNER,
+                   I.ITYP_NAME
             FROM USER_INDEXES I
                      LEFT JOIN USER_CONSTRAINTS C
                                ON C.INDEX_NAME = I.INDEX_NAME
@@ -316,7 +342,12 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 schemaName: null,
                 tableName: $row[0],
                 indexName: $row[1],
-                type: $row[2] === 'UNIQUE' ? IndexType::UNIQUE : IndexType::REGULAR,
+                type: match (true) {
+                    $row[4] === 'MDSYS' && ($row[5] === 'SPATIAL_INDEX' || $row[5] === 'SPATIAL_INDEX_V2')
+                        => IndexType::SPATIAL,
+                    $row[2] === 'UNIQUE' => IndexType::UNIQUE,
+                    default => IndexType::REGULAR,
+                },
                 isClustered: false,
                 predicate: null,
                 columnName: $row[3],
@@ -622,12 +653,14 @@ SQL,
      */
     public function getAllSequences(): iterable
     {
+        // the sequences of spatial indexes are named MDRS_<number>$
         $sql = <<<'SQL'
         SELECT SEQUENCE_NAME,
                INCREMENT_BY,
                MIN_VALUE,
                CACHE_SIZE
         FROM USER_SEQUENCES
+        WHERE SEQUENCE_NAME NOT LIKE 'MDRS\_%$' ESCAPE '\'
         ORDER BY SEQUENCE_NAME
         SQL;
 
