@@ -167,6 +167,14 @@ class DB2Platform extends AbstractPlatform
         return Geometry::fromWkt($wkt, (int) $srid);
     }
 
+    /**
+     * ST_Centroid() returns the center of the bounding box of the geometry.
+     */
+    public function getSpatialCentroidExpression(string $geometry): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
     public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
     {
         return 'ST_Distance(' . $this->getGeographicGeometrySQL($geometry1) . ', '

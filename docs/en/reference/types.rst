@@ -723,6 +723,12 @@ The platforms generate the SQL of the spatial functions that all of them support
   ``getSpatialLengthExpression()`` measure geometries;
 - ``getSpatialXExpression()``, ``getSpatialYExpression()`` and ``getSpatialSridExpression()``
   return the coordinates of a point and the SRID of a geometry;
+- ``getSpatialSetOperationExpression()`` returns the result of one of the set-theoretic operations
+  of the OGC Simple Features specification, listed by ``Doctrine\DBAL\Spatial\SpatialSetOperation``:
+  ``DIFFERENCE``, ``INTERSECTION``, ``SYMMETRIC_DIFFERENCE`` and ``UNION``;
+- ``getSpatialBufferExpression()``, ``getSpatialCentroidExpression()``,
+  ``getSpatialConvexHullExpression()`` and ``getSpatialEnvelopeExpression()`` return the buffer,
+  the centroid, the convex hull and the bounding box of a geometry;
 - ``getSpatialGeodesicDistanceExpression()``, ``getSpatialGeodesicWithinDistanceExpression()``,
   ``getSpatialGeodesicAreaExpression()`` and ``getSpatialGeodesicLengthExpression()`` measure
   geometries in meters on the Earth.
@@ -755,6 +761,38 @@ for instance, the distance between two longitude and latitude pairs is expressed
 relationships are evaluated by the database: for geographic spatial reference systems, MySQL 8.0+
 and Oracle follow the geodesics between the vertices, while the other platforms follow straight
 lines. The Z and M coordinates are ignored, and the geometries must have the same SRID.
+
+The functions returning geometries also compute in the plane of the coordinates, and return the
+SRID of their first argument, except on MariaDB, which returns the results of the set-theoretic
+operations, of the buffer and of the convex hull with the SRID 0. An empty result is ``NULL`` on
+Oracle and SQLite. The arcs of the buffers are approximated by straight segments. On Oracle,
+``SDO_GEOM.SDO_BUFFER()`` returns ``NULL`` in the databases without Java. Db2 does not support the
+centroid, since its ``ST_Centroid()`` returns the center of the bounding box, and cannot compute
+buffers in the spatial reference system 0, whose coordinates are non-negative integers. MySQL 8.0
+requires version 8.0.14 or later for these functions. The geometries they return are selected
+like the columns:
+
+::
+
+    <?php
+    use Doctrine\DBAL\Spatial\SpatialSetOperation;
+
+    $sql = sprintf(
+        'SELECT %s FROM parcels WHERE id = ?',
+        $connection->convertToPHPValueSQL(
+            $platform->getSpatialSetOperationExpression(
+                SpatialSetOperation::INTERSECTION,
+                'area',
+                $connection->convertToDatabaseValueSQL('?', Types::GEOMETRY),
+            ),
+            Types::GEOMETRY,
+        ),
+    );
+
+    $intersection = $connection->convertToPHPValue(
+        $connection->fetchOne($sql, [$zone, $id], [Types::GEOMETRY, Types::INTEGER]),
+        Types::GEOMETRY,
+    );
 
 Ordering rows by their distance to a geometry, with a limit, finds its nearest neighbours.
 PostgreSQL and SQL Server use the spatial index if the query also filters out the ``NULL``
