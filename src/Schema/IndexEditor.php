@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -26,6 +27,8 @@ final class IndexEditor
 
     /** @var ?non-empty-string */
     private ?string $predicate = null;
+
+    private ?BoundingBox $boundingBox = null;
 
     /** @internal Use {@link Index::editor()} or {@link Index::edit()} to create an instance */
     public function __construct()
@@ -151,6 +154,17 @@ final class IndexEditor
         return $this;
     }
 
+    /**
+     * Sets the extent of the geometries indexed by a spatial index. SQL Server requires it to index geometries, and
+     * defaults to the extent of the longitudes and latitudes (-180, -90, 180, 90).
+     */
+    public function setBoundingBox(?BoundingBox $boundingBox): self
+    {
+        $this->boundingBox = $boundingBox;
+
+        return $this;
+    }
+
     public function create(): Index
     {
         if ($this->name === null) {
@@ -232,6 +246,10 @@ final class IndexEditor
 
         if ($this->predicate !== null) {
             $options['where'] = $this->predicate;
+        }
+
+        if ($this->boundingBox !== null) {
+            $options['bounding_box'] = $this->boundingBox;
         }
 
         return [$columnNames, $flags, $options];

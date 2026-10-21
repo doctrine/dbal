@@ -421,6 +421,103 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to declare a column of the {@see Types\Types::GEOGRAPHY} type.
+     *
+     * The platforms without a geography type declare a geometry column, whose SRID defaults to 4326.
+     *
+     * @param array<string, mixed> $column
+     *
+     * @throws Exception
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        return $this->getGeometryTypeDeclarationSQL(self::getGeographicColumn($column));
+    }
+
+    /**
+     * Converts a geography to the value to bind to a column of the {@see Types\Types::GEOGRAPHY} type.
+     *
+     * @internal The method should be only used from within the {@see Types\GeographyType} class.
+     *
+     * @throws Exception
+     * @throws InvalidGeometry
+     */
+    public function convertGeographyToDatabaseValue(Geometry $geography): mixed
+    {
+        return $this->convertGeometryToDatabaseValue($geography);
+    }
+
+    /**
+     * Converts the value of a column of the {@see Types\Types::GEOGRAPHY} type, as selected with
+     * {@see convertGeographyToPHPValueSQL()}, to a geography.
+     *
+     * @internal The method should be only used from within the {@see Types\GeographyType} class.
+     *
+     * @throws Exception
+     * @throws InvalidGeometry
+     */
+    public function convertGeographyToPHPValue(mixed $value): Geometry
+    {
+        return $this->convertGeometryToPHPValue($value);
+    }
+
+    /**
+     * Modifies the SQL expression of a value bound to a column of the {@see Types\Types::GEOGRAPHY} type.
+     *
+     * @internal The method should be only used from within the {@see Types\GeographyType} class.
+     */
+    public function convertGeographyToDatabaseValueSQL(string $sqlExpr): string
+    {
+        return $this->convertGeometryToDatabaseValueSQL($sqlExpr);
+    }
+
+    /**
+     * Modifies the SQL expression selecting a column of the {@see Types\Types::GEOGRAPHY} type.
+     *
+     * @internal The method should be only used from within the {@see Types\GeographyType} class.
+     */
+    public function convertGeographyToPHPValueSQL(string $sqlExpr): string
+    {
+        return $this->convertGeometryToPHPValueSQL($sqlExpr);
+    }
+
+    /**
+     * Returns the binding type of the values bound to a column of the {@see Types\Types::GEOGRAPHY} type.
+     *
+     * @internal The method should be only used from within the {@see Types\GeographyType} class.
+     */
+    public function getGeographyBindingType(): ParameterType
+    {
+        return $this->getGeometryBindingType();
+    }
+
+    /**
+     * Returns the declaration of a geography column with the SRID 4326 if it does not specify one, since geographies
+     * are located on the Earth.
+     *
+     * @param array<string, mixed> $column
+     *
+     * @return array<string, mixed>
+     */
+    protected static function getGeographicColumn(array $column): array
+    {
+        if ((int) ($column['srid'] ?? 0) === 0) {
+            $column['srid'] = 4326;
+        }
+
+        return $column;
+    }
+
+    /**
+     * Returns whether the platform supports the curves and surfaces of ISO 13249-3 (SQL/MM), see
+     * {@see GeometryKind::isExtended()}.
+     */
+    protected function supportsExtendedGeometryKinds(): bool
+    {
+        return false;
+    }
+
+    /**
      * Returns the geometry kind, the coordinate dimension and the SRID that a spatial column declaration specifies.
      * {@see GeometryKind::GEOMETRY} is returned as NULL, since it does not constrain the column.
      *
@@ -432,10 +529,15 @@ abstract class AbstractPlatform
      */
     protected function getGeometryColumnOptions(array $column): array
     {
-        $kind = $column['geometryType'] ?? null;
+        // geometry_type is the name of the option in the mappings written for other spatial libraries
+        $kind = $column['geometryType'] ?? $column['geometry_type'] ?? null;
 
         if ($kind !== null && ! $kind instanceof GeometryKind) {
             $kind = GeometryKind::fromName((string) $kind);
+        }
+
+        if ($kind !== null && $kind->isExtended() && ! $this->supportsExtendedGeometryKinds()) {
+            throw InvalidGeometry::unsupportedKind(static::class, $kind);
         }
 
         $dimension = $column['coordinateDimension'] ?? null;

@@ -19,7 +19,8 @@ use function substr;
 use function trim;
 
 /**
- * Reads the ISO and extended (PostGIS) well-known text formats.
+ * Reads the ISO and extended (PostGIS) well-known text formats, including the curves and surfaces of ISO 13249-3
+ * (SQL/MM).
  *
  * @internal
  */
@@ -104,14 +105,18 @@ final class WktReader
             return Geometry::create($kind, $dimension, [], $srid);
         }
 
-        if ($kind === GeometryKind::GEOMETRYCOLLECTION) {
+        if ($kind->hasGeometryMembers()) {
             $dimension = $declaredDimension ?? $parentDimension;
             $members   = [];
 
             $this->expectSymbol('(');
 
             do {
-                $member      = $this->readGeometry($dimension, $srid);
+                // the line strings of curves and the polygons of multi-surfaces are written without their type
+                $member = $kind !== GeometryKind::GEOMETRYCOLLECTION && $this->isSymbol('(')
+                    ? $this->readUntaggedMember($kind, $dimension, $srid)
+                    : $this->readGeometry($dimension, $srid);
+
                 $dimension ??= $member->getDimension();
                 $members[]   = $member;
             } while ($this->acceptSymbol(','));
@@ -125,8 +130,8 @@ final class WktReader
 
         $coordinates = match ($kind) {
             GeometryKind::POINT => $this->readPointText(),
-            GeometryKind::LINESTRING => $this->readPositionList(),
-            GeometryKind::POLYGON => $this->readRingList(),
+            GeometryKind::LINESTRING, GeometryKind::CIRCULARSTRING => $this->readPositionList(),
+            GeometryKind::POLYGON, GeometryKind::TRIANGLE => $this->readRingList(),
             GeometryKind::MULTIPOINT => $this->readMultiPointText(),
             GeometryKind::MULTILINESTRING => $this->readMultiLineStringText(),
             default => $this->readMultiPolygonText(),
@@ -141,6 +146,25 @@ final class WktReader
         $this->checkParentDimension($parentDimension, $dimension);
 
         return Geometry::create($kind, $dimension, $coordinates, $srid);
+    }
+
+    /** @throws InvalidGeometry */
+    private function readUntaggedMember(GeometryKind $kind, ?Dimension $dimension, int $srid): Geometry
+    {
+        if ($kind === GeometryKind::MULTISURFACE) {
+            $memberKind  = GeometryKind::POLYGON;
+            $coordinates = $this->readRingList();
+        } else {
+            $memberKind  = GeometryKind::LINESTRING;
+            $coordinates = $this->readPositionList();
+        }
+
+        return Geometry::create(
+            $memberKind,
+            $this->resolveDimension(self::getFirstPositionLength($memberKind, $coordinates), null, $dimension),
+            $coordinates,
+            $srid,
+        );
     }
 
     /**
@@ -380,8 +404,8 @@ final class WktReader
     {
         $depth = match ($kind) {
             GeometryKind::POINT => 0,
-            GeometryKind::LINESTRING, GeometryKind::MULTIPOINT => 1,
-            GeometryKind::POLYGON, GeometryKind::MULTILINESTRING => 2,
+            GeometryKind::LINESTRING, GeometryKind::CIRCULARSTRING, GeometryKind::MULTIPOINT => 1,
+            GeometryKind::POLYGON, GeometryKind::TRIANGLE, GeometryKind::MULTILINESTRING => 2,
             default => 3,
         };
 
@@ -434,6 +458,13 @@ final class WktReader
         }
 
         return false;
+    }
+
+    private function isSymbol(string $symbol): bool
+    {
+        return isset($this->tokens[$this->current])
+            && $this->tokens[$this->current][0] === self::SYMBOL
+            && $this->tokens[$this->current][1] === $symbol;
     }
 
     private function acceptSymbol(string $symbol): bool

@@ -47,7 +47,11 @@ final class GeoJsonWriter
         }
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws InvalidGeometry
+     */
     private static function toArray(Geometry $geometry): array
     {
         $type = match ($geometry->getKind()) {
@@ -58,6 +62,15 @@ final class GeoJsonWriter
             GeometryKind::MULTILINESTRING => 'MultiLineString',
             GeometryKind::MULTIPOLYGON => 'MultiPolygon',
             GeometryKind::GEOMETRYCOLLECTION, GeometryKind::GEOMETRY => 'GeometryCollection',
+            // GeoJSON has no curves and no surfaces of ISO 13249-3
+            GeometryKind::CIRCULARSTRING,
+            GeometryKind::COMPOUNDCURVE,
+            GeometryKind::CURVEPOLYGON,
+            GeometryKind::MULTICURVE,
+            GeometryKind::MULTISURFACE,
+            GeometryKind::POLYHEDRALSURFACE,
+            GeometryKind::TIN,
+            GeometryKind::TRIANGLE => throw InvalidGeometry::unsupportedKind('GeoJSON', $geometry->getKind()),
         };
 
         if ($geometry->getKind() === GeometryKind::GEOMETRYCOLLECTION) {

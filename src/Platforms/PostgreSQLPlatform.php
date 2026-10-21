@@ -19,9 +19,12 @@ use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Dimension;
 use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\GeographyType;
+use Doctrine\DBAL\Types\GeometryType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
@@ -273,6 +276,10 @@ class PostgreSQLPlatform extends AbstractPlatform
                 $query = 'ALTER ' . $newColumnName . ' TYPE ' . $newTypeSQLDeclaration;
                 if (! $typeChanged || $newCollation !== self::DEFAULT_COLLATION) {
                     $query .= ' ' . $this->getColumnCollationDeclarationSQL($newCollation);
+                }
+
+                if ($typeChanged) {
+                    $query .= $this->getSpatialColumnConversionSQL($oldColumn, $newColumn, $newColumnName);
                 }
 
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
@@ -748,6 +755,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'float'            => Types::FLOAT,
             'float4'           => Types::SMALLFLOAT,
             'float8'           => Types::FLOAT,
+            'geography'        => Types::GEOGRAPHY,
             'geometry'         => Types::GEOMETRY,
             'inet'             => Types::STRING,
             'int'              => Types::INTEGER,
@@ -856,7 +864,31 @@ class PostgreSQLPlatform extends AbstractPlatform
     }
 
     /**
-     * The value is the hexadecimal EWKB of the geometry, which PostGIS casts implicitly.
+     * {@inheritDoc}
+     *
+     * Requires the PostGIS extension. The kind, the dimension and the SRID, which defaults to 4326, are enforced by
+     * the type modifier, e.g. geography(PointZ,4326).
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        return GeometryTypeModifier::render(
+            'geography',
+            ...$this->getGeometryColumnOptions(self::getGeographicColumn($column)),
+        );
+    }
+
+    protected function supportsExtendedGeometryKinds(): bool
+    {
+        return true;
+    }
+
+    public function convertGeographyToDatabaseValueSQL(string $sqlExpr): string
+    {
+        return 'CAST(' . $sqlExpr . ' AS geography)';
+    }
+
+    /**
+     * The value is the hexadecimal EWKB of the geometry, which is a text input of PostGIS.
      */
     public function convertGeometryToDatabaseValue(Geometry $geometry): string
     {
@@ -878,6 +910,76 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function getGeometryBindingType(): ParameterType
     {
         return ParameterType::STRING;
+    }
+
+    /**
+     * Casts the value, so that PostgreSQL can choose between the geometry and geography variants of the functions it
+     * is passed to.
+     */
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        return 'CAST(' . $sqlExpr . ' AS geometry)';
+    }
+
+    /**
+     * Returns the USING clause that converts the values of a spatial column whose declaration changes, which PostGIS
+     * would reject otherwise: the SRID is assigned without transforming the coordinates (like UpdateGeometrySRID()),
+     * the Z and M coordinates are added or removed, the single geometries are converted to multi-geometries, and the
+     * values are cast between the geometry and geography types.
+     */
+    private function getSpatialColumnConversionSQL(Column $oldColumn, Column $newColumn, string $columnName): string
+    {
+        $oldType = $this->getColumnType($oldColumn);
+        $newType = $this->getColumnType($newColumn);
+
+        if (
+            ! ($oldType instanceof GeometryType || $oldType instanceof GeographyType)
+            || ! ($newType instanceof GeometryType || $newType instanceof GeographyType)
+        ) {
+            return '';
+        }
+
+        $oldOptions = $oldColumn->toArray(true);
+        $newOptions = $newColumn->toArray(true);
+
+        if ($oldType instanceof GeographyType) {
+            $oldOptions = self::getGeographicColumn($oldOptions);
+        }
+
+        if ($newType instanceof GeographyType) {
+            $newOptions = self::getGeographicColumn($newOptions);
+        }
+
+        [$oldKind, $oldDimension, $oldSrid] = $this->getGeometryColumnOptions($oldOptions);
+        [$newKind, $newDimension, $newSrid] = $this->getGeometryColumnOptions($newOptions);
+
+        // the values are converted as geometries, which the functions of PostGIS support
+        $sql = $oldType instanceof GeographyType ? 'CAST(' . $columnName . ' AS geometry)' : $columnName;
+
+        if ($newDimension !== null && $newDimension !== $oldDimension) {
+            $sql = match ($newDimension) {
+                Dimension::XY => 'ST_Force2D',
+                Dimension::XYZ => 'ST_Force3DZ',
+                Dimension::XYM => 'ST_Force3DM',
+                Dimension::XYZM => 'ST_Force4D',
+            } . '(' . $sql . ')';
+        }
+
+        if ($newKind !== null && $newKind !== $oldKind && $newKind->getMemberKind() !== null) {
+            $sql = 'ST_Multi(' . $sql . ')';
+        }
+
+        if ($newSrid !== null && $newSrid !== ($oldSrid ?? 0)) {
+            $sql = 'ST_SetSRID(' . $sql . ', ' . $newSrid . ')';
+        }
+
+        if ($newType instanceof GeographyType) {
+            $sql = 'CAST(' . $sql . ' AS geography)';
+        }
+
+        return $sql === $columnName || $sql === 'CAST(CAST(' . $columnName . ' AS geometry) AS geography)'
+            ? ''
+            : ' USING ' . $sql;
     }
 
     public function getCreateIndexSQL(Index $index, string $table): string
