@@ -7,10 +7,12 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -24,6 +26,19 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function createPlatform(): AbstractPlatform
     {
         return new DB2Platform();
+    }
+
+    public function testSpatialIndexesAreNotSupported(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('idx_location')
+            ->setUnquotedColumnNames('location')
+            ->setType(IndexType::SPATIAL)
+            ->create();
+
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateIndexSQL($index, 'places');
     }
 
     protected function getGenerateForeignKeySql(): string

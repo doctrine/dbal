@@ -53,6 +53,7 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
         Types::NUMBER                 => NumberType::class,
         Types::ENUM                   => EnumType::class,
         Types::FLOAT                  => FloatType::class,
+        Types::GEOGRAPHY              => GeographyType::class,
         Types::GEOMETRY               => GeometryType::class,
         Types::GUID                   => GuidType::class,
         Types::INTEGER                => IntegerType::class,
@@ -73,7 +74,7 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
      * The built-in types added in DBAL 4.6. Applications and libraries may have registered their own types with these
      * names, which {@see register()} keeps allowing.
      */
-    private const NEW_BUILTIN_TYPES = [Types::GEOMETRY];
+    private const NEW_BUILTIN_TYPES = [Types::GEOGRAPHY, Types::GEOMETRY];
 
     /** @var array<string, Type> Resolved type objects, keyed by type name. Doubles as the resolution cache. */
     private array $typeObjects = [];

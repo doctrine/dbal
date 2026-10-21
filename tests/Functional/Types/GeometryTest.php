@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
-use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
@@ -15,51 +14,36 @@ use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Spatial\Dimension;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
 use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\Spatial\GeometryKind;
-use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\Functional\SpatialTestCase;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\GeometryType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+use function array_map;
+use function preg_grep;
 use function preg_match;
 use function sprintf;
 use function str_contains;
 use function strtolower;
 
-final class GeometryTest extends FunctionalTestCase
+final class GeometryTest extends SpatialTestCase
 {
     protected function setUp(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        try {
-            $platform->getGeometryTypeDeclarationSQL([]);
-        } catch (NotSupported) {
-            self::markTestSkipped(sprintf('%s does not support spatial types.', $platform::class));
-        }
-
-        if (
-            $platform instanceof PostgreSQLPlatform
-            && $this->connection->fetchOne("SELECT 1 FROM pg_extension WHERE extname = 'postgis'") === false
-        ) {
-            $this->skipOrFail('This test requires the PostGIS extension.');
-        }
-
-        if (
-            $platform instanceof DB2Platform
-            && $this->connection->fetchOne(
-                "SELECT 1 FROM SYSCAT.DATATYPES WHERE TYPESCHEMA = 'SYSIBM' AND TYPENAME = 'ST_GEOMETRY'",
-            ) === false
-        ) {
-            $this->skipOrFail('This test requires Db2 Spatial Analytics.');
-        }
+        parent::setUp();
 
         $this->dropTableIfExists('geometry_test');
     }
@@ -211,39 +195,71 @@ final class GeometryTest extends FunctionalTestCase
         );
     }
 
-    public function testParameterAsFunctionArgument(): void
+    /**
+     * The conversions of the value and of its selection reference the parameter once.
+     */
+    public function testSelectedParameter(): void
     {
-        $platform  = $this->connection->getDatabasePlatform();
-        $predicate = 'ST_Intersects(geom, ' . $this->connection->convertToDatabaseValueSQL('?', Types::GEOMETRY) . ')';
-
-        if ($platform instanceof SQLitePlatform) {
-            $this->requireSpatiaLite();
-
-            // the predicates of SpatiaLite return 1, 0 or -1 (error)
-            $predicate .= ' = 1';
-        } elseif ($platform instanceof DB2Platform) {
-            // the predicates of Db2 return integers
-            $predicate .= ' = 1';
-        } elseif (! $platform instanceof PostgreSQLPlatform && ! $platform instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('This test uses the ST_Intersects() function of PostGIS, MySQL and SpatiaLite.');
-        }
-
-        $this->createTable(Column::editor()
-            ->setUnquotedName('geom')
-            ->setTypeName(Types::GEOMETRY)
-            ->create());
-
-        foreach ([1 => Geometry::point(1, 1), 2 => Geometry::point(5, 5)] as $id => $point) {
-            $this->connection->insert('geometry_test', ['id' => $id, 'geom' => $point], ['geom' => Types::GEOMETRY]);
-        }
-
-        $ids = $this->connection->fetchFirstColumn(
-            'SELECT id FROM geometry_test WHERE ' . $predicate,
-            [Geometry::fromWkt('POLYGON((0 0,2 0,2 2,0 2,0 0))')],
+        $value = $this->connection->fetchOne(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL($this->connection->convertToPHPValueSQL(
+                $this->connection->convertToDatabaseValueSQL('?', Types::GEOMETRY),
+                Types::GEOMETRY,
+            )),
+            [Geometry::fromWkt('SRID=4326;LINESTRING(1 2,3 4)')],
             [Types::GEOMETRY],
         );
 
-        self::assertEquals([1], $ids);
+        self::assertSame(
+            'SRID=4326;LINESTRING(1 2,3 4)',
+            $this->connection->convertToPHPValue($value, Types::GEOMETRY)?->asEwkt(),
+        );
+    }
+
+    /**
+     * PostGIS rejects a new SRID, dimension or kind for the values of a populated column without conversion.
+     */
+    public function testChangeOfPopulatedColumnOnPostgreSQL(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
+            self::markTestSkipped('This test covers the conversion of PostGIS values.');
+        }
+
+        $table = $this->createTable(Column::editor()
+            ->setUnquotedName('geom')
+            ->setTypeName(Types::GEOMETRY)
+            ->setGeometryType(GeometryKind::POINT)
+            ->create());
+
+        $this->connection->insert(
+            'geometry_test',
+            ['id' => 1, 'geom' => Geometry::point(1, 2)],
+            ['geom' => Types::GEOMETRY],
+        );
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $expected = Geometry::fromWkt('SRID=4326;MULTIPOINT Z((1 2 0))')->asEwkt();
+
+        // the geography changes the kind and the dimension too, then the geometry changes the type only
+        foreach ([Types::GEOGRAPHY, Types::GEOMETRY] as $typeName) {
+            $newTable = $table->edit()
+                ->modifyColumnByUnquotedName('geom', static function (ColumnEditor $editor) use ($typeName): void {
+                    $editor->setTypeName($typeName)
+                        ->setGeometryType(GeometryKind::MULTIPOINT)
+                        ->setCoordinateDimension(Dimension::XYZ)
+                        ->setSrid(4326);
+                })
+                ->create();
+
+            $schemaManager->alterTable($schemaManager->createComparator()->compareTables($table, $newTable));
+            $table = $newTable;
+
+            self::assertSame(
+                $expected,
+                $this->connection->convertToPHPValue($this->fetchGeometry(1), Types::GEOMETRY)?->asEwkt(),
+                $typeName,
+            );
+        }
     }
 
     public function testSchema(): void
@@ -309,7 +325,11 @@ final class GeometryTest extends FunctionalTestCase
             self::assertSame(GeometryKind::POINT, $column->getGeometryType());
         }
 
-        if ($platform instanceof PostgreSQLPlatform || $platform instanceof MySQL80Platform) {
+        if (
+            $platform instanceof PostgreSQLPlatform
+            || $platform instanceof MySQL80Platform
+            || $platform instanceof OraclePlatform
+        ) {
             self::assertSame(4326, $column->getSrid());
         }
 
@@ -326,11 +346,7 @@ final class GeometryTest extends FunctionalTestCase
 
     public function testSpatialIndex(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if (! $platform instanceof PostgreSQLPlatform && ! $platform instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped(sprintf('Spatial indexes are not supported on %s yet.', $platform::class));
-        }
+        $this->requireSpatialIndexes();
 
         $table = $this->createTable(
             [
@@ -371,6 +387,147 @@ final class GeometryTest extends FunctionalTestCase
         );
 
         self::assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM geometry_test'));
+
+        // the tables and sequences storing the spatial indexes of Oracle are not introspected
+        if (! $this->connection->getDatabasePlatform() instanceof OraclePlatform) {
+            return;
+        }
+
+        $names = [
+            ...array_map(
+                static fn (OptionallyQualifiedName $name): string => $name->toString(),
+                $schemaManager->introspectTableNames(),
+            ),
+            ...array_map(static fn (Sequence $sequence): string => $sequence->getName(), [
+                ...$schemaManager->introspectSequences(),
+                ...$schemaManager->listSequences(),
+            ]),
+            ...$schemaManager->listTableNames(),
+        ];
+
+        self::assertSame([], preg_grep('/^"?MDR[ST]_/i', $names));
+    }
+
+    /**
+     * The spatial indexes created with another access method or operator class are introspected as spatial indexes,
+     * so that the comparator keeps them.
+     */
+    #[DataProvider('postgreSQLSpatialIndexProvider')]
+    public function testOtherSpatialIndexesOfPostgreSQL(string $method, string $operatorClass): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
+            self::markTestSkipped('This test covers the indexes of PostGIS.');
+        }
+
+        $table = $this->createTable(
+            [
+                Index::editor()
+                    ->setUnquotedName('geometry_test_location')
+                    ->setUnquotedColumnNames('location')
+                    ->setType(IndexType::SPATIAL)
+                    ->create(),
+            ],
+            Column::editor()
+                ->setUnquotedName('location')
+                ->setTypeName(Types::GEOMETRY)
+                ->create(),
+        );
+
+        $this->connection->executeStatement('DROP INDEX geometry_test_location');
+        $this->connection->executeStatement(sprintf(
+            'CREATE INDEX geometry_test_location ON geometry_test USING %s (location %s)',
+            $method,
+            $operatorClass,
+        ));
+
+        $schemaManager     = $this->connection->createSchemaManager();
+        $introspectedTable = $schemaManager->introspectTableByUnquotedName('geometry_test');
+
+        self::assertSame(IndexType::SPATIAL, $introspectedTable->getIndex('geometry_test_location')->getType());
+        self::assertTrue($schemaManager->createComparator()->compareTables($introspectedTable, $table)->isEmpty());
+    }
+
+    /** @return iterable<string, array{string, string}> */
+    public static function postgreSQLSpatialIndexProvider(): iterable
+    {
+        yield 'n-dimensional GiST' => ['GIST', 'gist_geometry_ops_nd'];
+        yield 'SP-GiST' => ['SPGIST', 'spgist_geometry_ops_2d'];
+        yield 'BRIN' => ['BRIN', 'brin_geometry_inclusion_ops_2d'];
+    }
+
+    public function testSpatialIndexBoundingBox(): void
+    {
+        $this->requireSpatialIndexes();
+
+        $this->createTable(
+            [
+                Index::editor()
+                    ->setUnquotedName('geometry_test_location')
+                    ->setUnquotedColumnNames('location')
+                    ->setType(IndexType::SPATIAL)
+                    ->setBoundingBox(new BoundingBox(-1000.5, 0, 1000, 500))
+                    ->create(),
+            ],
+            Column::editor()
+                ->setUnquotedName('location')
+                ->setTypeName(Types::GEOMETRY)
+                ->setGeometryType(GeometryKind::POINT)
+                ->setSrid(3857)
+                ->create(),
+        );
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $indexes = [
+            $schemaManager->introspectTableByUnquotedName('geometry_test')->getIndex('geometry_test_location'),
+            $schemaManager->listTableIndexes('geometry_test')['geometry_test_location'],
+        ];
+
+        foreach ($indexes as $index) {
+            self::assertSame(IndexType::SPATIAL, $index->getType());
+
+            // only SQL Server stores the bounding box of spatial indexes
+            if ($this->connection->getDatabasePlatform() instanceof SQLServerPlatform) {
+                self::assertEquals(new BoundingBox(-1000.5, 0, 1000, 500), $index->getBoundingBox());
+            } else {
+                self::assertNull($index->getBoundingBox());
+            }
+        }
+    }
+
+    public function testSpatialIndexOnUnsupportedPlatforms(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof SQLitePlatform && ! $platform instanceof DB2Platform) {
+            self::markTestSkipped('This test covers the platforms that do not support spatial indexes.');
+        }
+
+        $indexes = [
+            Index::editor()
+                ->setUnquotedName('geometry_test_location')
+                ->setUnquotedColumnNames('location')
+                ->setType(IndexType::SPATIAL)
+                ->create(),
+        ];
+
+        $column = Column::editor()
+            ->setUnquotedName('location')
+            ->setTypeName(Types::GEOMETRY)
+            ->create();
+
+        if ($platform instanceof DB2Platform) {
+            $this->expectException(NotSupported::class);
+        }
+
+        $table = $this->createTable($indexes, $column);
+
+        // SQLite creates a regular index: the spatial indexes of SpatiaLite are only used by explicit queries
+        $schemaManager     = $this->connection->createSchemaManager();
+        $introspectedTable = $schemaManager->introspectTableByUnquotedName('geometry_test');
+
+        self::assertSame(IndexType::REGULAR, $introspectedTable->getIndex('geometry_test_location')->getType());
+        self::assertTrue($schemaManager->createComparator()->compareTables($introspectedTable, $table)->isEmpty());
     }
 
     public function testMariaDBIgnoresTheSrid(): void
@@ -412,6 +569,97 @@ final class GeometryTest extends FunctionalTestCase
             ['id' => 1, 'geom' => Geometry::fromWkt('POINT Z (1 2 3)')],
             ['geom' => Types::GEOMETRY],
         );
+    }
+
+    /** @param non-empty-string $ewkt */
+    #[DataProvider('curveAndSurfaceProvider')]
+    public function testCurvesAndSurfaces(string $ewkt, GeometryKind $kind): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        $geometry = Geometry::fromWkt($ewkt);
+
+        // only PostGIS supports the curves and surfaces of ISO 13249-3
+        if (! $platform instanceof PostgreSQLPlatform) {
+            try {
+                $platform->getGeometryTypeDeclarationSQL(['geometryType' => $kind]);
+                self::fail('The declaration of the column must be rejected.');
+            } catch (InvalidGeometry) {
+            }
+
+            if ($platform instanceof SQLitePlatform) {
+                $this->requireSpatiaLite();
+            }
+
+            $this->createTable(Column::editor()
+                ->setUnquotedName('geom')
+                ->setTypeName(Types::GEOMETRY)
+                ->setNotNull(false)
+                ->create());
+
+            $this->expectException(ConversionException::class);
+
+            $this->connection->insert('geometry_test', ['id' => 1, 'geom' => $geometry], ['geom' => Types::GEOMETRY]);
+        }
+
+        $table = $this->createTable(
+            Column::editor()
+                ->setUnquotedName('geom')
+                ->setTypeName(Types::GEOMETRY)
+                ->setNotNull(false)
+                ->create(),
+            Column::editor()
+                ->setUnquotedName('typed')
+                ->setTypeName(Types::GEOMETRY)
+                ->setGeometryType($kind)
+                ->setNotNull(false)
+                ->create(),
+        );
+
+        $this->connection->insert(
+            'geometry_test',
+            ['id' => 1, 'geom' => $geometry, 'typed' => $geometry],
+            ['geom' => Types::GEOMETRY, 'typed' => Types::GEOMETRY],
+        );
+
+        $value = $this->connection->convertToPHPValue($this->fetchGeometry(1), Types::GEOMETRY);
+
+        self::assertInstanceOf(Geometry::class, $value);
+        self::assertTrue($value->equals($geometry), $value->asEwkt());
+
+        $schemaManager     = $this->connection->createSchemaManager();
+        $introspectedTable = $schemaManager->introspectTableByUnquotedName('geometry_test');
+
+        self::assertSame($kind, $introspectedTable->getColumn('typed')->getGeometryType());
+        self::assertTrue($schemaManager->createComparator()->compareTables($introspectedTable, $table)->isEmpty());
+    }
+
+    /** @return iterable<string, array{non-empty-string, GeometryKind}> */
+    public static function curveAndSurfaceProvider(): iterable
+    {
+        yield 'circular string' => ['CIRCULARSTRING(0 0,1 1,2 0)', GeometryKind::CIRCULARSTRING];
+        yield 'compound curve' => [
+            'COMPOUNDCURVE((0 0,1 0),CIRCULARSTRING(1 0,2 1,3 0))',
+            GeometryKind::COMPOUNDCURVE,
+        ];
+
+        yield 'curve polygon' => [
+            'CURVEPOLYGON(CIRCULARSTRING(0 0,4 0,4 4,0 4,0 0),(1 1,3 3,3 1,1 1))',
+            GeometryKind::CURVEPOLYGON,
+        ];
+
+        yield 'multi-curve' => ['MULTICURVE((0 0,5 5),CIRCULARSTRING(4 0,4 4,8 4))', GeometryKind::MULTICURVE];
+        yield 'multi-surface' => [
+            'MULTISURFACE(CURVEPOLYGON(CIRCULARSTRING(0 0,4 0,4 4,0 4,0 0)),((10 10,14 12,11 10,10 10)))',
+            GeometryKind::MULTISURFACE,
+        ];
+
+        yield 'polyhedral surface' => [
+            'POLYHEDRALSURFACE(((0 0,0 1,1 1,0 0)),((0 0,1 1,1 0,0 0)))',
+            GeometryKind::POLYHEDRALSURFACE,
+        ];
+
+        yield 'TIN' => ['TIN(((0 0,0 1,1 1,0 0)),((0 0,1 1,1 0,0 0)))', GeometryKind::TIN];
+        yield 'triangle' => ['TRIANGLE((0 0,0 1,1 1,0 0))', GeometryKind::TRIANGLE];
     }
 
     public function testSpatiaLiteCompatibility(): void
@@ -551,25 +799,15 @@ final class GeometryTest extends FunctionalTestCase
         );
     }
 
-    private function requireSpatiaLite(): void
+    private function requireSpatialIndexes(): void
     {
-        try {
-            $this->connection->fetchOne('SELECT spatialite_version()');
-        } catch (DriverException) {
-            $this->skipOrFail('This test requires SpatiaLite.');
-        }
-    }
+        $platform = $this->connection->getDatabasePlatform();
 
-    /**
-     * The CI jobs of the spatial extensions declare them as required, so that the tests cannot be skipped silently.
-     */
-    private function skipOrFail(string $message): never
-    {
-        if (($GLOBALS['spatial'] ?? null) === 'required') {
-            self::fail($message);
+        if (! $platform instanceof SQLitePlatform && ! $platform instanceof DB2Platform) {
+            return;
         }
 
-        self::markTestSkipped($message);
+        self::markTestSkipped(sprintf('%s does not support spatial indexes.', $platform::class));
     }
 
     /** @param list<Index>|Column $indexesOrColumn */

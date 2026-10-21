@@ -51,7 +51,7 @@ final class WkbWriter
         $dimension = $geometry->getDimension();
         $header    = self::writeHeader($kind, $dimension, $extended, $srid);
 
-        if ($kind === GeometryKind::GEOMETRYCOLLECTION) {
+        if ($kind->hasGeometryMembers()) {
             $members = $geometry->getGeometries();
             $wkb     = $header . pack('V', count($members));
 
@@ -80,12 +80,14 @@ final class WkbWriter
                 return self::writePosition($position, $dimension);
 
             case GeometryKind::LINESTRING:
+            case GeometryKind::CIRCULARSTRING:
                 /** @var list<list<float>> $positions */
                 $positions = $coordinates;
 
                 return self::writePositions($positions);
 
             case GeometryKind::POLYGON:
+            case GeometryKind::TRIANGLE:
                 /** @var list<list<list<float>>> $rings */
                 $rings = $coordinates;
                 $wkb   = pack('V', count($rings));

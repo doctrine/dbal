@@ -68,11 +68,20 @@ final class WktWriter
             return self::trimTag($tag) . ' EMPTY';
         }
 
-        if ($kind === GeometryKind::GEOMETRYCOLLECTION) {
+        if ($kind->hasGeometryMembers()) {
             $members = [];
 
+            // the line strings of curves and the polygons of multi-surfaces are written without their type
+            $untaggedKind = match ($kind) {
+                GeometryKind::GEOMETRYCOLLECTION => null,
+                GeometryKind::MULTISURFACE => GeometryKind::POLYGON,
+                default => GeometryKind::LINESTRING,
+            };
+
             foreach ($geometry->getGeometries() as $member) {
-                $members[] = self::writeGeometry($member, $extended);
+                $members[] = $member->getKind() === $untaggedKind && ! $member->isEmpty()
+                    ? self::writeCoordinates($untaggedKind, $member->getCoordinates())
+                    : self::writeGeometry($member, $extended);
             }
 
             return $tag . '(' . implode(',', $members) . ')';
@@ -92,12 +101,14 @@ final class WktWriter
                 return '(' . self::writePosition($position) . ')';
 
             case GeometryKind::LINESTRING:
+            case GeometryKind::CIRCULARSTRING:
                 /** @var list<list<float>> $positions */
                 $positions = $coordinates;
 
                 return self::writePositions($positions);
 
             case GeometryKind::POLYGON:
+            case GeometryKind::TRIANGLE:
                 /** @var list<list<list<float>>> $rings */
                 $rings = $coordinates;
 

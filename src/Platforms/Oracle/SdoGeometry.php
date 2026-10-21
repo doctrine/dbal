@@ -76,6 +76,12 @@ final class SdoGeometry
      */
     public static function encode(Geometry $geometry): string
     {
+        $extendedKind = $geometry->findExtendedKind();
+
+        if ($extendedKind !== null) {
+            throw InvalidGeometry::unsupportedKind('Oracle', $extendedKind);
+        }
+
         if (self::containsEmptyGeometry($geometry)) {
             throw InvalidGeometry::unsupportedEmptyGeometries('Oracle');
         }
@@ -377,6 +383,7 @@ final class SdoGeometry
         return $members;
     }
 
+    /** @throws InvalidGeometry */
     private static function getGType(Geometry $geometry): int
     {
         $dimension = $geometry->getDimension();
@@ -389,6 +396,7 @@ final class SdoGeometry
             GeometryKind::MULTIPOINT => 5,
             GeometryKind::MULTILINESTRING => 6,
             GeometryKind::MULTIPOLYGON => 7,
+            default => throw InvalidGeometry::unsupportedKind('Oracle', $geometry->getKind()),
         };
 
         // the position of the measure, if any

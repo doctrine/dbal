@@ -22,16 +22,19 @@ use function sprintf;
 
 /**
  * An immutable geometry of the OGC Simple Features model (points, line strings, polygons and their
- * collections, without curves) with its spatial reference system identifier (SRID).
+ * collections), or one of the curves and surfaces of ISO 13249-3 (SQL/MM), with its spatial reference system
+ * identifier (SRID).
  *
  * An SRID of 0 means that the spatial reference system is not specified. Coordinates are in the axis order
  * of the well-known text and binary formats: X (longitude) first, then Y (latitude), optionally followed by
  * Z and M.
  *
  * The coordinates of a geometry are nested lists of positions, a position being a list of 2 to 4 floats:
- * a position for a POINT (an empty list for an empty point), a list of positions for a LINESTRING, a list
- * of rings (lists of positions) for a POLYGON, and a list of the coordinates of their members for the
- * MULTI* kinds. A GEOMETRYCOLLECTION has no coordinates but members, see {@see getGeometries()}.
+ * a position for a POINT (an empty list for an empty point), a list of positions for a LINESTRING or a
+ * CIRCULARSTRING, a list of rings (lists of positions) for a POLYGON or a TRIANGLE, and a list of the
+ * coordinates of their members for the MULTI* kinds, POLYHEDRALSURFACE and TIN. A GEOMETRYCOLLECTION, a
+ * COMPOUNDCURVE, a CURVEPOLYGON, a MULTICURVE and a MULTISURFACE have no coordinates but member geometries,
+ * see {@see getGeometries()}.
  */
 final class Geometry
 {
@@ -104,7 +107,7 @@ final class Geometry
      *
      * @internal
      *
-     * @param list<mixed> $coordinates The coordinates, or the members of a GEOMETRYCOLLECTION.
+     * @param list<mixed> $coordinates The coordinates, or the member geometries.
      *
      * @throws InvalidGeometry
      */
@@ -114,12 +117,19 @@ final class Geometry
             throw InvalidGeometry::invalidSrid($srid);
         }
 
-        if ($kind === GeometryKind::GEOMETRYCOLLECTION) {
+        if ($kind->hasGeometryMembers()) {
             $members = [];
 
             foreach ($coordinates as $member) {
                 if (! $member instanceof self) {
                     throw InvalidGeometry::invalidStructure($kind, 'its members must be geometries');
+                }
+
+                if (! $kind->acceptsMember($member->kind)) {
+                    throw InvalidGeometry::invalidStructure(
+                        $kind,
+                        sprintf('it cannot have %s members', $member->kind->value),
+                    );
                 }
 
                 if ($member->dimension !== $dimension) {
@@ -135,10 +145,19 @@ final class Geometry
         match ($kind) {
             GeometryKind::POINT => self::validatePoint($coordinates, $dimension, $kind),
             GeometryKind::LINESTRING => self::validateLineString($coordinates, $dimension, $kind),
+            GeometryKind::CIRCULARSTRING => self::validateCircularString($coordinates, $dimension, $kind),
             GeometryKind::POLYGON => self::validatePolygon($coordinates, $dimension, $kind),
+            GeometryKind::TRIANGLE => self::validateTriangle($coordinates, $dimension, $kind),
             GeometryKind::MULTIPOINT,
             GeometryKind::MULTILINESTRING,
-            GeometryKind::MULTIPOLYGON => self::validateMembers($coordinates, $dimension, $kind),
+            GeometryKind::MULTIPOLYGON,
+            GeometryKind::POLYHEDRALSURFACE,
+            GeometryKind::TIN => self::validateMembers($coordinates, $dimension, $kind),
+            GeometryKind::GEOMETRYCOLLECTION,
+            GeometryKind::COMPOUNDCURVE,
+            GeometryKind::CURVEPOLYGON,
+            GeometryKind::MULTICURVE,
+            GeometryKind::MULTISURFACE,
             GeometryKind::GEOMETRY => throw InvalidGeometry::invalidStructure(
                 $kind,
                 'a geometry value must have a concrete type',
@@ -173,11 +192,11 @@ final class Geometry
      *
      * @return list<mixed>
      *
-     * @throws InvalidGeometry If the geometry is a GEOMETRYCOLLECTION.
+     * @throws InvalidGeometry If the geometry is made of member geometries.
      */
     public function getCoordinates(): array
     {
-        if ($this->kind === GeometryKind::GEOMETRYCOLLECTION) {
+        if ($this->kind->hasGeometryMembers()) {
             throw InvalidGeometry::isACollection();
         }
 
@@ -185,15 +204,15 @@ final class Geometry
     }
 
     /**
-     * Returns the members of a MULTI* geometry or of a GEOMETRYCOLLECTION.
+     * Returns the members of a collection, the segments of a COMPOUNDCURVE or the rings of a CURVEPOLYGON.
      *
      * @return list<self>
      *
-     * @throws InvalidGeometry If the geometry is not a collection.
+     * @throws InvalidGeometry If the geometry is not made of members.
      */
     public function getGeometries(): array
     {
-        if ($this->kind === GeometryKind::GEOMETRYCOLLECTION) {
+        if ($this->kind->hasGeometryMembers()) {
             /** @var list<self> $members */
             $members = $this->coordinates;
 
@@ -227,7 +246,7 @@ final class Geometry
             throw InvalidGeometry::invalidSrid($srid);
         }
 
-        if ($this->kind !== GeometryKind::GEOMETRYCOLLECTION) {
+        if (! $this->kind->hasGeometryMembers()) {
             return new self($this->kind, $this->dimension, $this->coordinates, $srid);
         }
 
@@ -278,11 +297,38 @@ final class Geometry
     /**
      * Returns the GeoJSON geometry object (RFC 7946) of the geometry. It does not carry the SRID.
      *
-     * @throws InvalidGeometry If the geometry has M coordinates, which GeoJSON cannot represent.
+     * @throws InvalidGeometry If the geometry has M coordinates, curves or surfaces, which GeoJSON cannot represent.
      */
     public function asGeoJson(): string
     {
         return GeoJsonWriter::write($this);
+    }
+
+    /**
+     * Returns the first curve or surface of ISO 13249-3 (SQL/MM) found in the geometry or in its members, which only
+     * PostgreSQL supports.
+     *
+     * @internal
+     */
+    public function findExtendedKind(): ?GeometryKind
+    {
+        if ($this->kind->isExtended()) {
+            return $this->kind;
+        }
+
+        if ($this->kind !== GeometryKind::GEOMETRYCOLLECTION) {
+            return null;
+        }
+
+        foreach ($this->getGeometries() as $member) {
+            $kind = $member->findExtendedKind();
+
+            if ($kind !== null) {
+                return $kind;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -354,6 +400,34 @@ final class Geometry
      *
      * @throws InvalidGeometry
      */
+    private static function validateCircularString(array $coordinates, Dimension $dimension, GeometryKind $kind): void
+    {
+        self::validateLineString($coordinates, $dimension, $kind);
+
+        if ($coordinates !== [] && count($coordinates) % 2 === 0) {
+            throw InvalidGeometry::invalidStructure($kind, 'a circular string must have an odd number of points');
+        }
+    }
+
+    /**
+     * @param array<mixed> $coordinates
+     *
+     * @throws InvalidGeometry
+     */
+    private static function validateTriangle(array $coordinates, Dimension $dimension, GeometryKind $kind): void
+    {
+        self::validatePolygon($coordinates, $dimension, $kind);
+
+        if (count($coordinates) > 1 || ($coordinates !== [] && count($coordinates[0]) !== 4)) {
+            throw InvalidGeometry::invalidStructure($kind, 'a triangle must have one ring of 4 points');
+        }
+    }
+
+    /**
+     * @param array<mixed> $coordinates
+     *
+     * @throws InvalidGeometry
+     */
     private static function validatePolygon(array $coordinates, Dimension $dimension, GeometryKind $kind): void
     {
         if (! array_is_list($coordinates)) {
@@ -394,6 +468,7 @@ final class Geometry
             match ($kind) {
                 GeometryKind::MULTIPOINT => self::validatePoint($member, $dimension, $kind),
                 GeometryKind::MULTILINESTRING => self::validateLineString($member, $dimension, $kind),
+                GeometryKind::TIN => self::validateTriangle($member, $dimension, $kind),
                 default => self::validatePolygon($member, $dimension, $kind),
             };
         }
