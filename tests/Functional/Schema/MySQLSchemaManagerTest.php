@@ -16,8 +16,8 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
-use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
@@ -33,11 +33,6 @@ use function array_keys;
 class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     use VerifyDeprecations;
-
-    public static function setUpBeforeClass(): void
-    {
-        Type::addType('point', PointType::class);
-    }
 
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
@@ -88,7 +83,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('point')
-                    ->setTypeName('point')
+                    ->setTypeName(Types::GEOMETRY)
+                    ->setGeometryType(GeometryKind::POINT)
                     ->create(),
             )
             ->setIndexes($index)

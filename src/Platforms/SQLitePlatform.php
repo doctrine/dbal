@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
+use Doctrine\DBAL\Platforms\SQLite\SpatiaLiteBlob;
 use Doctrine\DBAL\Platforms\SQLite\SQLiteMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\DefaultExpression;
@@ -19,6 +20,9 @@ use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -36,6 +40,7 @@ use function array_values;
 use function count;
 use function explode;
 use function implode;
+use function is_string;
 use function sprintf;
 use function str_replace;
 use function strpos;
@@ -448,6 +453,80 @@ class SQLitePlatform extends AbstractPlatform
         return '--' . str_replace("\n", "\n--", $comment) . "\n";
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * The column is declared with the name of the geometry kind, as SpatiaLite expects it. The SRID and the
+     * dimension are not enforced.
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        [$kind] = $this->getGeometryColumnOptions($column);
+
+        return ($kind ?? GeometryKind::GEOMETRY)->value;
+    }
+
+    /**
+     * The value is the internal geometry format of SpatiaLite, which does not support empty geometries.
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): string
+    {
+        return SpatiaLiteBlob::encode($geometry);
+    }
+
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value)) {
+            throw InvalidGeometry::malformedSpatiaLiteBlob('expected a binary string');
+        }
+
+        return SpatiaLiteBlob::decode($value);
+    }
+
+    /**
+     * Returns the SQL condition that excludes the tables that are not user tables from the introspection: the
+     * internal tables of SQLite and the metadata tables, virtual tables and spatial index tables of SpatiaLite.
+     *
+     * @internal The method should be only used from within the {@see SQLiteSchemaManager} class hierarchy.
+     */
+    public function getUserTablePredicateSQL(string $tableAlias): string
+    {
+        // the metadata tables of SpatiaLite are only excluded if the database has been initialized by SpatiaLite,
+        // so that user tables with the same names remain visible in other databases
+        return sprintf(
+            <<<'SQL'
+            %1$s.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')
+            AND (
+                LOWER(%1$s.name) NOT IN (
+                    'spatial_ref_sys_aux', 'spatialite_history', 'sql_statements_log', 'data_licenses',
+                    'geometry_columns_auth', 'geometry_columns_field_infos', 'geometry_columns_statistics',
+                    'geometry_columns_time', 'views_geometry_columns', 'views_geometry_columns_auth',
+                    'views_geometry_columns_field_infos', 'views_geometry_columns_statistics',
+                    'virts_geometry_columns', 'virts_geometry_columns_auth', 'virts_geometry_columns_field_infos',
+                    'virts_geometry_columns_statistics', 'spatialindex', 'elementarygeometries', 'knn', 'knn2'
+                )
+                OR NOT EXISTS (SELECT 1 FROM sqlite_master g WHERE g.type = 'table' AND g.name = 'geometry_columns')
+            )
+            AND NOT (
+                %1$s.sql LIKE 'CREATE VIRTUAL TABLE %%'
+                AND (
+                    %1$s.sql LIKE '%%USING rtree(pkid, xmin, xmax, ymin, ymax)%%'
+                    OR %1$s.sql LIKE '%%USING Virtual%%'
+                    OR %1$s.sql LIKE '%%USING MbrCache(%%'
+                )
+            )
+            AND NOT EXISTS (
+                SELECT 1
+                FROM sqlite_master r
+                WHERE r.type = 'table'
+                  AND r.sql LIKE 'CREATE VIRTUAL TABLE %%USING rtree(pkid, xmin, xmax, ymin, ymax)%%'
+                  AND %1$s.name IN (r.name || '_node', r.name || '_parent', r.name || '_rowid')
+            )
+            SQL,
+            $tableAlias,
+        );
+    }
+
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -463,16 +542,24 @@ class SQLitePlatform extends AbstractPlatform
             'double'           => 'float',
             'double precision' => 'float',
             'float'            => 'float',
+            'geometry'         => 'geometry',
+            'geometrycollection' => 'geometry',
             'image'            => 'string',
             'int'              => 'integer',
             'integer'          => 'integer',
+            'linestring'       => 'geometry',
             'longtext'         => 'text',
             'longvarchar'      => 'string',
             'mediumint'        => 'integer',
             'mediumtext'       => 'text',
+            'multilinestring'  => 'geometry',
+            'multipoint'       => 'geometry',
+            'multipolygon'     => 'geometry',
             'ntext'            => 'string',
             'numeric'          => 'decimal',
             'nvarchar'         => 'string',
+            'point'            => 'geometry',
+            'polygon'          => 'geometry',
             'real'             => 'smallfloat',
             'serial'           => 'integer',
             'smallint'         => 'smallint',

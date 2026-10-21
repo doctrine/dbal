@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Exception\InvalidColumnDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Spatial\Dimension;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
@@ -56,6 +58,12 @@ final class ColumnEditor
 
     /** @var ?non-empty-string */
     private ?string $columnDefinition = null;
+
+    private ?GeometryKind $geometryType = null;
+
+    private ?Dimension $coordinateDimension = null;
+
+    private ?int $srid = null;
 
     /** @internal Use {@link Column::editor()} or {@link Column::edit()} to create an instance */
     public function __construct()
@@ -240,6 +248,36 @@ final class ColumnEditor
         return $this;
     }
 
+    /**
+     * Sets the kind of the geometries a spatial column accepts. NULL or {@see GeometryKind::GEOMETRY} means any kind.
+     */
+    public function setGeometryType(?GeometryKind $geometryType): self
+    {
+        $this->geometryType = $geometryType;
+
+        return $this;
+    }
+
+    /**
+     * Sets the coordinate dimension of the geometries a spatial column accepts. NULL means any dimension.
+     */
+    public function setCoordinateDimension(?Dimension $coordinateDimension): self
+    {
+        $this->coordinateDimension = $coordinateDimension;
+
+        return $this;
+    }
+
+    /**
+     * Sets the SRID of the geometries a spatial column accepts. NULL means any SRID.
+     */
+    public function setSrid(?int $srid): self
+    {
+        $this->srid = $srid;
+
+        return $this;
+    }
+
     /** @throws TypesException */
     public function create(): Column
     {
@@ -275,6 +313,18 @@ final class ColumnEditor
 
         if ($this->defaultConstraintName !== null) {
             $platformOptions[SQLServerPlatform::OPTION_DEFAULT_CONSTRAINT_NAME] = $this->defaultConstraintName;
+        }
+
+        if ($this->geometryType !== null) {
+            $platformOptions['geometryType'] = $this->geometryType->value;
+        }
+
+        if ($this->coordinateDimension !== null) {
+            $platformOptions['coordinateDimension'] = $this->coordinateDimension->value;
+        }
+
+        if ($this->srid !== null) {
+            $platformOptions['srid'] = $this->srid;
         }
 
         return new Column(

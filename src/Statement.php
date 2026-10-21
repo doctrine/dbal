@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\PlatformAwareBindingType;
 use Doctrine\DBAL\Types\Type;
 
 use function is_string;
@@ -84,7 +85,9 @@ class Statement
 
         if ($type instanceof Type) {
             $value       = $type->convertToDatabaseValue($value, $this->platform);
-            $bindingType = $type->getBindingType();
+            $bindingType = $type instanceof PlatformAwareBindingType
+                ? $type->getBindingTypeForPlatform($this->platform)
+                : $type->getBindingType();
         } else {
             $bindingType = $type;
         }

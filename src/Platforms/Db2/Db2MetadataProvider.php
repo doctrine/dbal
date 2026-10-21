@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 
@@ -29,6 +30,7 @@ use function preg_match;
 use function sprintf;
 use function str_replace;
 use function strtolower;
+use function substr;
 
 /** @link https://www.ibm.com/docs/en/db2/12.1.0?topic=sql-catalog-views */
 final readonly class Db2MetadataProvider implements MetadataProvider
@@ -191,6 +193,10 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                     ->setPrecision($length)
                     ->setScale($scale);
                 break;
+        }
+
+        if ($type === Types::GEOMETRY) {
+            $editor->setGeometryType(GeometryKind::fromName(substr($typeName, 3)));
         }
 
         $editor

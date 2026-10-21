@@ -524,6 +524,189 @@ jsonb_object
 This type is similar to ``json_object``. On PostgreSQL, it is mapped to the ``JSONB`` data type.
 On all other platforms, it is mapped to the same type as ``json``.
 
+Spatial types
+~~~~~~~~~~~~~
+
+Types that map geometries of the OGC Simple Features model.
+
+.. _geometry:
+geometry
+^^^^^^^^
+
+Maps and converts geometries (points, line strings, polygons and their collections) to
+``Doctrine\DBAL\Spatial\Geometry`` value objects, or ``null`` if no data is present.
+
+On PostgreSQL, the geometries can also be the curves and surfaces of ISO 13249-3 (SQL/MM):
+circular strings, compound curves, curve polygons, multi-curves, multi-surfaces, polyhedral
+surfaces, TINs and triangles. The other platforms reject them, as well as the columns declared
+with these kinds, and GeoJSON cannot represent them.
+
+A ``Geometry`` is immutable and carries a spatial reference system identifier (SRID),
+``0`` meaning that it is not specified. It can be created from coordinates, from the
+well-known text (WKT) and binary (WKB) formats, including their extended PostGIS
+variants (EWKT, EWKB), and from GeoJSON:
+
+::
+
+    <?php
+    use Doctrine\DBAL\Spatial\Geometry;
+
+    $paris  = Geometry::point(2.3522219, 48.856614, 4326); // longitude, latitude, SRID
+    $zone   = Geometry::fromWkt('SRID=4326;POLYGON((2 48,3 48,3 49,2 49,2 48))');
+    $road   = Geometry::fromGeoJson('{"type":"LineString","coordinates":[[2.35,48.85],[2.29,48.86]]}');
+
+    $connection->insert('places', ['name' => 'Paris', 'location' => $paris], ['location' => Types::GEOMETRY]);
+
+    echo $paris->asWkt();     // POINT(2.3522219 48.856614)
+    echo $paris->asGeoJson(); // {"type":"Point","coordinates":[2.3522219,48.856614]}
+
+A column of the ``geometry`` type can restrict the kind of its geometries, their coordinate
+dimension and their SRID. Each platform enforces what it supports:
+
+::
+
+    <?php
+    use Doctrine\DBAL\Schema\Column;
+    use Doctrine\DBAL\Spatial\GeometryKind;
+
+    Column::editor()
+        ->setUnquotedName('location')
+        ->setTypeName(Types::GEOMETRY)
+        ->setGeometryType(GeometryKind::POINT)
+        ->setSrid(4326)
+        ->create();
+
+The same restrictions can be declared as the ``geometryType`` (e.g. ``POINT``),
+``coordinateDimension`` (``XY``, ``XYZ``, ``XYM`` or ``XYZM``) and ``srid`` platform
+options, for example in the column options of an ORM mapping. ``geometry_type`` is accepted
+as an alias of ``geometryType``, as it is named in the mappings written for other spatial
+libraries.
+
+Spatial indexes are declared with ``Doctrine\DBAL\Schema\Index\IndexType::SPATIAL``. SQL Server
+requires the extent of the indexed geometries, which defaults to the extent of the longitudes and
+latitudes, for instance for Lambert-93 coordinates (SRID 2154):
+
+::
+
+    <?php
+    use Doctrine\DBAL\Schema\Index;
+    use Doctrine\DBAL\Schema\Index\BoundingBox;
+    use Doctrine\DBAL\Schema\Index\IndexType;
+
+    Index::editor()
+        ->setUnquotedName('idx_places_location')
+        ->setUnquotedColumnNames('location')
+        ->setType(IndexType::SPATIAL)
+        ->setBoundingBox(new BoundingBox(-357823.24, 6037008.69, 1313632.36, 7230727.37))
+        ->create();
+
+The comparator does not detect the changes of the bounding box of an existing index.
+
++----------------+------------------------------------------------------------------------------+
+| Platform       | Support                                                                      |
++================+==============================================================================+
+| PostgreSQL     | Requires the PostGIS extension. ``geometry(Kind[Z|M|ZM],SRID)`` columns      |
+|                | enforce the kind, the dimension and the SRID. Spatial indexes are GiST       |
+|                | indexes. Empty geometries and Z/M coordinates are supported.                 |
++----------------+------------------------------------------------------------------------------+
+| MySQL          | The kind is enforced. The SRID is enforced since MySQL 8.0 and is required   |
+|                | for spatial indexes to be used. Only non-empty two-dimensional geometries    |
+|                | (and empty geometry collections) can be stored. Spatial indexes require      |
+|                | ``NOT NULL`` columns.                                                        |
++----------------+------------------------------------------------------------------------------+
+| MariaDB        | Like MySQL, but the SRID of the columns is not enforced.                     |
++----------------+------------------------------------------------------------------------------+
+| SQLite         | Values are stored in the geometry format of SpatiaLite, which spatial        |
+|                | functions require, so that they can be used once SpatiaLite is loaded (see   |
+|                | below). Columns are declared with the name of the kind, which is not         |
+|                | enforced, nor are the dimension and the SRID. Empty geometries cannot be     |
+|                | stored. Spatial indexes are created as regular indexes, since the spatial    |
+|                | indexes of SpatiaLite are only used by explicit queries.                     |
++----------------+------------------------------------------------------------------------------+
+| SQL Server     | ``geometry`` columns. The kind, the dimension and the SRID are not enforced. |
+|                | Empty points cannot be stored. Geometries cannot be compared with ``=``.     |
+|                | Spatial indexes use the ``GEOMETRY_AUTO_GRID`` tessellation and require a    |
+|                | clustered primary key.                                                       |
++----------------+------------------------------------------------------------------------------+
+| Oracle         | ``SDO_GEOMETRY`` columns (Oracle Spatial), registered with their SRID and    |
+|                | dimension in ``USER_SDO_GEOM_METADATA`` as spatial indexes require. Only     |
+|                | spatial indexes enforce the SRID and the dimension, and the kind is not      |
+|                | enforced. Empty geometries and collections containing multi-line strings,    |
+|                | multi-polygons or collections cannot be stored. The rings of polygons are    |
+|                | oriented as Oracle requires. With ``pdo_oci``, values are limited to 1332    |
+|                | bytes of JSON, and ``fetchAll*()`` cannot read several geometries.           |
++----------------+------------------------------------------------------------------------------+
+| Db2            | Requires Db2 Spatial Analytics (Db2 11.5.4 or newer), enabled with           |
+|                | ``CALL SYSPROC.SYSINSTALLOBJECTS('GEO', 'C', NULL, NULL)``. The kind is      |
+|                | enforced by the column type. The SRID must be defined in Db2 (0, 4326, 4269  |
+|                | and 27700 are predefined), and the coordinates are rounded to the precision  |
+|                | of its definition. Empty geometries and geometry collections cannot be       |
+|                | stored. Spatial indexes are not supported: declaring one throws an           |
+|                | exception.                                                                   |
++----------------+------------------------------------------------------------------------------+
+
+SpatiaLite can be loaded into every connection with the
+``Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\LoadExtension`` middleware. It requires
+PHP 8.4 or newer with the ``pdo_sqlite`` driver. With the ``sqlite3`` driver, the extension has to
+be located in the directory configured by the ``sqlite3.extension_dir`` php.ini setting:
+
+::
+
+    <?php
+    use Doctrine\DBAL\Configuration;
+    use Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\LoadExtension;
+
+    $configuration = (new Configuration())->setMiddlewares([
+        new LoadExtension('/usr/lib/x86_64-linux-gnu/mod_spatialite.so'),
+    ]);
+
+The metadata tables, virtual tables and spatial index tables of SpatiaLite are excluded from the
+schema introspection.
+
+The coordinates are stored and retrieved without loss of precision, except on Db2. Oracle and
+Db2 cannot bind or fetch their spatial objects: the type converts the values with SQL functions,
+which ``Connection::insert()``, ``Connection::update()``, ``Connection::delete()``, the query builder
+and the ORM apply automatically. In hand-written SQL, use ``Connection::convertToDatabaseValueSQL()``
+and ``Connection::convertToPHPValueSQL()``:
+
+::
+
+    <?php
+    $sql = 'SELECT ' . $connection->convertToPHPValueSQL('location', Types::GEOMETRY)
+        . ' FROM places WHERE id = ?';
+
+    $location = $connection->convertToPHPValue($connection->fetchOne($sql, [$id]), Types::GEOMETRY); On MySQL 8.0, the
+coordinates of geometries with a geographic SRID (e.g. 4326) are longitudes and latitudes
+in this order, as in all formats supported by ``Geometry``, even though MySQL's own
+WKT and WKB functions use the opposite axis order for such SRIDs.
+
+On PostgreSQL, the spatial indexes are GiST indexes. The indexes created with SQL with another
+access method (SP-GiST, BRIN) or operator class (e.g. ``gist_geometry_ops_nd``) are introspected
+as spatial indexes, so that the comparator keeps them.
+
+On PostgreSQL, the values of a column whose kind, dimension, SRID or type (``geometry`` or
+``geography``) changes are converted: the new SRID is assigned without transforming the
+coordinates (like ``UpdateGeometrySRID()``), the Z and M coordinates are added with 0 or removed,
+and single geometries become multi-geometries. The other platforms reject the existing values that
+do not fit the new declaration.
+
+geography
+^^^^^^^^^
+
+Maps and converts geographies, i.e. geometries whose coordinates are longitudes and latitudes, to
+``Doctrine\DBAL\Spatial\Geometry`` value objects, or ``null`` if no data is present. The values
+without SRID are given the SRID 4326 (WGS 84). The columns accept the same options as the
+columns of the ``geometry`` type.
+
+PostgreSQL and SQL Server declare ``geography`` columns, whose functions compute on the ellipsoid.
+The other platforms declare the same columns as for the ``geometry`` type, whose SRID defaults to
+4326 on the platforms that constrain it, so that these columns are introspected as ``geometry``
+columns.
+
+On SQL Server, the orientation of the polygons that would be larger than a hemisphere is
+reversed, since its ``geography`` type considers the polygons whose exterior ring is oriented
+clockwise as the rest of the globe.
+
 .. _mappingMatrix:
 
 Mapping Matrix
@@ -920,6 +1103,29 @@ At first, you override the ``convertToPhpValueSQL`` and
     {
         return 'MyFunction('.$sqlExpr.')';
     }
+
+``Connection::insert()``, ``Connection::update()``, ``Connection::delete()``,
+``QueryBuilder::createNamedParameter()`` and
+``QueryBuilder::createPositionalParameter()`` apply ``convertToDatabaseValueSQL()``
+to the placeholders of the parameters bound with your type. In hand-written SQL, apply
+the conversions with ``Connection::convertToDatabaseValueSQL()`` and
+``Connection::convertToPHPValueSQL()``:
+
+::
+
+    <?php
+    $sql = 'SELECT ' . $conn->convertToPHPValueSQL('p.price', 'money')
+        . ' FROM products p WHERE p.price > ' . $conn->convertToDatabaseValueSQL('?', 'money');
+
+    $price = $conn->convertToPHPValue($conn->fetchOne($sql, [$minimum], ['money']), 'money');
+
+The SQL returned by ``convertToDatabaseValueSQL()`` must use the given expression exactly
+once and must preserve ``NULL`` values, because it is applied to the placeholder of every
+value bound with the type.
+
+If the way your values have to be bound depends on the database platform, implement
+``Doctrine\DBAL\Types\PlatformAwareBindingType``: its ``getBindingTypeForPlatform()``
+method takes precedence over ``getBindingType()``.
 
 Then you have to register this type with the Doctrine Type system and
 hook it into the database platform:
