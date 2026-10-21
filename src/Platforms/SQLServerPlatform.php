@@ -9,16 +9,24 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
+use Doctrine\DBAL\Platforms\SQLServer\SpatialSerialization;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Platforms\SQLServer\SQLServerMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
+use Doctrine\DBAL\Spatial\GeometryKind;
+use Doctrine\DBAL\Spatial\SpatialRelation;
+use Doctrine\DBAL\Spatial\SpatialSetOperation;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -34,6 +42,8 @@ use function implode;
 use function is_array;
 use function is_bool;
 use function is_numeric;
+use function is_string;
+use function pack;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -41,9 +51,12 @@ use function str_contains;
 use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
+use function strtolower;
 use function strtoupper;
 use function substr;
 use function substr_count;
+use function ucfirst;
+use function var_export;
 
 use const PREG_OFFSET_CAPTURE;
 
@@ -344,6 +357,10 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function getCreateIndexSQL(Index $index, string $table): string
     {
+        if ($index->getType() === IndexType::SPATIAL) {
+            return $this->getCreateSpatialIndexSQL($index, $table);
+        }
+
         $constraint = parent::getCreateIndexSQL($index, $table);
 
         if ($index->isUnique() && ! $index->isPrimary()) {
@@ -367,6 +384,34 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return $type;
+    }
+
+    /**
+     * The tessellation depends on the type of the column, which only the database knows: geography columns take no
+     * bounding box, and the one of geometry columns defaults to the extent of the longitudes and latitudes. The
+     * tessellation is specified, since its default depends on the compatibility level of the database.
+     */
+    private function getCreateSpatialIndexSQL(Index $index, string $table): string
+    {
+        $boundingBox = $index->getBoundingBox() ?? new BoundingBox(-180, -90, 180, 90);
+        $indexSQL    = 'CREATE SPATIAL INDEX ' . $index->getQuotedName($this) . ' ON ' . $table
+            . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')';
+
+        return sprintf(
+            'IF TYPE_NAME((SELECT user_type_id FROM sys.columns WHERE object_id = OBJECT_ID(%s) AND name = %s))'
+                . " = 'geography' EXEC(%s) ELSE EXEC(%s)",
+            $this->quoteStringLiteral($table),
+            $this->quoteStringLiteral($index->getIndexedColumns()[0]->getColumnName()->getIdentifier()->getValue()),
+            $this->quoteStringLiteral($indexSQL . ' USING GEOGRAPHY_AUTO_GRID'),
+            $this->quoteStringLiteral(sprintf(
+                '%s USING GEOMETRY_AUTO_GRID WITH (BOUNDING_BOX = (%s, %s, %s, %s))',
+                $indexSQL,
+                var_export($boundingBox->getMinX(), true),
+                var_export($boundingBox->getMinY(), true),
+                var_export($boundingBox->getMaxX(), true),
+                var_export($boundingBox->getMaxY(), true),
+            )),
+        );
     }
 
     /**
@@ -1119,6 +1164,246 @@ class SQLServerPlatform extends AbstractPlatform
         return 'Y-m-d H:i:s.u P';
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * The kind, the dimension and the SRID are not enforced.
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        // the options are only validated
+        $this->getGeometryColumnOptions($column);
+
+        // lower case, since the type names are case-sensitive in case-sensitive databases
+        return 'geometry';
+    }
+
+    /**
+     * The value is the SRID (4-byte big-endian integer) followed by the WKB of the geometry, from which
+     * {@see convertGeometryToDatabaseValueSQL()} builds the geometry. The native format cannot be bound as is: SQL
+     * Server would trust its validity flag, which only a geometry engine can compute.
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): string
+    {
+        $extendedKind = $geometry->findExtendedKind();
+
+        if ($extendedKind !== null) {
+            throw InvalidGeometry::unsupportedKind('SQL Server', $extendedKind);
+        }
+
+        if (self::containsEmptyPoint($geometry)) {
+            throw InvalidGeometry::unsupportedEmptyPoint('SQL Server');
+        }
+
+        return pack('N', $geometry->getSrid()) . $geometry->asWkb();
+    }
+
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        // the scalar subquery references the parameter once, CASE preserves NULL values
+        return '(SELECT CASE WHEN v.b IS NULL THEN NULL'
+            . ' ELSE geometry::STGeomFromWKB(SUBSTRING(v.b, 5, 2147483647), CAST(SUBSTRING(v.b, 1, 4) AS int)) END'
+            . ' FROM (SELECT CAST(' . $sqlExpr . ' AS varbinary(max)) AS b) AS v)';
+    }
+
+    /**
+     * The value is the native serialization of the geometry, which is what selecting a geometry column returns.
+     */
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value)) {
+            throw InvalidGeometry::malformedSQLServerGeometry('expected a binary string');
+        }
+
+        return SpatialSerialization::decode($value);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The kind, the dimension and the SRID are not enforced.
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        // lower case, since the type names are case-sensitive in case-sensitive databases
+        return 'geography';
+    }
+
+    /**
+     * The geography type considers the polygons whose exterior ring is oriented clockwise as the rest of the globe:
+     * the orientation of the geographies larger than a hemisphere is reversed, as other databases do not support
+     * them.
+     */
+    public function convertGeographyToDatabaseValueSQL(string $sqlExpr): string
+    {
+        // the scalar subquery references the parameter once
+        return '(SELECT CASE WHEN w.g IS NULL THEN NULL WHEN w.g.EnvelopeAngle() > 90 THEN w.g.ReorientObject()'
+            . ' ELSE w.g END'
+            . ' FROM (SELECT CASE WHEN v.b IS NULL THEN NULL ELSE geography::STGeomFromWKB('
+            . 'SUBSTRING(v.b, 5, 2147483647), CAST(SUBSTRING(v.b, 1, 4) AS int)) END AS g'
+            . ' FROM (SELECT CAST(' . $sqlExpr . ' AS varbinary(max)) AS b) AS v) AS w)';
+    }
+
+    /**
+     * The value is the native serialization of the geography, which stores the latitudes first.
+     */
+    public function convertGeographyToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value)) {
+            throw InvalidGeometry::malformedSQLServerGeometry('expected a binary string');
+        }
+
+        return SpatialSerialization::decode($value, true);
+    }
+
+    public function getSpatialRelationExpression(
+        SpatialRelation $relation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        return '(' . $geometry1 . ').ST' . ucfirst(strtolower($relation->value)) . '(' . $geometry2 . ')';
+    }
+
+    public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return '(' . $geometry1 . ').STDistance(' . $geometry2 . ')';
+    }
+
+    public function getSpatialSetOperationExpression(
+        SpatialSetOperation $operation,
+        string $geometry1,
+        string $geometry2,
+    ): string {
+        return '(' . $geometry1 . ').' . match ($operation) {
+            SpatialSetOperation::DIFFERENCE => 'STDifference',
+            SpatialSetOperation::INTERSECTION => 'STIntersection',
+            SpatialSetOperation::SYMMETRIC_DIFFERENCE => 'STSymDifference',
+            SpatialSetOperation::UNION => 'STUnion',
+        } . '(' . $geometry2 . ')';
+    }
+
+    public function getSpatialBufferExpression(string $geometry, string $distance): string
+    {
+        return '(' . $geometry . ').STBuffer(' . $distance . ')';
+    }
+
+    public function getSpatialCentroidExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STCentroid()';
+    }
+
+    public function getSpatialConvexHullExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STConvexHull()';
+    }
+
+    public function getSpatialEnvelopeExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STEnvelope()';
+    }
+
+    public function getSpatialAreaExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STArea()';
+    }
+
+    public function getSpatialLengthExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STLength()';
+    }
+
+    public function getSpatialXExpression(string $point): string
+    {
+        return '(' . $point . ').STX';
+    }
+
+    public function getSpatialYExpression(string $point): string
+    {
+        return '(' . $point . ').STY';
+    }
+
+    public function getSpatialSridExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STSrid';
+    }
+
+    /**
+     * The kind is read from the WKB of the geometry, since STGeometryType() fails for invalid geometries.
+     */
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        return 'CASE CAST(SUBSTRING((' . $geometry . ").STAsBinary(), 2, 1) AS int) WHEN 1 THEN 'POINT'"
+            . " WHEN 2 THEN 'LINESTRING' WHEN 3 THEN 'POLYGON' WHEN 4 THEN 'MULTIPOINT' WHEN 5 THEN 'MULTILINESTRING'"
+            . " WHEN 6 THEN 'MULTIPOLYGON' WHEN 7 THEN 'GEOMETRYCOLLECTION' END";
+    }
+
+    public function getSpatialIsEmptyExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STIsEmpty()';
+    }
+
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        return '(' . $geometry . ').STIsValid()';
+    }
+
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return $this->getGeographySQL($geometry1) . '.STDistance(' . $this->getGeographySQL($geometry2) . ')';
+    }
+
+    public function getSpatialGeodesicAreaExpression(string $geometry): string
+    {
+        return $this->getGeographySQL($geometry) . '.STArea()';
+    }
+
+    public function getSpatialGeodesicLengthExpression(string $geometry): string
+    {
+        return $this->getGeographySQL($geometry) . '.STLength()';
+    }
+
+    /**
+     * Converts the geometry to a geography with the SRID 4326, whose methods compute on the WGS 84 ellipsoid. The
+     * geography type considers the polygons whose exterior ring is oriented clockwise as the rest of the globe, so the
+     * orientation of the geographies larger than a hemisphere is reversed. The scalar subquery references the geometry
+     * once.
+     */
+    private function getGeographySQL(string $geometry): string
+    {
+        return '(SELECT CASE WHEN w.geog.EnvelopeAngle() > 90 THEN w.geog.ReorientObject() ELSE w.geog END'
+            . ' FROM (SELECT geography::STGeomFromWKB(v.geom.STAsBinary(), 4326) AS geog'
+            . ' FROM (SELECT ' . $geometry . ' AS geom) AS v) AS w)';
+    }
+
+    private static function containsEmptyPoint(Geometry $geometry): bool
+    {
+        $kind = $geometry->getKind();
+
+        if ($kind === GeometryKind::POINT) {
+            return $geometry->isEmpty();
+        }
+
+        if ($kind === GeometryKind::MULTIPOINT) {
+            foreach ($geometry->getCoordinates() as $position) {
+                if ($position === []) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if ($kind === GeometryKind::GEOMETRYCOLLECTION) {
+            foreach ($geometry->getGeometries() as $member) {
+                if (self::containsEmptyPoint($member)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -1135,6 +1420,8 @@ class SQLServerPlatform extends AbstractPlatform
             'double'           => Types::FLOAT,
             'double precision' => Types::FLOAT,
             'float'            => Types::FLOAT,
+            'geography'        => Types::GEOGRAPHY,
+            'geometry'         => Types::GEOMETRY,
             'image'            => Types::BLOB,
             'int'              => Types::INTEGER,
             'money'            => Types::INTEGER,

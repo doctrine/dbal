@@ -6,6 +6,11 @@ on:
       php-version:
         required: true
         type: string
+      spatial:
+        description: 'Enables Db2 Spatial Analytics and requires the spatial tests to run'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   phpunit-db2:
@@ -58,11 +63,15 @@ jobs:
       - name: Create temporary tablespace
         run: docker exec "${{ job.services.db2.id }}" su - db2inst1 -c "db2 -t CONNECT TO doctrine; db2 -t CREATE USER TEMPORARY TABLESPACE doctrine_tbsp PAGESIZE 4 K"
 
+      - name: Enable Db2 Spatial Analytics
+        if: ${{ inputs.spatial }}
+        run: docker exec "${{ job.services.db2.id }}" su - db2inst1 -c "db2 CONNECT TO doctrine && db2 \"CALL SYSPROC.SYSINSTALLOBJECTS('GEO', 'C', CAST(NULL AS VARCHAR(128)), CAST(NULL AS VARCHAR(128)))\""
+
       - name: Run PHPUnit
-        run: vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml
+        run: vendor/bin/phpunit -c ci/github/phpunit/ibm_db2${{ inputs.spatial && '-spatial' || '' }}.xml --coverage-clover=coverage.xml
 
       - name: Upload coverage file
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.job }}-php-${{ inputs.php-version }}.coverage
+          name: ${{ github.job }}-php-${{ inputs.php-version }}${{ inputs.spatial && '-spatial' || '' }}.coverage
           path: coverage.xml

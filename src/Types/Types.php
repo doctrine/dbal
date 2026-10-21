@@ -27,6 +27,8 @@ final class Types
     public const NUMBER                 = 'number';
     public const FLOAT                  = 'float';
     public const ENUM                   = 'enum';
+    public const GEOGRAPHY              = 'geography';
+    public const GEOMETRY               = 'geometry';
     public const GUID                   = 'guid';
     public const INTEGER                = 'integer';
     public const JSON                   = 'json';

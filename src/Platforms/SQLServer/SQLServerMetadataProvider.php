@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Metadata\DatabaseMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ForeignKeyConstraintColumnMetadataRow;
@@ -33,6 +34,9 @@ use function str_replace;
 
 final readonly class SQLServerMetadataProvider implements MetadataProvider
 {
+    /** The value of sys.indexes.type for spatial indexes. */
+    private const SPATIAL_INDEX_TYPE = 4;
+
     /** @internal This class can be instantiated only by a database platform. */
     public function __construct(private Connection $connection, private SQLServerPlatform $platform)
     {
@@ -312,7 +316,11 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                    i.name,
                    i.is_unique,
                    i.type,
-                   c.name
+                   c.name,
+                   tsl.bounding_box_xmin,
+                   tsl.bounding_box_ymin,
+                   tsl.bounding_box_xmax,
+                   tsl.bounding_box_ymax
             FROM sys.tables AS t
                      JOIN sys.schemas AS s
                           ON t.schema_id = s.schema_id
@@ -324,6 +332,9 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                      JOIN sys.columns AS c
                           ON idxcol.object_id = c.object_id
                               AND idxcol.column_id = c.column_id
+                     LEFT JOIN sys.spatial_index_tessellations AS tsl
+                          ON i.object_id = tsl.object_id
+                              AND i.index_id = tsl.index_id
             WHERE %s
               AND i.is_primary_key = 0
             ORDER BY s.name,
@@ -335,15 +346,20 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            $isSpatial = (int) $row[4] === self::SPATIAL_INDEX_TYPE;
+
             yield new IndexColumnMetadataRow(
                 schemaName: $row[0],
                 tableName: $row[1],
                 indexName: $row[2],
-                type: $row[3] ? IndexType::UNIQUE : IndexType::REGULAR,
+                type: $isSpatial ? IndexType::SPATIAL : ($row[3] ? IndexType::UNIQUE : IndexType::REGULAR),
                 isClustered: (int) $row[4] === 1,
                 predicate: null,
                 columnName: $row[5],
                 columnLength: null,
+                boundingBox: $isSpatial && $row[6] !== null
+                    ? new BoundingBox((float) $row[6], (float) $row[7], (float) $row[8], (float) $row[9])
+                    : null,
             );
         }
     }

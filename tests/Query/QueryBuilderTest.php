@@ -647,6 +647,39 @@ class QueryBuilderTest extends TestCase
         self::assertEquals(ParameterType::INTEGER, $qb->getParameterType(0));
     }
 
+    public function testCreateParametersApplySQLConversionOfTypes(): void
+    {
+        $this->conn->method('convertToDatabaseValueSQL')
+            ->willReturnCallback(static fn (string $sqlExpr): string => 'LOWER(' . $sqlExpr . ')');
+
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.*')->from('users', 'u')->where(
+            $qb->expr()->eq('u.name', $qb->createNamedParameter('Foo', Types::STRING)),
+            $qb->expr()->eq('u.id', $qb->createNamedParameter(10, ParameterType::INTEGER)),
+            $qb->expr()->in('u.role', $qb->createNamedParameter(['a', 'b'], ArrayParameterType::STRING)),
+        );
+
+        self::assertSame(
+            'SELECT u.* FROM users u WHERE (u.name = LOWER(:dcValue1)) AND (u.id = :dcValue2)'
+                . ' AND (u.role IN (:dcValue3))',
+            (string) $qb,
+        );
+        self::assertSame('Foo', $qb->getParameter('dcValue1'));
+        self::assertSame(Types::STRING, $qb->getParameterType('dcValue1'));
+
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.*')->from('users', 'u')->where(
+            $qb->expr()->eq('u.name', $qb->createPositionalParameter('Foo', Types::STRING)),
+            $qb->expr()->eq('u.id', $qb->createPositionalParameter(10, ParameterType::INTEGER)),
+        );
+
+        self::assertSame('SELECT u.* FROM users u WHERE (u.name = LOWER(?)) AND (u.id = ?)', (string) $qb);
+        self::assertSame('Foo', $qb->getParameter(0));
+        self::assertSame(Types::STRING, $qb->getParameterType(0));
+    }
+
     public function testReferenceJoinFromJoin(): void
     {
         $qb = new QueryBuilder($this->conn);

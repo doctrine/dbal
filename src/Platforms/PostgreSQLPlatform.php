@@ -5,18 +5,26 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
+use Doctrine\DBAL\Platforms\PostgreSQL\GeometryTypeModifier;
 use Doctrine\DBAL\Platforms\PostgreSQL\PostgreSQLMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Spatial\Dimension;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\Geometry;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\GeographyType;
+use Doctrine\DBAL\Types\GeometryType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
@@ -24,7 +32,10 @@ use UnexpectedValueException;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function bin2hex;
+use function ctype_xdigit;
 use function explode;
+use function hex2bin;
 use function implode;
 use function in_array;
 use function is_array;
@@ -34,6 +45,7 @@ use function is_string;
 use function sprintf;
 use function str_contains;
 use function str_ends_with;
+use function strlen;
 use function strtolower;
 use function substr;
 use function trim;
@@ -264,6 +276,10 @@ class PostgreSQLPlatform extends AbstractPlatform
                 $query = 'ALTER ' . $newColumnName . ' TYPE ' . $newTypeSQLDeclaration;
                 if (! $typeChanged || $newCollation !== self::DEFAULT_COLLATION) {
                     $query .= ' ' . $this->getColumnCollationDeclarationSQL($newCollation);
+                }
+
+                if ($typeChanged) {
+                    $query .= $this->getSpatialColumnConversionSQL($oldColumn, $newColumn, $newColumnName);
                 }
 
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
@@ -739,6 +755,8 @@ class PostgreSQLPlatform extends AbstractPlatform
             'float'            => Types::FLOAT,
             'float4'           => Types::SMALLFLOAT,
             'float8'           => Types::FLOAT,
+            'geography'        => Types::GEOGRAPHY,
+            'geometry'         => Types::GEOMETRY,
             'inet'             => Types::STRING,
             'int'              => Types::INTEGER,
             'int2'             => Types::SMALLINT,
@@ -832,6 +850,202 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function getJsonbTypeDeclarationSQL(array $column): string
     {
         return 'JSONB';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Requires the PostGIS extension. The kind, the dimension and the SRID are enforced by the type modifier,
+     * e.g. geometry(PointZ,4326).
+     */
+    public function getGeometryTypeDeclarationSQL(array $column): string
+    {
+        return GeometryTypeModifier::render('geometry', ...$this->getGeometryColumnOptions($column));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Requires the PostGIS extension. The kind, the dimension and the SRID, which defaults to 4326, are enforced by
+     * the type modifier, e.g. geography(PointZ,4326).
+     */
+    public function getGeographyTypeDeclarationSQL(array $column): string
+    {
+        return GeometryTypeModifier::render(
+            'geography',
+            ...$this->getGeometryColumnOptions(self::getGeographicColumn($column)),
+        );
+    }
+
+    protected function supportsExtendedGeometryKinds(): bool
+    {
+        return true;
+    }
+
+    public function convertGeographyToDatabaseValueSQL(string $sqlExpr): string
+    {
+        return 'CAST(' . $sqlExpr . ' AS geography)';
+    }
+
+    /**
+     * The value is the hexadecimal EWKB of the geometry, which is a text input of PostGIS.
+     */
+    public function convertGeometryToDatabaseValue(Geometry $geometry): string
+    {
+        return bin2hex($geometry->asEwkb());
+    }
+
+    /**
+     * The value is the hexadecimal EWKB of the geometry, which is the text output of PostGIS.
+     */
+    public function convertGeometryToPHPValue(mixed $value): Geometry
+    {
+        if (! is_string($value) || strlen($value) % 2 !== 0 || ! ctype_xdigit($value)) {
+            throw InvalidGeometry::malformedWkb('expected hexadecimal EWKB');
+        }
+
+        return Geometry::fromWkb((string) hex2bin($value));
+    }
+
+    public function getGeometryBindingType(): ParameterType
+    {
+        return ParameterType::STRING;
+    }
+
+    /**
+     * Casts the value, so that PostgreSQL can choose between the geometry and geography variants of the functions it
+     * is passed to.
+     */
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        return 'CAST(' . $sqlExpr . ' AS geometry)';
+    }
+
+    /**
+     * The <-> operator computes the same distance as ST_Distance(), and lets ordering by the distance use the spatial
+     * index.
+     */
+    public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return '(' . $geometry1 . ' <-> ' . $geometry2 . ')';
+    }
+
+    public function getSpatialWithinDistanceExpression(string $geometry1, string $geometry2, string $distance): string
+    {
+        return 'ST_DWithin(' . $geometry1 . ', ' . $geometry2 . ', ' . $distance . ')';
+    }
+
+    /**
+     * ST_GeometryType() returns the name prefixed with "ST_", e.g. ST_Polygon.
+     */
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        return 'UPPER(SUBSTR(ST_GeometryType(' . $geometry . '), 4))';
+    }
+
+    public function getSpatialGeodesicDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return 'ST_Distance(' . $this->getGeographySQL($geometry1) . ', ' . $this->getGeographySQL($geometry2) . ')';
+    }
+
+    public function getSpatialGeodesicWithinDistanceExpression(
+        string $geometry1,
+        string $geometry2,
+        string $distance,
+    ): string {
+        return 'ST_DWithin(' . $this->getGeographySQL($geometry1) . ', ' . $this->getGeographySQL($geometry2)
+            . ', ' . $distance . ')';
+    }
+
+    public function getSpatialGeodesicAreaExpression(string $geometry): string
+    {
+        return 'ST_Area(' . $this->getGeographySQL($geometry) . ')';
+    }
+
+    public function getSpatialGeodesicLengthExpression(string $geometry): string
+    {
+        return 'ST_Length(' . $this->getGeographySQL($geometry) . ')';
+    }
+
+    /**
+     * Returns the USING clause that converts the values of a spatial column whose declaration changes, which PostGIS
+     * would reject otherwise: the SRID is assigned without transforming the coordinates (like UpdateGeometrySRID()),
+     * the Z and M coordinates are added or removed, the single geometries are converted to multi-geometries, and the
+     * values are cast between the geometry and geography types.
+     */
+    private function getSpatialColumnConversionSQL(Column $oldColumn, Column $newColumn, string $columnName): string
+    {
+        $oldType = $this->getColumnType($oldColumn);
+        $newType = $this->getColumnType($newColumn);
+
+        if (
+            ! ($oldType instanceof GeometryType || $oldType instanceof GeographyType)
+            || ! ($newType instanceof GeometryType || $newType instanceof GeographyType)
+        ) {
+            return '';
+        }
+
+        $oldOptions = $oldColumn->toArray(true);
+        $newOptions = $newColumn->toArray(true);
+
+        if ($oldType instanceof GeographyType) {
+            $oldOptions = self::getGeographicColumn($oldOptions);
+        }
+
+        if ($newType instanceof GeographyType) {
+            $newOptions = self::getGeographicColumn($newOptions);
+        }
+
+        [$oldKind, $oldDimension, $oldSrid] = $this->getGeometryColumnOptions($oldOptions);
+        [$newKind, $newDimension, $newSrid] = $this->getGeometryColumnOptions($newOptions);
+
+        // the values are converted as geometries, which the functions of PostGIS support
+        $sql = $oldType instanceof GeographyType ? 'CAST(' . $columnName . ' AS geometry)' : $columnName;
+
+        if ($newDimension !== null && $newDimension !== $oldDimension) {
+            $sql = match ($newDimension) {
+                Dimension::XY => 'ST_Force2D',
+                Dimension::XYZ => 'ST_Force3DZ',
+                Dimension::XYM => 'ST_Force3DM',
+                Dimension::XYZM => 'ST_Force4D',
+            } . '(' . $sql . ')';
+        }
+
+        if ($newKind !== null && $newKind !== $oldKind && $newKind->getMemberKind() !== null) {
+            $sql = 'ST_Multi(' . $sql . ')';
+        }
+
+        if ($newSrid !== null && $newSrid !== ($oldSrid ?? 0)) {
+            $sql = 'ST_SetSRID(' . $sql . ', ' . $newSrid . ')';
+        }
+
+        if ($newType instanceof GeographyType) {
+            $sql = 'CAST(' . $sql . ' AS geography)';
+        }
+
+        return $sql === $columnName || $sql === 'CAST(CAST(' . $columnName . ' AS geometry) AS geography)'
+            ? ''
+            : ' USING ' . $sql;
+    }
+
+    /**
+     * Casts the value to the geography type of PostGIS, whose functions compute on the ellipsoid: a geometry without
+     * SRID is located on the WGS 84 ellipsoid, and the cast of a geography is ignored, so that its index can be used.
+     */
+    private function getGeographySQL(string $geometry): string
+    {
+        return 'CAST(' . $geometry . ' AS geography)';
+    }
+
+    public function getCreateIndexSQL(Index $index, string $table): string
+    {
+        if ($index->getType() !== IndexType::SPATIAL) {
+            return parent::getCreateIndexSQL($index, $table);
+        }
+
+        return 'CREATE INDEX ' . $index->getQuotedName($this) . ' ON ' . $table
+            . ' USING GIST (' . implode(', ', $index->getQuotedColumns($this)) . ')'
+            . $this->getPartialIndexSQL($index);
     }
 
     public function createMetadataProvider(Connection $connection): PostgreSQLMetadataProvider

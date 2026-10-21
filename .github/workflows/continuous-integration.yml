@@ -71,6 +71,32 @@ jobs:
             extension: "pdo_sqlite"
             config-file-suffix: "-stringify_fetches"
 
+  phpunit-spatialite:
+    name: >
+      ${{ format('SQLite with SpatiaLite - PHP {0} - ext. {1}',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-sqlite.yml
+    with:
+      os: "ubuntu-24.04"
+      php-version: ${{ matrix.php-version }}
+      extension: ${{ matrix.extension }}
+      dependency-versions: "highest"
+      config-file-suffix: "-spatialite"
+      spatialite: true
+
+    strategy:
+      matrix:
+        # pdo_sqlite can only load extensions since PHP 8.4
+        php-version:
+          - "8.4"
+          - "8.5"
+        extension:
+          - "sqlite3"
+          - "pdo_sqlite"
+
   phpunit-oracle:
     name: >
       ${{ format('Oracle {0} - PHP {1} - ext. {2}',
@@ -152,6 +178,44 @@ jobs:
             postgres-version: "18"
             extension: "pdo_pgsql"
             config-file-suffix: "-stringify_fetches"
+
+  phpunit-postgis:
+    name: >
+      ${{ format('PostgreSQL {0} with PostGIS {1} - PHP {2} - ext. {3}',
+        matrix.postgres-version || 'Ø',
+        matrix.postgis-version || 'Ø',
+        matrix.php-version || 'Ø',
+        matrix.extension || 'Ø'
+      ) }}
+    needs: "phpunit-smoke-check"
+    uses: ./.github/workflows/phpunit-postgres.yml
+    with:
+      php-version: ${{ matrix.php-version }}
+      postgres-version: ${{ matrix.postgres-version }}
+      postgis-version: ${{ matrix.postgis-version }}
+      extension: ${{ matrix.extension }}
+      postgres-locale-provider: "libc"
+      config-file-suffix: "-postgis"
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.5"
+        postgres-version:
+          - "10"
+          - "18"
+        extension:
+          - "pgsql"
+          - "pdo_pgsql"
+        include:
+          - postgres-version: "10"
+            postgis-version: "3.2"
+          - postgres-version: "18"
+            postgis-version: "3.6"
+          - php-version: "8.2"
+            postgres-version: "15"
+            postgis-version: "3.6"
+            extension: "pdo_pgsql"
 
   phpunit-mariadb:
     name: >
@@ -286,11 +350,12 @@ jobs:
   phpunit-db2:
     name: >
       Db2 - 
-      ${{ matrix.php-version || 'Ø' }}
+      ${{ matrix.php-version || 'Ø' }}${{ matrix.spatial && ' - Spatial Analytics' || '' }}
     needs: "phpunit-smoke-check"
     uses: ./.github/workflows/phpunit-db2.yml
     with:
       php-version: ${{ matrix.php-version }}
+      spatial: ${{ matrix.spatial || false }}
 
     strategy:
       matrix:
@@ -298,6 +363,10 @@ jobs:
           - "8.2"
           # TODO: Running the tests on PHP 8.5 causes a seqfault. Switch as soon as this is fixed.
           - "8.4"
+        include:
+          # the PHP 8.2 job runs without spatial support
+          - php-version: "8.4"
+            spatial: true
 
   development-deps:
     name: >
@@ -339,8 +408,10 @@ jobs:
     if: "github.event.pull_request.head.repo.full_name != github.repository || !contains(github.event.pull_request.head.ref, '.x')"
     needs:
       - "phpunit-smoke-check"
+      - "phpunit-spatialite"
       - "phpunit-oracle"
       - "phpunit-postgres"
+      - "phpunit-postgis"
       - "phpunit-mariadb"
       - "phpunit-mysql"
       - "phpunit-mssql"

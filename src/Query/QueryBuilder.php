@@ -1525,9 +1525,14 @@ class QueryBuilder
      *
      * @link http://www.zetacomponents.org
      *
+     * If the parameter is bound with a DBAL mapping type that converts its values at the SQL level
+     * ({@see Type::convertToDatabaseValueSQL()}), the returned placeholder is wrapped accordingly.
+     *
      * @param string|null $placeHolder The name to bind with. The string must start with a colon ':'.
      *
-     * @return string the placeholder name used.
+     * @return string the placeholder to use in the query.
+     *
+     * @throws Exception
      */
     public function createNamedParameter(
         mixed $value,
@@ -1541,7 +1546,7 @@ class QueryBuilder
 
         $this->setParameter(substr($placeHolder, 1), $value, $type);
 
-        return $placeHolder;
+        return $this->convertPlaceholder($placeHolder, $type);
     }
 
     /**
@@ -1560,6 +1565,13 @@ class QueryBuilder
      *     ->where('u.username = ' . $qb->createPositionalParameter('Foo', ParameterType::STRING))
      *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', ParameterType::STRING))
      * </code>
+     *
+     * If the parameter is bound with a DBAL mapping type that converts its values at the SQL level
+     * ({@see Type::convertToDatabaseValueSQL()}), the returned placeholder is wrapped accordingly.
+     *
+     * @return string the placeholder to use in the query.
+     *
+     * @throws Exception
      */
     public function createPositionalParameter(
         mixed $value,
@@ -1568,7 +1580,23 @@ class QueryBuilder
         $this->setParameter($this->boundCounter, $value, $type);
         $this->boundCounter++;
 
-        return '?';
+        return $this->convertPlaceholder('?', $type);
+    }
+
+    /**
+     * Applies the SQL-level conversion of the DBAL mapping type a parameter is bound with to its placeholder.
+     *
+     * @throws Exception
+     */
+    private function convertPlaceholder(
+        string $placeholder,
+        string|ParameterType|Type|ArrayParameterType $type,
+    ): string {
+        if ($type instanceof ParameterType || $type instanceof ArrayParameterType) {
+            return $placeholder;
+        }
+
+        return $this->connection->convertToDatabaseValueSQL($placeholder, $type);
     }
 
     /**

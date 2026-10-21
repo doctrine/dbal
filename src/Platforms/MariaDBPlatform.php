@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDBKeywords;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -15,12 +16,50 @@ use function array_diff_key;
 use function array_merge;
 use function count;
 use function in_array;
+use function sprintf;
 
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB database platform of the oldest supported version.
  */
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
+    /**
+     * MariaDB only accepts strings with a binary collation as geometries in the arguments of spatial functions,
+     * while natively prepared parameters are strings with the connection collation.
+     */
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        return 'CAST(' . $sqlExpr . ' AS BINARY)';
+    }
+
+    /**
+     * ST_IsEmpty() returns 0 for the empty geometry collections, the only empty geometries of MariaDB.
+     */
+    public function getSpatialIsEmptyExpression(string $geometry): string
+    {
+        return 'ST_AsText(' . $geometry . ") LIKE '% EMPTY'";
+    }
+
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * ST_Distance() does not reset its NULL flag, so that a NULL argument makes the distances of the following rows
+     * NULL as well. The NULL arguments are replaced by points farther than any geometry, whose distances are mapped
+     * back to NULL.
+     */
+    public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return sprintf(
+            "NULLIF(LEAST(ST_Distance(COALESCE(%s, ST_GeomFromText('POINT(1e150 0)')),"
+                . " COALESCE(%s, ST_GeomFromText('POINT(-1e150 0)'))), 1e149), 1e149)",
+            $geometry1,
+            $geometry2,
+        );
+    }
+
     /**
      * Generate SQL snippets to reverse the aliasing of JSON to LONGTEXT.
      *

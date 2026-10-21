@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 
@@ -82,12 +83,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
     {
         $sql = sprintf(
             <<<'SQL'
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table'
+            SELECT t.name
+            FROM sqlite_master t
+            WHERE t.type = 'table'
               AND %s
             SQL,
-            $this->buildTableNamePredicate('name'),
+            $this->platform->getUserTablePredicateSQL('t'),
         );
 
         yield from $this->connection->iterateColumn($sql);
@@ -179,6 +180,8 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
 
         if ($dbType === 'char') {
             $editor->setFixed(true);
+        } elseif ($typeName === Types::GEOMETRY) {
+            $editor->setGeometryType(GeometryKind::fromName($dbType));
         }
 
         if (isset($matches[2])) {
@@ -744,7 +747,7 @@ SQL,
     {
         $conditions = [
             "t.type = 'table'",
-            $this->buildTableNamePredicate('t.name'),
+            $this->platform->getUserTablePredicateSQL('t'),
         ];
 
         if ($tableName !== null) {
@@ -806,10 +809,5 @@ SQL,
     public function getAllSequences(): iterable
     {
         throw NotSupported::new(__METHOD__);
-    }
-
-    private function buildTableNamePredicate(string $columnName): string
-    {
-        return sprintf("%s NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')", $columnName);
     }
 }

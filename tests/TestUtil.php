@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys;
+use Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\LoadExtension;
 use Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\OCI8\Middleware\InitializeSession;
 use Doctrine\DBAL\DriverManager;
@@ -163,7 +164,14 @@ class TestUtil
                 break;
             case 'pdo_sqlite':
             case 'sqlite3':
-                $configuration->setMiddlewares([new EnableForeignKeys()]);
+                $middlewares = [new EnableForeignKeys()];
+
+                // e.g. the path of SpatiaLite (mod_spatialite)
+                if (isset($GLOBALS['sqlite_extension'])) {
+                    $middlewares[] = new LoadExtension($GLOBALS['sqlite_extension']);
+                }
+
+                $configuration->setMiddlewares($middlewares);
                 break;
         }
 
