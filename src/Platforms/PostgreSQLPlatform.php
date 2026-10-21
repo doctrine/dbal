@@ -921,6 +921,15 @@ class PostgreSQLPlatform extends AbstractPlatform
         return 'CAST(' . $sqlExpr . ' AS geometry)';
     }
 
+    /**
+     * The <-> operator computes the same distance as ST_Distance(), and lets ordering by the distance use the spatial
+     * index.
+     */
+    public function getSpatialDistanceExpression(string $geometry1, string $geometry2): string
+    {
+        return '(' . $geometry1 . ' <-> ' . $geometry2 . ')';
+    }
+
     public function getSpatialWithinDistanceExpression(string $geometry1, string $geometry2, string $distance): string
     {
         return 'ST_DWithin(' . $geometry1 . ', ' . $geometry2 . ', ' . $distance . ')';

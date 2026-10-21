@@ -9,8 +9,11 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Spatial\Geometry;
@@ -21,6 +24,7 @@ use Doctrine\DBAL\Types\Types;
 use function array_combine;
 use function array_intersect_key;
 use function array_map;
+use function implode;
 use function in_array;
 use function round;
 use function strtolower;
@@ -155,6 +159,81 @@ final class SpatialExpressionTest extends SpatialTestCase
         ], $this->fetchNumbers(
             $this->connection->getDatabasePlatform()->getSpatialDistanceExpression('a', 'b'),
         ));
+    }
+
+    public function testNearestNeighbours(): void
+    {
+        $this->insertGeometries([
+            'far' => ['POINT(8 8)', null],
+            'nearest' => ['POINT(1 1)', null],
+            'null' => [null, null],
+            'near' => ['POINT(2 3)', null],
+        ]);
+
+        $platform = $this->connection->getDatabasePlatform();
+        $distance = $platform->getSpatialDistanceExpression(
+            'a',
+            $this->connection->convertToDatabaseValueSQL('?', Types::GEOMETRY),
+        );
+
+        self::assertSame(['nearest', 'near'], $this->connection->fetchFirstColumn(
+            $platform->modifyLimitQuery(
+                'SELECT name FROM geometry_expression_test WHERE ' . $distance . ' IS NOT NULL ORDER BY ' . $distance,
+                2,
+            ),
+            [Geometry::point(0, 0), Geometry::point(0, 0)],
+            [Types::GEOMETRY, Types::GEOMETRY],
+        ));
+    }
+
+    public function testNearestNeighboursUseTheIndexOnPostgreSQL(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof PostgreSQLPlatform) {
+            self::markTestSkipped('This test covers the plan of PostgreSQL.');
+        }
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('geometry_expression_test')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('a')
+                        ->setTypeName(Types::GEOMETRY)
+                        ->create(),
+                )
+                ->setIndexes(
+                    Index::editor()
+                        ->setUnquotedName('geometry_expression_test_a')
+                        ->setUnquotedColumnNames('a')
+                        ->setType(IndexType::SPATIAL)
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $distance = $platform->getSpatialDistanceExpression('a', "'POINT(1 2)'::geometry");
+
+        $this->connection->beginTransaction();
+
+        try {
+            $this->connection->executeStatement('SET LOCAL enable_seqscan = off');
+
+            $plan = $this->connection->fetchFirstColumn($platform->modifyLimitQuery(
+                'EXPLAIN SELECT id FROM geometry_expression_test WHERE ' . $distance . ' IS NOT NULL'
+                    . ' ORDER BY ' . $distance,
+                3,
+            ));
+        } finally {
+            $this->connection->rollBack();
+        }
+
+        self::assertStringContainsString('Index Scan using geometry_expression_test_a', implode("\n", $plan));
     }
 
     public function testWithinDistance(): void

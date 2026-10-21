@@ -1059,6 +1059,9 @@ abstract class AbstractPlatform
      * degrees for longitudes and latitudes), whatever the spatial reference system. The Z and M coordinates are
      * ignored.
      *
+     * Ordering rows by their distance to a geometry, with a limit, finds its nearest neighbours: PostgreSQL and
+     * SQL Server use the spatial index if the query also filters out the NULL distances, which SQL Server requires.
+     *
      * @param string $geometry1 SQL expression producing the first geometry.
      * @param string $geometry2 SQL expression producing the second geometry, with the same SRID.
      */
