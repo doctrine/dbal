@@ -106,11 +106,13 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                                 ON n.oid = c.relnamespace
             WHERE %s
               AND %s
+              AND %s
             ORDER BY n.nspname,
                      c.relname
             SQL,
             $this->buildNamespaceNamePredicate('n.nspname'),
             $this->buildTablePredicate('c.relkind', 'c.relname'),
+            $this->platform->getNotExtensionMemberSQLSnippet('n.nspname', 'c.relname'),
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
@@ -750,10 +752,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                    definition
             FROM pg_views
             WHERE %s
+              AND %s
             ORDER BY schemaname,
                      viewname
             SQL,
             $this->buildNamespaceNamePredicate('schemaname'),
+            $this->platform->getNotExtensionMemberSQLSnippet('schemaname', 'viewname'),
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
@@ -775,10 +779,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             FROM information_schema.sequences
             WHERE sequence_catalog = CURRENT_DATABASE()
               AND %s
+              AND %s
             ORDER BY sequence_schema,
                      sequence_name
             SQL,
             $this->buildNamespaceNamePredicate('sequence_schema'),
+            $this->platform->getNotExtensionMemberSQLSnippet('sequence_schema', 'sequence_name'),
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
