@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDBKeywords;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -29,6 +30,19 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
     {
         return 'CAST(' . $sqlExpr . ' AS BINARY)';
+    }
+
+    /**
+     * ST_IsEmpty() returns 0 for the empty geometry collections, the only empty geometries of MariaDB.
+     */
+    public function getSpatialIsEmptyExpression(string $geometry): string
+    {
+        return 'ST_AsText(' . $geometry . ") LIKE '% EMPTY'";
+    }
+
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

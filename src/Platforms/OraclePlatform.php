@@ -1070,6 +1070,35 @@ SQL,
         return '(SELECT v.Y FROM TABLE(SDO_UTIL.GETVERTICES(' . $point . ')) v WHERE v.ID = 1)';
     }
 
+    public function getSpatialGeometryTypeExpression(string $geometry): string
+    {
+        // the last two digits of SDO_GTYPE are the kind, the scalar subquery references the geometry once
+        return "(SELECT DECODE(MOD(s.g.SDO_GTYPE, 100), 1, 'POINT', 2, 'LINESTRING', 3, 'POLYGON',"
+            . " 4, 'GEOMETRYCOLLECTION', 5, 'MULTIPOINT', 6, 'MULTILINESTRING', 7, 'MULTIPOLYGON')"
+            . ' FROM (SELECT ' . $geometry . ' g FROM DUAL) s)';
+    }
+
+    /**
+     * Oracle represents empty geometries as NULL.
+     */
+    public function getSpatialIsEmptyExpression(string $geometry): string
+    {
+        return 'NVL2(' . $geometry . ', 0, NULL)';
+    }
+
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        // the function returns TRUE or the reason why the geometry is invalid, the scalar subquery references the
+        // geometry once
+        return sprintf(
+            "(SELECT CASE WHEN s.g IS NULL THEN NULL WHEN SDO_GEOM.VALIDATE_GEOMETRY_WITH_CONTEXT(%s, %s) = 'TRUE'"
+                . ' THEN 1 ELSE 0 END FROM (SELECT %s g FROM DUAL) s)',
+            $this->getPlanarGeometrySQL('s.g'),
+            self::SPATIAL_TOLERANCE,
+            $geometry,
+        );
+    }
+
     public function getSpatialSridExpression(string $geometry): string
     {
         // the SRID 0 is stored as NULL, the scalar subquery references the geometry once

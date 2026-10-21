@@ -20,6 +20,14 @@ use Doctrine\Deprecations\Deprecation;
 class MySQLPlatform extends AbstractMySQLPlatform
 {
     /**
+     * ST_IsValid() of MySQL 5.7 only accepts geometries with the SRID 0: the geometry is rebuilt from its WKB.
+     */
+    public function getSpatialIsValidExpression(string $geometry): string
+    {
+        return 'ST_IsValid(ST_GeomFromWKB(ST_AsBinary(' . $geometry . ')))';
+    }
+
+    /**
      * {@inheritDoc}
      *
      * Oracle MySQL does not support default values on TEXT/BLOB columns until 8.0.13.
