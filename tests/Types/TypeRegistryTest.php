@@ -9,12 +9,14 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Exception\TypeArgumentCountError;
 use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
+use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
 use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -31,6 +33,8 @@ use function sprintf;
 
 class TypeRegistryTest extends TestCase
 {
+    use VerifyDeprecations;
+
     private const TEST_TYPE_NAME       = 'test';
     private const OTHER_TEST_TYPE_NAME = 'other';
 
@@ -184,6 +188,37 @@ class TypeRegistryTest extends TestCase
     {
         $this->expectException(Exception::class);
         $this->registry->register(Types::STRING, new TextType());
+    }
+
+    public function testRegisterOverridesBuiltInGeometryType(): void
+    {
+        $replacement = new TextType();
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/7081');
+
+        $this->registry->register(Types::GEOMETRY, $replacement);
+
+        self::assertSame($replacement, $this->registry->get(Types::GEOMETRY));
+    }
+
+    public function testRegisterOverridesResolvedBuiltInGeometryType(): void
+    {
+        $this->registry->get(Types::GEOMETRY);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/7081');
+
+        $this->registry->register(Types::GEOMETRY, TextType::class);
+
+        self::assertInstanceOf(TextType::class, $this->registry->get(Types::GEOMETRY));
+    }
+
+    public function testRegisterOverriddenGeometryTypeThrows(): void
+    {
+        $this->registry->override(Types::GEOMETRY, new TextType());
+
+        $this->expectException(TypesAlreadyExists::class);
+
+        $this->registry->register(Types::GEOMETRY, new TextType());
     }
 
     public function testRegisterByClassNameInstantiatesLazily(): void

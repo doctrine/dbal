@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
 use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Exception\UnknownColumnType;
+use Doctrine\Deprecations\Deprecation;
 use Generator;
 use InvalidArgumentException;
 use IteratorAggregate;
@@ -21,6 +22,7 @@ use function array_key_exists;
 use function array_keys;
 use function array_search;
 use function get_debug_type;
+use function in_array;
 use function is_subclass_of;
 use function sprintf;
 
@@ -66,6 +68,12 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
         Types::TIME_MUTABLE           => TimeType::class,
         Types::TIME_IMMUTABLE         => TimeImmutableType::class,
     ];
+
+    /**
+     * The built-in types added in DBAL 4.6. Applications and libraries may have registered their own types with these
+     * names, which {@see register()} keeps allowing.
+     */
+    private const NEW_BUILTIN_TYPES = [Types::GEOMETRY];
 
     /** @var array<string, Type> Resolved type objects, keyed by type name. Doubles as the resolution cache. */
     private array $typeObjects = [];
@@ -191,7 +199,17 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
     public function register(string $name, string|Type $type): void
     {
         if ($this->has($name)) {
-            throw TypesAlreadyExists::new($name);
+            if (! $this->isNewBuiltInType($name)) {
+                throw TypesAlreadyExists::new($name);
+            }
+
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/7081',
+                'Registering a type named "%s" is deprecated, since DBAL provides a built-in type with this name.'
+                    . ' Override the built-in type instead.',
+                $name,
+            );
         }
 
         $this->set($name, $type);
@@ -303,6 +321,23 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
         }
 
         return $class;
+    }
+
+    /**
+     * Returns whether the name designates a built-in type added in DBAL 4.6 that has not been overridden.
+     */
+    private function isNewBuiltInType(string $name): bool
+    {
+        if (
+            ! in_array($name, self::NEW_BUILTIN_TYPES, true)
+            || array_key_exists($name, $this->typesMap)
+            || ($this->services?->has($name) ?? false)
+        ) {
+            return false;
+        }
+
+        return ! array_key_exists($name, $this->typeObjects)
+            || $this->typeObjects[$name]::class === self::BUILTIN_TYPES_MAP[$name];
     }
 
     private function findTypeName(Type $type): ?string
