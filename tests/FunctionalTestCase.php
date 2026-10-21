@@ -331,6 +331,27 @@ abstract class FunctionalTestCase extends TestCase
         );
     }
 
+    /**
+     * @param non-empty-string                  $needleName
+     * @param ?non-empty-string                 $needleQualifier
+     * @param iterable<OptionallyQualifiedName> $haystack
+     *
+     * @throws Exception
+     */
+    protected function assertOptionallyQualifiedNameListNotContainsUnquotedName(
+        string $needleName,
+        ?string $needleQualifier,
+        iterable $haystack,
+    ): void {
+        $needle = OptionallyQualifiedName::unquoted($needleName, $needleQualifier);
+
+        static::assertThat(
+            $haystack,
+            new LogicalNot($this->optionallyQualifiedNameListContains($needle)),
+            sprintf('The list contains the unquoted name "%s".', $needle->toString()),
+        );
+    }
+
     private function optionallyQualifiedNameListContains(OptionallyQualifiedName $needle): Callback
     {
         return self::callback(

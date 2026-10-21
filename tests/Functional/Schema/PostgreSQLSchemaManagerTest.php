@@ -716,6 +716,58 @@ SQL;
         );
     }
 
+    public function testDoesNotIntrospectTheObjectsOfExtensions(): void
+    {
+        $this->connection->executeStatement('DROP VIEW IF EXISTS extension_view');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS extension_table');
+        $this->connection->executeStatement('DROP SEQUENCE IF EXISTS extension_sequence');
+        $this->connection->executeStatement('CREATE EXTENSION IF NOT EXISTS pg_prewarm');
+
+        try {
+            $this->connection->executeStatement('CREATE TABLE extension_table (id SERIAL NOT NULL)');
+            $this->connection->executeStatement('CREATE SEQUENCE extension_sequence');
+            $this->connection->executeStatement('CREATE VIEW extension_view AS SELECT id FROM extension_table');
+
+            // the objects created by the script of an extension, e.g. PostGIS Topology, belong to the extension
+            foreach (
+                [
+                    'TABLE extension_table',
+                    'SEQUENCE extension_table_id_seq',
+                    'SEQUENCE extension_sequence',
+                    'VIEW extension_view',
+                ] as $object
+            ) {
+                $this->connection->executeStatement('ALTER EXTENSION pg_prewarm ADD ' . $object);
+            }
+
+            self::assertNotContains('extension_table', $this->schemaManager->listTableNames());
+            self::assertFalse($this->schemaManager->tableExists('extension_table'));
+            $this->assertOptionallyQualifiedNameListNotContainsUnquotedName(
+                'extension_table',
+                null,
+                $this->schemaManager->introspectTableNames(),
+            );
+
+            $schema = $this->schemaManager->introspectSchema();
+
+            foreach (['extension_table_id_seq', 'extension_sequence'] as $sequenceName) {
+                self::assertNull($this->findObjectByShortestName($this->schemaManager->listSequences(), $sequenceName));
+                self::assertNull(
+                    $this->findObjectByShortestName($this->schemaManager->introspectSequences(), $sequenceName),
+                );
+                self::assertFalse($schema->hasSequence($sequenceName));
+            }
+
+            self::assertNull($this->findObjectByShortestName($this->schemaManager->listViews(), 'extension_view'));
+            self::assertNull(
+                $this->findObjectByShortestName($this->schemaManager->introspectViews(), 'extension_view'),
+            );
+        } finally {
+            // drops the objects of the extension as well
+            $this->connection->executeStatement('DROP EXTENSION pg_prewarm');
+        }
+    }
+
     /** @return iterable<string, array{string, string, string}> */
     public static function autoIncrementTypeMigrations(): iterable
     {
