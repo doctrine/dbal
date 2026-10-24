@@ -38,7 +38,7 @@ final class Driver extends AbstractPostgreSQLDriver
         );
 
         try {
-            $connection = pg_connect($this->constructConnectionString($params), PGSQL_CONNECT_FORCE_NEW);
+            $connection = pg_connect(self::constructConnectionString($params), PGSQL_CONNECT_FORCE_NEW);
         } catch (ErrorException $e) {
             throw new Exception($e->getMessage(), '08006', 0, $e);
         } finally {
@@ -49,13 +49,7 @@ final class Driver extends AbstractPostgreSQLDriver
             throw new Exception('Unable to connect to Postgres server.');
         }
 
-        $driverConnection = new Connection($connection);
-
-        if (isset($params['application_name'])) {
-            $driverConnection->exec('SET application_name = ' . $driverConnection->quote($params['application_name']));
-        }
-
-        return $driverConnection;
+        return new Connection($connection);
     }
 
     /**
@@ -63,29 +57,39 @@ final class Driver extends AbstractPostgreSQLDriver
      *
      * @param array<string, mixed> $params
      */
-    private function constructConnectionString(
+    public static function constructConnectionString(
         #[SensitiveParameter]
         array $params,
     ): string {
+        $components = [
+            'host' => $params['host'] ?? null,
+            'hostaddr' => $params['hostaddr'] ?? null,
+            'port' => $params['port'] ?? null,
+            'dbname' => $params['dbname'] ?? null,
+            'user' => $params['user'] ?? null,
+            'password' => $params['password'] ?? null,
+            'sslmode' => $params['sslmode'] ?? null,
+            'gssencmode' => $params['gssencmode'] ?? null,
+            'application_name' => $params['application_name'] ?? null,
+        ];
+
+        // connection parameters take precedence to avoid BC break
+        foreach ($params['driverOptions'] ?? [] as $key => $value) {
+            $components[$key] ??= $value;
+        }
+
         // pg_connect used by Doctrine DBAL does not support [...] notation,
         // but requires the host address in plain form like `aa:bb:99...`
         $matches = [];
-        if (isset($params['host']) && preg_match('/^\[(.+)\]$/', $params['host'], $matches) === 1) {
-            $params['hostaddr'] = $matches[1];
-            unset($params['host']);
+        if (isset($components['host']) && preg_match('/^\[(.+)\]$/', $components['host'], $matches) === 1) {
+            $components['hostaddr'] = $matches[1];
+            $components['host']     = null;
         }
 
+        $components['dbname'] ??= 'postgres';
+
         $components = array_filter(
-            [
-                'host' => $params['host'] ?? null,
-                'hostaddr' => $params['hostaddr'] ?? null,
-                'port' => $params['port'] ?? null,
-                'dbname' => $params['dbname'] ?? 'postgres',
-                'user' => $params['user'] ?? null,
-                'password' => $params['password'] ?? null,
-                'sslmode' => $params['sslmode'] ?? null,
-                'gssencmode' => $params['gssencmode'] ?? null,
-            ],
+            $components,
             static fn (int|string|null $value) => $value !== '' && $value !== null,
         );
 

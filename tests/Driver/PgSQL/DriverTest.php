@@ -42,6 +42,61 @@ class DriverTest extends AbstractDriverTestCase
         $this->driver->connect($params);
     }
 
+    public function testDriverOptionsArePassedThroughToConnectionString(): void
+    {
+        $params = [
+            'dbname' => 'db',
+            'driverOptions' => [
+                'connect_timeout' => 5,
+                'keepalives_idle' => 30,
+                'options' => '-c search_path=foo',
+            ],
+        ];
+
+        self::assertSame(
+            "dbname='db' connect_timeout='5' keepalives_idle='30' options='-c search_path=foo'",
+            Driver::constructConnectionString($params),
+        );
+    }
+
+    public function testConnectionParamsTakePrecedenceOverDriverOptions(): void
+    {
+        $params = [
+            'dbname' => 'db',
+            'driverOptions' => ['dbname' => 'other'],
+        ];
+
+        self::assertSame("dbname='db'", Driver::constructConnectionString($params));
+    }
+
+    public function testIpv6HostFromDriverOptionsIsConvertedToHostaddr(): void
+    {
+        $params = [
+            'dbname' => 'db',
+            'driverOptions' => ['host' => '[::1]'],
+        ];
+
+        self::assertSame("hostaddr='::1' dbname='db'", Driver::constructConnectionString($params));
+    }
+
+    public function testApplicationNameFromParamsTakesPrecedenceOverDriverOptions(): void
+    {
+        $params = [
+            'dbname' => 'db',
+            'application_name' => 'app',
+            'driverOptions' => ['application_name' => 'other'],
+        ];
+
+        self::assertSame("dbname='db' application_name='app'", Driver::constructConnectionString($params));
+    }
+
+    public function testDbnameFromDriverOptionsIsUsedWhenNotInParams(): void
+    {
+        $params = ['driverOptions' => ['dbname' => 'other']];
+
+        self::assertSame("dbname='other'", Driver::constructConnectionString($params));
+    }
+
     protected function createDriver(): DriverInterface
     {
         return new Driver();
