@@ -30,6 +30,7 @@ jobs:
           SA_PASSWORD: Doctrine2018
           MSSQL_COLLATION: ${{ inputs.collation }}
         options: >-
+          --tmpfs /var/opt/mssql:mode=777
           --health-cmd "echo quit | /opt/mssql-tools18/bin/sqlcmd -C -S 127.0.0.1 -l 1 -U sa -P Doctrine2018"
 
     steps:
