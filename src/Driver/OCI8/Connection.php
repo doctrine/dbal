@@ -142,11 +142,13 @@ final class Connection implements ServerInfoAwareConnection
 
     public function commit(): bool
     {
-        if (! @oci_commit($this->connection)) {
-            throw Error::new($this->connection);
+        try {
+            if (! @oci_commit($this->connection)) {
+                throw Error::new($this->connection);
+            }
+        } finally {
+            $this->executionMode->enableAutoCommit();
         }
-
-        $this->executionMode->enableAutoCommit();
 
         return true;
     }
