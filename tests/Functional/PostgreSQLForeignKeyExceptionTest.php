@@ -26,9 +26,9 @@ class PostgreSQLForeignKeyExceptionTest extends FunctionalTestCase
         $this->connection->beginTransaction();
 
         try {
-            $this->connection->executeStatement('CREATE TEMP TABLE fk_exception_parent (id INT PRIMARY KEY)');
+            $this->connection->executeStatement('CREATE TABLE fk_exception_parent (id INT PRIMARY KEY)');
             $this->connection->executeStatement(sprintf(
-                'CREATE TEMP TABLE fk_exception_child '
+                'CREATE TABLE fk_exception_child '
                 . '(parent_id INT REFERENCES fk_exception_parent (id) ON DELETE %s ON UPDATE %s)',
                 $action,
                 $action,
