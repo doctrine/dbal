@@ -92,11 +92,13 @@ final class Connection implements ConnectionInterface
 
     public function commit(): void
     {
-        if (! @oci_commit($this->connection)) {
-            throw Error::new($this->connection);
+        try {
+            if (! @oci_commit($this->connection)) {
+                throw Error::new($this->connection);
+            }
+        } finally {
+            $this->executionMode->enableAutoCommit();
         }
-
-        $this->executionMode->enableAutoCommit();
     }
 
     public function rollBack(): void
