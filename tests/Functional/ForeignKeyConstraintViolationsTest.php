@@ -157,6 +157,10 @@ final class ForeignKeyConstraintViolationsTest extends FunctionalTestCase
     {
         $this->skipIfDeferrableIsNotSupported();
 
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
+            self::markTestIncomplete('PDO_OCI does not restore auto-commit mode after a failed commit');
+        }
+
         $this->connection->beginTransaction();
         $this->connection->executeStatement(sprintf('SET CONSTRAINTS "%s" DEFERRED', $this->constraintName));
         $this->connection->executeStatement('INSERT INTO test_t1 VALUES (1)');
