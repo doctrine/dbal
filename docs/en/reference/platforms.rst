@@ -117,3 +117,31 @@ all the different database vendors, for example MySQL BIGINT and
 Oracle NUMBER should be handled as integer. Doctrine DBAL offers a
 powerful way to abstract the database to php and back conversion,
 which is described in the next section.
+
+Splitting strings into arrays
+-----------------------------
+
+``getStringToArrayExpression()`` splits a string into an array of the substrings separated by a
+delimiter, like ``string_to_array()`` of PostgreSQL: a PostgreSQL array (``text[]``), or a JSON
+array on the other platforms, as stored by the ``json`` type. Its arguments are SQL expressions,
+which are referenced once each:
+
+::
+
+    <?php
+    $platform = $connection->getDatabasePlatform();
+
+    $sql = sprintf(
+        'SELECT %s FROM articles WHERE id = ?',
+        $platform->getStringToArrayExpression('tags', $platform->quoteStringLiteral(',')),
+    );
+
+    // ["php","sql"] on MySQL, {php,sql} on PostgreSQL
+    $tags = $connection->fetchOne($sql, [$id]);
+
+The delimiter is compared character by character, whatever the collation. An empty string gives
+an empty array, and an empty delimiter an array containing the whole string. The result is
+``NULL`` if an argument is ``NULL``, except that PostgreSQL splits the string into its characters
+if the delimiter is ``NULL``, and that Oracle does not distinguish the empty string from ``NULL``.
+The JSON arrays are CLOBs on Oracle and Db2. SQLite requires its JSON functions, which are built
+in as of SQLite 3.38.

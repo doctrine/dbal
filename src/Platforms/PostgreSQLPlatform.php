@@ -126,6 +126,11 @@ class PostgreSQLPlatform extends AbstractPlatform
         return 'CURRENT_DATABASE()';
     }
 
+    public function getStringToArrayExpression(string $string, string $delimiter): string
+    {
+        return 'string_to_array(' . $string . ', ' . $delimiter . ')';
+    }
+
     public function supportsSequences(): bool
     {
         return true;

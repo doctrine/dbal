@@ -27,6 +27,7 @@ use function count;
 use function current;
 use function explode;
 use function implode;
+use function range;
 use function sprintf;
 use function str_contains;
 
@@ -546,6 +547,29 @@ class DB2Platform extends AbstractPlatform
     public function getCurrentDatabaseExpression(): string
     {
         return 'CURRENT_USER';
+    }
+
+    /**
+     * The JSON array is a CLOB. The string is converted to a CLOB, since Db2 considers the untyped parameter markers of
+     * REPLACE() as VARCHAR(254). JSON_ARRAY() encloses NULL in [null], which no string gives.
+     */
+    public function getStringToArrayExpression(string $string, string $delimiter): string
+    {
+        return 'NULLIF(' . $this->getStringToJsonArrayExpression(
+            'CAST(' . $string . ' AS CLOB(2G))',
+            $delimiter,
+            static function (string $string): string {
+                $array = 'JSON_ARRAY(' . $string . ' NULL ON NULL RETURNING CLOB)';
+
+                // JSON_ARRAY() only escapes the backspace, tab, line feed, form feed and carriage return among the
+                // control characters, and rejects NUL (CHR(0) is a space)
+                foreach ([...range(1, 7), 11, ...range(14, 31)] as $code) {
+                    $array = sprintf("REPLACE(%s, CHR(%d), '\\u%04x')", $array, $code, $code);
+                }
+
+                return $array;
+            },
+        ) . ", '[null]')";
     }
 
     public function supportsIdentityColumns(): bool

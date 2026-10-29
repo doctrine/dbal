@@ -819,6 +819,81 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet that splits a string into an array of the substrings separated by a delimiter, like
+     * string_to_array() of PostgreSQL.
+     *
+     * The delimiter is searched from left to right and compared character by character, whatever the collation. An
+     * empty string gives an empty array, and an empty delimiter an array containing the whole string. The snippet
+     * evaluates to NULL if the string or the delimiter is NULL, except on PostgreSQL, which splits the string into its
+     * characters if the delimiter is NULL, and on Oracle, where empty strings are NULL.
+     *
+     * PostgreSQL returns a text[] array, the other platforms a JSON array of strings, as stored by the json type.
+     *
+     * @param string $string    SQL expression producing the string.
+     * @param string $delimiter SQL expression producing the delimiter.
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    public function getStringToArrayExpression(string $string, string $delimiter): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL snippet that splits a string into a JSON array of strings, for the platforms representing arrays
+     * as JSON.
+     *
+     * The string is split by REPLACE(), which needs no iteration: the backslashes and the double quotes of the string
+     * and of the delimiter are escaped as in JSON strings, then the escaped delimiter is replaced with "," which ends a
+     * JSON string and starts the next one. Since every backslash of the escaped string starts an escape sequence,
+     * REPLACE(), which searches from left to right, only finds the escaped delimiter where the string contains the
+     * delimiter.
+     *
+     * The escaped backslashes are then written \u005c, so that no backslash precedes the double quotes delimiting the
+     * strings, and the result is enclosed in a JSON array by the database, which escapes the control characters and
+     * escapes the backslashes and the double quotes once more, which is undone.
+     *
+     * Each expression is referenced once.
+     *
+     * @param string                   $string      SQL expression producing the string.
+     * @param string                   $delimiter   SQL expression producing the delimiter.
+     * @param callable(string): string $toJsonArray Returns the SQL snippet that encloses a string in a JSON array.
+     */
+    protected function getStringToJsonArrayExpression(string $string, string $delimiter, callable $toJsonArray): string
+    {
+        $escape = fn (string $expression): string => $this->getStringReplaceExpression(
+            $this->getStringReplaceExpression($expression, '\\', '\\\\'),
+            '"',
+            '\\"',
+        );
+
+        $array = $toJsonArray($this->getStringReplaceExpression(
+            'REPLACE(' . $escape($string) . ', ' . $escape($delimiter) . ', ' . $this->quoteStringLiteral('","') . ')',
+            '\\\\',
+            '\\u005c',
+        ));
+
+        return $this->getStringReplaceExpression(
+            $this->getStringReplaceExpression($this->getStringReplaceExpression($array, '\\\\', '\\'), '\\"', '"'),
+            '[""]',
+            '[]',
+        );
+    }
+
+    /**
+     * Returns the SQL snippet that replaces the occurrences of a substring in a string.
+     *
+     * @param string $string      SQL expression producing the string.
+     * @param string $search      The substring.
+     * @param string $replacement The replacement of the substring.
+     */
+    private function getStringReplaceExpression(string $string, string $search, string $replacement): string
+    {
+        return 'REPLACE(' . $string . ', ' . $this->quoteStringLiteral($search) . ', '
+            . $this->quoteStringLiteral($replacement) . ')';
+    }
+
+    /**
      * Returns the SQL expression which represents the currently selected database.
      */
     abstract public function getCurrentDatabaseExpression(): string;

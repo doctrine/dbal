@@ -119,6 +119,15 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'CHAR_LENGTH(' . $string . ')';
     }
 
+    public function getStringToArrayExpression(string $string, string $delimiter): string
+    {
+        return $this->getStringToJsonArrayExpression(
+            $string,
+            $delimiter,
+            fn (string $string): string => $this->getConcatExpression("'['", 'JSON_QUOTE(' . $string . ')', "']'"),
+        );
+    }
+
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {

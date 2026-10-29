@@ -129,6 +129,19 @@ class OraclePlatform extends AbstractPlatform
                 . '+' . $value2 . ')';
     }
 
+    /**
+     * The JSON array is a CLOB. The scalar subquery references each expression once, and evaluates to NULL if the
+     * string is NULL, which JSON_ARRAY() would omit.
+     */
+    public function getStringToArrayExpression(string $string, string $delimiter): string
+    {
+        return '(SELECT CASE WHEN a.s IS NULL THEN NULL ELSE ' . $this->getStringToJsonArrayExpression(
+            'TO_CLOB(a.s)',
+            'a.d',
+            static fn (string $string): string => 'JSON_ARRAY(' . $string . ' RETURNING CLOB)',
+        ) . ' END FROM (SELECT ' . $string . ' AS s, ' . $delimiter . ' AS d FROM DUAL) a)';
+    }
+
     /** @deprecated */
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
