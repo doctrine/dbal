@@ -824,6 +824,26 @@ abstract class AbstractPlatform
     abstract public function getCurrentDatabaseExpression(): string;
 
     /**
+     * Returns the SQL snippet that tests whether two arrays have an element in common, like the && operator of
+     * PostgreSQL.
+     *
+     * The arrays are PostgreSQL arrays, such as text[], or JSON arrays on the other platforms, such as stored by the
+     * json type. Their elements are compared exactly, whatever the collation, as JSON values on the platforms other
+     * than PostgreSQL (a string is never equal to a number), and NULL elements are never in common. The snippet
+     * evaluates to a boolean as represented by the platform (see {@see convertBooleans()}), or to NULL if an array is
+     * NULL.
+     *
+     * @param string $array1 SQL expression producing the first array.
+     * @param string $array2 SQL expression producing the second array.
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
      * Honors that some SQL vendors such as MsSql use table hints for locking instead of the
      * ANSI SQL FOR UPDATE specification.
      *

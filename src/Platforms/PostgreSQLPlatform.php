@@ -121,6 +121,11 @@ class PostgreSQLPlatform extends AbstractPlatform
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
     }
 
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        return '(' . $array1 . ' && ' . $array2 . ')';
+    }
+
     public function getCurrentDatabaseExpression(): string
     {
         return 'CURRENT_DATABASE()';

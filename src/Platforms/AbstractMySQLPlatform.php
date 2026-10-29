@@ -93,6 +93,22 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
+    /**
+     * Requires JSON_TABLE(), which MySQL 8.0 and MariaDB 10.6 support. The arrays are concatenated into a JSON array,
+     * which references each expression once and gives no row if an array is NULL. The elements are compared by their
+     * JSON types and their unescaped values, since the JSON functions of MariaDB compare the escaped strings.
+     */
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        $columns = "j JSON PATH '$', v LONGTEXT PATH '$'";
+
+        return '(SELECT CASE WHEN COUNT(*) = 0 THEN NULL ELSE COALESCE(MAX(JSON_TYPE(x.j) = JSON_TYPE(y.j)'
+            . ' AND CAST(x.v AS BINARY) = CAST(y.v AS BINARY)), 0) END'
+            . ' FROM JSON_TABLE(' . $this->getConcatExpression("'['", $array1, "','", $array2, "']'") . ", '$'"
+            . " COLUMNS (b JSON PATH '$[1]', NESTED PATH '$[0][*]' COLUMNS (" . $columns . '))) x'
+            . " LEFT JOIN JSON_TABLE(x.b, '$[*]' COLUMNS (" . $columns . ')) y ON TRUE)';
+    }
+
     protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,

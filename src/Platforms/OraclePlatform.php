@@ -112,6 +112,21 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('TRUNC(%s) - TRUNC(%s)', $date1, $date2);
     }
 
+    /**
+     * The scalar subquery references each expression once. The elements are compared as JSON texts, wrapped in arrays
+     * since Oracle 18c does not return JSON scalars, and as CLOBs, whose length is not limited.
+     */
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        $elements = static fn (string $array): string => 'JSON_TABLE(' . $array
+            . ", '$[*]' COLUMNS (e CLOB FORMAT JSON WITH WRAPPER PATH '$'))";
+
+        return '(SELECT CASE WHEN o.a IS NULL OR o.b IS NULL THEN NULL WHEN EXISTS (SELECT 1 FROM '
+            . $elements('o.a') . ' x JOIN ' . $elements('o.b') . ' y ON DBMS_LOB.COMPARE(x.e, y.e) = 0'
+            . " WHERE DBMS_LOB.COMPARE(x.e, TO_CLOB('[null]')) <> 0) THEN 1 ELSE 0 END"
+            . ' FROM (SELECT ' . $array1 . ' AS a, ' . $array2 . ' AS b FROM DUAL) o)';
+    }
+
     public function getBitAndComparisonExpression(string $value1, string $value2): string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';

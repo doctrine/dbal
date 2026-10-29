@@ -883,6 +883,19 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
+    /**
+     * The derived table references each expression once. The values are compared with a binary collation, and by
+     * their lengths, since the comparison ignores the trailing spaces.
+     */
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        return '(SELECT CASE WHEN o.a IS NULL OR o.b IS NULL THEN NULL WHEN EXISTS (SELECT 1 FROM OPENJSON(o.a) x'
+            . ' JOIN OPENJSON(o.b) y ON x.[type] = y.[type]'
+            . ' AND x.[value] = y.[value] COLLATE Latin1_General_100_BIN2'
+            . ' AND DATALENGTH(x.[value]) = DATALENGTH(y.[value]) WHERE x.[type] <> 0) THEN 1 ELSE 0 END'
+            . ' FROM (SELECT ' . $array1 . ' AS a, ' . $array2 . ' AS b) o)';
+    }
+
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {

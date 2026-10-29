@@ -45,6 +45,14 @@ class MySQLPlatform extends AbstractMySQLPlatform
     }
 
     /**
+     * MySQL 5.7 has no JSON_TABLE().
+     */
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
