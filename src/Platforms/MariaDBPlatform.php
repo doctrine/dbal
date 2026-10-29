@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDBKeywords;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -56,6 +57,14 @@ class MariaDBPlatform extends AbstractMySQLPlatform
                 $tableAlias.DATA_TYPE
             )
         SQL;
+    }
+
+    /**
+     * MariaDB 10.5 has no JSON_TABLE().
+     */
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

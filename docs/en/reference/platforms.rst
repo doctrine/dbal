@@ -117,3 +117,32 @@ all the different database vendors, for example MySQL BIGINT and
 Oracle NUMBER should be handled as integer. Doctrine DBAL offers a
 powerful way to abstract the database to php and back conversion,
 which is described in the next section.
+
+Testing whether arrays overlap
+------------------------------
+
+``getArraysOverlapExpression()`` tests whether two arrays have an element in common, like the
+``&&`` operator of PostgreSQL. The arrays are PostgreSQL arrays, such as ``text[]``, or JSON
+arrays on the other platforms, such as stored by the ``json`` type. Its arguments are SQL
+expressions, which are referenced once each, and the test evaluates to a boolean as represented
+by the platform, which can be compared with ``AbstractPlatform::convertBooleans(true)``:
+
+::
+
+    <?php
+    $platform = $connection->getDatabasePlatform();
+
+    $sql = sprintf(
+        'SELECT title FROM articles WHERE %s = %s',
+        $platform->getArraysOverlapExpression('tags', '?'),
+        $platform->convertBooleans(true),
+    );
+
+    // a JSON array, or an array literal such as {php,sql} on PostgreSQL
+    $titles = $connection->fetchFirstColumn($sql, ['["php","sql"]']);
+
+The elements are compared exactly, whatever the collation, as JSON values on the platforms other
+than PostgreSQL, so that a string is never equal to a number, and ``NULL`` elements are never in
+common. The test evaluates to ``NULL`` if an array is ``NULL``. It requires MySQL 8.0 or MariaDB
+10.6, and the JSON functions of SQLite, which are built in as of SQLite 3.38. It is not
+supported on Db2, which cannot iterate over the elements of a JSON array.

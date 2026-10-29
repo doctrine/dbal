@@ -151,6 +151,17 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
+     * Requires the JSON functions of SQLite, which are built in as of SQLite 3.38. The derived table references each
+     * expression once.
+     */
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        return '(SELECT CASE WHEN o.a IS NULL OR o.b IS NULL THEN NULL ELSE EXISTS (SELECT 1 FROM json_each(o.a) x'
+            . ' JOIN json_each(o.b) y ON x.type = y.type AND x.value = y.value) END'
+            . ' FROM (SELECT ' . $array1 . ' AS a, ' . $array2 . ' AS b) o)';
+    }
+
+    /**
      * {@inheritDoc}
      *
      * The DBAL doesn't support databases on the SQLite platform. The expression here always returns a fixed string

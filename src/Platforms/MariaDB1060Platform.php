@@ -17,4 +17,9 @@ class MariaDB1060Platform extends MariaDB1052Platform
     {
         return AbstractPlatform::createSelectSQLBuilder();
     }
+
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        return AbstractMySQLPlatform::getArraysOverlapExpression($array1, $array2);
+    }
 }

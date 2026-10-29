@@ -38,4 +38,9 @@ class MySQL80Platform extends MySQLPlatform
     {
         return AbstractPlatform::createWithSQLBuilder();
     }
+
+    public function getArraysOverlapExpression(string $array1, string $array2): string
+    {
+        return AbstractMySQLPlatform::getArraysOverlapExpression($array1, $array2);
+    }
 }
