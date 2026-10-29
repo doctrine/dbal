@@ -37,6 +37,7 @@ final class ExceptionConverter implements ExceptionConverterInterface
             case 1008:
                 return new DatabaseDoesNotExist($exception, $query);
 
+            case 1020:
             case 1213:
                 return new DeadlockException($exception, $query);
 
