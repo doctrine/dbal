@@ -286,13 +286,7 @@ class ExceptionTest extends FunctionalTestCase
             $this->expectException(Exception\DeadlockException::class);
             $this->expectExceptionCode(1020);
 
-            try {
-                $connection->update('snapshot_isolation_table', ['val' => 3], ['id' => 1]);
-            } catch (Exception\RetryableException $e) {
-                self::assertInstanceOf(Exception\DeadlockException::class, $e);
-
-                throw $e;
-            }
+            $connection->update('snapshot_isolation_table', ['val' => 3], ['id' => 1]);
         } finally {
             $connection->close();
         }
