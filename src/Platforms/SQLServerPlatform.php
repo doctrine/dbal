@@ -908,6 +908,30 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DB_NAME()';
     }
 
+    /**
+     * The result has the default collation of the database: the sqlsrv driver would encode the next parameters with
+     * the code page of the binary collation after fetching a long result with it.
+     */
+    public function getStringToArrayExpression(string $string, string $delimiter): string
+    {
+        return $this->getStringToJsonArrayExpression(
+            $this->getBinaryStringExpression($string),
+            $this->getBinaryStringExpression($delimiter),
+            static fn (string $string): string => "'[\"' + STRING_ESCAPE(" . $string . ", 'json') + '\"]'",
+        ) . ' COLLATE DATABASE_DEFAULT';
+    }
+
+    /**
+     * Returns the SQL snippet that converts a string to a Unicode string with a binary collation, so that its
+     * characters are compared by their code points, whatever the collation of the database.
+     *
+     * @param string $string SQL expression producing the string.
+     */
+    private function getBinaryStringExpression(string $string): string
+    {
+        return 'CAST(' . $string . ' AS NVARCHAR(MAX)) COLLATE Latin1_General_100_BIN2';
+    }
+
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);

@@ -164,6 +164,19 @@ class SQLitePlatform extends AbstractPlatform
         return "'main'";
     }
 
+    /**
+     * Requires the JSON functions of SQLite, which are built in as of SQLite 3.38. json_array() encloses NULL in
+     * [null], which no string gives.
+     */
+    public function getStringToArrayExpression(string $string, string $delimiter): string
+    {
+        return 'NULLIF(' . $this->getStringToJsonArrayExpression(
+            $string,
+            $delimiter,
+            static fn (string $string): string => 'json_array(' . $string . ')',
+        ) . ", '[null]')";
+    }
+
     /** @link https://www2.sqlite.org/cvstrac/wiki?p=UnsupportedSql */
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {
