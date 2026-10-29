@@ -4,11 +4,13 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use Throwable;
 
@@ -249,6 +251,51 @@ class ExceptionTest extends FunctionalTestCase
         $sql = 'SELECT id FRO syntax_error_table';
         $this->expectException(Exception\SyntaxErrorException::class);
         $this->connection->executeQuery($sql);
+    }
+
+    public function testDeadlockExceptionOnSnapshotIsolationConflict(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('Restricted to MySQL and MariaDB.');
+        }
+
+        if ($this->connection->fetchOne("SHOW VARIABLES LIKE 'innodb_snapshot_isolation'") === false) {
+            self::markTestSkipped('Requires a MariaDB version with innodb_snapshot_isolation.');
+        }
+
+        $table = new Table('snapshot_isolation_table');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('val', Types::INTEGER);
+        $table->setPrimaryKey(['id']);
+
+        $this->dropAndCreateTable($table);
+
+        $this->connection->insert('snapshot_isolation_table', ['id' => 1, 'val' => 1]);
+
+        $connection = DriverManager::getConnection(TestUtil::getConnectionParams());
+
+        try {
+            $connection->executeStatement('SET SESSION innodb_snapshot_isolation = ON');
+            $connection->setTransactionIsolation(TransactionIsolationLevel::REPEATABLE_READ);
+
+            $connection->beginTransaction();
+            $connection->fetchOne('SELECT val FROM snapshot_isolation_table WHERE id = 1');
+
+            $this->connection->update('snapshot_isolation_table', ['val' => 2], ['id' => 1]);
+
+            $this->expectException(Exception\DeadlockException::class);
+            $this->expectExceptionCode(1020);
+
+            try {
+                $connection->update('snapshot_isolation_table', ['val' => 3], ['id' => 1]);
+            } catch (Exception\RetryableException $e) {
+                self::assertInstanceOf(Exception\DeadlockException::class, $e);
+
+                throw $e;
+            }
+        } finally {
+            $connection->close();
+        }
     }
 
     public function testConnectionExceptionSqLite(): void
