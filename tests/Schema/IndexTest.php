@@ -46,6 +46,14 @@ class IndexTest extends TestCase
             ->setUnquotedColumnNames('USER_ID')
             ->create();
 
+        $otherColumnIndex = $regularIndex->edit()
+            ->setUnquotedColumnNames('account_id')
+            ->create();
+
+        $twoColumnIndex = $regularIndex->edit()
+            ->setUnquotedColumnNames('user_id', 'account_id')
+            ->create();
+
         yield 'regular-by-regular' => [$regularIndex, $regularIndex, true];
         yield 'regular-by-unique' => [$regularIndex, $uniqueIndex, true];
         yield 'unique-by-regular' => [$uniqueIndex, $regularIndex, false];
@@ -56,6 +64,9 @@ class IndexTest extends TestCase
         yield 'partial-by-partial' => [$regularIndex, $upperCaseIndex, true];
 
         yield 'upper-case-by-lower-case' => [$upperCaseIndex, $regularIndex, true];
+
+        yield 'different-column' => [$regularIndex, $otherColumnIndex, false];
+        yield 'different-column-count' => [$regularIndex, $twoColumnIndex, false];
     }
 
     /**

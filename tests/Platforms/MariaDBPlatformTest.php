@@ -81,7 +81,7 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
     {
         return [
             'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, `foo` VARCHAR(255) NOT NULL, '
-                . '`bar` VARCHAR(255) NOT NULL, INDEX `IDX_22660D028FD6E0FB8C73652176FF8CAA` (`create`, `foo`, `bar`))',
+                . '`bar` VARCHAR(255) NOT NULL)',
             'ALTER TABLE `quoted` ADD CONSTRAINT `FK_WITH_RESERVED_KEYWORD` FOREIGN KEY (`create`, `foo`, `bar`)'
                 . ' REFERENCES `foreign` (`create`, `bar`, `foo-bar`) ON UPDATE NO ACTION ON DELETE NO ACTION',
             'ALTER TABLE `quoted` ADD CONSTRAINT `FK_WITH_NON_RESERVED_KEYWORD` FOREIGN KEY (`create`, `foo`, `bar`)'

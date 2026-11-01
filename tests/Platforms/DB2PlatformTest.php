@@ -73,7 +73,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             . ' REFERENCES "FOO" ("CREATE", "BAR", "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT "FK_WITH_INTENDED_QUOTATION" FOREIGN KEY ("CREATE", "FOO", "bar")'
             . ' REFERENCES "foo-bar" ("CREATE", "BAR", "foo-bar")',
-            'CREATE INDEX "IDX_22660D028FD6E0FB8C73652176FF8CAA" ON "quoted" ("CREATE", "FOO", "bar")',
         ];
     }
 
@@ -200,7 +199,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
                     . ' REFERENCES "FOREIGN_TABLE" ("PK_1", "PK_2")',
                 'ALTER TABLE "TEST" ADD CONSTRAINT "NAMED_FK" FOREIGN KEY ("FK_1", "FK_2")'
                     . ' REFERENCES "FOREIGN_TABLE2" ("PK_1", "PK_2")',
-                'CREATE INDEX "IDX_D87F7E0C177612A38E7F4319" ON "TEST" ("FK_1", "FK_2")',
             ],
             $this->platform->getCreateTableSQL($table),
         );

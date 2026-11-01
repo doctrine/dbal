@@ -8,6 +8,12 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: No index is created for a foreign key constraint
+
+Declaring a foreign key constraint no longer adds an index over its referencing columns. On every platform except
+MySQL and MariaDB, the next schema migration drops the indexes earlier versions created this way. To keep one, declare
+it explicitly.
+
 ## BC BREAK: Removed support for Oracle 18c (12.2.0.2) and older
 
 Oracle 18c (12.2.0.2) and older are not supported anymore.
