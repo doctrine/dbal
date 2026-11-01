@@ -33,6 +33,7 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
@@ -972,11 +973,15 @@ abstract class AbstractPlatform
         $parameters['foreignKeys']       = [];
 
         foreach ($table->getIndexes() as $index) {
-            $parameters['indexes'][] = $index;
+            if ($index->getOrigin() === ObjectOrigin::DECLARED) {
+                $parameters['indexes'][] = $index;
+            }
         }
 
         foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
-            $parameters['uniqueConstraints'][] = $uniqueConstraint;
+            if ($uniqueConstraint->getOrigin() === ObjectOrigin::DECLARED) {
+                $parameters['uniqueConstraints'][] = $uniqueConstraint;
+            }
         }
 
         if ($createForeignKeys) {
