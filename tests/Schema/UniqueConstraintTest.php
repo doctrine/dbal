@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -50,7 +51,7 @@ class UniqueConstraintTest extends TestCase
         $this->expectException(InvalidUniqueConstraintDefinition::class);
 
         /** @phpstan-ignore argument.type */
-        new UniqueConstraint(null, [], false);
+        new UniqueConstraint(null, [], false, ObjectOrigin::DECLARED);
     }
 
     #[DataProvider('isClusteredProvider')]
@@ -69,5 +70,20 @@ class UniqueConstraintTest extends TestCase
     {
         yield 'clustered' => [true];
         yield 'not clustered' => [false];
+    }
+
+    public function testEditKeepsOrigin(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        $edited = $uniqueConstraint->edit()
+            ->setUnquotedColumnNames('email', 'tenant_id')
+            ->create();
+
+        self::assertSame(ObjectOrigin::DERIVED, $edited->getOrigin());
     }
 }

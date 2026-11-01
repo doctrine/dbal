@@ -21,6 +21,8 @@ final class UniqueConstraintEditor
 
     private bool $isClustered = false;
 
+    private ObjectOrigin $origin = ObjectOrigin::DECLARED;
+
     /** @internal Use {@link UniqueConstraint::editor()} or {@link UniqueConstraint::edit()} to create an instance */
     public function __construct()
     {
@@ -114,12 +116,23 @@ final class UniqueConstraintEditor
         return $this;
     }
 
+    /**
+     * @internal Use only to build a constraint introspected from the database, never one that the application
+     *           declares.
+     */
+    public function setOrigin(ObjectOrigin $origin): self
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
     public function create(): UniqueConstraint
     {
         if (count($this->columnNames) < 1) {
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($this->name);
         }
 
-        return new UniqueConstraint($this->name, $this->columnNames, $this->isClustered);
+        return new UniqueConstraint($this->name, $this->columnNames, $this->isClustered, $this->origin);
     }
 }

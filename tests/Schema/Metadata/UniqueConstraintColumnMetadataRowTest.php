@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema\Metadata;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use PHPUnit\Framework\TestCase;
 
 class UniqueConstraintColumnMetadataRowTest extends TestCase
@@ -21,6 +22,7 @@ class UniqueConstraintColumnMetadataRowTest extends TestCase
             name: null,
             columnName: 'user_id',
             isClustered: false,
+            origin: ObjectOrigin::DECLARED,
         );
     }
 }

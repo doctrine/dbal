@@ -31,6 +31,7 @@ final readonly class Index implements NamedObject
         private array $columns,
         private bool $isClustered,
         private ?string $predicate,
+        private ObjectOrigin $origin,
     ) {
         if (count($columns) < 1) {
             throw InvalidIndexDefinition::columnsNotSet($name);
@@ -108,6 +109,14 @@ final readonly class Index implements NamedObject
     public function getPredicate(): ?string
     {
         return $this->predicate;
+    }
+
+    /**
+     * Returns the origin of the index.
+     */
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
     }
 
     /**
@@ -218,6 +227,7 @@ final readonly class Index implements NamedObject
             ->setType($this->type)
             ->setColumns(...$this->columns)
             ->setIsClustered($this->isClustered)
-            ->setPredicate($this->predicate);
+            ->setPredicate($this->predicate)
+            ->setOrigin($this->origin);
     }
 }

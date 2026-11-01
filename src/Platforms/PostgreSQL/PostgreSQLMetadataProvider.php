@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Override;
 
@@ -372,7 +373,8 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                    ic.relname,
                    i.indisunique,
                    pg_get_expr(indpred, indrelid),
-                   attname
+                   attname,
+                   con.oid IS NOT NULL
             FROM pg_index i
                      JOIN pg_class AS c ON c.oid = i.indrelid
                      JOIN pg_namespace n ON n.oid = c.relnamespace
@@ -382,6 +384,10 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                      JOIN pg_attribute a
                           ON a.attrelid = c.oid
                               AND a.attnum = keys.attnum
+                     LEFT JOIN pg_constraint con
+                               ON con.conindid = i.indexrelid
+                                   AND con.conrelid = c.oid
+                                   AND con.contype = 'u'
             WHERE %s
               AND i.indisprimary = false
             ORDER BY n.nspname,
@@ -402,6 +408,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 predicate: $row[4],
                 columnName: $row[5],
                 columnLength: null,
+                origin: $row[6] ? ObjectOrigin::DERIVED : ObjectOrigin::DECLARED,
             );
         }
     }
@@ -547,6 +554,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 name: $row[2],
                 columnName: $row[3],
                 isClustered: false,
+                origin: ObjectOrigin::DECLARED,
             );
         }
     }

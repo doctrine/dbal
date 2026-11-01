@@ -31,6 +31,7 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
         private ?UnqualifiedName $name,
         private array $columnNames,
         private bool $isClustered,
+        private ObjectOrigin $origin,
     ) {
         if (count($columnNames) < 1) {
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($name);
@@ -62,6 +63,14 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
     }
 
     /**
+     * Returns the origin of the unique constraint.
+     */
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
+    }
+
+    /**
      * Instantiates a new unique constraint editor.
      */
     public static function editor(): UniqueConstraintEditor
@@ -77,6 +86,7 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
         return self::editor()
             ->setName($this->name)
             ->setColumnNames(...$this->columnNames)
-            ->setIsClustered($this->isClustered);
+            ->setIsClustered($this->isClustered)
+            ->setOrigin($this->origin);
     }
 }

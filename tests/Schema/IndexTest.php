@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -102,7 +103,7 @@ class IndexTest extends TestCase
         $this->expectException(InvalidIndexDefinition::class);
 
         /** @phpstan-ignore argument.type */
-        new Index(UnqualifiedName::unquoted('id'), IndexType::REGULAR, [], false, null);
+        new Index(UnqualifiedName::unquoted('id'), IndexType::REGULAR, [], false, null, ObjectOrigin::DECLARED);
     }
 
     public function testSpatialIndexWithColumnLength(): void
@@ -253,5 +254,21 @@ class IndexTest extends TestCase
                 ->setPredicate('is_active = 1')
                 ->create(),
         ];
+    }
+
+    public function testEditKeepsOrigin(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        $edited = $index->edit()
+            ->setUnquotedColumnNames('email', 'tenant_id')
+            ->create();
+
+        self::assertSame(ObjectOrigin::DERIVED, $edited->getOrigin());
     }
 }

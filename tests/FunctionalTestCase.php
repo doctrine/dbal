@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -481,6 +482,7 @@ abstract class FunctionalTestCase extends TestCase
         return $index->edit()
             ->setName($this->toComparableUnqualifiedName($index->getObjectName()))
             ->setColumns(...$this->toComparableIndexedColumnList($index->getIndexedColumns()))
+            ->setOrigin(ObjectOrigin::DECLARED)
             ->create();
     }
 
@@ -660,6 +662,7 @@ abstract class FunctionalTestCase extends TestCase
         return $constraint->edit()
             ->setName($name)
             ->setColumnNames(...$this->toComparableUnqualifiedNameList($constraint->getColumnNames()))
+            ->setOrigin(ObjectOrigin::DECLARED)
             ->create();
     }
 

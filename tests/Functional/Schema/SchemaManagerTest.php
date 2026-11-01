@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
@@ -32,6 +33,7 @@ use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
+use function array_filter;
 use function array_values;
 
 final class SchemaManagerTest extends FunctionalTestCase
@@ -1072,5 +1074,52 @@ final class SchemaManagerTest extends FunctionalTestCase
                 return $provider->getTableOptionsForTable($schemaName, $tableName);
             },
         ];
+    }
+
+    public function testUniqueConstraintIntrospectsAsOneDeclaredObject(): void
+    {
+        $table = $this->createTableWithEmailUniqueConstraint();
+
+        $declaredIndexes = array_filter(
+            $table->getIndexes(),
+            static fn (Index $index): bool => $index->getOrigin() === ObjectOrigin::DECLARED,
+        );
+
+        $declaredUniqueConstraints = array_filter(
+            $table->getUniqueConstraints(),
+            static fn (UniqueConstraint $constraint): bool => $constraint->getOrigin() === ObjectOrigin::DECLARED,
+        );
+
+        self::assertCount(1, [...$declaredIndexes, ...$declaredUniqueConstraints]);
+    }
+
+    private function createTableWithEmailUniqueConstraint(): Table
+    {
+        $this->dropTableIfExists('users');
+
+        $this->schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('users')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('email')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(64)
+                        ->create(),
+                )
+                ->setUniqueConstraints(
+                    UniqueConstraint::editor()
+                        ->setUnquotedName('users_email_uq')
+                        ->setUnquotedColumnNames('email')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        return $this->schemaManager->introspectTableByUnquotedName('users');
     }
 }

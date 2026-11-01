@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 use Override;
@@ -253,7 +254,24 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             SELECT I.TABNAME,
                    I.INDNAME,
                    I.UNIQUERULE,
-                   ICU.COLNAME
+                   ICU.COLNAME,
+                   CASE
+                       WHEN I.USER_DEFINED = 0 AND EXISTS (
+                           SELECT 1
+                           FROM SYSCAT.CONSTDEP AS CD
+                                    JOIN SYSCAT.TABCONST AS TC
+                                         ON TC.TABSCHEMA = CD.TABSCHEMA
+                                             AND TC.TABNAME = CD.TABNAME
+                                             AND TC.CONSTNAME = CD.CONSTNAME
+                           WHERE CD.BTYPE = 'I'
+                             AND CD.BSCHEMA = I.INDSCHEMA
+                             AND CD.BNAME = I.INDNAME
+                             AND TC.TABSCHEMA = I.TABSCHEMA
+                             AND TC.TABNAME = I.TABNAME
+                             AND TC.TYPE = 'U'
+                       ) THEN 1
+                       ELSE 0
+                   END
             FROM SYSCAT.INDEXES AS I
                      JOIN SYSCAT.TABLES AS T
                           ON I.TABSCHEMA = T.TABSCHEMA
@@ -281,6 +299,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[3],
                 columnLength: null,
+                origin: $row[4] ? ObjectOrigin::DERIVED : ObjectOrigin::DECLARED,
             );
         }
     }
@@ -395,6 +414,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                 name: $row[1],
                 columnName: $row[2],
                 isClustered: false,
+                origin: ObjectOrigin::DECLARED,
             );
         }
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Metadata;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 
 /**
  * A row of metadata describing a unique constraint column.
@@ -31,6 +32,7 @@ final readonly class UniqueConstraintColumnMetadataRow
         private ?string $name,
         private string $columnName,
         private bool $isClustered,
+        private ObjectOrigin $origin,
     ) {
         if ($id !== null) {
             $this->id = $id;
@@ -76,5 +78,10 @@ final readonly class UniqueConstraintColumnMetadataRow
     public function isClustered(): bool
     {
         return $this->isClustered;
+    }
+
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
     }
 }

@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 use Override;
@@ -341,6 +342,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[3],
                 columnLength: null,
+                origin: ObjectOrigin::DECLARED,
             );
         }
     }
@@ -466,6 +468,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 name: $constraintNames[$position] ?? null,
                 columnName: $row[2],
                 isClustered: false,
+                origin: ObjectOrigin::DECLARED,
             );
         }
     }

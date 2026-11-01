@@ -27,6 +27,7 @@ use Doctrine\DBAL\Schema\Metadata\PrimaryKeyConstraintColumnRow;
 use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Override;
 
@@ -447,6 +448,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[4],
                 columnLength: $length,
+                origin: ObjectOrigin::DECLARED,
             );
         }
     }
