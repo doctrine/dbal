@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\IndexRename;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -22,6 +23,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Types\Types;
 use Override;
@@ -263,6 +265,40 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         self::assertCount(0, $tableDiff->getDroppedColumns());
         self::assertCount(1, $tableDiff->getChangedColumns());
+    }
+
+    public function testDerivedIndexIsNotDiffed(): void
+    {
+        $declared = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
+
+        $withDerivedIndex = $declared->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('email')
+                    ->setIsDerived(true)
+                    ->create(),
+            )
+            ->create();
+
+        self::assertTrue($this->comparator->compareTables($withDerivedIndex, $declared)->isEmpty());
+        self::assertTrue($this->comparator->compareTables($declared, $withDerivedIndex)->isEmpty());
     }
 
     public function testCompareSequences(): void
