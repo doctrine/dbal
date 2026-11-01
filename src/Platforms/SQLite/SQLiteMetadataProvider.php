@@ -341,6 +341,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[3],
                 columnLength: null,
+                isDerived: false,
             );
         }
     }
@@ -466,6 +467,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 name: $constraintNames[$position] ?? null,
                 columnName: $row[2],
                 isClustered: false,
+                isDerived: false,
             );
         }
     }

@@ -21,6 +21,8 @@ final class UniqueConstraintEditor
 
     private bool $isClustered = false;
 
+    private bool $isDerived = false;
+
     /** @internal Use {@link UniqueConstraint::editor()} or {@link UniqueConstraint::edit()} to create an instance */
     public function __construct()
     {
@@ -114,12 +116,19 @@ final class UniqueConstraintEditor
         return $this;
     }
 
+    public function setIsDerived(bool $isDerived): self
+    {
+        $this->isDerived = $isDerived;
+
+        return $this;
+    }
+
     public function create(): UniqueConstraint
     {
         if (count($this->columnNames) < 1) {
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($this->name);
         }
 
-        return new UniqueConstraint($this->name, $this->columnNames, $this->isClustered);
+        return new UniqueConstraint($this->name, $this->columnNames, $this->isClustered, $this->isDerived);
     }
 }

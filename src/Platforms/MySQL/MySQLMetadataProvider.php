@@ -447,6 +447,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[4],
                 columnLength: $length,
+                isDerived: false,
             );
         }
     }

@@ -315,7 +315,8 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                    i.name,
                    i.is_unique,
                    i.type,
-                   c.name
+                   c.name,
+                   i.is_unique_constraint
             FROM sys.tables AS t
                      JOIN sys.schemas AS s
                           ON t.schema_id = s.schema_id
@@ -347,6 +348,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[5],
                 columnLength: null,
+                isDerived: (bool) $row[6],
             );
         }
     }
@@ -477,6 +479,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 name: $row[2],
                 columnName: $row[3],
                 isClustered: (int) $row[4] === 1,
+                isDerived: false,
             );
         }
     }

@@ -481,6 +481,7 @@ abstract class FunctionalTestCase extends TestCase
         return $index->edit()
             ->setName($this->toComparableUnqualifiedName($index->getObjectName()))
             ->setColumns(...$this->toComparableIndexedColumnList($index->getIndexedColumns()))
+            ->setIsDerived(false)
             ->create();
     }
 
@@ -660,6 +661,7 @@ abstract class FunctionalTestCase extends TestCase
         return $constraint->edit()
             ->setName($name)
             ->setColumnNames(...$this->toComparableUnqualifiedNameList($constraint->getColumnNames()))
+            ->setIsDerived(false)
             ->create();
     }
 

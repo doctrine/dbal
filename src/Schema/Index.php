@@ -31,6 +31,7 @@ final readonly class Index implements NamedObject
         private array $columns,
         private bool $isClustered,
         private ?string $predicate,
+        private bool $isDerived,
     ) {
         if (count($columns) < 1) {
             throw InvalidIndexDefinition::columnsNotSet($name);
@@ -108,6 +109,15 @@ final readonly class Index implements NamedObject
     public function getPredicate(): ?string
     {
         return $this->predicate;
+    }
+
+    /**
+     * Returns whether the database created this index to enforce a constraint. Returns <code>false</code> if the index
+     * was declared or the platform does not report where it came from.
+     */
+    public function isDerived(): bool
+    {
+        return $this->isDerived;
     }
 
     /**
@@ -218,6 +228,7 @@ final readonly class Index implements NamedObject
             ->setType($this->type)
             ->setColumns(...$this->columns)
             ->setIsClustered($this->isClustered)
-            ->setPredicate($this->predicate);
+            ->setPredicate($this->predicate)
+            ->setIsDerived($this->isDerived);
     }
 }

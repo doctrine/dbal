@@ -50,7 +50,7 @@ class UniqueConstraintTest extends TestCase
         $this->expectException(InvalidUniqueConstraintDefinition::class);
 
         /** @phpstan-ignore argument.type */
-        new UniqueConstraint(null, [], false);
+        new UniqueConstraint(null, [], false, false);
     }
 
     #[DataProvider('isClusteredProvider')]
@@ -69,5 +69,20 @@ class UniqueConstraintTest extends TestCase
     {
         yield 'clustered' => [true];
         yield 'not clustered' => [false];
+    }
+
+    public function testEditKeepsIsDerived(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setIsDerived(true)
+            ->create();
+
+        $edited = $uniqueConstraint->edit()
+            ->setUnquotedColumnNames('email', 'tenant_id')
+            ->create();
+
+        self::assertTrue($edited->isDerived());
     }
 }

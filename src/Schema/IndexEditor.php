@@ -34,6 +34,8 @@ final class IndexEditor
     /** @var ?non-empty-string */
     private ?string $predicate = null;
 
+    private bool $isDerived = false;
+
     /** @internal Use {@link Index::editor()} or {@link Index::edit()} to create an instance */
     public function __construct()
     {
@@ -158,6 +160,13 @@ final class IndexEditor
         return $this;
     }
 
+    public function setIsDerived(bool $isDerived): self
+    {
+        $this->isDerived = $isDerived;
+
+        return $this;
+    }
+
     public function create(): Index
     {
         if ($this->name === null) {
@@ -185,7 +194,14 @@ final class IndexEditor
             throw InvalidIndexDefinition::columnsNotSet($name);
         }
 
-        return new Index($name, $this->type, $this->columns, $this->isClustered, $this->predicate);
+        return new Index(
+            $name,
+            $this->type,
+            $this->columns,
+            $this->isClustered,
+            $this->predicate,
+            $this->isDerived,
+        );
     }
 
     /** @param positive-int $maxIdentifierLength */

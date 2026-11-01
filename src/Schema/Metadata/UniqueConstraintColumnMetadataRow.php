@@ -30,7 +30,8 @@ final readonly class UniqueConstraintColumnMetadataRow
         int|string|null $id,
         private ?string $name,
         private string $columnName,
-        private bool $isClustered = false,
+        private bool $isClustered,
+        private bool $isDerived,
     ) {
         if ($id !== null) {
             $this->id = $id;
@@ -76,5 +77,10 @@ final readonly class UniqueConstraintColumnMetadataRow
     public function isClustered(): bool
     {
         return $this->isClustered;
+    }
+
+    public function isDerived(): bool
+    {
+        return $this->isDerived;
     }
 }

@@ -292,7 +292,11 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             SELECT I.TABLE_NAME,
                    I.INDEX_NAME,
                    I.UNIQUENESS,
-                   IC.COLUMN_NAME
+                   IC.COLUMN_NAME,
+                   CASE
+                       WHEN C.CONSTRAINT_TYPE = 'U' AND I.CONSTRAINT_INDEX = 'YES' THEN 1
+                       ELSE 0
+                   END
             FROM USER_INDEXES I
                      LEFT JOIN USER_CONSTRAINTS C
                                ON C.INDEX_NAME = I.INDEX_NAME
@@ -317,6 +321,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[3],
                 columnLength: null,
+                isDerived: (bool) $row[4],
             );
         }
     }
@@ -429,6 +434,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 name: $row[1],
                 columnName: $row[2],
                 isClustered: false,
+                isDerived: false,
             );
         }
     }

@@ -102,7 +102,7 @@ class IndexTest extends TestCase
         $this->expectException(InvalidIndexDefinition::class);
 
         /** @phpstan-ignore argument.type */
-        new Index(UnqualifiedName::unquoted('id'), IndexType::REGULAR, [], false, null);
+        new Index(UnqualifiedName::unquoted('id'), IndexType::REGULAR, [], false, null, false);
     }
 
     public function testSpatialIndexWithColumnLength(): void
@@ -253,5 +253,21 @@ class IndexTest extends TestCase
                 ->setPredicate('is_active = 1')
                 ->create(),
         ];
+    }
+
+    public function testEditKeepsIsDerived(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setIsDerived(true)
+            ->create();
+
+        $edited = $index->edit()
+            ->setUnquotedColumnNames('email', 'tenant_id')
+            ->create();
+
+        self::assertTrue($edited->isDerived());
     }
 }
