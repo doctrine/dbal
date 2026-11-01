@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
@@ -212,15 +213,15 @@ class Comparator
             $addedPrimaryKeyConstraint   = $newPrimaryKeyConstraint;
         }
 
-        $oldIndexes = $oldTable->getIndexes();
-        $newIndexes = $newTable->getIndexes();
+        $oldIndexes = $this->getDeclaredIndexes($oldTable);
+        $newIndexes = $this->getDeclaredIndexes($newTable);
         $folding    = $this->platform->getUnquotedIdentifierFolding();
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndex) {
             $newIndexName = $newIndex->getObjectName();
 
-            if (! $oldTable->hasIndex($newIndexName->toString())) {
+            if ($oldIndexes->get($newIndexName) === null) {
                 $addedIndexes[] = $newIndex;
             }
         }
@@ -229,15 +230,15 @@ class Comparator
         foreach ($oldIndexes as $oldIndex) {
             $oldIndexName = $oldIndex->getObjectName();
 
-            if (! $newTable->hasIndex($oldIndexName->toString())) {
+            $newIndex = $newIndexes->get($oldIndexName);
+
+            if ($newIndex === null) {
                 $droppedIndexes[] = $oldIndex;
 
                 continue;
             }
 
             // See if index has changed in the new table.
-            $newIndex = $newTable->getIndex($oldIndexName->toString());
-
             if ($oldIndex->equals($newIndex, $folding)) {
                 continue;
             }
@@ -434,5 +435,20 @@ class Comparator
     protected function columnsEqual(Column $column1, Column $column2): bool
     {
         return $this->platform->columnsEqual($column1, $column2);
+    }
+
+    /** @return UnqualifiedNamedObjectSet<Index> */
+    private function getDeclaredIndexes(Table $table): UnqualifiedNamedObjectSet
+    {
+        /** @var UnqualifiedNamedObjectSet<Index> $indexes */
+        $indexes = new UnqualifiedNamedObjectSet();
+
+        foreach ($table->getIndexes() as $index) {
+            if ($index->getOrigin() === ObjectOrigin::DECLARED) {
+                $indexes->add($index);
+            }
+        }
+
+        return $indexes;
     }
 }
