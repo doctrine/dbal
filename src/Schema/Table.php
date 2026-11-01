@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Collections\OptionallyUnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Collections\ReadableObjectSet;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
-use Doctrine\DBAL\Schema\Collections\UnqualifiedNameSet;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
@@ -37,11 +36,6 @@ final readonly class Table implements NamedObject
     /** @var ReadableObjectSet<Index> */
     private ReadableObjectSet $indexes;
 
-    /**
-     * The names of the indexes that were implicitly created as backing for foreign key constraints.
-     */
-    private UnqualifiedNameSet $implicitIndexNames;
-
     /** @var ReadableObjectSet<UniqueConstraint> */
     private ReadableObjectSet $uniqueConstraints;
 
@@ -63,7 +57,6 @@ final readonly class Table implements NamedObject
      *
      * @param non-empty-list<Column>     $columns
      * @param list<Index>                $indexes
-     * @param list<UnqualifiedName>      $implicitIndexNames
      * @param list<UniqueConstraint>     $uniqueConstraints
      * @param list<ForeignKeyConstraint> $foreignKeyConstraints
      * @param array<string, mixed>       $options
@@ -73,7 +66,6 @@ final readonly class Table implements NamedObject
         private OptionallyQualifiedName $name,
         array $columns,
         array $indexes,
-        array $implicitIndexNames,
         array $uniqueConstraints,
         array $foreignKeyConstraints,
         array $options,
@@ -99,7 +91,6 @@ final readonly class Table implements NamedObject
 
         $this->columns               = new UnqualifiedNamedObjectSet(...$columns);
         $this->indexes               = new UnqualifiedNamedObjectSet(...$indexes);
-        $this->implicitIndexNames    = new UnqualifiedNameSet(...$implicitIndexNames);
         $this->uniqueConstraints     = new OptionallyUnqualifiedNamedObjectSet(...$uniqueConstraints);
         $this->foreignKeyConstraints = new OptionallyUnqualifiedNamedObjectSet(...$foreignKeyConstraints);
 
@@ -389,18 +380,10 @@ final readonly class Table implements NamedObject
      */
     public function edit(): TableEditor
     {
-        $explicitIndexes = [];
-
-        foreach ($this->indexes as $index) {
-            if (! $this->implicitIndexNames->contains($index->getObjectName())) {
-                $explicitIndexes[] = $index;
-            }
-        }
-
         $editor = self::editor()
             ->setName($this->getObjectName())
             ->setColumns(...$this->columns->toList())
-            ->setIndexes(...$explicitIndexes)
+            ->setIndexes(...$this->indexes->toList())
             ->setPrimaryKeyConstraint($this->primaryKeyConstraint)
             ->setUniqueConstraints(...$this->uniqueConstraints->toList())
             ->setForeignKeyConstraints(...$this->foreignKeyConstraints->toList());

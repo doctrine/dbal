@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
 use function count;
+use function in_array;
 use function strtolower;
 
 /**
@@ -213,7 +214,7 @@ class Comparator
             $addedPrimaryKeyConstraint   = $newPrimaryKeyConstraint;
         }
 
-        $oldIndexes = $this->getDeclaredIndexes($oldTable);
+        $oldIndexes = $this->getIndexesExcept($oldTable, $this->getOldIndexesDerivedFromNewTable($oldTable, $newTable));
         $newIndexes = $this->getDeclaredIndexes($newTable);
         $folding    = $this->platform->getUnquotedIdentifierFolding();
 
@@ -437,6 +438,24 @@ class Comparator
         return $this->platform->columnsEqual($column1, $column2);
     }
 
+    /**
+     * Returns the indexes of the old table that are derived from objects of the new table.
+     *
+     * @return list<Index>
+     */
+    protected function getOldIndexesDerivedFromNewTable(Table $oldTable, Table $newTable): array
+    {
+        $indexes = [];
+
+        foreach ($oldTable->getIndexes() as $index) {
+            if ($index->getOrigin() === ObjectOrigin::DERIVED) {
+                $indexes[] = $index;
+            }
+        }
+
+        return $indexes;
+    }
+
     /** @return UnqualifiedNamedObjectSet<Index> */
     private function getDeclaredIndexes(Table $table): UnqualifiedNamedObjectSet
     {
@@ -445,6 +464,25 @@ class Comparator
 
         foreach ($table->getIndexes() as $index) {
             if ($index->getOrigin() === ObjectOrigin::DECLARED) {
+                $indexes->add($index);
+            }
+        }
+
+        return $indexes;
+    }
+
+    /**
+     * @param list<Index> $excludedIndexes
+     *
+     * @return UnqualifiedNamedObjectSet<Index>
+     */
+    private function getIndexesExcept(Table $table, array $excludedIndexes): UnqualifiedNamedObjectSet
+    {
+        /** @var UnqualifiedNamedObjectSet<Index> $indexes */
+        $indexes = new UnqualifiedNamedObjectSet();
+
+        foreach ($table->getIndexes() as $index) {
+            if (! in_array($index, $excludedIndexes, true)) {
                 $indexes->add($index);
             }
         }
