@@ -519,6 +519,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                 constraintName: $row[1],
                 isClustered: true,
                 columnName: $row[2],
+                indexName: $row[1],
             );
         }
     }
@@ -587,6 +588,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                 columnName: $row[2],
                 isClustered: false,
                 origin: ObjectOrigin::DERIVED,
+                indexName: $row[1],
             );
         }
     }

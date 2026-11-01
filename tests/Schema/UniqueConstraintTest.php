@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\UniqueConstraint;
@@ -72,7 +74,43 @@ class UniqueConstraintTest extends TestCase
         yield 'not clustered' => [false];
     }
 
-    public function testEditKeepsOrigin(): void
+    public function testDerivedConstraintCannotHaveBackingIndex(): void
+    {
+        $editor = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->setBackingIndex(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            );
+
+        $this->expectException(InvalidUniqueConstraintDefinition::class);
+
+        $editor->create();
+    }
+
+    public function testBackingIndexMayBeDeclared(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_idx')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->create();
+
+        $constraint = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setBackingIndex($index)
+            ->create();
+
+        self::assertSame($index, $constraint->getBackingIndex());
+    }
+
+    public function testEditedUniqueConstraintIsNotDerived(): void
     {
         $uniqueConstraint = UniqueConstraint::editor()
             ->setUnquotedName('users_email_uq')
@@ -80,10 +118,6 @@ class UniqueConstraintTest extends TestCase
             ->setOrigin(ObjectOrigin::DERIVED)
             ->create();
 
-        $edited = $uniqueConstraint->edit()
-            ->setUnquotedColumnNames('email', 'tenant_id')
-            ->create();
-
-        self::assertSame(ObjectOrigin::DERIVED, $edited->getOrigin());
+        self::assertSame(ObjectOrigin::DECLARED, $uniqueConstraint->edit()->create()->getOrigin());
     }
 }

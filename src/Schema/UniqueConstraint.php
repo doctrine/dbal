@@ -32,9 +32,14 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
         private array $columnNames,
         private bool $isClustered,
         private ObjectOrigin $origin,
+        private ?Index $backingIndex = null,
     ) {
         if (count($columnNames) < 1) {
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($name);
+        }
+
+        if ($origin === ObjectOrigin::DERIVED && $backingIndex !== null) {
+            throw InvalidUniqueConstraintDefinition::fromDerivedConstraintWithBackingIndex($name);
         }
     }
 
@@ -71,6 +76,14 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
     }
 
     /**
+     * Returns the index that backs this constraint, if introspection reported one.
+     */
+    public function getBackingIndex(): ?Index
+    {
+        return $this->backingIndex;
+    }
+
+    /**
      * Instantiates a new unique constraint editor.
      */
     public static function editor(): UniqueConstraintEditor
@@ -86,7 +99,6 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
         return self::editor()
             ->setName($this->name)
             ->setColumnNames(...$this->columnNames)
-            ->setIsClustered($this->isClustered)
-            ->setOrigin($this->origin);
+            ->setIsClustered($this->isClustered);
     }
 }

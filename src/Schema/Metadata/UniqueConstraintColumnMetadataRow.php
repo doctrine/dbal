@@ -24,6 +24,9 @@ final readonly class UniqueConstraintColumnMetadataRow
      *                                              this must be set instead.
      * @param ?non-empty-string         $name
      * @param non-empty-string          $columnName
+     * @param ?non-empty-string         $indexName  The name of the index that backs the constraint or, for a derived
+     *                                              constraint, the name of the index that the database exposes as the
+     *                                              constraint.
      */
     public function __construct(
         private ?string $schemaName,
@@ -33,6 +36,7 @@ final readonly class UniqueConstraintColumnMetadataRow
         private string $columnName,
         private bool $isClustered,
         private ObjectOrigin $origin,
+        private ?string $indexName,
     ) {
         if ($id !== null) {
             $this->id = $id;
@@ -83,5 +87,11 @@ final readonly class UniqueConstraintColumnMetadataRow
     public function getOrigin(): ObjectOrigin
     {
         return $this->origin;
+    }
+
+    /** @return ?non-empty-string */
+    public function getIndexName(): ?string
+    {
+        return $this->indexName;
     }
 }

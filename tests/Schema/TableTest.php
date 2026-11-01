@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
@@ -18,6 +19,7 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
@@ -1525,5 +1527,140 @@ class TableTest extends TestCase
 
         // The index is named after the table's final name, not the one set when the index was added.
         self::assertTrue($table->hasIndex('IDX_76FF8CAABF396750'));
+    }
+
+    public function testEditKeepsDerivedObjects(): void
+    {
+        $table = $this->createTableWithDerivedObjects();
+
+        $edited = $table->edit()
+            ->create();
+
+        self::assertSame($table->getIndexes(), $edited->getIndexes());
+        self::assertSame($table->getUniqueConstraints(), $edited->getUniqueConstraints());
+    }
+
+    public function testDerivedObjectsAreListedAndFoundByName(): void
+    {
+        $table = $this->createTableWithDerivedObjects();
+
+        self::assertCount(2, $table->getIndexes());
+        self::assertCount(2, $table->getUniqueConstraints());
+        self::assertSame(ObjectOrigin::DERIVED, $table->getIndex('users_email_uq')->getOrigin());
+        self::assertSame(ObjectOrigin::DERIVED, $table->getUniqueConstraint('users_name_uq')->getOrigin());
+    }
+
+    public function testDroppingSourceDropsDerivedIndex(): void
+    {
+        $table = $this->createTableWithDerivedObjects()
+            ->edit()
+            ->dropUniqueConstraintByUnquotedName('users_email_uq')
+            ->dropColumnByUnquotedName('email')
+            ->create();
+
+        self::assertFalse($table->hasIndex('users_email_uq'));
+    }
+
+    public function testDerivedIndexNameIsTakenWhileSourceExists(): void
+    {
+        $this->expectException(ObjectAlreadyExists::class);
+
+        $this->createTableWithDerivedObjects()
+            ->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('name')
+                    ->create(),
+            )
+            ->create();
+    }
+
+    public function testDeclaredBackingIndexIsListedOnce(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_idx')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->create();
+
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setIndexes($index)
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->setBackingIndex($index)
+                    ->create(),
+            )
+            ->create();
+
+        self::assertSame([$index], $table->getIndexes());
+    }
+
+    public function testDeclaringDerivedIndexIsRejected(): void
+    {
+        $table = $this->createTableWithDerivedObjects();
+
+        $this->expectException(InvalidTableDefinition::class);
+
+        $table->edit()
+            ->setIndexes(...$table->getIndexes())
+            ->create();
+    }
+
+    private function createTableWithDerivedObjects(): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('users_name_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('name')
+                    ->setDerivedUniqueConstraint(
+                        UniqueConstraint::editor()
+                            ->setUnquotedName('users_name_uq')
+                            ->setUnquotedColumnNames('name')
+                            ->setOrigin(ObjectOrigin::DERIVED)
+                            ->create(),
+                    )
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->setBackingIndex(
+                        Index::editor()
+                            ->setUnquotedName('users_email_uq')
+                            ->setType(IndexType::UNIQUE)
+                            ->setUnquotedColumnNames('email')
+                            ->setOrigin(ObjectOrigin::DERIVED)
+                            ->create(),
+                    )
+                    ->create(),
+            )
+            ->create();
     }
 }

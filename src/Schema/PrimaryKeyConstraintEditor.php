@@ -20,6 +20,8 @@ final class PrimaryKeyConstraintEditor
 
     private bool $isClustered = true;
 
+    private ?Index $backingIndex = null;
+
     /**
      * @internal Use {@link PrimaryKeyConstraint::editor()} or {@link PrimaryKeyConstraint::edit()} to create
      *           an instance.
@@ -116,12 +118,30 @@ final class PrimaryKeyConstraintEditor
         return $this;
     }
 
+    /**
+     * Sets the index that backs the constraint.
+     *
+     * @internal Use only to build a constraint introspected from the database, never one that the application
+     *           declares.
+     */
+    public function setBackingIndex(?Index $index): self
+    {
+        $this->backingIndex = $index;
+
+        return $this;
+    }
+
     public function create(): PrimaryKeyConstraint
     {
         if (count($this->columnNames) < 1) {
             throw InvalidPrimaryKeyConstraintDefinition::columnNamesNotSet();
         }
 
-        return new PrimaryKeyConstraint($this->name, $this->columnNames, $this->isClustered);
+        return new PrimaryKeyConstraint(
+            $this->name,
+            $this->columnNames,
+            $this->isClustered,
+            $this->backingIndex,
+        );
     }
 }

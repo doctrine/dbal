@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\ObjectOrigin;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -256,7 +257,26 @@ class IndexTest extends TestCase
         ];
     }
 
-    public function testEditKeepsOrigin(): void
+    public function testDerivedIndexCannotHaveDerivedUniqueConstraintAttached(): void
+    {
+        $editor = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->setDerivedUniqueConstraint(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            );
+
+        $this->expectException(InvalidIndexDefinition::class);
+
+        $editor->create();
+    }
+
+    public function testEditedIndexIsNotDerived(): void
     {
         $index = Index::editor()
             ->setUnquotedName('users_email_uq')
@@ -265,10 +285,6 @@ class IndexTest extends TestCase
             ->setOrigin(ObjectOrigin::DERIVED)
             ->create();
 
-        $edited = $index->edit()
-            ->setUnquotedColumnNames('email', 'tenant_id')
-            ->create();
-
-        self::assertSame(ObjectOrigin::DERIVED, $edited->getOrigin());
+        self::assertSame(ObjectOrigin::DECLARED, $index->edit()->create()->getOrigin());
     }
 }

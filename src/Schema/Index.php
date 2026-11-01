@@ -32,9 +32,14 @@ final readonly class Index implements NamedObject
         private bool $isClustered,
         private ?string $predicate,
         private ObjectOrigin $origin,
+        private ?UniqueConstraint $derivedUniqueConstraint = null,
     ) {
         if (count($columns) < 1) {
             throw InvalidIndexDefinition::columnsNotSet($name);
+        }
+
+        if ($origin === ObjectOrigin::DERIVED && $derivedUniqueConstraint !== null) {
+            throw InvalidIndexDefinition::fromDerivedIndexWithDerivedUniqueConstraint($name);
         }
 
         if ($type === IndexType::SPATIAL) {
@@ -117,6 +122,14 @@ final readonly class Index implements NamedObject
     public function getOrigin(): ObjectOrigin
     {
         return $this->origin;
+    }
+
+    /**
+     * Returns the unique constraint as which the database exposes this index, if introspection attached one.
+     */
+    public function getDerivedUniqueConstraint(): ?UniqueConstraint
+    {
+        return $this->derivedUniqueConstraint;
     }
 
     /**
@@ -227,7 +240,6 @@ final readonly class Index implements NamedObject
             ->setType($this->type)
             ->setColumns(...$this->columns)
             ->setIsClustered($this->isClustered)
-            ->setPredicate($this->predicate)
-            ->setOrigin($this->origin);
+            ->setPredicate($this->predicate);
     }
 }

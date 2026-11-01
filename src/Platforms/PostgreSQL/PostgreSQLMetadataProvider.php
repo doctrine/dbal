@@ -450,7 +450,8 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             SELECT n.nspname,
                    c.relname,
                    ct.conname,
-                   a.attname
+                   a.attname,
+                   ic.relname
             FROM pg_namespace n
                      INNER JOIN pg_class c
                                 ON c.relnamespace = n.oid
@@ -459,6 +460,8 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                      INNER JOIN pg_index i
                                 ON i.indrelid = c.oid
                                     AND i.indexrelid = ct.conindid
+                     INNER JOIN pg_class ic
+                                ON ic.oid = ct.conindid
                      INNER JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                                 ON true
                      INNER JOIN
@@ -482,6 +485,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 constraintName: $row[2],
                 isClustered: true,
                 columnName: $row[3],
+                indexName: $row[4],
             );
         }
     }
@@ -521,7 +525,8 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             SELECT n.nspname,
                    c.relname,
                    ct.conname,
-                   a.attname
+                   a.attname,
+                   ic.relname
             FROM pg_namespace n
                      INNER JOIN pg_class c
                                 ON c.relnamespace = n.oid
@@ -530,6 +535,8 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                      INNER JOIN pg_index i
                                 ON i.indrelid = c.oid
                                     AND i.indexrelid = ct.conindid
+                     INNER JOIN pg_class ic
+                                ON ic.oid = ct.conindid
                      INNER JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                                 ON true
                      INNER JOIN
@@ -555,6 +562,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 columnName: $row[3],
                 isClustered: false,
                 origin: ObjectOrigin::DECLARED,
+                indexName: $row[4],
             );
         }
     }

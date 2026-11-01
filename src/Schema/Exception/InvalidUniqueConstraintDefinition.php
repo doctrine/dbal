@@ -12,6 +12,14 @@ use function sprintf;
 
 final class InvalidUniqueConstraintDefinition extends LogicException implements SchemaException
 {
+    public static function fromDerivedConstraintWithBackingIndex(?UnqualifiedName $constraintName): self
+    {
+        return new self(sprintf(
+            'Unique constraint %s is derived and cannot have a backing index.',
+            $constraintName?->toString() ?? '<unnamed>',
+        ));
+    }
+
     public static function columnNamesAreNotSet(?UnqualifiedName $constraintName): self
     {
         return new self(sprintf(

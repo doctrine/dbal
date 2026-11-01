@@ -23,6 +23,7 @@ class UniqueConstraintColumnMetadataRowTest extends TestCase
             columnName: 'user_id',
             isClustered: false,
             origin: ObjectOrigin::DECLARED,
+            indexName: null,
         );
     }
 }

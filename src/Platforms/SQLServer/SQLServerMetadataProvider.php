@@ -415,6 +415,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 constraintName: $row[2],
                 isClustered: (int) $row[3] === 1,
                 columnName: $row[4],
+                indexName: $row[2],
             );
         }
     }
@@ -481,6 +482,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 columnName: $row[3],
                 isClustered: (int) $row[4] === 1,
                 origin: ObjectOrigin::DECLARED,
+                indexName: $row[2],
             );
         }
     }
