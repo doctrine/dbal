@@ -1092,6 +1092,22 @@ final class SchemaManagerTest extends FunctionalTestCase
         self::assertCount(1, [...$declaredIndexes, ...$declaredUniqueConstraints]);
     }
 
+    public function testRecreateIntrospectedTableWithUniqueConstraint(): void
+    {
+        $table = $this->createTableWithEmailUniqueConstraint();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        $recreated = $this->schemaManager->introspectTableByUnquotedName('users');
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($table, $recreated)
+                ->isEmpty(),
+        );
+    }
+
     private function createTableWithEmailUniqueConstraint(): Table
     {
         $this->dropTableIfExists('users');
