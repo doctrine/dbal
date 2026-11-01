@@ -13,4 +13,9 @@ final class InvalidPrimaryKeyConstraintDefinition extends LogicException impleme
     {
         return new self('Primary key constraint column names are not set.');
     }
+
+    public static function heldIndexNotDerived(): self
+    {
+        return new self('Primary key constraint holds an index that is not marked as derived.');
+    }
 }

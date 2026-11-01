@@ -287,12 +287,17 @@ abstract class AbstractComparatorTestCase extends TestCase
             ->create();
 
         $withDerivedIndex = $declared->edit()
-            ->addIndex(
-                Index::editor()
-                    ->setUnquotedName('users_email_uq')
-                    ->setType(IndexType::UNIQUE)
-                    ->setUnquotedColumnNames('email')
-                    ->setIsDerived(true)
+            ->setUniqueConstraints(
+                $declared->getUniqueConstraint('users_email_uq')
+                    ->edit()
+                    ->setDerivedIndex(
+                        Index::editor()
+                            ->setUnquotedName('users_email_uq')
+                            ->setType(IndexType::UNIQUE)
+                            ->setUnquotedColumnNames('email')
+                            ->setIsDerived(true)
+                            ->create(),
+                    )
                     ->create(),
             )
             ->create();

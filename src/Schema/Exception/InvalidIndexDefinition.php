@@ -32,6 +32,22 @@ final class InvalidIndexDefinition extends LogicException implements SchemaExcep
         ));
     }
 
+    public static function fromDerivedIndexWithDerivedUniqueConstraint(UnqualifiedName $name): self
+    {
+        return new self(sprintf(
+            'Index %s is derived and cannot hold a derived unique constraint.',
+            $name->toString(),
+        ));
+    }
+
+    public static function fromHeldUniqueConstraintNotDerived(UnqualifiedName $name): self
+    {
+        return new self(sprintf(
+            'Index %s holds a unique constraint that is not marked as derived.',
+            $name->toString(),
+        ));
+    }
+
     public static function fromSpatialIndexWithLength(UnqualifiedName $name): self
     {
         return new self(sprintf(

@@ -32,9 +32,18 @@ final readonly class Index implements NamedObject
         private bool $isClustered,
         private ?string $predicate,
         private bool $isDerived,
+        private ?UniqueConstraint $derivedUniqueConstraint = null,
     ) {
         if (count($columns) < 1) {
             throw InvalidIndexDefinition::columnsNotSet($name);
+        }
+
+        if ($isDerived && $derivedUniqueConstraint !== null) {
+            throw InvalidIndexDefinition::fromDerivedIndexWithDerivedUniqueConstraint($name);
+        }
+
+        if ($derivedUniqueConstraint !== null && ! $derivedUniqueConstraint->isDerived()) {
+            throw InvalidIndexDefinition::fromHeldUniqueConstraintNotDerived($name);
         }
 
         if ($type === IndexType::SPATIAL) {
@@ -118,6 +127,12 @@ final readonly class Index implements NamedObject
     public function isDerived(): bool
     {
         return $this->isDerived;
+    }
+
+    /** @internal Returns the unique constraint that the database reports because of this index. */
+    public function getDerivedUniqueConstraint(): ?UniqueConstraint
+    {
+        return $this->derivedUniqueConstraint;
     }
 
     /**
@@ -228,7 +243,6 @@ final readonly class Index implements NamedObject
             ->setType($this->type)
             ->setColumns(...$this->columns)
             ->setIsClustered($this->isClustered)
-            ->setPredicate($this->predicate)
-            ->setIsDerived($this->isDerived);
+            ->setPredicate($this->predicate);
     }
 }

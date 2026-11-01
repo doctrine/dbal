@@ -322,6 +322,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
     /**
      * @link https://www.ibm.com/docs/en/db2/12.1.0?topic=views-syscatcoluse
      * @link https://www.ibm.com/docs/en/db2/12.1.0?topic=views-syscattabconst
+     * @link https://www.ibm.com/docs/en/db2/12.1.0?topic=views-syscatconstdep
      *
      * @return iterable<PrimaryKeyConstraintColumnRow>
      *
@@ -335,12 +336,18 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             <<<'SQL'
             SELECT TC.TABNAME,
                    TC.CONSTNAME,
-                   KCU.COLNAME
+                   KCU.COLNAME,
+                   CD.BNAME
             FROM SYSCAT.TABCONST TC
                      JOIN SYSCAT.KEYCOLUSE KCU
                           ON KCU.TABSCHEMA = TC.TABSCHEMA
                               AND KCU.TABNAME = TC.TABNAME
                               AND KCU.CONSTNAME = TC.CONSTNAME
+                     LEFT JOIN SYSCAT.CONSTDEP CD
+                          ON CD.TABSCHEMA = TC.TABSCHEMA
+                              AND CD.TABNAME = TC.TABNAME
+                              AND CD.CONSTNAME = TC.CONSTNAME
+                              AND CD.BTYPE = 'I'
             WHERE %s
               AND TC.TYPE = 'P'
             ORDER BY TC.TABNAME,
@@ -357,6 +364,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                 constraintName: $row[1],
                 isClustered: true,
                 columnName: $row[2],
+                indexName: $row[3],
             );
         }
     }
@@ -390,12 +398,18 @@ final readonly class Db2MetadataProvider implements MetadataProvider
             <<<'SQL'
             SELECT TC.TABNAME,
                    TC.CONSTNAME,
-                   KCU.COLNAME
+                   KCU.COLNAME,
+                   CD.BNAME
             FROM SYSCAT.TABCONST TC
                      JOIN SYSCAT.KEYCOLUSE KCU
                           ON KCU.TABSCHEMA = TC.TABSCHEMA
                               AND KCU.TABNAME = TC.TABNAME
                               AND KCU.CONSTNAME = TC.CONSTNAME
+                     LEFT JOIN SYSCAT.CONSTDEP CD
+                          ON CD.TABSCHEMA = TC.TABSCHEMA
+                              AND CD.TABNAME = TC.TABNAME
+                              AND CD.CONSTNAME = TC.CONSTNAME
+                              AND CD.BTYPE = 'I'
             WHERE %s
               AND TC.TYPE = 'U'
             ORDER BY TC.TABNAME,
@@ -414,6 +428,7 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                 columnName: $row[2],
                 isClustered: false,
                 isDerived: false,
+                indexName: $row[3],
             );
         }
     }

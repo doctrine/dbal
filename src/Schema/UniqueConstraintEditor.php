@@ -23,6 +23,8 @@ final class UniqueConstraintEditor
 
     private bool $isDerived = false;
 
+    private ?Index $derivedIndex = null;
+
     /** @internal Use {@link UniqueConstraint::editor()} or {@link UniqueConstraint::edit()} to create an instance */
     public function __construct()
     {
@@ -116,9 +118,18 @@ final class UniqueConstraintEditor
         return $this;
     }
 
+    /** @internal Sets whether the database reports the constraint because of the unique index of the same name. */
     public function setIsDerived(bool $isDerived): self
     {
         $this->isDerived = $isDerived;
+
+        return $this;
+    }
+
+    /** @internal Sets the index that the database created to enforce the constraint. It must be derived. */
+    public function setDerivedIndex(?Index $index): self
+    {
+        $this->derivedIndex = $index;
 
         return $this;
     }
@@ -129,6 +140,12 @@ final class UniqueConstraintEditor
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($this->name);
         }
 
-        return new UniqueConstraint($this->name, $this->columnNames, $this->isClustered, $this->isDerived);
+        return new UniqueConstraint(
+            $this->name,
+            $this->columnNames,
+            $this->isClustered,
+            $this->isDerived,
+            $this->derivedIndex,
+        );
     }
 }

@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -71,7 +73,44 @@ class UniqueConstraintTest extends TestCase
         yield 'not clustered' => [false];
     }
 
-    public function testEditKeepsIsDerived(): void
+    public function testDerivedConstraintCannotHoldDerivedIndex(): void
+    {
+        $editor = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setIsDerived(true)
+            ->setDerivedIndex(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            );
+
+        $this->expectException(InvalidUniqueConstraintDefinition::class);
+
+        $editor->create();
+    }
+
+    public function testHeldIndexMustBeDerived(): void
+    {
+        $editor = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setDerivedIndex(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            );
+
+        $this->expectException(InvalidUniqueConstraintDefinition::class);
+
+        $editor->create();
+    }
+
+    public function testEditedUniqueConstraintIsNotDerived(): void
     {
         $uniqueConstraint = UniqueConstraint::editor()
             ->setUnquotedName('users_email_uq')
@@ -79,10 +118,6 @@ class UniqueConstraintTest extends TestCase
             ->setIsDerived(true)
             ->create();
 
-        $edited = $uniqueConstraint->edit()
-            ->setUnquotedColumnNames('email', 'tenant_id')
-            ->create();
-
-        self::assertTrue($edited->isDerived());
+        self::assertFalse($uniqueConstraint->edit()->create()->isDerived());
     }
 }

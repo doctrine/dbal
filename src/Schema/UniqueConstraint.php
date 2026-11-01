@@ -32,9 +32,18 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
         private array $columnNames,
         private bool $isClustered,
         private bool $isDerived,
+        private ?Index $derivedIndex = null,
     ) {
         if (count($columnNames) < 1) {
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($name);
+        }
+
+        if ($isDerived && $derivedIndex !== null) {
+            throw InvalidUniqueConstraintDefinition::fromDerivedConstraintWithDerivedIndex($name);
+        }
+
+        if ($derivedIndex !== null && ! $derivedIndex->isDerived()) {
+            throw InvalidUniqueConstraintDefinition::fromHeldIndexNotDerived($name);
         }
     }
 
@@ -71,6 +80,12 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
         return $this->isDerived;
     }
 
+    /** @internal Returns the index that the database created to enforce this constraint. */
+    public function getDerivedIndex(): ?Index
+    {
+        return $this->derivedIndex;
+    }
+
     /**
      * Instantiates a new unique constraint editor.
      */
@@ -87,7 +102,6 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
         return self::editor()
             ->setName($this->name)
             ->setColumnNames(...$this->columnNames)
-            ->setIsClustered($this->isClustered)
-            ->setIsDerived($this->isDerived);
+            ->setIsClustered($this->isClustered);
     }
 }

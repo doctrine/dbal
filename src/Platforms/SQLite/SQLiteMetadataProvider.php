@@ -366,6 +366,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
 
     /**
      * @link https://www.sqlite.org/pragma.html#pragma_table_info
+     * @link https://www.sqlite.org/pragma.html#pragma_index_list
      *
      * @return iterable<PrimaryKeyConstraintColumnRow>
      *
@@ -378,9 +379,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         $sql = sprintf(
             <<<'SQL'
             SELECT t.name,
-                   c.name
+                   c.name,
+                   i.name
             FROM sqlite_master t
                      JOIN pragma_table_info(t.name) c
+                     LEFT JOIN pragma_index_list(t.name) i
+                               ON i.origin = 'pk'
             WHERE %s
               AND c.pk > 0
             ORDER BY t.name,
@@ -396,6 +400,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 constraintName: null,
                 isClustered: true,
                 columnName: $row[1],
+                indexName: $row[2],
             );
         }
     }
@@ -468,6 +473,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 columnName: $row[2],
                 isClustered: false,
                 isDerived: false,
+                indexName: $row[1],
             );
         }
     }

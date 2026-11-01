@@ -358,7 +358,8 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             <<<'SQL'
             SELECT C.TABLE_NAME,
                    C.CONSTRAINT_NAME,
-                   CC.COLUMN_NAME
+                   CC.COLUMN_NAME,
+                   C.INDEX_NAME
             FROM USER_CONSTRAINTS C
                      JOIN USER_CONS_COLUMNS CC
                           ON CC.TABLE_NAME = C.TABLE_NAME
@@ -379,6 +380,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 constraintName: $row[1],
                 isClustered: true,
                 columnName: $row[2],
+                indexName: $row[3],
             );
         }
     }
@@ -412,7 +414,8 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             <<<'SQL'
             SELECT C.TABLE_NAME,
                    C.CONSTRAINT_NAME,
-                   CC.COLUMN_NAME
+                   CC.COLUMN_NAME,
+                   C.INDEX_NAME
             FROM USER_CONSTRAINTS C
                      JOIN USER_CONS_COLUMNS CC
                           ON CC.TABLE_NAME = C.TABLE_NAME
@@ -435,6 +438,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 columnName: $row[2],
                 isClustered: false,
                 isDerived: false,
+                indexName: $row[3],
             );
         }
     }

@@ -6,7 +6,10 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableExistsException;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -1081,6 +1084,83 @@ final class SchemaManagerTest extends FunctionalTestCase
         );
 
         self::assertCount(1, [...$declaredIndexes, ...$declaredUniqueConstraints]);
+    }
+
+    public function testUniqueIndexHoldsItsUniqueConstraint(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('Only MySQL and MariaDB derive a unique constraint from a unique index.');
+        }
+
+        $this->dropTableIfExists('accounts');
+
+        $this->schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('accounts')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('email')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(64)
+                        ->create(),
+                )
+                ->setIndexes(
+                    Index::editor()
+                        ->setUnquotedName('accounts_email_uq')
+                        ->setType(IndexType::UNIQUE)
+                        ->setUnquotedColumnNames('email')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('accounts');
+
+        self::assertCount(1, $table->getUniqueConstraints());
+        self::assertTrue($table->getUniqueConstraints()[0]->isDerived());
+
+        $table = $table->edit()
+            ->dropIndexByUnquotedName('accounts_email_uq')
+            ->create();
+
+        self::assertSame([], $table->getUniqueConstraints());
+    }
+
+    public function testIndexAdoptedByUniqueConstraintIsNotDerived(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof OraclePlatform && ! $platform instanceof DB2Platform) {
+            self::markTestSkipped('Only Oracle and Db2 let a constraint adopt an existing index.');
+        }
+
+        $this->dropTableIfExists('accounts');
+
+        $this->schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('accounts')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('email')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(64)
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $this->connection->executeStatement('CREATE UNIQUE INDEX accounts_email_idx ON accounts (email)');
+        $this->connection->executeStatement('ALTER TABLE accounts ADD CONSTRAINT accounts_email_uq UNIQUE (email)');
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('accounts');
+
+        self::assertFalse($table->getIndex('accounts_email_idx')->isDerived());
+
+        $table = $table->edit()
+            ->dropUniqueConstraintByUnquotedName('accounts_email_uq')
+            ->create();
+
+        self::assertTrue($table->hasIndex('accounts_email_idx'));
     }
 
     public function testRecreateIntrospectedTableWithUniqueConstraint(): void

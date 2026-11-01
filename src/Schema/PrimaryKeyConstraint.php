@@ -28,9 +28,14 @@ final readonly class PrimaryKeyConstraint implements OptionallyNamedObject
         private ?UnqualifiedName $name,
         private array $columnNames,
         private bool $isClustered,
+        private ?Index $derivedIndex = null,
     ) {
         if (count($this->columnNames) < 1) {
             throw InvalidPrimaryKeyConstraintDefinition::columnNamesNotSet();
+        }
+
+        if ($derivedIndex !== null && ! $derivedIndex->isDerived()) {
+            throw InvalidPrimaryKeyConstraintDefinition::heldIndexNotDerived();
         }
     }
 
@@ -56,6 +61,12 @@ final readonly class PrimaryKeyConstraint implements OptionallyNamedObject
     public function isClustered(): bool
     {
         return $this->isClustered;
+    }
+
+    /** @internal Returns the index that the database created to enforce this constraint. */
+    public function getDerivedIndex(): ?Index
+    {
+        return $this->derivedIndex;
     }
 
     /**
