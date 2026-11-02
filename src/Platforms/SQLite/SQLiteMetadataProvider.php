@@ -475,6 +475,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 id: $row[1],
                 name: $constraintNames[$position] ?? null,
                 columnName: $row[2],
+                isClustered: false,
             );
         }
     }

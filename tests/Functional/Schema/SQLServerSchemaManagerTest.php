@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Types;
 
 use function array_shift;
@@ -188,6 +189,33 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNotNull($firstIndex);
 
         self::assertSame(['colB', 'colA'], $firstIndex->getColumns());
+    }
+
+    public function testClusteredUniqueConstraint(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedName('test_clustered_unique_uq')
+            ->setUnquotedColumnNames('id')
+            ->setIsClustered(true)
+            ->create();
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('test_clustered_unique')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setUniqueConstraints($uniqueConstraint)
+                ->create(),
+        );
+
+        $this->assertUniqueConstraintListEquals(
+            [$uniqueConstraint],
+            $this->schemaManager->introspectTableUniqueConstraintsByUnquotedName('test_clustered_unique'),
+        );
     }
 
     public function testNvarcharMaxIsLengthMinus1(): void
