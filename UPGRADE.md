@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: The comparator compares unique constraints
+
+`Comparator::compareTables()` now reports the unique constraints to add and drop, which
+`TableDiff::getAddedUniqueConstraints()` and `TableDiff::getDroppedUniqueConstraintNames()` return. Dropping one that
+has no name raises `Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName`. On SQLite, that includes a unique
+constraint declared without a name in the database.
+
 ## BC BREAK: Introspection reports the indexes that enforce primary keys
 
 `AbstractSchemaManager::introspectTableIndexes()` and `Table::getIndexes()` on an introspected table now return the

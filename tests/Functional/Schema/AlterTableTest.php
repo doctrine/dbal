@@ -596,6 +596,94 @@ class AlterTableTest extends FunctionalTestCase
         );
     }
 
+    public function testReplaceIndexCoveringForeignKeyWithUniqueConstraint(): void
+    {
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_article_idx')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $newOrders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable($oldOrders->create(), $newOrders->create());
+    }
+
+    public function testWithdrawUniqueIndexCoveringForeignKeyAndAddUniqueConstraintNamedAfterForeignKey(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof AbstractMySQLPlatform && ! $platform instanceof SQLitePlatform) {
+            self::markTestSkipped(
+                'Only MySQL, MariaDB and SQLite allow a unique constraint to have the name of a foreign key',
+            );
+        }
+
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $newOrders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('articles_fk')
+                    ->setUnquotedColumnNames('quantity')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable($oldOrders->create(), $newOrders->create());
+    }
+
+    public function testReplaceIndexCoveringForeignKeyWithUniqueConstraintOfSameName(): void
+    {
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_idx')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $newOrders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_idx')
+                    ->setUnquotedColumnNames('quantity')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable($oldOrders->create(), $newOrders->create());
+    }
+
+    public function testWithdrawUniqueConstraintCoveringForeignKey(): void
+    {
+        $orders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable(
+            $orders->create(),
+            $this->createOrdersEditor()->create(),
+        );
+    }
+
     public function testDropPrimaryKeyCoveringForeignKey(): void
     {
         $orders = $this->createOrdersEditor()

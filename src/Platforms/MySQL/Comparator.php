@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Override;
 
+use function array_any;
 use function array_filter;
 use function array_values;
 use function count;
@@ -87,6 +88,13 @@ class Comparator extends BaseComparator
         $droppedIndexes = $diff->getDroppedIndexes();
         $addedIndexes   = $diff->getAddedIndexes();
 
+        $oldUniqueConstraints = array_values(array_filter(
+            $oldTable->getUniqueConstraints(),
+            static fn (UniqueConstraint $constraint): bool => ! $constraint->isDerived(),
+        ));
+
+        $resultingUniqueConstraints = $this->getResultingUniqueConstraints($oldUniqueConstraints, $diff, $folding);
+
         foreach ($this->getSurvivingForeignKeys($diff, $newTable) as $foreignKey) {
             $columnNames = $foreignKey->getReferencingColumnNames();
 
@@ -96,14 +104,14 @@ class Comparator extends BaseComparator
                     $columnNames,
                     $oldIndexes,
                     $oldTable->getPrimaryKeyConstraint(),
-                    $oldTable->getUniqueConstraints(),
+                    $oldUniqueConstraints,
                     $folding,
                 )
                 || $this->isCovered(
                     $columnNames,
                     $resultingIndexes,
                     $newTable->getPrimaryKeyConstraint(),
-                    $newTable->getUniqueConstraints(),
+                    $resultingUniqueConstraints,
                     $folding,
                 )
             ) {
@@ -117,7 +125,13 @@ class Comparator extends BaseComparator
 
             $columnNames = $coveringForeignKey->getReferencingColumnNames();
 
-            $candidate = $this->findRegularCover($columnNames, $droppedIndexes, $resultingIndexes, $folding);
+            $candidate = $this->findRegularCover(
+                $columnNames,
+                $droppedIndexes,
+                $resultingIndexes,
+                $resultingUniqueConstraints,
+                $folding,
+            );
 
             if ($candidate !== null) {
                 $droppedIndexes = array_values(array_filter(
@@ -130,7 +144,13 @@ class Comparator extends BaseComparator
                 continue;
             }
 
-            $cover = $this->createCover($coveringForeignKey, $newTable, $resultingIndexes);
+            $cover = $this->createCover(
+                $coveringForeignKey,
+                $newTable,
+                $resultingIndexes,
+                $resultingUniqueConstraints,
+                $folding,
+            );
 
             $addedIndexes[] = $cover;
             $resultingIndexes->add($cover);
@@ -152,6 +172,8 @@ class Comparator extends BaseComparator
             droppedForeignKeyConstraintNames: $diff->getDroppedForeignKeyConstraintNames(),
             addedPrimaryKeyConstraint: $diff->getAddedPrimaryKeyConstraint(),
             droppedPrimaryKeyConstraint: $diff->getDroppedPrimaryKeyConstraint(),
+            addedUniqueConstraints: $diff->getAddedUniqueConstraints(),
+            droppedUniqueConstraintNames: $diff->getDroppedUniqueConstraintNames(),
         );
     }
 
@@ -178,6 +200,34 @@ class Comparator extends BaseComparator
         }
 
         return $resultingIndexes;
+    }
+
+    /**
+     * @param list<UniqueConstraint> $oldUniqueConstraints
+     *
+     * @return list<UniqueConstraint>
+     */
+    private function getResultingUniqueConstraints(
+        array $oldUniqueConstraints,
+        TableDiff $diff,
+        UnquotedIdentifierFolding $folding,
+    ): array {
+        $resultingUniqueConstraints = [];
+
+        foreach ($oldUniqueConstraints as $constraint) {
+            $name = $constraint->getObjectName();
+
+            if (
+                $name === null || ! array_any(
+                    $diff->getDroppedUniqueConstraintNames(),
+                    static fn (UnqualifiedName $droppedName): bool => $droppedName->equals($name, $folding),
+                )
+            ) {
+                $resultingUniqueConstraints[] = $constraint;
+            }
+        }
+
+        return [...$resultingUniqueConstraints, ...array_values($diff->getAddedUniqueConstraints())];
     }
 
     /**
@@ -247,11 +297,13 @@ class Comparator extends BaseComparator
      * @param non-empty-list<UnqualifiedName>  $columnNames
      * @param array<Index>                     $droppedIndexes
      * @param UnqualifiedNamedObjectSet<Index> $resultingIndexes
+     * @param list<UniqueConstraint>           $resultingUniqueConstraints
      */
     private function findRegularCover(
         array $columnNames,
         array $droppedIndexes,
         UnqualifiedNamedObjectSet $resultingIndexes,
+        array $resultingUniqueConstraints,
         UnquotedIdentifierFolding $folding,
     ): ?Index {
         $candidates = [];
@@ -259,7 +311,12 @@ class Comparator extends BaseComparator
         foreach ($droppedIndexes as $index) {
             if (
                 $index->getType() === IndexType::REGULAR
-                && $resultingIndexes->get($index->getObjectName()) === null
+                && ! $this->isNameTaken(
+                    $index->getObjectName(),
+                    $resultingIndexes,
+                    $resultingUniqueConstraints,
+                    $folding,
+                )
                 && $this->indexCovers($index, $columnNames, $folding)
             ) {
                 $candidates[$index->getObjectName()->getIdentifier()->toNormalizedValue($folding)] = $index;
@@ -275,18 +332,26 @@ class Comparator extends BaseComparator
         return reset($candidates);
     }
 
-    /** @param UnqualifiedNamedObjectSet<Index> $resultingIndexes */
+    /**
+     * @param UnqualifiedNamedObjectSet<Index> $resultingIndexes
+     * @param list<UniqueConstraint>           $resultingUniqueConstraints
+     */
     private function createCover(
         ForeignKeyConstraint $foreignKey,
         Table $newTable,
         UnqualifiedNamedObjectSet $resultingIndexes,
+        array $resultingUniqueConstraints,
+        UnquotedIdentifierFolding $folding,
     ): Index {
         $editor = Index::editor()
             ->setColumnNames(...$foreignKey->getReferencingColumnNames());
 
         $name = $foreignKey->getObjectName();
 
-        if ($name !== null && $resultingIndexes->get($name) === null) {
+        if (
+            $name !== null
+            && ! $this->isNameTaken($name, $resultingIndexes, $resultingUniqueConstraints, $folding)
+        ) {
             return $editor
                 ->setName($name)
                 ->create();
@@ -297,7 +362,11 @@ class Comparator extends BaseComparator
         $cover = $editor->createForTable($newTable->getObjectName()->getUnqualifiedName(), $maxIdentifierLength);
         $base  = $cover->getObjectName()->getIdentifier()->getValue();
 
-        for ($suffix = 2; $resultingIndexes->get($cover->getObjectName()) !== null; $suffix++) {
+        for (
+            $suffix = 2;
+            $this->isNameTaken($cover->getObjectName(), $resultingIndexes, $resultingUniqueConstraints, $folding);
+            $suffix++
+        ) {
             $suffixed = '_' . $suffix;
 
             $cover = $editor
@@ -306,6 +375,34 @@ class Comparator extends BaseComparator
         }
 
         return $cover;
+    }
+
+    /**
+     * Returns whether an index or a unique constraint of the altered table has the given name. MySQL implements a
+     * unique constraint as an index, so both kinds share one namespace.
+     *
+     * @param UnqualifiedNamedObjectSet<Index> $resultingIndexes
+     * @param list<UniqueConstraint>           $resultingUniqueConstraints
+     */
+    private function isNameTaken(
+        UnqualifiedName $name,
+        UnqualifiedNamedObjectSet $resultingIndexes,
+        array $resultingUniqueConstraints,
+        UnquotedIdentifierFolding $folding,
+    ): bool {
+        if ($resultingIndexes->get($name) !== null) {
+            return true;
+        }
+
+        foreach ($resultingUniqueConstraints as $constraint) {
+            $constraintName = $constraint->getObjectName();
+
+            if ($constraintName !== null && $constraintName->equals($name, $folding)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @param non-empty-list<UnqualifiedName> $columnNames */
@@ -440,6 +537,10 @@ class Comparator extends BaseComparator
             }
         }
 
-        return $editor === null ? $table : $editor->create();
+        if ($editor === null) {
+            return $table;
+        }
+
+        return $editor->create();
     }
 }
