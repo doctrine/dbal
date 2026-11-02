@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Metadata;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\Deprecations\Deprecation;
 
 /**
  * A row of metadata describing a unique constraint column.
@@ -12,6 +13,8 @@ use Doctrine\DBAL\Exception\InvalidArgumentException;
 final readonly class UniqueConstraintColumnMetadataRow
 {
     private int|string $id;
+
+    private bool $isClustered;
 
     /**
      * @param ?non-empty-string         $schemaName
@@ -30,8 +33,21 @@ final readonly class UniqueConstraintColumnMetadataRow
         int|string|null $id,
         private ?string $name,
         private string $columnName,
-        private bool $isClustered = false,
+        ?bool $isClustered = null,
     ) {
+        if ($isClustered === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7591',
+                'Not passing $isClustered to %s() is deprecated.',
+                __METHOD__,
+            );
+
+            $this->isClustered = false;
+        } else {
+            $this->isClustered = $isClustered;
+        }
+
         if ($id !== null) {
             $this->id = $id;
         } elseif ($name !== null) {

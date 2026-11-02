@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.6
 
+## Deprecated not passing `$isClustered` to the `UniqueConstraintColumnMetadataRow` constructor
+
+Not passing `$isClustered` to the `Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow` constructor is
+deprecated. Pass whether the unique constraint is clustered. The argument will become required in DBAL 5.0.
+
 ## Deprecated support for MariaDB 10.6 - 10.10 and MySQL 8.0 - 8.3
 
 * Upgrade to MariaDB 10.11 or later.
