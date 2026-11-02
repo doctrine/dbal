@@ -15,10 +15,12 @@ use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -29,6 +31,7 @@ use InvalidArgumentException;
 use function array_combine;
 use function array_fill_keys;
 use function array_keys;
+use function array_map;
 use function array_merge;
 use function array_search;
 use function array_unique;
@@ -686,7 +689,7 @@ class SQLitePlatform extends AbstractPlatform
             $table->getQuotedName($this),
             $columns,
             $this->getPrimaryIndexForAlteredTable($diff),
-            [],
+            $this->getUniqueConstraintsForAlteredTable($diff),
             $this->getForeignKeysForAlteredTable($diff),
             $table->getOptions(),
         );
@@ -910,6 +913,35 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         return $indexes;
+    }
+
+    /**
+     * Returns the unique constraints to create the altered table with, leaving out those over a dropped column.
+     *
+     * @return list<UniqueConstraint>
+     */
+    private function getUniqueConstraintsForAlteredTable(TableDiff $diff): array
+    {
+        $nameMap           = $this->getDiffColumnNameMap($diff);
+        $uniqueConstraints = [];
+
+        foreach ($diff->getOldTable()->getUniqueConstraints() as $uniqueConstraint) {
+            $columnNames = $this->getColumnNamesForAlteredTable(
+                array_map(
+                    static fn (UnqualifiedName $columnName): string => $columnName->getIdentifier()->getValue(),
+                    $uniqueConstraint->getColumnNames(),
+                ),
+                $nameMap,
+            );
+
+            if ($columnNames !== null) {
+                $uniqueConstraints[] = $uniqueConstraint->edit()
+                    ->setUnquotedColumnNames(...$columnNames)
+                    ->create();
+            }
+        }
+
+        return $uniqueConstraints;
     }
 
     /** @return array<ForeignKeyConstraint> */
