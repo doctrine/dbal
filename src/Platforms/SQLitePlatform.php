@@ -824,6 +824,31 @@ class SQLitePlatform extends AbstractPlatform
         return $map;
     }
 
+    /**
+     * Returns the names to give the given columns in the altered table, or null if the table drops any of them.
+     *
+     * @param non-empty-array<string>                   $columnNames
+     * @param array<non-empty-string, non-empty-string> $nameMap
+     *
+     * @return ?non-empty-list<non-empty-string>
+     */
+    private function getColumnNamesForAlteredTable(array $columnNames, array $nameMap): ?array
+    {
+        $alteredColumnNames = [];
+
+        foreach ($columnNames as $columnName) {
+            $normalizedColumnName = strtolower($columnName);
+
+            if (! isset($nameMap[$normalizedColumnName])) {
+                return null;
+            }
+
+            $alteredColumnNames[] = $nameMap[$normalizedColumnName];
+        }
+
+        return $alteredColumnNames;
+    }
+
     /** @return array<Index> */
     private function getIndexesForAlteredTable(TableDiff $diff): array
     {
@@ -839,24 +864,17 @@ class SQLitePlatform extends AbstractPlatform
                 }
             }
 
-            $changed      = false;
-            $indexColumns = [];
             // Use the unquoted column names so the lookup is agnostic of whether the index
             // was introspected (which marks its column names as quoted) or built in memory.
-            foreach ($index->getUnquotedColumns() as $columnName) {
-                $normalizedColumnName = strtolower($columnName);
-                if (! isset($nameMap[$normalizedColumnName])) {
-                    unset($indexes[$key]);
-                    continue 2;
-                }
+            $columnNames  = $index->getUnquotedColumns();
+            $indexColumns = $this->getColumnNamesForAlteredTable($columnNames, $nameMap);
 
-                $indexColumns[] = $nameMap[$normalizedColumnName];
-                if ($columnName !== $nameMap[$normalizedColumnName]) {
-                    $changed = true;
-                }
+            if ($indexColumns === null) {
+                unset($indexes[$key]);
+                continue;
             }
 
-            if ($changed) {
+            if ($indexColumns !== $columnNames) {
                 $indexes[$key] = new Index(
                     $index->getName(),
                     $indexColumns,
@@ -902,24 +920,17 @@ class SQLitePlatform extends AbstractPlatform
         $nameMap     = $this->getDiffColumnNameMap($diff);
 
         foreach ($foreignKeys as $key => $constraint) {
-            $changed      = false;
-            $localColumns = [];
             // Use the unquoted column names so the lookup is agnostic of whether the constraint
             // was introspected (which marks its column names as quoted) or built in memory.
-            foreach ($constraint->getUnquotedLocalColumns() as $columnName) {
-                $normalizedColumnName = strtolower($columnName);
-                if (! isset($nameMap[$normalizedColumnName])) {
-                    unset($foreignKeys[$key]);
-                    continue 2;
-                }
+            $columnNames  = $constraint->getUnquotedLocalColumns();
+            $localColumns = $this->getColumnNamesForAlteredTable($columnNames, $nameMap);
 
-                $localColumns[] = $nameMap[$normalizedColumnName];
-                if ($columnName !== $nameMap[$normalizedColumnName]) {
-                    $changed = true;
-                }
+            if ($localColumns === null) {
+                unset($foreignKeys[$key]);
+                continue;
             }
 
-            if ($changed) {
+            if ($localColumns !== $columnNames) {
                 $foreignKeys[$key] = new ForeignKeyConstraint(
                     $localColumns, // @phpstan-ignore argument.type
                     $constraint->getForeignTableName(),
