@@ -659,6 +659,64 @@ class AlterTableTest extends FunctionalTestCase
         $this->assertMigrationReachesDesiredTable($oldOrders, $newOrders);
     }
 
+    public function testReplaceIndexSupportingForeignKeyWithUniqueConstraint(): void
+    {
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_article_idx')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $newOrders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable($oldOrders->create(), $newOrders->create());
+    }
+
+    public function testReplaceIndexSupportingForeignKeyWithUniqueConstraintOfSameName(): void
+    {
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_idx')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $newOrders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_idx')
+                    ->setUnquotedColumnNames('quantity')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable($oldOrders->create(), $newOrders->create());
+    }
+
+    public function testWithdrawUniqueConstraintSupportingForeignKey(): void
+    {
+        $orders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable(
+            $orders->create(),
+            $this->createOrdersEditor()->create(),
+        );
+    }
+
     public function testDropPrimaryKeySupportingForeignKey(): void
     {
         $orders = $this->createOrdersEditor()

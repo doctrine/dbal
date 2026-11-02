@@ -362,12 +362,20 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $queryParts[] = 'ADD ' . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
+        foreach ($diff->getDroppedUniqueConstraintNames() as $constraintName) {
+            $queryParts[] = 'DROP INDEX ' . $constraintName->toSQL($this);
+        }
+
         foreach ($diff->getDroppedIndexes() as $index) {
             $queryParts[] = 'DROP INDEX ' . $index->getObjectName()->toSQL($this);
         }
 
         foreach ($diff->getAddedIndexes() as $index) {
             $queryParts[] = 'ADD ' . $this->getIndexDeclarationSQL($index);
+        }
+
+        foreach ($diff->getAddedUniqueConstraints() as $uniqueConstraint) {
+            $queryParts[] = 'ADD ' . $this->getUniqueConstraintDeclarationSQL($uniqueConstraint);
         }
 
         foreach ($diff->getIndexRenames() as $rename) {

@@ -686,6 +686,8 @@ class SQLitePlatform extends AbstractPlatform
             || count($diff->getAddedIndexes()) > 0
             || count($diff->getDroppedIndexes()) > 0
             || count($diff->getIndexRenames()) > 0
+            || count($diff->getAddedUniqueConstraints()) > 0
+            || count($diff->getDroppedUniqueConstraintNames()) > 0
             || count($diff->getAddedForeignKeys()) > 0
             || count($diff->getDroppedForeignKeyConstraintNames()) > 0
             || $diff->getDroppedPrimaryKeyConstraint() !== null
@@ -861,16 +863,28 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
-     * Returns the unique constraints to create the altered table with, leaving out those over a dropped column.
+     * Returns the unique constraints to create the altered table with: the added ones, and the old ones that are
+     * neither dropped nor over a dropped column.
      *
      * @return list<UniqueConstraint>
      */
     private function getUniqueConstraintsForAlteredTable(TableDiff $diff): array
     {
         $nameMap           = $this->getDiffColumnNameMap($diff);
+        $droppedNames      = [];
         $uniqueConstraints = [];
 
+        foreach ($diff->getDroppedUniqueConstraintNames() as $constraintName) {
+            $droppedNames[$this->getKey($constraintName)] = true;
+        }
+
         foreach ($diff->getOldTable()->getUniqueConstraints() as $uniqueConstraint) {
+            $constraintName = $uniqueConstraint->getObjectName();
+
+            if ($constraintName !== null && isset($droppedNames[$this->getKey($constraintName)])) {
+                continue;
+            }
+
             $columnNames = $this->getColumnNamesForAlteredTable($uniqueConstraint->getColumnNames(), $nameMap);
 
             if ($columnNames !== null) {
@@ -878,6 +892,10 @@ class SQLitePlatform extends AbstractPlatform
                     ->setUnquotedColumnNames(...$columnNames)
                     ->create();
             }
+        }
+
+        foreach ($diff->getAddedUniqueConstraints() as $uniqueConstraint) {
+            $uniqueConstraints[] = $uniqueConstraint;
         }
 
         return $uniqueConstraints;

@@ -365,6 +365,8 @@ class Comparator extends BaseComparator
             droppedForeignKeyConstraintNames: $droppedForeignKeyConstraintNames,
             addedPrimaryKeyConstraint: $diff->getAddedPrimaryKeyConstraint(),
             droppedPrimaryKeyConstraint: $diff->getDroppedPrimaryKeyConstraint(),
+            addedUniqueConstraints: $diff->getAddedUniqueConstraints(),
+            droppedUniqueConstraintNames: $diff->getDroppedUniqueConstraintNames(),
         );
     }
 
