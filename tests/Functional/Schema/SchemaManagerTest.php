@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Name\Identifier;
@@ -1087,6 +1088,124 @@ final class SchemaManagerTest extends FunctionalTestCase
         self::assertCount(1, [...$declaredIndexes, ...$declaredUniqueConstraints]);
     }
 
+    public function testPrimaryKeyIndexIntrospectsAsDerived(): void
+    {
+        $this->dropTableIfExists('composite_pk');
+
+        $this->schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('composite_pk')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('code')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(16)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id', 'code')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $index = $this->getDerivedIndex($this->schemaManager->introspectTableByUnquotedName('composite_pk'));
+
+        $this->assertIndexedColumnListEquals([
+            new IndexedColumn(UnqualifiedName::unquoted('id'), null),
+            new IndexedColumn(UnqualifiedName::unquoted('code'), null),
+        ], $index->getIndexedColumns());
+    }
+
+    public function testDroppingUniqueConstraintDropsOnlyItsBackingIndex(): void
+    {
+        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('MySQL and MariaDB expose a unique index as a unique constraint.');
+        }
+
+        $this->dropTableIfExists('accounts');
+
+        $this->schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('accounts')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('email')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(64)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('login')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(64)
+                        ->create(),
+                )
+                ->setUniqueConstraints(
+                    UniqueConstraint::editor()
+                        ->setUnquotedName('accounts_email_uq')
+                        ->setUnquotedColumnNames('email')
+                        ->create(),
+                    UniqueConstraint::editor()
+                        ->setUnquotedName('accounts_login_uq')
+                        ->setUnquotedColumnNames('login')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('accounts')
+            ->edit()
+            ->dropUniqueConstraintByUnquotedName('accounts_email_uq')
+            ->create();
+
+        $this->assertIndexedColumnListEquals(
+            [new IndexedColumn(UnqualifiedName::unquoted('login'), null)],
+            $this->getDerivedIndex($table)->getIndexedColumns(),
+        );
+    }
+
+    public function testDroppingPrimaryKeyDropsItsBackingIndex(): void
+    {
+        $this->dropTableIfExists('composite_pk');
+
+        $this->schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('composite_pk')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('code')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(16)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id', 'code')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('composite_pk');
+
+        $this->getDerivedIndex($table);
+
+        $table = $table->edit()
+            ->dropPrimaryKeyConstraint()
+            ->create();
+
+        self::assertSame([], $table->getIndexes());
+    }
+
     public function testDroppingUniqueIndexDropsItsDerivedUniqueConstraint(): void
     {
         if (! $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
@@ -1167,6 +1286,97 @@ final class SchemaManagerTest extends FunctionalTestCase
         self::assertTrue($table->hasIndex('accounts_email_idx'));
     }
 
+    public function testIndexAdoptedByPrimaryKeyIsNotDerived(): void
+    {
+        $table = $this->createTableWithIndexAdoptedByPrimaryKey();
+
+        $index = $table->getIndex('accounts_id_idx');
+
+        self::assertSame(ObjectOrigin::DECLARED, $index->getOrigin());
+        self::assertSame($index, $table->getPrimaryKeyConstraint()?->getBackingIndex());
+
+        $table = $table->edit()
+            ->dropPrimaryKeyConstraint()
+            ->create();
+
+        self::assertTrue($table->hasIndex('accounts_id_idx'));
+    }
+
+    public function testRecreateIntrospectedTableWithIndexAdoptedByPrimaryKey(): void
+    {
+        $table = $this->createTableWithIndexAdoptedByPrimaryKey();
+
+        $this->dropTableIfExists('accounts');
+        $this->schemaManager->createTable($table);
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($this->schemaManager->introspectTableByUnquotedName('accounts'), $table)
+                ->isEmpty(),
+        );
+    }
+
+    public function testIndexAdoptedByPrimaryKeyIsNotDropped(): void
+    {
+        $table = $this->createTableWithIndexAdoptedByPrimaryKey();
+
+        $desired = $table->edit()
+            ->dropIndexByUnquotedName('accounts_id_idx')
+            ->create();
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($table, $desired)
+                ->isEmpty(),
+        );
+    }
+
+    public function testRenameIndexAdoptedByPrimaryKey(): void
+    {
+        $table = $this->createTableWithIndexAdoptedByPrimaryKey();
+
+        $desired = $table->edit()
+            ->renameIndexByUnquotedName('accounts_id_idx', 'accounts_pk_idx')
+            ->create();
+
+        $comparator = $this->schemaManager->createComparator();
+
+        $this->schemaManager->alterTable($comparator->compareTables($table, $desired));
+
+        self::assertTrue(
+            $comparator->compareTables($this->schemaManager->introspectTableByUnquotedName('accounts'), $desired)
+                ->isEmpty(),
+        );
+    }
+
+    private function createTableWithIndexAdoptedByPrimaryKey(): Table
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof OraclePlatform && ! $platform instanceof DB2Platform) {
+            self::markTestSkipped('Only Oracle and Db2 let a constraint adopt an existing index.');
+        }
+
+        $this->dropTableIfExists('accounts');
+
+        $this->schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('accounts')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $this->connection->executeStatement('CREATE UNIQUE INDEX accounts_id_idx ON accounts (id)');
+        $this->connection->executeStatement('ALTER TABLE accounts ADD CONSTRAINT accounts_pk PRIMARY KEY (id)');
+
+        return $this->schemaManager->introspectTableByUnquotedName('accounts');
+    }
+
     public function testRecreateIntrospectedTableWithUniqueConstraint(): void
     {
         $table = $this->createTableWithEmailUniqueConstraint();
@@ -1211,5 +1421,20 @@ final class SchemaManagerTest extends FunctionalTestCase
         );
 
         return $this->schemaManager->introspectTableByUnquotedName('users');
+    }
+
+    /**
+     * Returns the only derived index of the table, and fails the test unless the table has exactly one.
+     */
+    private function getDerivedIndex(Table $table): Index
+    {
+        $indexes = array_values(array_filter(
+            $table->getIndexes(),
+            static fn (Index $index): bool => $index->getOrigin() === ObjectOrigin::DERIVED,
+        ));
+
+        self::assertCount(1, $indexes);
+
+        return $indexes[0];
     }
 }

@@ -9,6 +9,8 @@ use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
+use function array_filter;
+use function array_values;
 use function count;
 use function in_array;
 use function strtolower;
@@ -252,6 +254,10 @@ class Comparator
             $indexRenames = $this->detectIndexRenames($addedIndexes, $droppedIndexes, $folding);
         }
 
+        if ($droppedPrimaryKeyConstraint === null) {
+            $droppedIndexes = $this->withoutPrimaryKeyBackingIndex($droppedIndexes, $oldTable, $newIndexes);
+        }
+
         $oldForeignKeys = $oldTable->getForeignKeys();
         $newForeignKeys = $newTable->getForeignKeys();
 
@@ -352,6 +358,32 @@ class Comparator
                 $removedColumns[$oldColumnName],
             );
         }
+    }
+
+    /**
+     * Returns the given dropped indexes except the one that backs the old primary key, unless the new table declares an
+     * index of the same name. The database refuses to drop the index while the key exists.
+     *
+     * @param array<Index>                     $droppedIndexes
+     * @param UnqualifiedNamedObjectSet<Index> $newIndexes     The declared indexes of the new table.
+     *
+     * @return array<Index>
+     */
+    private function withoutPrimaryKeyBackingIndex(
+        array $droppedIndexes,
+        Table $oldTable,
+        UnqualifiedNamedObjectSet $newIndexes,
+    ): array {
+        $backingIndex = $oldTable->getPrimaryKeyConstraint()?->getBackingIndex();
+
+        if ($backingIndex === null || $newIndexes->get($backingIndex->getObjectName()) !== null) {
+            return $droppedIndexes;
+        }
+
+        return array_values(array_filter(
+            $droppedIndexes,
+            static fn (Index $index): bool => $index !== $backingIndex,
+        ));
     }
 
     private function primaryKeyConstraintsEqual(

@@ -317,7 +317,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                    i.is_unique,
                    i.type,
                    c.name,
-                   i.is_unique_constraint
+                   i.is_primary_key | i.is_unique_constraint
             FROM sys.tables AS t
                      JOIN sys.schemas AS s
                           ON t.schema_id = s.schema_id
@@ -330,7 +330,6 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                           ON idxcol.object_id = c.object_id
                               AND idxcol.column_id = c.column_id
             WHERE %s
-              AND i.is_primary_key = 0
             ORDER BY s.name,
                      t.name,
                      i.name,

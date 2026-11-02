@@ -260,10 +260,6 @@ class DB2Platform extends AbstractPlatform
             $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
         }
 
-        foreach ($diff->getDroppedIndexes() as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
-        }
-
         $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
 
         if ($droppedPrimaryKeyConstraint !== null) {
@@ -274,6 +270,10 @@ class DB2Platform extends AbstractPlatform
             }
 
             $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
+
+        foreach ($diff->getDroppedIndexes() as $index) {
+            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
         }
 
         $queryParts = [];

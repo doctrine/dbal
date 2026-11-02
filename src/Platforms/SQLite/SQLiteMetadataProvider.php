@@ -319,12 +319,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
             SELECT t.name,
                    i.name,
                    i."unique",
-                   c.name
+                   c.name,
+                   i.origin
             FROM sqlite_master t
                      JOIN pragma_index_list(t.name) i
                      JOIN pragma_index_info(i.name) c
             WHERE %s
-              AND i.name NOT LIKE 'sqlite_%%'
             ORDER BY t.name,
                      i.name,
                      c.seqno
@@ -342,7 +342,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[3],
                 columnLength: null,
-                origin: ObjectOrigin::DECLARED,
+                origin: $row[4] !== 'c' ? ObjectOrigin::DERIVED : ObjectOrigin::DECLARED,
             );
         }
     }

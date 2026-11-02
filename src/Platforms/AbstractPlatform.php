@@ -966,11 +966,20 @@ abstract class AbstractPlatform
     private function buildCreateTableSQL(Table $table, bool $createForeignKeys): array
     {
         $tableName                       = $table->getObjectName();
+        $primaryKeyConstraint            = $table->getPrimaryKeyConstraint();
         $parameters                      = $table->getOptions();
-        $parameters['primaryKey']        = $table->getPrimaryKeyConstraint();
+        $parameters['primaryKey']        = $primaryKeyConstraint;
         $parameters['indexes']           = [];
         $parameters['uniqueConstraints'] = [];
         $parameters['foreignKeys']       = [];
+
+        // A primary key adopts an index only if the index exists when the key is added.
+        $addsPrimaryKeyAfterIndexes = $primaryKeyConstraint?->getBackingIndex()?->getOrigin()
+            === ObjectOrigin::DECLARED;
+
+        if ($addsPrimaryKeyAfterIndexes) {
+            $parameters['primaryKey'] = null;
+        }
 
         foreach ($table->getIndexes() as $index) {
             if ($index->getOrigin() === ObjectOrigin::DECLARED) {
@@ -984,7 +993,7 @@ abstract class AbstractPlatform
             }
         }
 
-        if ($createForeignKeys) {
+        if ($createForeignKeys && ! $addsPrimaryKeyAfterIndexes) {
             foreach ($table->getForeignKeys() as $fkConstraint) {
                 $parameters['foreignKeys'][] = $fkConstraint;
             }
@@ -999,6 +1008,18 @@ abstract class AbstractPlatform
         $sql = $this->_getCreateTableSQL($tableName, $columns, $parameters);
 
         $tableNameSQL = $tableName->toSQL($this);
+
+        if ($primaryKeyConstraint !== null && $addsPrimaryKeyAfterIndexes) {
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD '
+                . $this->getPrimaryKeyConstraintDeclarationSQL($primaryKeyConstraint);
+
+            // A foreign key of the table may reference the primary key.
+            if ($createForeignKeys) {
+                foreach ($table->getForeignKeys() as $foreignKey) {
+                    $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
+                }
+            }
+        }
 
         if ($this->supportsCommentOnStatement()) {
             if ($table->hasOption('comment')) {

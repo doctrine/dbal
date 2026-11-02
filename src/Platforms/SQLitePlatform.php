@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
@@ -29,6 +30,7 @@ use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Override;
 
+use function array_filter;
 use function array_merge;
 use function array_values;
 use function assert;
@@ -793,7 +795,10 @@ class SQLitePlatform extends AbstractPlatform
     private function getIndexesForAlteredTable(TableDiff $diff): array
     {
         $oldTable = $diff->getOldTable();
-        $indexes  = new UnqualifiedNamedObjectSet(...$oldTable->getIndexes());
+        $indexes  = new UnqualifiedNamedObjectSet(...array_filter(
+            $oldTable->getIndexes(),
+            static fn (Index $index): bool => $index->getOrigin() === ObjectOrigin::DECLARED,
+        ));
         $nameMap  = $this->getDiffColumnNameMap($diff);
 
         $alreadyDropped = [];

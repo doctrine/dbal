@@ -256,19 +256,21 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                    I.UNIQUERULE,
                    ICU.COLNAME,
                    CASE
-                       WHEN I.USER_DEFINED = 0 AND EXISTS (
-                           SELECT 1
-                           FROM SYSCAT.CONSTDEP AS CD
-                                    JOIN SYSCAT.TABCONST AS TC
-                                         ON TC.TABSCHEMA = CD.TABSCHEMA
-                                             AND TC.TABNAME = CD.TABNAME
-                                             AND TC.CONSTNAME = CD.CONSTNAME
-                           WHERE CD.BTYPE = 'I'
-                             AND CD.BSCHEMA = I.INDSCHEMA
-                             AND CD.BNAME = I.INDNAME
-                             AND TC.TABSCHEMA = I.TABSCHEMA
-                             AND TC.TABNAME = I.TABNAME
-                             AND TC.TYPE = 'U'
+                       WHEN I.USER_DEFINED = 0 AND (
+                           I.UNIQUERULE = 'P' OR EXISTS (
+                               SELECT 1
+                               FROM SYSCAT.CONSTDEP AS CD
+                                        JOIN SYSCAT.TABCONST AS TC
+                                             ON TC.TABSCHEMA = CD.TABSCHEMA
+                                                 AND TC.TABNAME = CD.TABNAME
+                                                 AND TC.CONSTNAME = CD.CONSTNAME
+                               WHERE CD.BTYPE = 'I'
+                                 AND CD.BSCHEMA = I.INDSCHEMA
+                                 AND CD.BNAME = I.INDNAME
+                                 AND TC.TABSCHEMA = I.TABSCHEMA
+                                 AND TC.TABNAME = I.TABNAME
+                                 AND TC.TYPE = 'U'
+                           )
                        ) THEN 1
                        ELSE 0
                    END
@@ -281,7 +283,6 @@ final readonly class Db2MetadataProvider implements MetadataProvider
                                  AND I.INDNAME = ICU.INDNAME
             WHERE %s
               AND T.TYPE = 'T'
-              AND I.UNIQUERULE != 'P'
             ORDER BY I.TABNAME,
                 I.INDNAME,
                 ICU.COLSEQ
