@@ -409,7 +409,6 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                    SUB_PART
             FROM information_schema.STATISTICS
             WHERE %s
-              AND INDEX_NAME != 'PRIMARY'
             ORDER BY TABLE_NAME,
                 INDEX_NAME,
                 SEQ_IN_INDEX
@@ -448,7 +447,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[4],
                 columnLength: $length,
-                isDerived: false,
+                isDerived: $row[1] === 'PRIMARY',
             );
         }
     }

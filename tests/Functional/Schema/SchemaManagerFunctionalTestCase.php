@@ -506,7 +506,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 ->setUnquotedName('test_composite_idx')
                 ->setUnquotedColumnNames('id', 'test')
                 ->create(),
-        ], $this->schemaManager->introspectTableIndexesByUnquotedName('list_table_indexes_test'));
+        ], self::withoutDerivedIndexes(
+            $this->schemaManager->introspectTableIndexesByUnquotedName('list_table_indexes_test'),
+        ));
     }
 
     public function testDropAndCreateIndex(): void
@@ -543,7 +545,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 ->setUnquotedColumnNames('test')
                 ->setType(IndexType::UNIQUE)
                 ->create(),
-        ], $this->schemaManager->introspectTableIndexesByUnquotedName('test_create_index'));
+        ], self::withoutDerivedIndexes(
+            $this->schemaManager->introspectTableIndexesByUnquotedName('test_create_index'),
+        ));
     }
 
     public function testDropAndCreateUniqueConstraint(): void
@@ -674,7 +678,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foreign_key_test'));
         self::assertCount(0, $table->getForeignKeys());
-        self::assertCount(0, $table->getIndexes());
+        self::assertCount(0, self::withoutDerivedIndexes($table->getIndexes()));
 
         $newTable = $table->edit()
             ->addColumn(
@@ -710,7 +714,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
-        self::assertCount(1, $table->getIndexes());
+        self::assertCount(1, self::withoutDerivedIndexes($table->getIndexes()));
         self::assertTrue($table->hasIndex('foo_idx'));
 
         $this->assertIndexEquals(
@@ -736,7 +740,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
-        self::assertCount(1, $table->getIndexes());
+        self::assertCount(1, self::withoutDerivedIndexes($table->getIndexes()));
         self::assertTrue($table->hasIndex('foo_idx'));
 
         $this->assertIndexEquals($fooIndex, $table->getIndex('foo_idx'));
@@ -756,7 +760,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
-        self::assertCount(1, $table->getIndexes());
+        self::assertCount(1, self::withoutDerivedIndexes($table->getIndexes()));
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
 
@@ -1893,7 +1897,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 ->setQuotedName('Idx_Artist_Name')
                 ->setQuotedColumnNames('Name')
                 ->create(),
-        ], $artists->getIndexes());
+        ], self::withoutDerivedIndexes($artists->getIndexes()));
 
         $primaryKey = $artists->getPrimaryKeyConstraint();
         self::assertNotNull($primaryKey);

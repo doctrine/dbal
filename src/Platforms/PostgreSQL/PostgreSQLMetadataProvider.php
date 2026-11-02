@@ -373,7 +373,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                    i.indisunique,
                    pg_get_expr(indpred, indrelid),
                    attname,
-                   con.oid IS NOT NULL
+                   i.indisprimary OR con.oid IS NOT NULL
             FROM pg_index i
                      JOIN pg_class AS c ON c.oid = i.indrelid
                      JOIN pg_namespace n ON n.oid = c.relnamespace
@@ -388,7 +388,6 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                                    AND con.conrelid = c.oid
                                    AND con.contype = 'u'
             WHERE %s
-              AND i.indisprimary = false
             ORDER BY n.nspname,
                      c.relname,
                      ic.relname,

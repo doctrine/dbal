@@ -25,6 +25,7 @@ use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\LogicalNot;
 use PHPUnit\Framework\TestCase;
 
+use function array_filter;
 use function array_map;
 use function array_values;
 use function sprintf;
@@ -482,6 +483,19 @@ abstract class FunctionalTestCase extends TestCase
             ->setName($this->toComparableUnqualifiedName($index->getObjectName()))
             ->setColumns(...$this->toComparableIndexedColumnList($index->getIndexedColumns()))
             ->create();
+    }
+
+    /**
+     * @param list<Index> $indexes
+     *
+     * @return list<Index>
+     */
+    protected static function withoutDerivedIndexes(array $indexes): array
+    {
+        return array_values(array_filter(
+            $indexes,
+            static fn (Index $index): bool => ! $index->isDerived(),
+        ));
     }
 
     /**

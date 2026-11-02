@@ -8,6 +8,15 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Introspection reports the indexes that enforce primary keys
+
+`AbstractSchemaManager::introspectTableIndexes()` and `Table::getIndexes()` on an introspected table now return the
+index that the database created to enforce the table's primary key. On SQLite, they also return the indexes that it
+created to enforce unique constraints. `Index::isDerived()` returns `true` for such an index.
+
+On Oracle and IBM Db2, an index that was created separately and then used to enforce the primary key is still not
+returned.
+
 ## BC BREAK: No index is created for a foreign key constraint
 
 Declaring a foreign key constraint no longer adds an index over its referencing columns. On every platform except
@@ -292,10 +301,7 @@ The following conflicting index configurations are no longer allowed:
 
 ## BC BREAK: Changes in features related to primary key constraints
 
-1. The `Index` class can no longer represent a primary key constraint. As a result:
-    1. The `Table::getIndexes()` and `AbstractSchemaManager::listTableIndexes()` methods no longer return the index that  
-       backs the primary key constraint.
-    2. The index that backs the primary key constraint is no longer considered during implicit index management.
+1. The `Index` class can no longer represent a primary key constraint.
 2. The `Table::getPrimaryKey()` and `Table::setPrimaryKey()` methods have been removed.
 3. The `Table::renameIndex()` method can no longer be used to rename a primary key constraint.
 4. The `AbstractPlatform::getCreatePrimaryKeySQL()` method has been removed.

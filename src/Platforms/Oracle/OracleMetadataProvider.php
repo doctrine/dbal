@@ -294,7 +294,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                    I.UNIQUENESS,
                    IC.COLUMN_NAME,
                    CASE
-                       WHEN C.CONSTRAINT_TYPE = 'U' AND I.CONSTRAINT_INDEX = 'YES' THEN 1
+                       WHEN C.CONSTRAINT_TYPE IN ('P', 'U') AND I.CONSTRAINT_INDEX = 'YES' THEN 1
                        ELSE 0
                    END
             FROM USER_INDEXES I
@@ -303,7 +303,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                      JOIN USER_IND_COLUMNS IC
                           ON IC.INDEX_NAME = I.INDEX_NAME
             WHERE %s
-              AND (C.CONSTRAINT_TYPE IS NULL OR C.CONSTRAINT_TYPE != 'P')
+              AND (C.CONSTRAINT_TYPE IS NULL OR C.CONSTRAINT_TYPE != 'P' OR I.CONSTRAINT_INDEX = 'YES')
             ORDER BY I.TABLE_NAME,
                      I.INDEX_NAME,
                      IC.COLUMN_POSITION

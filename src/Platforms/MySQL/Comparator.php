@@ -77,7 +77,10 @@ class Comparator extends BaseComparator
 
         $oldTable = $diff->getOldTable();
 
-        $oldIndexes = $oldTable->getIndexes();
+        $oldIndexes = array_values(array_filter(
+            $oldTable->getIndexes(),
+            static fn (Index $index): bool => ! $index->isDerived(),
+        ));
 
         $resultingIndexes = $this->getResultingIndexes($oldIndexes, $diff);
 
