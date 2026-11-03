@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\AbstractException;
 /** @internal */
 final class PrepareFailed extends AbstractException
 {
-    /** @param array{message: string}|null $error */
+    /** @phpstan-param array{message: string, ...}|null $error */
     public static function new(?array $error): self
     {
         if ($error === null) {

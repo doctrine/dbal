@@ -35,7 +35,7 @@ class RenameColumnTest extends FunctionalTestCase
         self::assertSame([strtolower($newColumnName), 'c2'], array_keys($table->getColumns()));
     }
 
-    /** @return iterable<array{string}> */
+    /** @return iterable<array{string, string}> */
     public static function columnNameProvider(): iterable
     {
         yield ['c1', 'c1_x'];

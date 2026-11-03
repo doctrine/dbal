@@ -797,3 +797,159 @@ parameters:
 			identifier: staticMethod.dynamicCall
 			count: 1
 			path: tests/Schema/Visitor/CreateSchemaSqlCollectorTest.php
+
+		-
+			rawMessage: 'Only booleans are allowed in a ternary operator condition, mixed given.'
+			identifier: ternary.condNotBoolean
+			count: 1
+			path: src/Driver/PDO/SQLSrv/Driver.php
+
+		-
+			rawMessage: 'Parameter #1 $params of class Doctrine\DBAL\Connection constructor expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...} given.'
+			identifier: argument.type
+			count: 1
+			path: src/DriverManager.php
+
+		-
+			rawMessage: 'Offset ''type'' might not exist on array{unique: mixed, autoincrement: mixed, default: mixed, ...<mixed>}.'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Platforms/SqlitePlatform.php
+
+		-
+			rawMessage: Possibly invalid array key type int|string|null.
+			identifier: offsetAccess.invalidOffset
+			count: 2
+			path: src/Query/QueryBuilder.php
+
+		-
+			rawMessage: 'Value assigned to $tableColumn[''name''] is never read.'
+			identifier: assign.unused
+			count: 1
+			path: src/Schema/MySQLSchemaManager.php
+
+		-
+			rawMessage: 'Value assigned to $tableColumn[''name''] is never read.'
+			identifier: assign.unused
+			count: 1
+			path: src/Schema/PostgreSQLSchemaManager.php
+
+		-
+			rawMessage: 'Value assigned to $tableColumn[''sequence''] is never read.'
+			identifier: assign.unused
+			count: 1
+			path: src/Schema/PostgreSQLSchemaManager.php
+
+		-
+			rawMessage: 'Method Doctrine\DBAL\Tools\DsnParser::parse() should return array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...} but returns array<mixed>.'
+			identifier: return.type
+			count: 1
+			path: src/Tools/DsnParser.php
+
+		-
+			rawMessage: 'Call to static method PHPUnit\Framework\Assert::assertSame() with array{array{baz: ''qux''}} and array{array{baz: ''qux''}} will always evaluate to true.'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Connection/CachedQueryTest.php
+
+		-
+			rawMessage: 'Call to static method PHPUnit\Framework\Assert::assertSame() with array{array{foo: ''bar''}} and array{array{foo: ''bar''}} will always evaluate to true.'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Connection/CachedQueryTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of method Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware::connect() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{foo: ''bar''} given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Driver/Middleware/AbstractDriverMiddlewareTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of method Doctrine\DBAL\Driver::connect() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{driverOptions: array<int, mixed>, ...<mixed>} given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Driver/PDO/PgSQL/DriverTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of method Doctrine\DBAL\Driver::connect() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, non-empty-array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Driver/PgSQL/DriverTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array<string, mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: tests/DriverManagerTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, non-empty-array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/ConnectionTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of method Doctrine\DBAL\Driver\Mysqli\Driver::connect() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{charset: ''invalid'', ...<mixed>} given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/Driver/Mysqli/ConnectionTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of method Doctrine\DBAL\Driver\Mysqli\Driver::connect() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{driverOptions: array<mixed>, ...<mixed>} given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/Driver/Mysqli/ConnectionTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of method Doctrine\DBAL\Driver\PDO\SQLSrv\Driver::connect() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{driverOptions: array<mixed>, ...<mixed>} given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/Driver/PDO/SQLSrv/DriverTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/ExceptionTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/LockMode/NoneTest.php
+
+		-
+			rawMessage: 'Method Doctrine\Tests\DBAL\Functional\PrimaryReadReplicaConnectionTest::createPrimaryReadReplicaConnectionParams() should return array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...} but returns array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}.'
+			identifier: return.type
+			count: 1
+			path: tests/Functional/PrimaryReadReplicaConnectionTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/Query/QueryBuilderTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of method Doctrine\DBAL\Driver::connect() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array{username: ''admin'', password: ''Passw0rd!'', url: ''mysql://user:secret…''} given.'
+			identifier: argument.type
+			count: 1
+			path: tests/Logging/MiddlewareTest.php
+
+		-
+			rawMessage: 'Call to static method PHPUnit\Framework\Assert::assertSame() with string|null and string|null will always evaluate to true.'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Platforms/MySQL/CollationMetadataProvider/CachingCollationMetadataProviderTest.php
+
+		-
+			rawMessage: 'Call to static method PHPUnit\Framework\Assert::assertSame() with 2 and 2 will always evaluate to true.'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Query/QueryBuilderTest.php
+
+		-
+			rawMessage: 'Parameter #1 $params of static method Doctrine\DBAL\DriverManager::getConnection() expects array{application_name?: string, charset?: string, dbname?: string, defaultTableOptions?: array<string, mixed>, default_dbname?: string, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}, array<mixed> given.'
+			identifier: argument.type
+			count: 4
+			path: tests/TestUtil.php

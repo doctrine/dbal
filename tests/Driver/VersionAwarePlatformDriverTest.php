@@ -64,7 +64,7 @@ class VersionAwarePlatformDriverTest extends TestCase
             ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
             ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
             ['10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class],
-            ['10.5.2-MariaDB-1~lenny-log', MariaDB1052Platform::class],
+            ['10.5.2-MariaDB-1~lenny-log', MariaDb1052Platform::class],
             ['mariadb-10.6.0', MariaDb1060Platform::class],
             ['mariadb-10.9.3', MariaDb1060Platform::class],
             ['11.0.2-MariaDB-1:11.0.2+maria~ubu2204', MariaDb1010Platform::class],

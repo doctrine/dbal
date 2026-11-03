@@ -60,13 +60,13 @@ class TableDiffTest extends TestCase
     public function testOmittingFromTableInConstructorIsDeprecated(): void
     {
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5678');
-        $tableDiff = new TableDiff('foo');
+        new TableDiff('foo');
     }
 
     public function testPassingFromTableToConstructorIsDeprecated(): void
     {
         $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5678');
-        $tableDiff = new TableDiff(
+        new TableDiff(
             'foo',
             [],
             [],
