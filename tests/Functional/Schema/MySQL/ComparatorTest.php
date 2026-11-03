@@ -15,6 +15,8 @@ use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 
+use function implode;
+
 final class ComparatorTest extends FunctionalTestCase
 {
     private AbstractPlatform $platform;
@@ -243,6 +245,24 @@ final class ComparatorTest extends FunctionalTestCase
     {
         yield 'charset' => [['charset' => 'latin1', 'collation' => 'latin1_swedish_ci']];
         yield 'collation' => [['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci']];
+    }
+
+    public function testImplicitTableOptionsColumnCharsetChange(): void
+    {
+        $table = new Table('comparator_test');
+        $table->addColumn('name', Types::STRING, ['length' => 32]);
+        $this->dropAndCreateTable($table);
+
+        $table->getColumn('name')->setPlatformOptions(['charset' => 'utf8mb4']);
+
+        $diff = ComparatorTestUtils::diffFromActualToDesiredTable($this->schemaManager, $this->comparator, $table);
+
+        self::assertNotFalse($diff);
+        self::assertCount(1, $diff->getModifiedColumns());
+        self::assertStringContainsString(
+            'CHARACTER SET utf8mb4',
+            implode(';', $this->platform->getAlterTableSQL($diff)),
+        );
     }
 
     public function testSimpleArrayTypeNonChangeNotDetected(): void

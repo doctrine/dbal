@@ -92,6 +92,22 @@ class ComparatorTest extends AbstractComparatorTestCase
         self::assertNotFalse($comparator->diffTable($desiredTable, $actualTable));
     }
 
+    public function testImplicitTableOptionsPreserveCharsetOnlyColumn(): void
+    {
+        $comparator = $this->createComparatorWithImplicitTableOptions('utf8mb4', 'utf8mb4_unicode_ci');
+
+        $actualTable = $this->createActualTable('utf8mb4', 'utf8mb4_unicode_ci');
+
+        $desiredTable = new Table('comparator_test');
+        $desiredTable->addColumn('name', Types::STRING, [
+            'length' => 32,
+            'platformOptions' => ['charset' => 'utf8mb4'],
+        ]);
+
+        self::assertNotFalse($comparator->diffTable($actualTable, $desiredTable));
+        self::assertNotFalse($comparator->diffTable($desiredTable, $actualTable));
+    }
+
     /** @dataProvider explicitTableOptionsProvider */
     public function testExplicitTableOptionsAreNotOverridden(string $name, string $value): void
     {

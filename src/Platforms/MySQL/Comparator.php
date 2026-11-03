@@ -73,13 +73,29 @@ class Comparator extends BaseComparator
     {
         $tableOptions = $this->getTableOptions($table, $otherTable);
 
+        $usesImplicitTableOptions = count($tableOptions) > 0
+            && ! $table->hasOption('charset')
+            && ! $table->hasOption('collation');
+
         $table = clone $table;
 
         foreach ($table->getColumns() as $column) {
             $originalOptions   = $column->getPlatformOptions();
             $normalizedOptions = $this->normalizeOptions($originalOptions);
 
-            $overrideOptions = array_diff_assoc($normalizedOptions, $tableOptions);
+            $columnTableOptions = $tableOptions;
+
+            // A column that specifies only the charset gets the default collation of the charset,
+            // which may be different from the implicit table collation
+            if (
+                $usesImplicitTableOptions
+                && isset($originalOptions['charset'])
+                && ! isset($originalOptions['collation'])
+            ) {
+                unset($columnTableOptions['charset']);
+            }
+
+            $overrideOptions = array_diff_assoc($normalizedOptions, $columnTableOptions);
 
             if ($overrideOptions === $originalOptions) {
                 continue;
