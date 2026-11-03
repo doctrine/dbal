@@ -204,7 +204,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
         self::assertSame(
             'TEST: main.mytable, i2 - a, b',
-            (new class () extends SqlitePlatform {
+            (new class () extends SQLitePlatform {
                 public function getCreatePrimaryKeySQL(Index $index, string $table): string
                 {
                     return 'TEST: ' . $table . ', ' . $index->getObjectName()->toString()

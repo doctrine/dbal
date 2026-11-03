@@ -526,8 +526,8 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     /**
      * @return iterable<string, array{
-     *     array{platformOptions?: PlatformOptions},
-     *     array{platformOptions?: PlatformOptions},
+     *     array{length?: int, platformOptions?: PlatformOptions},
+     *     array{length?: int, platformOptions?: PlatformOptions},
      *     ?string,
      *     list<string>
      * }>

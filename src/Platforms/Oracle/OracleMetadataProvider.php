@@ -443,6 +443,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 id: null,
                 name: $row[1],
                 columnName: $row[2],
+                isClustered: false,
             );
         }
     }

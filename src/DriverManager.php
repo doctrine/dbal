@@ -79,7 +79,7 @@ use function is_a;
  *     pooled?: bool,
  *     port?: int,
  *     primary?: OverrideParams,
- *     replica?: array<OverrideParams>,
+ *     replica?: non-empty-array<OverrideParams>,
  *     serverVersion?: string,
  *     service?: bool,
  *     servicename?: string,

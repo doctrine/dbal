@@ -1082,7 +1082,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function testGetDefaultValueDeclarationSQLForDateType(): void
     {
-        $currentDateSql = $this->platform->getCurrentDateSQL();
         foreach ([Types::DATE_MUTABLE, Types::DATE_IMMUTABLE] as $type) {
             self::assertSame(
                 ' DEFAULT CONVERT(date, GETDATE())',

@@ -114,10 +114,12 @@ class TestUtil
         } elseif ($platform instanceof DB2Platform) {
             $testConn = DriverManager::getConnection($testConnParams);
 
-            $sm = $testConn->createSchemaManager();
+            $sm       = $testConn->createSchemaManager();
+            $platform = $testConn->getDatabasePlatform();
 
-            $schema = $sm->introspectSchema();
-            $sm->dropSchemaObjects($schema);
+            foreach ($platform->getDropTablesSQL($sm->introspectTables()) as $sql) {
+                $testConn->executeStatement($sql);
+            }
 
             $testConn->close();
         } else {

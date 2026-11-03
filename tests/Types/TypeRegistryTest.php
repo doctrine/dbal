@@ -280,9 +280,7 @@ class TypeRegistryTest extends TestCase
         ]);
         $registry  = new TypeRegistry($container);
 
-        foreach ($registry as $name => $type) {
-            break;
-        }
+        $registry->getIterator()->current();
 
         // Only the type actually consumed is resolved; the rest, including every other built-in, is untouched.
         self::assertCount(1, $container->resolved, 'Stopping early must not resolve the remaining services.');

@@ -692,7 +692,7 @@ SQL;
             [$conflictingOid, $originalTableOid],
         );
 
-        [$afterColumn] = $this->schemaManager->introspectTableColumnsByUnquotedName($table);
+        $this->schemaManager->introspectTableColumnsByUnquotedName($table);
 
         // revert to the database to original state prior to asserting result
         $this->connection->executeStatement(
