@@ -454,7 +454,8 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
             SELECT s.name,
                    t.name,
                    i.name,
-                   c.name
+                   c.name,
+                   i.type
             FROM sys.schemas s
                      INNER JOIN sys.tables t
                                 ON t.schema_id = s.schema_id
@@ -483,6 +484,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 id: null,
                 name: $row[2],
                 columnName: $row[3],
+                isClustered: (int) $row[4] === 1,
             );
         }
     }

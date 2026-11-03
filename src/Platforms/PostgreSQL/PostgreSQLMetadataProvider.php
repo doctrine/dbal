@@ -558,6 +558,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 id: null,
                 name: $row[2],
                 columnName: $row[3],
+                isClustered: false,
             );
         }
     }
