@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed support for Oracle 18c (12.2.0.2) and older
+
+Oracle 18c (12.2.0.2) and older are not supported anymore.
+
 ## BC BREAK: Foreign key constraints are compared by name
 
 `Comparator::compareTables()` compares the names of foreign key constraints, so one whose name differs is reported as
