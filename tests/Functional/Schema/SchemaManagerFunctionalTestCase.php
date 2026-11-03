@@ -46,7 +46,6 @@ use Doctrine\DBAL\Types\TimeType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-use function array_keys;
 use function array_map;
 use function array_values;
 use function get_debug_type;
@@ -348,8 +347,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount(7, $columns);
 
         [$id, $test, $foo, $bar, $baz1, $baz2, $baz3] = $columns;
-
-        $columnsKeys = array_keys($columns);
 
         $this->assertUnqualifiedNameEquals(
             UnqualifiedName::unquoted('id'),

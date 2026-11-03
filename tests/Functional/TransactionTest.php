@@ -99,7 +99,7 @@ class TransactionTest extends FunctionalTestCase
         $databasePlatform = $this->connection->getDatabasePlatform();
 
         [$currentProcessQuery, $killProcessStatement] = match (true) {
-            $databasePlatform instanceof AbstractMySqlPlatform => [
+            $databasePlatform instanceof AbstractMySQLPlatform => [
                 'SELECT CONNECTION_ID()',
                 'KILL %d',
             ],

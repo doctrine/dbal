@@ -240,8 +240,8 @@ class PrimaryReadReplicaConnection extends Connection
     }
 
     /**
-     * @param OverrideParams        $primary
-     * @param array<OverrideParams> $replicas
+     * @param OverrideParams                  $primary
+     * @param non-empty-array<OverrideParams> $replicas
      *
      * @return array<string, mixed>
      * @phpstan-return OverrideParams

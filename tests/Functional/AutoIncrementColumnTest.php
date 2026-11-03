@@ -82,7 +82,7 @@ class AutoIncrementColumnTest extends FunctionalTestCase
 
         // using an explicit value for an autoincrement column does not affect the next value
         // on the following platforms
-        if ($platform instanceof PostgreSqlPlatform || $platform instanceof DB2Platform) {
+        if ($platform instanceof PostgreSQLPlatform || $platform instanceof DB2Platform) {
             return;
         }
 

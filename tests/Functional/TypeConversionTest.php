@@ -270,7 +270,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($expectedDate, $dbValue);
     }
 
-    /** @return Generator<string, array{string, DateTimeInterface}> */
+    /** @return Generator<string, array{string, DateTimeInterface, DateTimeInterface}> */
     public static function toUtcDateTimeProvider(): Generator
     {
         $referenceDate = '2010-04-05 10:10:10';

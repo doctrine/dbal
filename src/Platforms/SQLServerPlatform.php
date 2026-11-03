@@ -497,7 +497,7 @@ class SQLServerPlatform extends AbstractPlatform
                 $newColumn->getDefault() !== null
                 && ($requireDropDefaultConstraint || $defaultChanged)
             ) {
-                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
+                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($newColumn);
             }
         }
 
@@ -521,10 +521,9 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL clause for adding a default constraint in an ALTER TABLE statement.
      *
-     * @param string $tableName The name of the table to generate the clause for.
-     * @param Column $column    The column to generate the clause for.
+     * @param Column $column The column to generate the clause for.
      */
-    private function getAlterTableAddDefaultConstraintClause(string $tableName, Column $column): string
+    private function getAlterTableAddDefaultConstraintClause(Column $column): string
     {
         $columnDef         = $column->toArray(true);
         $columnDef['name'] = $column->getQuotedName($this);
