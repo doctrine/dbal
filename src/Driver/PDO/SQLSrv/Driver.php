@@ -95,7 +95,7 @@ final class Driver extends AbstractSQLServerDriver
         }
 
         if (isset($params['MultipleActiveResultSets'])) {
-            $connectionOptions['MultipleActiveResultSets'] = $params['MultipleActiveResultSets'] ? 'true' : 'false';
+            $connectionOptions['MultipleActiveResultSets'] = (bool) $params['MultipleActiveResultSets'] ? 'true' : 'false';
         }
 
         return $dsn . $this->getConnectionOptionsDsn($connectionOptions);

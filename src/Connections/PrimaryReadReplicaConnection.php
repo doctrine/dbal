@@ -252,6 +252,8 @@ class PrimaryReadReplicaConnection extends Connection
         #[SensitiveParameter]
         array $replicas,
     ): array {
+        assert($replicas !== []);
+
         $params = $replicas[array_rand($replicas)];
 
         if (! isset($params['charset']) && isset($primary['charset'])) {

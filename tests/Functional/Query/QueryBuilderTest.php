@@ -227,11 +227,8 @@ final class QueryBuilderTest extends FunctionalTestCase
     public function testUnionWithLimitAndOffsetClauseReturnsExpectedResult(): void
     {
         $expectedRows = $this->prepareExpectedRows([['field_one' => 2]]);
-        $platform     = $this->connection->getDatabasePlatform();
-        $plainSelect1 = $platform->getDummySelectSQL('1 as field_one');
-        $plainSelect2 = $platform->getDummySelectSQL('2 as field_one');
-        $plainSelect3 = $platform->getDummySelectSQL('1 as field_one');
-        $qb           = $this->connection->createQueryBuilder();
+        $platform = $this->connection->getDatabasePlatform();
+        $qb       = $this->connection->createQueryBuilder();
         $qb->union($platform->getDummySelectSQL('1 as field_one'))
             ->addUnion($platform->getDummySelectSQL('2 as field_one'), UnionType::DISTINCT)
             ->addUnion($platform->getDummySelectSQL('1 as field_one'), UnionType::DISTINCT)
@@ -595,13 +592,19 @@ final class QueryBuilderTest extends FunctionalTestCase
                 foreach ($row as &$value) {
                     $value = (string) $value;
                 }
+
+                unset($value);
             }
+
+            unset($row);
         }
 
         if (TestUtil::isDriverOneOf('ibm_db2', 'pdo_oci', 'oci8')) {
             foreach ($rows as &$row) {
                 $row = array_change_key_case($row, CASE_UPPER);
             }
+
+            unset($row);
         }
 
         return $rows;

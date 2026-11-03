@@ -421,7 +421,7 @@ class Table extends AbstractNamedObject
 
             $this->dropPrimaryKey();
 
-            return $this->setPrimaryKey($oldIndex->getColumns(), $newName ?? null);
+            return $this->setPrimaryKey($oldIndex->getColumns(), $newName);
         }
 
         unset($this->_indexes[$normalizedOldName]);

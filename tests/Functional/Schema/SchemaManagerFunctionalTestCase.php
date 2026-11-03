@@ -349,8 +349,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         [$id, $test, $foo, $bar, $baz1, $baz2, $baz3] = $columns;
 
-        $columnsKeys = array_keys($columns);
-
         $this->assertUnqualifiedNameEquals(
             UnqualifiedName::unquoted('id'),
             $id->getObjectName(),
