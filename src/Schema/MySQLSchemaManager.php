@@ -419,6 +419,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             new CachingCollationMetadataProvider(
                 new ConnectionCollationMetadataProvider($this->_conn),
             ),
+            $this->_conn,
         );
     }
 

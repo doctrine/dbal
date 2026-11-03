@@ -149,6 +149,102 @@ final class ComparatorTest extends FunctionalTestCase
         ));
     }
 
+    public function testImplicitTableOptionsWithExplicitColumnCharsetAndCollation(): void
+    {
+        $table = new Table('comparator_test');
+        $table->addColumn('implicit', Types::STRING, ['length' => 32]);
+        $table->addColumn('unicode', Types::STRING, [
+            'length' => 32,
+            'platformOptions' => [
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+            ],
+        ]);
+        $table->addColumn('bin', Types::STRING, [
+            'length' => 32,
+            'platformOptions' => [
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_bin',
+            ],
+        ]);
+        $this->dropAndCreateTable($table);
+
+        self::assertFalse(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table,
+        ));
+
+        self::assertFalse(ComparatorTestUtils::diffFromDesiredToActualTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table,
+        ));
+    }
+
+    /**
+     * @param array<string,string> $actualOptions
+     *
+     * @dataProvider implicitTableOptionsColumnChangeProvider
+     */
+    public function testImplicitTableOptionsColumnChange(array $actualOptions): void
+    {
+        $table = new Table('comparator_test');
+        $table->addColumn('name', Types::STRING, [
+            'length' => 32,
+            'platformOptions' => $actualOptions,
+        ]);
+        $this->dropAndCreateTable($table);
+
+        $table->getColumn('name')->setPlatformOptions(['collation' => 'utf8mb4_unicode_ci']);
+
+        ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
+    }
+
+    /** @return iterable<string,array{array<string,string>}> */
+    public static function implicitTableOptionsColumnChangeProvider(): iterable
+    {
+        yield 'charset' => [['charset' => 'latin1', 'collation' => 'latin1_swedish_ci']];
+        yield 'collation' => [['charset' => 'utf8mb4', 'collation' => 'utf8mb4_bin']];
+    }
+
+    /**
+     * @param array<string,string> $actualTableOptions
+     *
+     * @dataProvider differentTableOptionsProvider
+     */
+    public function testImplicitTableOptionsDifferentFromActualTableOptions(array $actualTableOptions): void
+    {
+        $actualTable = new Table('comparator_test', [], [], [], [], $actualTableOptions);
+        $actualTable->addColumn('name', Types::STRING, ['length' => 32]);
+        $this->dropAndCreateTable($actualTable);
+
+        $desiredTable = new Table('comparator_test');
+        $desiredTable->addColumn('name', Types::STRING, [
+            'length' => 32,
+            'platformOptions' => ['collation' => 'utf8mb4_unicode_ci'],
+        ]);
+
+        self::assertNotFalse(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $desiredTable,
+        ));
+
+        self::assertNotFalse(ComparatorTestUtils::diffFromDesiredToActualTable(
+            $this->schemaManager,
+            $this->comparator,
+            $desiredTable,
+        ));
+    }
+
+    /** @return iterable<string,array{array<string,string>}> */
+    public static function differentTableOptionsProvider(): iterable
+    {
+        yield 'charset' => [['charset' => 'latin1', 'collation' => 'latin1_swedish_ci']];
+        yield 'collation' => [['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci']];
+    }
+
     public function testSimpleArrayTypeNonChangeNotDetected(): void
     {
         $table = new Table('comparator_test');
