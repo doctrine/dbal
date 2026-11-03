@@ -761,8 +761,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             'binary'     => Types::BINARY,
             'blob'       => Types::BLOB,
             'char'       => Types::STRING,
-            'date'       => Types::DATE_MUTABLE,
-            'datetime'   => Types::DATETIME_MUTABLE,
+            'date'       => Types::DATE_IMMUTABLE,
+            'datetime'   => Types::DATETIME_IMMUTABLE,
             'decimal'    => Types::DECIMAL,
             'double'     => Types::FLOAT,
             'enum'       => Types::ENUM,
@@ -781,14 +781,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             'smallint'   => Types::SMALLINT,
             'string'     => Types::STRING,
             'text'       => Types::TEXT,
-            'time'       => Types::TIME_MUTABLE,
-            'timestamp'  => Types::DATETIME_MUTABLE,
+            'time'       => Types::TIME_IMMUTABLE,
+            'timestamp'  => Types::DATETIME_IMMUTABLE,
             'tinyblob'   => Types::BLOB,
             'tinyint'    => Types::BOOLEAN,
             'tinytext'   => Types::TEXT,
             'varbinary'  => Types::BINARY,
             'varchar'    => Types::STRING,
-            'year'       => Types::DATE_MUTABLE,
+            'year'       => Types::DATE_IMMUTABLE,
         ];
     }
 
