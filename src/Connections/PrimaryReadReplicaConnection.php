@@ -240,8 +240,8 @@ class PrimaryReadReplicaConnection extends Connection
     }
 
     /**
-     * @param OverrideParams        $primary
-     * @param array<OverrideParams> $replicas
+     * @param OverrideParams                  $primary
+     * @param non-empty-array<OverrideParams> $replicas
      *
      * @return array<string, mixed>
      * @phpstan-return OverrideParams
@@ -252,8 +252,6 @@ class PrimaryReadReplicaConnection extends Connection
         #[SensitiveParameter]
         array $replicas,
     ): array {
-        assert($replicas !== []);
-
         $params = $replicas[array_rand($replicas)];
 
         if (! isset($params['charset']) && isset($primary['charset'])) {
