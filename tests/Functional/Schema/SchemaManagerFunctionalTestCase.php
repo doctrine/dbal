@@ -46,7 +46,6 @@ use Doctrine\DBAL\Types\TimeType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-use function array_keys;
 use function array_map;
 use function array_values;
 use function get_debug_type;

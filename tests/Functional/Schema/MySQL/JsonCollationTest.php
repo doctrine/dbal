@@ -99,7 +99,7 @@ final class JsonCollationTest extends FunctionalTestCase
     }
 
     /**
-     * @param non-empty-string                                                                         $name
+     * @param non-empty-string                                                                          $name
      * @param array{name: non-empty-string, charset?: non-empty-string, collation?: non-empty-string}[] $columns
      */
     private static function setUpTable(
