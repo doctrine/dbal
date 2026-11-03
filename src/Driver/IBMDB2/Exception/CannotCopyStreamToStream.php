@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\AbstractException;
 /** @internal */
 final class CannotCopyStreamToStream extends AbstractException
 {
-    /** @param array{message: string}|null $error */
+    /** @phpstan-param array{message: string, ...}|null $error */
     public static function new(?array $error): self
     {
         $message = 'Could not copy source stream to temporary file';

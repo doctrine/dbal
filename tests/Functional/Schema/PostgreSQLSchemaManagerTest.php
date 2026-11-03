@@ -303,7 +303,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testGeneratedColumn(callable $comparatorFactory): void
     {
-        $wrappedConnection = $this->connection->getWrappedConnection();
         if (! $this->connection->getDatabasePlatform() instanceof PostgreSQL120Platform) {
              self::markTestSkipped('Generated columns are not supported in Postgres 11 and earlier');
         }

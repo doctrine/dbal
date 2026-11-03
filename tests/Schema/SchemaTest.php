@@ -216,6 +216,7 @@ class SchemaTest extends TestCase
 
         $fk = $schemaNew->getTable('bar')->getForeignKeys();
         $fk = current($fk);
+        self::assertNotFalse($fk);
 
         $re = new ReflectionProperty($fk, '_localTable');
         if (PHP_VERSION_ID < 80100) {
