@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1043Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -129,6 +130,13 @@ final class ComparatorTest extends FunctionalTestCase
 
     public function testImplicitColumnCharset(): void
     {
+        if (
+            $this->platform instanceof MariaDBPlatform
+            && (int) $this->connection->fetchOne('SELECT VERSION()') >= 13
+        ) {
+            self::markTestSkipped('MariaDB 13.1 changed the "utf8" alias from "utf8mb3" to "utf8mb4".');
+        }
+
         $table = new Table('comparator_test');
         $table->addColumn('name', Types::STRING, [
             'length' => 32,
