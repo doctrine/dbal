@@ -1398,6 +1398,10 @@ abstract class AbstractSchemaManager
                     $options['where'] = $row['where'];
                 }
 
+                if (isset($row['method'])) {
+                    $options['method'] = $row['method'];
+                }
+
                 $result[$keyName] = [
                     'name' => $indexName,
                     'columns' => [],

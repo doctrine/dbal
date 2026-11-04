@@ -8,6 +8,38 @@ awareness about deprecated code.
 
 # Upgrade to 4.6
 
+## Deprecated invalid index method configuration
+
+Configuring the method of an index via the `method` option of the `Index` constructor (or of `Table::addIndex()`
+and `Table::addUniqueIndex()`) with one of the following is deprecated:
+
+1. A value that is not a supported method. The supported values are the cases of the `IndexMethod` enum and
+   `btree`, which denotes the platform default method.
+2. A method combined with a unique, primary, fulltext, spatial, clustered or non-clustered index.
+
+The method of such an index is ignored, i.e. the index is created using the platform default method, as in
+previous versions. Use `IndexEditor::setMethod()` to configure the method of an index instead.
+
+## Schema comparison takes the index method into account
+
+Indexes are now compared by their method in addition to their columns, type and predicate. On PostgreSQL, a GiST index
+that exists in the database is introspected with `IndexMethod::GIST`.
+
+If your schema declares such an index without a method (e.g. because the index has been created by a raw SQL migration),
+the schema comparison will now detect a difference and generate SQL that drops the GiST index and recreates it using
+the default B-tree method. To prevent that, declare the method of the index explicitly:
+
+```php
+Index::editor()
+    ->setUnquotedName('idx_document')
+    ->setUnquotedColumnNames('document')
+    ->setMethod(IndexMethod::GIST)
+    ->create();
+
+// or, with the ORM
+#[ORM\Index(name: 'idx_document', columns: ['document'], options: ['method' => 'gist'])]
+```
+
 ## Schema introspection maps date and time columns to immutable types
 
 Introspecting a table now maps date and time columns to the immutable DBAL types instead of their

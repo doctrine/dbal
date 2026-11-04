@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -158,6 +160,72 @@ class IndexEditorTest extends TestCase
             ->create();
 
         self::assertSame($flags, $index2->getFlags());
+    }
+
+    public function testMethodDefaultsToNull(): void
+    {
+        $index = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->create();
+
+        self::assertNull($index->getMethod());
+    }
+
+    public function testSetMethod(): void
+    {
+        $index = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->setMethod(IndexMethod::GIST)
+            ->create();
+
+        self::assertSame(IndexMethod::GIST, $index->getMethod());
+    }
+
+    #[TestWith([IndexType::UNIQUE])]
+    #[TestWith([IndexType::FULLTEXT])]
+    #[TestWith([IndexType::SPATIAL])]
+    public function testMethodIncompatibleWithType(IndexType $type): void
+    {
+        $editor = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->setType($type)
+            ->setMethod(IndexMethod::GIST);
+
+        $this->expectException(InvalidIndexDefinition::class);
+
+        $editor->create();
+    }
+
+    public function testMethodIncompatibleWithClustering(): void
+    {
+        $editor = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->setIsClustered(true)
+            ->setMethod(IndexMethod::GIST);
+
+        $this->expectException(InvalidIndexDefinition::class);
+
+        $editor->create();
+    }
+
+    public function testPreservesMethod(): void
+    {
+        $index1 = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->setMethod(IndexMethod::GIST)
+            ->setPredicate('id > 0')
+            ->create();
+
+        $index2 = $index1->edit()
+            ->create();
+
+        self::assertSame(IndexMethod::GIST, $index2->getMethod());
+        self::assertSame('id > 0', $index2->getPredicate());
     }
 
     private function createName(): UnqualifiedName

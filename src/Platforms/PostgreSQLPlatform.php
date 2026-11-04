@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
@@ -145,6 +146,13 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function supportsPartialIndexes(): bool
     {
         return true;
+    }
+
+    public function supportsIndexMethod(IndexMethod $method): bool
+    {
+        return match ($method) {
+            IndexMethod::GIST => true,
+        };
     }
 
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */

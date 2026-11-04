@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Metadata;
 
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 
 /**
@@ -28,6 +29,7 @@ final readonly class IndexColumnMetadataRow
         private ?string $predicate,
         private string $columnName,
         private ?int $columnLength,
+        private ?IndexMethod $method = null,
     ) {
     }
 
@@ -75,5 +77,10 @@ final readonly class IndexColumnMetadataRow
     public function getColumnLength(): ?int
     {
         return $this->columnLength;
+    }
+
+    public function getMethod(): ?IndexMethod
+    {
+        return $this->method;
     }
 }

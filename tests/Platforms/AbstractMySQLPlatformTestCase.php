@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
@@ -15,9 +16,11 @@ use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -651,5 +654,40 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'multiple values and bigger length' => [['foo', 'bar1'], 42, "ENUM('foo', 'bar1')"],
             'multiple values and lower length' => [['foo', 'bar1'], 2, "ENUM('foo', 'bar1')"],
         ];
+    }
+
+    public function testAlterTableReplacingIndexWithGistIndex(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('area')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_area')
+                    ->setUnquotedColumnNames('area')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = new TableDiff(
+            $table,
+            addedIndexes: [
+                Index::editor()
+                    ->setUnquotedName('idx_area_gist')
+                    ->setUnquotedColumnNames('area')
+                    ->setMethod(IndexMethod::GIST)
+                    ->create(),
+            ],
+            droppedIndexes: [$table->getIndex('idx_area')],
+        );
+
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getAlterTableSQL($diff);
     }
 }

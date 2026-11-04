@@ -8,8 +8,10 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -466,6 +468,140 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
         self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
         self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
+    }
+
+    public function testGistIndex(): void
+    {
+        $offlineTable = Table::editor()
+            ->setUnquotedName('gist_index_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('document')
+                    ->setTypeName(Types::TEXT)
+                    ->setColumnDefinition('tsvector')
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_gist')
+                    ->setUnquotedColumnNames('document')
+                    ->setMethod(IndexMethod::GIST)
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('idx_gist_partial')
+                    ->setUnquotedColumnNames('document')
+                    ->setMethod(IndexMethod::GIST)
+                    ->setPredicate('(id > 0)')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('idx_btree')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('gist_index_test');
+
+        self::assertSame(IndexMethod::GIST, $onlineTable->getIndex('idx_gist')->getMethod());
+        self::assertSame(IndexMethod::GIST, $onlineTable->getIndex('idx_gist_partial')->getMethod());
+        self::assertSame('(id > 0)', $onlineTable->getIndex('idx_gist_partial')->getPredicate());
+        self::assertNull($onlineTable->getIndex('idx_btree')->getMethod());
+
+        $tableDiff = $this->schemaManager
+            ->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($onlineTable, $offlineTable);
+
+        self::assertSame([], $tableDiff->getAddedIndexes());
+        self::assertSame([], $tableDiff->getDroppedIndexes());
+        self::assertSame([], $tableDiff->getRenamedIndexes());
+    }
+
+    public function testGistIndexInNonDefaultSchema(): void
+    {
+        $schemaName = UnqualifiedName::unquoted('gist_schema');
+        $this->dropAndCreateSchema($schemaName);
+
+        $this->connection->executeStatement('CREATE TABLE gist_schema.gist_index_test (document tsvector)');
+        $this->connection->executeStatement(
+            'CREATE INDEX idx_gist ON gist_schema.gist_index_test USING gist (document)',
+        );
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('gist_index_test', 'gist_schema');
+        self::assertSame(IndexMethod::GIST, $table->getIndex('idx_gist')->getMethod());
+
+        $indexes = $this->schemaManager->listTableIndexes('gist_schema.gist_index_test');
+        self::assertSame(IndexMethod::GIST, $indexes['idx_gist']->getMethod());
+    }
+
+    public function testListTableIndexesIntrospectsGistMethod(): void
+    {
+        $this->dropTableIfExists('gist_index_legacy_test');
+        $this->connection->executeStatement('CREATE TABLE gist_index_legacy_test (id INT, document tsvector)');
+        $this->connection->executeStatement(
+            'CREATE INDEX idx_gist_legacy ON gist_index_legacy_test USING gist (document)',
+        );
+        $this->connection->executeStatement(
+            'CREATE INDEX idx_hash_legacy ON gist_index_legacy_test USING hash (id)',
+        );
+
+        $indexes = $this->schemaManager->listTableIndexes('gist_index_legacy_test');
+
+        self::assertSame(IndexMethod::GIST, $indexes['idx_gist_legacy']->getMethod());
+        self::assertNull($indexes['idx_hash_legacy']->getMethod());
+    }
+
+    public function testChangeIndexMethod(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('gist_index_change_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('document')
+                    ->setTypeName(Types::TEXT)
+                    ->setColumnDefinition('tsvector')
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_document')
+                    ->setUnquotedColumnNames('document')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $newTable = $table->edit()
+            ->dropIndexByUnquotedName('idx_document')
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_document')
+                    ->setUnquotedColumnNames('document')
+                    ->setMethod(IndexMethod::GIST)
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager
+            ->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($this->schemaManager->introspectTableByUnquotedName('gist_index_change_test'), $newTable);
+
+        self::assertFalse($diff->isEmpty());
+
+        $this->schemaManager->alterTable($diff);
+
+        self::assertSame(
+            IndexMethod::GIST,
+            $this->schemaManager->introspectTableByUnquotedName('gist_index_change_test')
+                ->getIndex('idx_document')
+                ->getMethod(),
+        );
     }
 
     public function testJsonbColumn(): void

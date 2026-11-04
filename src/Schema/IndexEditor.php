@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
@@ -26,6 +27,8 @@ final class IndexEditor
 
     /** @var ?non-empty-string */
     private ?string $predicate = null;
+
+    private ?IndexMethod $method = null;
 
     /** @internal Use {@link Index::editor()} or {@link Index::edit()} to create an instance */
     public function __construct()
@@ -151,6 +154,16 @@ final class IndexEditor
         return $this;
     }
 
+    /**
+     * Sets the index method. A null value means that the platform default method will be used.
+     */
+    public function setMethod(?IndexMethod $method): self
+    {
+        $this->method = $method;
+
+        return $this;
+    }
+
     public function create(): Index
     {
         if ($this->name === null) {
@@ -232,6 +245,18 @@ final class IndexEditor
 
         if ($this->predicate !== null) {
             $options['where'] = $this->predicate;
+        }
+
+        if ($this->method !== null) {
+            if ($this->type !== IndexType::REGULAR) {
+                throw InvalidIndexDefinition::methodIncompatibleWithType($name, $this->method, $this->type);
+            }
+
+            if ($this->isClustered) {
+                throw InvalidIndexDefinition::methodIncompatibleWithClustering($name, $this->method);
+            }
+
+            $options['method'] = $this->method->value;
         }
 
         return [$columnNames, $flags, $options];

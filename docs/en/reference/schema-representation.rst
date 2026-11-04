@@ -100,6 +100,39 @@ shows:
     $createSQL = $schema->toSql($myPlatform);     // get queries to create this schema
     $dropSQL   = $schema->toDropSql($myPlatform); // get queries to drop this schema
 
+Index methods
+-------------
+
+By default, an index is created using the default method of the platform
+(B-tree on all supported platforms). On PostgreSQL, you can create a
+`GiST <https://www.postgresql.org/docs/current/gist.html>`_ index
+by specifying the index method:
+
+.. code-block:: php
+
+    <?php
+
+    use Doctrine\DBAL\Schema\Index;
+    use Doctrine\DBAL\Schema\Index\IndexMethod;
+
+    $index = Index::editor()
+        ->setUnquotedName('idx_document')
+        ->setUnquotedColumnNames('document')
+        ->setMethod(IndexMethod::GIST)
+        ->create();
+
+    // CREATE INDEX idx_document ON article USING gist (document)
+
+An index with an explicit method can only be of type ``IndexType::REGULAR``
+and cannot be clustered. Platforms that do not support the given method throw
+a ``NotSupported`` exception when generating the SQL for such an index. Use
+``AbstractPlatform::supportsIndexMethod()`` to check whether a platform
+supports a given method.
+
+When the index is configured via the ``method`` option, e.g. by the ORM, the
+value must be a lowercase or uppercase name of an ``IndexMethod`` case
+(e.g. ``gist``), or ``btree`` for the platform default method.
+
 Now if you want to compare this schema with another schema, you can
 use the ``Comparator`` class to get instances of ``SchemaDiff``,
 ``TableDiff`` and ``ColumnDiff``, as well as information about other

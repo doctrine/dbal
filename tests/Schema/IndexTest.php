@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -336,6 +337,67 @@ class IndexTest extends TestCase
 
         $this->expectException(InvalidState::class);
         $index->getPredicate();
+    }
+
+    #[TestWith(['gist'])]
+    #[TestWith(['GIST'])]
+    public function testParseMethod(string $method): void
+    {
+        $index = new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
+
+        self::assertSame(IndexMethod::GIST, $index->getMethod());
+    }
+
+    #[TestWith(['btree'])]
+    #[TestWith(['BTREE'])]
+    public function testBtreeMethodIsTheDefault(string $method): void
+    {
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7576');
+        $index = new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
+
+        self::assertNull($index->getMethod());
+        self::assertTrue($index->isFulfilledBy(new Index('idx_user_name', ['user_id'])));
+    }
+
+    /** @param list<string> $flags */
+    #[TestWith([true, false, []])]
+    #[TestWith([false, true, []])]
+    #[TestWith([false, false, ['fulltext']])]
+    #[TestWith([false, false, ['spatial']])]
+    #[TestWith([false, false, ['clustered']])]
+    #[TestWith([false, false, ['nonclustered']])]
+    public function testMethodWithConflictingProperties(bool $isUnique, bool $isPrimary, array $flags): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7576');
+        $index = new Index('idx_user_name', ['user_id'], $isUnique, $isPrimary, $flags, ['method' => 'gist']);
+
+        self::assertNull($index->getMethod());
+    }
+
+    #[TestWith(['unknown'])]
+    #[TestWith(['gin'])]
+    public function testUnsupportedMethodIsIgnored(string $method): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7576');
+        $index = new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
+
+        self::assertNull($index->getMethod());
+        self::assertTrue($index->isFulfilledBy(new Index('idx_user_name', ['user_id'])));
+        self::assertNull($index->edit()->create()->getMethod());
+    }
+
+    public function testNotFulfilledByIndexWithDifferentMethod(): void
+    {
+        $regular = new Index('idx_regular', ['data']);
+        $gist    = new Index('idx_gist', ['data'], false, false, [], ['method' => 'gist']);
+        $unique  = new Index('idx_unique', ['data'], true);
+
+        self::assertFalse($regular->isFulfilledBy($gist));
+        self::assertFalse($gist->isFulfilledBy($regular));
+        self::assertFalse($gist->isFulfilledBy($unique));
+        self::assertTrue($gist->isFulfilledBy(
+            new Index('idx_gist_2', ['data'], false, false, [], ['method' => 'gist']),
+        ));
     }
 
     #[TestWith(['fulltext'])]

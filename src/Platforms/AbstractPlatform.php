@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\DefaultExpression;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\SchemaDiff;
@@ -1295,6 +1296,7 @@ abstract class AbstractPlatform
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
+        $query .= $this->getIndexMethodSQL($index);
         $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
@@ -1310,6 +1312,26 @@ abstract class AbstractPlatform
         }
 
         return '';
+    }
+
+    /**
+     * Returns the SQL snippet that specifies the index method.
+     *
+     * @throws NotSupported If the index uses a method that is not supported by the platform.
+     */
+    protected function getIndexMethodSQL(Index $index): string
+    {
+        $method = $index->getMethod();
+
+        if ($method === null) {
+            return '';
+        }
+
+        if (! $this->supportsIndexMethod($method)) {
+            throw NotSupported::new(sprintf('index method %s', $method->name));
+        }
+
+        return ' USING ' . $method->value;
     }
 
     /**
@@ -1777,6 +1799,7 @@ abstract class AbstractPlatform
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getQuotedName($this)
+            . $this->getIndexMethodSQL($index)
             . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
     }
 
@@ -2182,6 +2205,14 @@ abstract class AbstractPlatform
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function supportsPartialIndexes(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Whether the platform supports creating indexes using the given method.
+     */
+    public function supportsIndexMethod(IndexMethod $method): bool
     {
         return false;
     }

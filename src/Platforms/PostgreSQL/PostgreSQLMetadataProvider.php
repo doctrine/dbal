@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Metadata\DatabaseMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ForeignKeyConstraintColumnMetadataRow;
@@ -373,11 +374,13 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                    ic.relname,
                    i.indisunique,
                    pg_get_expr(indpred, indrelid),
-                   attname
+                   attname,
+                   am.amname
             FROM pg_index i
                      JOIN pg_class AS c ON c.oid = i.indrelid
                      JOIN pg_namespace n ON n.oid = c.relnamespace
                      JOIN pg_class AS ic ON ic.oid = i.indexrelid
+                     JOIN pg_am AS am ON am.oid = ic.relam
                      JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                           ON TRUE
                      JOIN pg_attribute a
@@ -403,6 +406,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 predicate: $row[4],
                 columnName: $row[5],
                 columnLength: null,
+                method: IndexMethod::tryFrom($row[6]),
             );
         }
     }

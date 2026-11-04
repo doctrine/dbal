@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
@@ -20,10 +21,12 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
+use function get_debug_type;
 use function gettype;
 use function implode;
 use function is_int;
 use function is_object;
+use function is_string;
 use function strlen;
 use function strtolower;
 
@@ -76,6 +79,13 @@ class Index extends AbstractNamedObject
     private ?string $predicate = null;
 
     private bool $failedToParsePredicate = false;
+
+    /**
+     * Index method.
+     *
+     * A null value indicates that the platform default method is used.
+     */
+    private ?IndexMethod $method = null;
 
     /**
      * @internal Use {@link Index::editor()} to instantiate an editor and {@link IndexEditor::create()} to create an
@@ -134,6 +144,10 @@ class Index extends AbstractNamedObject
             }
         }
 
+        if (isset($options['method'])) {
+            $this->method = $this->parseMethod($options['method']);
+        }
+
         foreach ($flags as $flag) {
             $this->addFlag($flag);
         }
@@ -143,6 +157,8 @@ class Index extends AbstractNamedObject
         }
 
         $this->columns = $this->parseColumns($isPrimary, $columns, $options['lengths'] ?? []);
+
+        $this->validateMethod();
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -204,6 +220,14 @@ class Index extends AbstractNamedObject
         return $this->hasOption('where')
             ? $this->getOption('where')
             : null;
+    }
+
+    /**
+     * Returns the index method or null if the platform default method is used.
+     */
+    public function getMethod(): ?IndexMethod
+    {
+        return $this->method;
     }
 
     protected function _addColumn(string $column): void
@@ -389,6 +413,10 @@ class Index extends AbstractNamedObject
 
         if ($sameColumns) {
             if (! $this->samePartialIndex($other)) {
+                return false;
+            }
+
+            if ($this->method !== $other->method) {
                 return false;
             }
 
@@ -646,6 +674,75 @@ class Index extends AbstractNamedObject
         return $type;
     }
 
+    private function parseMethod(mixed $method): ?IndexMethod
+    {
+        if ($method instanceof IndexMethod) {
+            return $method;
+        }
+
+        if (is_string($method)) {
+            $method = strtolower($method);
+
+            // B-tree is the default method on all supported platforms
+            if ($method === 'btree') {
+                return null;
+            }
+
+            $parsedMethod = IndexMethod::tryFrom($method);
+
+            if ($parsedMethod !== null) {
+                return $parsedMethod;
+            }
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7576',
+            'Configuring an index with an unsupported method is deprecated: %s. The method is ignored.',
+            is_string($method) ? $method : get_debug_type($method),
+        );
+
+        return null;
+    }
+
+    private function validateMethod(): void
+    {
+        if ($this->method === null) {
+            return;
+        }
+
+        $conflicts = [];
+
+        if ($this->_isPrimary) {
+            $conflicts[] = 'primary';
+        } elseif ($this->_isUnique) {
+            $conflicts[] = 'unique';
+        }
+
+        foreach (['fulltext', 'spatial', 'clustered', 'nonclustered'] as $flag) {
+            if (! isset($this->_flags[$flag])) {
+                continue;
+            }
+
+            $conflicts[] = $flag;
+        }
+
+        if (count($conflicts) === 0) {
+            return;
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7576',
+            'Configuring an index with method %s and conflicting properties is deprecated: %s.'
+                . ' The method is ignored.',
+            $this->method->name,
+            implode(', ', $conflicts),
+        );
+
+        $this->method = null;
+    }
+
     /**
      * @param non-empty-array<int, string> $columnNames
      * @param array<int>                   $lengths
@@ -759,6 +856,7 @@ class Index extends AbstractNamedObject
             ->setType($this->getType())
             ->setColumns(...$this->getIndexedColumns())
             ->setIsClustered($this->isClustered())
-            ->setPredicate($this->getPredicate());
+            ->setPredicate($this->getPredicate())
+            ->setMethod($this->getMethod());
     }
 }

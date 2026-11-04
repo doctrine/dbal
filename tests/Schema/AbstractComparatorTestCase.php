@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\IndexRename;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -595,6 +596,54 @@ abstract class AbstractComparatorTestCase extends TestCase
             ]),
             $this->comparator->compareTables($tableA, $tableB),
         );
+    }
+
+    public function testCompareIndexMethod(): void
+    {
+        $tableA = $this->createTableWithIndex('idx_area', null);
+        $tableB = $this->createTableWithIndex('idx_area', IndexMethod::GIST);
+
+        $diff = $this->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($tableA, $tableB);
+
+        self::assertEquals([$tableA->getIndex('idx_area')], $diff->getDroppedIndexes());
+        self::assertEquals([$tableB->getIndex('idx_area')], $diff->getAddedIndexes());
+        self::assertSame([], $diff->getRenamedIndexes());
+
+        self::assertTrue($this->comparator->compareTables($tableB, $tableB)->isEmpty());
+    }
+
+    public function testIndexWithDifferentMethodIsNotDetectedAsRenamed(): void
+    {
+        $tableA = $this->createTableWithIndex('idx_area', null);
+        $tableB = $this->createTableWithIndex('idx_area_gist', IndexMethod::GIST);
+
+        $diff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertSame([], $diff->getRenamedIndexes());
+        self::assertEquals([$tableA->getIndex('idx_area')], $diff->getDroppedIndexes());
+        self::assertEquals([$tableB->getIndex('idx_area_gist')], $diff->getAddedIndexes());
+    }
+
+    /** @param non-empty-string $indexName */
+    private function createTableWithIndex(string $indexName, ?IndexMethod $method): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('area')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName($indexName)
+                    ->setUnquotedColumnNames('area')
+                    ->setMethod($method)
+                    ->create(),
+            )
+            ->create();
     }
 
     public function testCompareForeignKeyBasedOnPropertiesNotName(): void

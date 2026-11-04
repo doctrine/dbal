@@ -9,6 +9,8 @@ use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
@@ -1002,6 +1004,50 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('tsvector'));
         self::assertEquals(Types::TEXT, $this->platform->getDoctrineTypeMapping('tsvector'));
+    }
+
+    public function testSupportsIndexMethod(): void
+    {
+        self::assertTrue($this->platform->supportsIndexMethod(IndexMethod::GIST));
+    }
+
+    public function testGetCreateIndexSQLWithGistMethod(): void
+    {
+        self::assertSame(
+            'CREATE INDEX idx_gist ON test USING gist (area)',
+            $this->platform->getCreateIndexSQL($this->createGistIndex(), 'test'),
+        );
+    }
+
+    public function testGetCreateIndexSQLWithGistMethodAndPredicate(): void
+    {
+        $index = $this->createGistIndex()
+            ->edit()
+            ->setPredicate('area IS NOT NULL')
+            ->create();
+
+        self::assertSame(
+            'CREATE INDEX idx_gist ON test USING gist (area) WHERE area IS NOT NULL',
+            $this->platform->getCreateIndexSQL($index, 'test'),
+        );
+    }
+
+    public function testGetCreateIndexSQLIgnoresInvalidMethod(): void
+    {
+        $index = new Index('idx_gist', ['area'], true, false, [], ['method' => 'gist']);
+
+        self::assertSame(
+            'CREATE UNIQUE INDEX idx_gist ON test (area)',
+            $this->platform->getCreateIndexSQL($index, 'test'),
+        );
+    }
+
+    public function testGetCreateTableSQLWithGistIndex(): void
+    {
+        self::assertSame([
+            'CREATE TABLE test (area TEXT NOT NULL)',
+            'CREATE INDEX idx_gist ON test USING gist (area)',
+        ], $this->platform->getCreateTableSQL($this->createTableWithGistIndex()));
     }
 
     public function testSupportsPartialIndexes(): void

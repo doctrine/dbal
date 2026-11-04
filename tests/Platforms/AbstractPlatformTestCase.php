@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -16,6 +17,7 @@ use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexMethod;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
@@ -228,6 +230,48 @@ abstract class AbstractPlatformTestCase extends TestCase
     }
 
     abstract public function getGenerateUniqueIndexSql(): string;
+
+    public function testSupportsIndexMethod(): void
+    {
+        self::assertFalse($this->platform->supportsIndexMethod(IndexMethod::GIST));
+    }
+
+    public function testGetCreateIndexSQLWithGistMethod(): void
+    {
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateIndexSQL($this->createGistIndex(), 'test');
+    }
+
+    public function testGetCreateTableSQLWithGistIndex(): void
+    {
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateTableSQL($this->createTableWithGistIndex());
+    }
+
+    protected function createGistIndex(): Index
+    {
+        return Index::editor()
+            ->setUnquotedName('idx_gist')
+            ->setUnquotedColumnNames('area')
+            ->setMethod(IndexMethod::GIST)
+            ->create();
+    }
+
+    protected function createTableWithGistIndex(): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('area')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes($this->createGistIndex())
+            ->create();
+    }
 
     public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes(): void
     {
