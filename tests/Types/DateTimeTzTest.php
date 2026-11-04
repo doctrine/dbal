@@ -7,10 +7,13 @@ namespace Doctrine\DBAL\Tests\Types;
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeTzType;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 /** @extends BaseDateTypeTestCase<DateTimeTzType> */
 class DateTimeTzTest extends BaseDateTypeTestCase
 {
+    use VerifyDeprecations;
+
     protected function setUp(): void
     {
         $this->type = new DateTimeTzType();
@@ -43,5 +46,12 @@ class DateTimeTzTest extends BaseDateTypeTestCase
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
+    }
+
+    public function testIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7575');
+
+        $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
     }
 }

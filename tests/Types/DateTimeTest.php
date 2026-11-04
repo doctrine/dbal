@@ -7,10 +7,13 @@ namespace Doctrine\DBAL\Tests\Types;
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 /** @extends BaseDateTypeTestCase<DateTimeType> */
 class DateTimeTest extends BaseDateTypeTestCase
 {
+    use VerifyDeprecations;
+
     protected function setUp(): void
     {
         $this->type = new DateTimeType();
@@ -52,5 +55,12 @@ class DateTimeTest extends BaseDateTypeTestCase
         $actual = $this->type->convertToPHPValue($date, $this->platform);
 
         self::assertEquals('1985-09-01 10:10:10', $actual->format('Y-m-d H:i:s'));
+    }
+
+    public function testIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7575');
+
+        $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
     }
 }

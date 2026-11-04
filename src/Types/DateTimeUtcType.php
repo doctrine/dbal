@@ -9,14 +9,13 @@ use DateTimeZone;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 /**
- * Type that maps an SQL DATETIME/TIMESTAMP to a PHP DateTime object and stores it in UTC.
+ * Mutable variant of {@see DateTimeUtcImmutableType}.
  *
- * Values are converted to the UTC timezone before being persisted, so that no timezone
- * information needs to be stored in the database. When read back, the stored value is
- * always interpreted as being in the UTC timezone.
+ * @deprecated Use {@see DateTimeUtcImmutableType} instead.
  */
 class DateTimeUtcType extends Type implements PhpDateTimeMappingType
 {
@@ -27,6 +26,8 @@ class DateTimeUtcType extends Type implements PhpDateTimeMappingType
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
+        $this->triggerDeprecation();
+
         return $platform->getDateTimeTypeDeclarationSQL($column);
     }
 
@@ -39,6 +40,8 @@ class DateTimeUtcType extends Type implements PhpDateTimeMappingType
      */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
+        $this->triggerDeprecation();
+
         if ($value === null) {
             return $value;
         }
@@ -64,6 +67,8 @@ class DateTimeUtcType extends Type implements PhpDateTimeMappingType
      */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTime
     {
+        $this->triggerDeprecation();
+
         if ($value === null || $value instanceof DateTime) {
             return $value;
         }
@@ -93,5 +98,16 @@ class DateTimeUtcType extends Type implements PhpDateTimeMappingType
     private static function getUtc(): DateTimeZone
     {
         return self::$utc ??= new DateTimeZone('UTC');
+    }
+
+    private function triggerDeprecation(): void
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7575',
+            'The "%s" type is deprecated. Use the "%s" type instead.',
+            self::class,
+            DateTimeUtcImmutableType::class,
+        );
     }
 }
