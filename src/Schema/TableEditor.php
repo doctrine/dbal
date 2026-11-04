@@ -247,6 +247,7 @@ final class TableEditor
             static function (UniqueConstraint $constraint, array $columnNames): UniqueConstraint {
                 return $constraint->edit()
                     ->setColumnNames(...$columnNames)
+                    ->setOrigin($constraint->getOrigin())
                     ->create();
             },
         );
