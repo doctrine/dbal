@@ -508,6 +508,7 @@ class Index extends AbstractNamedObject
         $this->_flags[strtolower($flag)] = true;
 
         $this->validateFlags();
+        $this->validateMethod();
 
         $this->type = $this->inferType();
 

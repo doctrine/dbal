@@ -374,6 +374,22 @@ class IndexTest extends TestCase
         self::assertNull($index->getMethod());
     }
 
+    #[TestWith(['fulltext'])]
+    #[TestWith(['spatial'])]
+    #[TestWith(['clustered'])]
+    #[TestWith(['nonclustered'])]
+    public function testAddingConflictingFlagClearsMethod(string $flag): void
+    {
+        $index = new Index('idx_user_name', ['user_id'], false, false, [], ['method' => 'gist']);
+        self::assertSame(IndexMethod::GIST, $index->getMethod());
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7576');
+        $index->addFlag($flag);
+
+        self::assertNull($index->getMethod());
+        self::assertNull($index->edit()->create()->getMethod());
+    }
+
     #[TestWith(['unknown'])]
     #[TestWith(['gin'])]
     public function testUnsupportedMethodIsIgnored(string $method): void
