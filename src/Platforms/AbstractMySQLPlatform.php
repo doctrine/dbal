@@ -481,7 +481,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
                 $query  = 'ALTER TABLE ' . $tableNameSQL . ' DROP INDEX ' . $droppedIndex->getName() . ', ';
                 $query .= 'ADD ' . $indexClause;
-                $query .= ' (' . implode(', ', $addedIndex->getQuotedColumns($this)) . ')';
+                $query .= $this->getIndexMethodSQL($addedIndex);
+                $query .= ' (' . $this->getIndexedColumnListSQL($addedIndex) . ')';
 
                 $sql[] = $query;
 

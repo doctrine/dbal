@@ -8,6 +8,42 @@ awareness about deprecated code.
 
 # Upgrade to 4.6
 
+## Deprecated invalid index method and indexed column options configuration
+
+Configuring the following options of an index via the `Index` constructor (or `Table::addIndex()` and
+`Table::addUniqueIndex()`) with an invalid value is deprecated:
+
+1. The `method` option with a value that is not a non-empty string.
+2. The `column_options` option with a value that is not a list of string-keyed arrays.
+
+Such values are ignored, as in previous versions. Use `IndexEditor::setMethod()` and the `$options` parameter of
+`IndexEditor::addUnquotedColumnName()` and `IndexEditor::addQuotedColumnName()` instead.
+
+## Schema comparison takes the index method and indexed column options into account
+
+Indexes are now compared by their method and by the options of their columns in addition to their columns, type and
+predicate. On the platforms that support them (currently PostgreSQL), the method of an index and the options of its
+columns are now introspected as well, unless they are the defaults of the platform.
+
+If your schema declares such an index without its method or column options (e.g. because the index has been created
+by a raw SQL migration), the schema comparison will now detect a difference and generate SQL that drops the index and
+recreates it without them. To prevent that, declare them explicitly:
+
+```php
+Index::editor()
+    ->setUnquotedName('idx_name')
+    ->addUnquotedColumnName('name', options: ['option' => 'value'])
+    ->setMethod('hash')
+    ->create();
+
+// or, with the ORM
+#[ORM\Index(
+    name: 'idx_name',
+    columns: ['name'],
+    options: ['method' => 'hash', 'column_options' => [['option' => 'value']]],
+)]
+```
+
 ## Deprecated support for MariaDB 10.6 - 10.10 and MySQL 8.0 - 8.3
 
 * Upgrade to MariaDB 10.11 or later.

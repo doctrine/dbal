@@ -100,6 +100,54 @@ shows:
     $createSQL = $schema->toSql($myPlatform);     // get queries to create this schema
     $dropSQL   = $schema->toDropSql($myPlatform); // get queries to drop this schema
 
+Index methods and indexed column options
+----------------------------------------
+
+The method of an index and platform-specific options for each of its columns
+can be specified as strings and arrays, which are passed as is to the
+platform. The platform is responsible for validating and rendering them:
+
+.. code-block:: php
+
+    <?php
+
+    use Doctrine\DBAL\Schema\Index;
+
+    $index = Index::editor()
+        ->setUnquotedName('idx_name')
+        ->addUnquotedColumnName('name', options: ['option' => 'value'])
+        ->setMethod('hash')
+        ->create();
+
+By default, an index uses the default method of the platform, and its columns
+have no options. The options of an indexed column are available via
+``IndexedColumn::getOptions()``.
+
+The method and the column options can also be configured via the ``method`` and
+``column_options`` index options, the latter containing the options of each
+indexed column, in the order of the columns, e.g. with the ORM:
+
+.. code-block:: php
+
+    <?php
+
+    #[ORM\Index(columns: ['name'], options: [
+        'method' => 'hash',
+        'column_options' => [['option' => 'value']],
+    ])]
+
+Platforms that do not support specifying the index method or a given column
+option throw a ``NotSupported`` exception when generating the SQL for such an
+index. PostgreSQL is currently the only platform that supports them: the method
+is rendered as ``USING <method>``, and the ``opclass`` column option specifies
+the `operator class <https://www.postgresql.org/docs/current/indexes-opclass.html>`_
+of the column.
+
+When introspecting a database, the method of an index and the options of its
+columns are introspected as well, unless they are the defaults of the platform.
+Do not declare the default method explicitly: DBAL does not know the default
+method of the platform, so the schema comparison would detect a difference.
+
 Now if you want to compare this schema with another schema, you can
 use the ``Comparator`` class to get instances of ``SchemaDiff``,
 ``TableDiff`` and ``ColumnDiff``, as well as information about other
