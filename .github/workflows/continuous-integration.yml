@@ -276,7 +276,7 @@ jobs:
     name: >
       PDO_SQLite and development dependencies - 
       ${{ matrix.php-version || 'Ø' }}
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -308,7 +308,7 @@ jobs:
 
   upload_coverage:
     name: "Upload coverage to Codecov"
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-latest"
     if: "github.event.pull_request.head.repo.full_name != github.repository || !contains(github.event.pull_request.head.ref, '.x')"
     needs:
       - "phpunit-smoke-check"
