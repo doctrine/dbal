@@ -643,10 +643,6 @@ final class SchemaManagerTest extends FunctionalTestCase
         UniqueConstraint $uniqueConstraint,
         callable $introspect,
     ): void {
-        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('MySQL and MariaDB introspect unique constraints as indexes.');
-        }
-
         $this->createTableWithUniqueConstraint($tableName, $uniqueConstraint);
 
         $this->assertUniqueConstraintListEquals(
@@ -755,10 +751,6 @@ final class SchemaManagerTest extends FunctionalTestCase
     {
         if ($this->connection->getDatabasePlatform()->supportsSchemas()) {
             self::markTestSkipped('Platform supports schemas.');
-        }
-
-        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('MySQL and MariaDB introspect unique constraints as indexes.');
         }
 
         $uniqueConstraint = $this->createUniqueConstraint();
@@ -1111,6 +1103,77 @@ final class SchemaManagerTest extends FunctionalTestCase
         );
     }
 
+    public function testIntrospectForeignKeyAndUniqueConstraintSharingName(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof AbstractMySQLPlatform && ! $platform instanceof SQLitePlatform) {
+            self::markTestSkipped('The platform does not let a foreign key and a unique constraint share a name.');
+        }
+
+        $this->dropTableIfExists('invoices');
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('customers')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('invoices')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('customer_id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('number')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setIndexes(
+                    Index::editor()
+                        ->setUnquotedName('invoices_customer_idx')
+                        ->setUnquotedColumnNames('customer_id')
+                        ->create(),
+                )
+                ->setForeignKeyConstraints(
+                    ForeignKeyConstraint::editor()
+                        ->setUnquotedName('customers_fk')
+                        ->setUnquotedReferencingColumnNames('customer_id')
+                        ->setUnquotedReferencedTableName('customers')
+                        ->setUnquotedReferencedColumnNames('id')
+                        ->create(),
+                )
+                ->setUniqueConstraints(
+                    UniqueConstraint::editor()
+                        ->setUnquotedName('customers_fk')
+                        ->setUnquotedColumnNames('number')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $this->assertUnqualifiedNameListEquals(
+            [UnqualifiedName::unquoted('number')],
+            $this->schemaManager->introspectTableByUnquotedName('invoices')
+                ->getUniqueConstraint('customers_fk')
+                ->getColumnNames(),
+        );
+    }
+
     public function testIndexBackingUniqueConstraintIsNotDropped(): void
     {
         $this->skipUnlessUniqueConstraintIndexIsDerived();
@@ -1209,7 +1272,7 @@ final class SchemaManagerTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if ($platform instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('MySQL and MariaDB introspect a unique constraint as a unique index.');
+            self::markTestSkipped('MySQL and MariaDB expose a unique index as a unique constraint.');
         }
 
         $this->skipUnlessUniqueConstraintIndexIsReported();
