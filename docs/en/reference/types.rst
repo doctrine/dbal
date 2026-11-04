@@ -921,6 +921,29 @@ At first, you override the ``convertToPhpValueSQL`` and
         return 'MyFunction('.$sqlExpr.')';
     }
 
+``Connection::insert()``, ``Connection::update()``, ``Connection::delete()``,
+``QueryBuilder::createNamedParameter()`` and
+``QueryBuilder::createPositionalParameter()`` apply ``convertToDatabaseValueSQL()``
+to the placeholders of the parameters bound with your type. In hand-written SQL, apply
+the conversions with ``Connection::convertToDatabaseValueSQL()`` and
+``Connection::convertToPHPValueSQL()``:
+
+::
+
+    <?php
+    $sql = 'SELECT ' . $conn->convertToPHPValueSQL('p.price', 'money')
+        . ' FROM products p WHERE p.price > ' . $conn->convertToDatabaseValueSQL('?', 'money');
+
+    $price = $conn->convertToPHPValue($conn->fetchOne($sql, [$minimum], ['money']), 'money');
+
+The SQL returned by ``convertToDatabaseValueSQL()`` must use the given expression exactly
+once and must preserve ``NULL`` values, because it is applied to the placeholder of every
+value bound with the type.
+
+If the way your values have to be bound depends on the database platform, implement
+``Doctrine\DBAL\Types\PlatformAwareBindingType``: its ``getBindingTypeForPlatform()``
+method takes precedence over ``getBindingType()``.
+
 Then you have to register this type with the Doctrine Type system and
 hook it into the database platform:
 
