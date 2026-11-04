@@ -8,16 +8,23 @@ use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Pdo\Pgsql;
 
 use function array_merge;
 
+use const PHP_VERSION_ID;
+
 class DriverTest extends AbstractPostgreSQLDriverTestCase
 {
+    private const DISABLE_PREPARES_ATTRIBUTE = PHP_VERSION_ID >= 80400
+        ? Pgsql::ATTR_DISABLE_PREPARES
+        : \PDO::PGSQL_ATTR_DISABLE_PREPARES;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_driver'] === 'pdo_pgsql') {
+        if (isset($GLOBALS['db_driver']) && $GLOBALS['db_driver'] === 'pdo_pgsql') {
             return;
         }
 
@@ -30,31 +37,31 @@ class DriverTest extends AbstractPostgreSQLDriverTestCase
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
+            $connection->getNativeConnection()->getAttribute(self::DISABLE_PREPARES_ATTRIBUTE),
         );
     }
 
     public function testConnectionDoesNotDisablePreparesWhenAttributeDefined(): void
     {
         $connection = $this->connect(
-            [\PDO::PGSQL_ATTR_DISABLE_PREPARES => false],
+            [self::DISABLE_PREPARES_ATTRIBUTE => false],
         );
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertNotTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
+            $connection->getNativeConnection()->getAttribute(self::DISABLE_PREPARES_ATTRIBUTE),
         );
     }
 
     public function testConnectionDisablePreparesWhenDisablePreparesIsExplicitlyDefined(): void
     {
         $connection = $this->connect(
-            [\PDO::PGSQL_ATTR_DISABLE_PREPARES => true],
+            [self::DISABLE_PREPARES_ATTRIBUTE => true],
         );
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
+            $connection->getNativeConnection()->getAttribute(self::DISABLE_PREPARES_ATTRIBUTE),
         );
     }
 
