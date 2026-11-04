@@ -21,4 +21,4 @@ concurrency:
 jobs:
   json-validate:
     name: "Validate JSON schema"
-    uses: "doctrine/.github/.github/workflows/website-schema.yml@15.1.0"
+    uses: "doctrine/.github/.github/workflows/website-schema.yml@16.0.0"
