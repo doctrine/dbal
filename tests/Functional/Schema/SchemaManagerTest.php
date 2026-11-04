@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableExistsException;
-use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -600,10 +599,6 @@ final class SchemaManagerTest extends FunctionalTestCase
         UniqueConstraint $uniqueConstraint,
         callable $introspect,
     ): void {
-        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('MySQL and MariaDB introspect unique constraints as indexes.');
-        }
-
         $this->createTableWithUniqueConstraint($tableName, $uniqueConstraint);
 
         $this->assertUniqueConstraintListEquals(
@@ -712,10 +707,6 @@ final class SchemaManagerTest extends FunctionalTestCase
     {
         if ($this->connection->getDatabasePlatform()->supportsSchemas()) {
             self::markTestSkipped('Platform supports schemas.');
-        }
-
-        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('MySQL and MariaDB introspect unique constraints as indexes.');
         }
 
         $uniqueConstraint = $this->createUniqueConstraint();
