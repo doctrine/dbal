@@ -77,3 +77,45 @@ parameters:
 			identifier: arrayFilter.strict
 			count: 1
 			path: tests/Functional/Schema/MySQL/JsonCollationTest.php
+
+		-
+			rawMessage: 'Parameter #3 $parameters of method Doctrine\DBAL\Platforms\AbstractPlatform::_getCreateTableSQL() expects array{indexes: list<Doctrine\DBAL\Schema\Index>, primaryKey: Doctrine\DBAL\Schema\PrimaryKeyConstraint|null, uniqueConstraints: list<Doctrine\DBAL\Schema\UniqueConstraint>, foreignKeys: list<Doctrine\DBAL\Schema\ForeignKeyConstraint>, comment?: string}, non-empty-array<string, mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: src/Platforms/AbstractPlatform.php
+
+		-
+			rawMessage: 'Method Doctrine\DBAL\Schema\Column::toArray() should return array{name: Doctrine\DBAL\Schema\Name\UnqualifiedName, type?: Doctrine\DBAL\Types\Type, typeName?: string, default?: mixed, notnull?: bool, autoincrement?: bool, columnDefinition?: non-empty-string|null, comment?: string, ...} but returns array{name: Doctrine\DBAL\Schema\Name\UnqualifiedName, typeName: string, default: mixed, notnull: bool, length: int|null, precision: int|null, scale: int, fixed: bool, ...}.'
+			identifier: return.type
+			count: 1
+			path: src/Schema/Column.php
+
+		-
+			rawMessage: 'Parameter #12 $platformOptions of class Doctrine\DBAL\Schema\Column constructor expects array{charset?: non-empty-string|null, collation?: non-empty-string|null, default_constraint_name?: non-empty-string, enumType?: class-string}, array{charset?: non-empty-string, collation?: non-empty-string, min?: mixed, max?: mixed, enumType?: class-string, default_constraint_name?: non-empty-string} given.'
+			identifier: argument.type
+			count: 1
+			path: src/Schema/ColumnEditor.php
+
+		-
+			rawMessage: 'Method Doctrine\DBAL\Tools\DsnParser::parse() should return array{application_name?: string, charset?: string, connectstring?: string, dbname?: non-empty-string, defaultTableOptions?: array<string, mixed>, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...} but returns array<mixed>.'
+			identifier: return.type
+			count: 1
+			path: src/Tools/DsnParser.php
+
+		-
+			rawMessage: Dead catch - TypeError is never thrown in the try block.
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Types/NumberType.php
+
+		-
+			rawMessage: 'Method Doctrine\DBAL\Tests\Functional\PrimaryReadReplicaConnectionTest::createPrimaryReadReplicaConnectionParams() should return array{application_name?: string, charset?: string, connectstring?: string, dbname?: non-empty-string, defaultTableOptions?: array<string, mixed>, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...} but returns array{application_name?: string, charset?: string, connectstring?: string, dbname?: non-empty-string, defaultTableOptions?: array<string, mixed>, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...}.'
+			identifier: return.type
+			count: 1
+			path: tests/Functional/PrimaryReadReplicaConnectionTest.php
+
+		-
+			rawMessage: 'Method Doctrine\DBAL\Tests\TestUtil::mapConnectionParameters() should return array{application_name?: string, charset?: string, connectstring?: string, dbname?: non-empty-string, defaultTableOptions?: array<string, mixed>, driver?: ''ibm_db2''|''mysqli''|''oci8''|''pdo_mysql''|''pdo_oci''|''pdo_pgsql''|''pdo_sqlite''|''pdo_sqlsrv''|''pgsql''|''sqlite3''|''sqlsrv'', driverClass?: class-string<Doctrine\DBAL\Driver>, driverOptions?: array<mixed>, ...} but returns array<string, mixed>.'
+			identifier: return.type
+			count: 1
+			path: tests/TestUtil.php

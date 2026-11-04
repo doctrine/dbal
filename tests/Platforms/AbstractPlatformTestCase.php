@@ -1171,7 +1171,7 @@ abstract class AbstractPlatformTestCase extends TestCase
      */
     public function testNamedPrimaryKeyConstraintIsReportedAsUnsupported(): void
     {
-        if (! $this->platform instanceof MySqlPlatform && ! $this->platform instanceof SQLitePlatform) {
+        if (! $this->platform instanceof MySQLPlatform && ! $this->platform instanceof SQLitePlatform) {
             self::markTestSkipped('This current database platform supports named primary key constraints.');
         }
 

@@ -522,6 +522,30 @@ all drivers and middleware.
 
 # Upgrade to 4.6
 
+## Schema introspection maps date and time columns to immutable types
+
+Introspecting a table now maps date and time columns to the immutable DBAL types instead of their
+mutable counterparts:
+
+| Database type(s)                                      | Previous type | New type               |
+|-------------------------------------------------------|---------------|------------------------|
+| `date`, `year`                                        | `date`        | `date_immutable`       |
+| `time`, `timetz`                                      | `time`        | `time_immutable`       |
+| `datetime`, `timestamp`, `datetime2`, `smalldatetime` | `datetime`    | `datetime_immutable`   |
+| `datetimetz`, `timestamptz`, `datetimeoffset`         | `datetimetz`  | `datetimetz_immutable` |
+
+A mutable type and its immutable counterpart produce identical DDL, so schema comparison is
+unaffected: introspecting a schema and diffing it against the same schema does not yield any
+spurious changes. The change is only observable if you use the type of an introspected column to
+convert database values to PHP, e.g. in a code generator or a generic schema tool. Such code now
+receives `DateTimeImmutable` instances instead of `DateTime`.
+
+If you rely on the previous behavior, restore the mutable mapping per connection:
+
+```php
+$connection->getDatabasePlatform()->registerDoctrineTypeMapping('datetime', Types::DATETIME_MUTABLE);
+```
+
 ## Types can be scoped to a connection
 
 `Configuration::getTypeProvider()` and `Configuration::setTypeProvider()` have been added. A

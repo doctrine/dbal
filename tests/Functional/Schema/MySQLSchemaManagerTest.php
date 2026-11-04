@@ -17,6 +17,7 @@ use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -830,6 +831,49 @@ SQL;
         $diff = $this->schemaManager->createComparator()->compareTables($onlineTable, $targetTable);
 
         self::assertTrue($diff->isEmpty(), 'Tables should be identical.');
+    }
+
+    public function testRecreateIntrospectedTableWithUniqueIndexAndConstraint(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('unique_round_trip')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('a')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('b')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('uniq_a')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('a')
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_b')
+                    ->setUnquotedColumnNames('b')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $introspectedTable = $this->schemaManager->introspectTableByUnquotedName('unique_round_trip');
+
+        $this->dropAndCreateTable($introspectedTable);
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()->compareTables(
+                $introspectedTable,
+                $this->schemaManager->introspectTableByUnquotedName('unique_round_trip'),
+            )->isEmpty(),
+        );
     }
 
     #[Override]

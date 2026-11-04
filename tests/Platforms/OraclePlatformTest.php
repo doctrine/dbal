@@ -272,7 +272,7 @@ SQL
         self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('raw'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('date'));
-        self::assertSame(Types::DATE_MUTABLE, $this->platform->getDoctrineTypeMapping('date'));
+        self::assertSame(Types::DATE_IMMUTABLE, $this->platform->getDoctrineTypeMapping('date'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
         self::assertSame(Types::SMALLFLOAT, $this->platform->getDoctrineTypeMapping('real'));

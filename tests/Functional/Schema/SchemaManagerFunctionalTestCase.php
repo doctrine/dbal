@@ -35,21 +35,20 @@ use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\DateTimeType;
-use Doctrine\DBAL\Types\DateType;
+use Doctrine\DBAL\Types\DateImmutableType;
+use Doctrine\DBAL\Types\DateTimeImmutableType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\SmallFloatType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\DBAL\Types\TimeType;
+use Doctrine\DBAL\Types\TimeImmutableType;
 use Doctrine\DBAL\Types\Types;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_find;
-use function array_keys;
 use function get_debug_type;
 use function sprintf;
 use function str_starts_with;
@@ -360,8 +359,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         [$id, $test, $foo, $bar, $baz1, $baz2, $baz3] = $columns;
 
-        $columnsKeys = array_keys($columns);
-
         $this->assertUnqualifiedNameEquals(
             UnqualifiedName::unquoted('id'),
             $id->getObjectName(),
@@ -408,7 +405,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             UnqualifiedName::unquoted('baz1'),
             $baz1->getObjectName(),
         );
-        self::assertInstanceOf(DateTimeType::class, $baz1->getType());
+        self::assertInstanceOf(DateTimeImmutableType::class, $baz1->getType());
         self::assertTrue($baz1->getNotnull());
         self::assertNull($baz1->getDefault());
 
@@ -418,7 +415,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
         self::assertContains(
             $baz2->getType()::class,
-            [TimeType::class, DateType::class, DateTimeType::class],
+            [TimeImmutableType::class, DateImmutableType::class, DateTimeImmutableType::class],
         );
         self::assertTrue($baz2->getNotnull());
         self::assertNull($baz2->getDefault());
@@ -429,7 +426,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
         self::assertContains(
             $baz3->getType()::class,
-            [TimeType::class, DateType::class, DateTimeType::class],
+            [TimeImmutableType::class, DateImmutableType::class, DateTimeImmutableType::class],
         );
         self::assertTrue($baz3->getNotnull());
         self::assertNull($baz3->getDefault());

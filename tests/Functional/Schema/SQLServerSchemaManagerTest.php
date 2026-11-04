@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Types;
 use Override;
 
@@ -148,6 +149,33 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('another default value', $dfString3->getDefault());
         self::assertEquals('column to rename', $dfString4Renamed->getDefault());
         self::assertEquals(0, $dfBoolean->getDefault());
+    }
+
+    public function testClusteredUniqueConstraint(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedName('test_clustered_unique_uq')
+            ->setUnquotedColumnNames('id')
+            ->setIsClustered(true)
+            ->create();
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('test_clustered_unique')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setUniqueConstraints($uniqueConstraint)
+                ->create(),
+        );
+
+        $this->assertUniqueConstraintListEquals(
+            [$uniqueConstraint],
+            $this->schemaManager->introspectTableUniqueConstraintsByUnquotedName('test_clustered_unique'),
+        );
     }
 
     public function testNvarcharMaxIsLengthMinus1(): void

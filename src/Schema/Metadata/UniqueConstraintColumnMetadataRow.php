@@ -30,6 +30,7 @@ final readonly class UniqueConstraintColumnMetadataRow
         int|string|null $id,
         private ?string $name,
         private string $columnName,
+        private bool $isClustered = false,
     ) {
         if ($id !== null) {
             $this->id = $id;
@@ -70,5 +71,10 @@ final readonly class UniqueConstraintColumnMetadataRow
     public function getColumnName(): string
     {
         return $this->columnName;
+    }
+
+    public function isClustered(): bool
+    {
+        return $this->isClustered;
     }
 }

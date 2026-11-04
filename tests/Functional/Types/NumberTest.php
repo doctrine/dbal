@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\TestWith;
 #[RequiresPhpExtension('bcmath')]
 final class NumberTest extends FunctionalTestCase
 {
+    /** @param numeric-string $numberAsString */
     #[TestWith(['13.37'])]
     #[TestWith(['13.0'])]
     public function testInsertAndRetrieveNumber(string $numberAsString): void

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -16,6 +17,8 @@ use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+
+use function array_values;
 
 class AlterTableTest extends FunctionalTestCase
 {
@@ -285,6 +288,58 @@ class AlterTableTest extends FunctionalTestCase
                         ->create(),
                 );
         });
+    }
+
+    public function testAlterTableKeepsUniqueConstraint(): void
+    {
+        $this->dropTableIfExists('users');
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('users')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('email')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(64)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('name')
+                        ->setTypeName(Types::STRING)
+                        ->setLength(32)
+                        ->create(),
+                )
+                ->setUniqueConstraints(
+                    UniqueConstraint::editor()
+                        ->setUnquotedName('users_email_uq')
+                        ->setUnquotedColumnNames('email')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $oldTable = $schemaManager->introspectTableByUnquotedName('users');
+
+        $newTable = $oldTable->edit()
+            ->modifyColumnByUnquotedName('name', static function (ColumnEditor $editor): void {
+                $editor->setLength(64);
+            })
+            ->create();
+
+        $schemaManager->alterTable(
+            $schemaManager->createComparator()
+                ->compareTables($oldTable, $newTable),
+        );
+
+        $this->assertUniqueConstraintListEquals(
+            array_values($oldTable->getUniqueConstraints()),
+            $schemaManager->introspectTableUniqueConstraintsByUnquotedName('users'),
+        );
     }
 
     /**

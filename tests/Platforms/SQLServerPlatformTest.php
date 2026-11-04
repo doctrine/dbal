@@ -808,10 +808,10 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('double precision'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smalldatetime'));
-        self::assertSame(Types::DATETIME_MUTABLE, $this->platform->getDoctrineTypeMapping('smalldatetime'));
+        self::assertSame(Types::DATETIME_IMMUTABLE, $this->platform->getDoctrineTypeMapping('smalldatetime'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('datetime'));
-        self::assertSame(Types::DATETIME_MUTABLE, $this->platform->getDoctrineTypeMapping('datetime'));
+        self::assertSame(Types::DATETIME_IMMUTABLE, $this->platform->getDoctrineTypeMapping('datetime'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('char'));
         self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('char'));

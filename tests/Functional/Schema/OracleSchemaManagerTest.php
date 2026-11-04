@@ -14,9 +14,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BinaryType;
-use Doctrine\DBAL\Types\DateTimeType;
-use Doctrine\DBAL\Types\DateTimeTzType;
-use Doctrine\DBAL\Types\DateType;
+use Doctrine\DBAL\Types\DateImmutableType;
+use Doctrine\DBAL\Types\DateTimeImmutableType;
+use Doctrine\DBAL\Types\DateTimeTzImmutableType;
 use Doctrine\DBAL\Types\Types;
 use Override;
 
@@ -156,9 +156,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         [$colDate, $colDateTime, $colDateTimeTz]
             = $this->schemaManager->introspectTableColumnsByUnquotedName('tbl_date');
 
-        self::assertInstanceOf(DateType::class, $colDate->getType());
-        self::assertInstanceOf(DateTimeType::class, $colDateTime->getType());
-        self::assertInstanceOf(DateTimeTzType::class, $colDateTimeTz->getType());
+        self::assertInstanceOf(DateImmutableType::class, $colDate->getType());
+        self::assertInstanceOf(DateTimeImmutableType::class, $colDateTime->getType());
+        self::assertInstanceOf(DateTimeTzImmutableType::class, $colDateTimeTz->getType());
     }
 
     #[Override]

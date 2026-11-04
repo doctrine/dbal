@@ -89,8 +89,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             )
             ->create();
 
-        $platform = $this->connection->getDatabasePlatform();
-        $diff     = $this->schemaManager->createComparator()
+        $diff = $this->schemaManager->createComparator()
             ->compareTables($tableFrom, $tableTo);
 
         $this->schemaManager->alterTable($diff);
@@ -125,8 +124,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             )
             ->create();
 
-        $platform = $this->connection->getDatabasePlatform();
-        $diff     = $this->schemaManager->createComparator()
+        $diff = $this->schemaManager->createComparator()
             ->compareTables($tableFrom, $tableTo);
 
         $this->schemaManager->alterTable($diff);
@@ -641,7 +639,7 @@ SQL;
             [$conflictingOid, $originalTableOid],
         );
 
-        [$afterColumn] = $this->schemaManager->introspectTableColumnsByUnquotedName($table);
+        $this->schemaManager->introspectTableColumnsByUnquotedName($table);
 
         // revert to the database to original state prior to asserting result
         $this->connection->executeStatement(

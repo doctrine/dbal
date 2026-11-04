@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -455,8 +456,8 @@ class SQLitePlatform extends AbstractPlatform
             'boolean'          => 'boolean',
             'char'             => 'string',
             'clob'             => 'text',
-            'date'             => 'date',
-            'datetime'         => 'datetime',
+            'date'             => 'date_immutable',
+            'datetime'         => 'datetime_immutable',
             'decimal'          => 'decimal',
             'double'           => 'float',
             'double precision' => 'float',
@@ -476,8 +477,8 @@ class SQLitePlatform extends AbstractPlatform
             'smallint'         => 'smallint',
             'string'           => 'string',
             'text'             => 'text',
-            'time'             => 'time',
-            'timestamp'        => 'datetime',
+            'time'             => 'time_immutable',
+            'timestamp'        => 'datetime_immutable',
             'tinyint'          => 'boolean',
             'tinytext'         => 'text',
             'varchar'          => 'string',
@@ -639,8 +640,9 @@ class SQLitePlatform extends AbstractPlatform
         $newTable = Table::editor()
             ->setName($table->getObjectName())
             ->setColumns(...array_values($columns))
-            ->setForeignKeyConstraints(...$this->getForeignKeysInAlteredTable($diff))
-            ->setPrimaryKeyConstraint($this->getPrimaryKeyConstraintInAlteredTable($diff, $table))
+            ->setUniqueConstraints(...$this->getUniqueConstraintsForAlteredTable($diff))
+            ->setForeignKeyConstraints(...$this->getForeignKeysForAlteredTable($diff))
+            ->setPrimaryKeyConstraint($this->getPrimaryKeyConstraintForAlteredTable($diff, $table))
             ->setOptions(
                 array_merge($table->getOptions(), ['alter' => true]),
             )
@@ -666,7 +668,7 @@ class SQLitePlatform extends AbstractPlatform
         );
         $sql[] = $this->getDropTableSQL($dataTableName->toSQL($this));
 
-        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
+        foreach ($this->getIndexesForAlteredTable($diff) as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
@@ -762,8 +764,33 @@ class SQLitePlatform extends AbstractPlatform
         return strtolower($name->getIdentifier()->getValue());
     }
 
+    /**
+     * Returns the names to give the given columns in the altered table, or null if the table drops any of them.
+     *
+     * @param non-empty-list<UnqualifiedName>           $columnNames
+     * @param array<non-empty-string, non-empty-string> $nameMap
+     *
+     * @return ?non-empty-list<non-empty-string>
+     */
+    private function getColumnNamesForAlteredTable(array $columnNames, array $nameMap): ?array
+    {
+        $alteredColumnNames = [];
+
+        foreach ($columnNames as $columnName) {
+            $name = $columnName->getIdentifier()->getValue();
+
+            if (! isset($nameMap[$name])) {
+                return null;
+            }
+
+            $alteredColumnNames[] = $nameMap[$name];
+        }
+
+        return $alteredColumnNames;
+    }
+
     /** @return array<Index> */
-    private function getIndexesInAlteredTable(TableDiff $diff): array
+    private function getIndexesForAlteredTable(TableDiff $diff): array
     {
         $oldTable = $diff->getOldTable();
         $indexes  = new UnqualifiedNamedObjectSet(...$oldTable->getIndexes());
@@ -828,8 +855,31 @@ class SQLitePlatform extends AbstractPlatform
         return $indexes->toList();
     }
 
+    /**
+     * Returns the unique constraints to create the altered table with, leaving out those over a dropped column.
+     *
+     * @return list<UniqueConstraint>
+     */
+    private function getUniqueConstraintsForAlteredTable(TableDiff $diff): array
+    {
+        $nameMap           = $this->getDiffColumnNameMap($diff);
+        $uniqueConstraints = [];
+
+        foreach ($diff->getOldTable()->getUniqueConstraints() as $uniqueConstraint) {
+            $columnNames = $this->getColumnNamesForAlteredTable($uniqueConstraint->getColumnNames(), $nameMap);
+
+            if ($columnNames !== null) {
+                $uniqueConstraints[] = $uniqueConstraint->edit()
+                    ->setUnquotedColumnNames(...$columnNames)
+                    ->create();
+            }
+        }
+
+        return $uniqueConstraints;
+    }
+
     /** @return array<ForeignKeyConstraint> */
-    private function getForeignKeysInAlteredTable(TableDiff $diff): array
+    private function getForeignKeysForAlteredTable(TableDiff $diff): array
     {
         $oldTable       = $diff->getOldTable();
         $foreignKeys    = $oldTable->getForeignKeys();
@@ -909,7 +959,7 @@ class SQLitePlatform extends AbstractPlatform
         return $foreignKeys;
     }
 
-    private function getPrimaryKeyConstraintInAlteredTable(TableDiff $diff, Table $oldTable): ?PrimaryKeyConstraint
+    private function getPrimaryKeyConstraintForAlteredTable(TableDiff $diff, Table $oldTable): ?PrimaryKeyConstraint
     {
         $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
 

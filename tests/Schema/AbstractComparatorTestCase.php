@@ -319,16 +319,6 @@ abstract class AbstractComparatorTestCase extends TestCase
 
     public function testTableAddForeignKey(): void
     {
-        $tableForeign = Table::editor()
-            ->setUnquotedName('bar')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->create();
-
         $table1 = Table::editor()
             ->setUnquotedName('foo')
             ->setColumns(
