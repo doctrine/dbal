@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
@@ -131,6 +132,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
         if ($type === Types::STRING || $type === Types::TEXT) {
             $column->setPlatformOption('collation', $tableColumn['collation'] ?? 'BINARY');
+        } elseif ($type === Types::GEOMETRY) {
+            $column->setPlatformOption('geometryType', GeometryKind::fromName($dbType)->value);
         }
 
         return $column;
@@ -373,17 +376,20 @@ SQL
 
     protected function selectTableNames(string $databaseName): Result
     {
-        $sql = <<<'SQL'
-SELECT name AS table_name
-FROM sqlite_master
-WHERE type = 'table'
-  AND name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')
+        $sql = sprintf(
+            <<<'SQL'
+SELECT t.name AS table_name
+FROM sqlite_master t
+WHERE t.type = 'table'
+  AND %s
 UNION ALL
 SELECT name
 FROM sqlite_temp_master
 WHERE type = 'table'
-ORDER BY name
-SQL;
+ORDER BY 1
+SQL,
+            $this->platform->getUserTablePredicateSQL('t'),
+        );
 
         return $this->connection->executeQuery($sql);
     }
@@ -618,7 +624,7 @@ SQL,
     {
         $conditions = [
             "t.type = 'table'",
-            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
+            $this->platform->getUserTablePredicateSQL('t'),
         ];
 
         if ($tableName !== null) {

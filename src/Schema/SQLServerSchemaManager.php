@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
 
 use function array_change_key_case;
 use function assert;
@@ -21,6 +22,7 @@ use function preg_match;
 use function sprintf;
 use function str_contains;
 use function str_replace;
+use function strtolower;
 
 use const CASE_LOWER;
 
@@ -212,13 +214,34 @@ SQL,
      */
     protected function _getPortableTableIndexesList(array $rows, string $tableName): array
     {
+        $boundingBoxes = [];
+
         foreach ($rows as &$row) {
             $row['non_unique'] = (bool) $row['non_unique'];
             $row['primary']    = (bool) $row['primary'];
             $row['flags']      = $row['flags'] ? [$row['flags']] : null;
+
+            if ($row['bounding_box_xmin'] === null) {
+                continue;
+            }
+
+            $boundingBoxes[strtolower($row['key_name'])] = new BoundingBox(
+                (float) $row['bounding_box_xmin'],
+                (float) $row['bounding_box_ymin'],
+                (float) $row['bounding_box_xmax'],
+                (float) $row['bounding_box_ymax'],
+            );
         }
 
-        return parent::_getPortableTableIndexesList($rows, $tableName);
+        $indexes = parent::_getPortableTableIndexesList($rows, $tableName);
+
+        foreach ($boundingBoxes as $key => $boundingBox) {
+            $indexes[$key] = $indexes[$key]->edit()
+                ->setBoundingBox($boundingBox)
+                ->create();
+        }
+
+        return $indexes;
     }
 
     /**
@@ -378,8 +401,13 @@ SQL,
                        CASE idx.type
                            WHEN '1' THEN 'clustered'
                            WHEN '2' THEN 'nonclustered'
+                           WHEN '4' THEN 'spatial'
                            ELSE NULL
-                       END AS flags
+                       END AS flags,
+                       tsl.bounding_box_xmin,
+                       tsl.bounding_box_ymin,
+                       tsl.bounding_box_xmax,
+                       tsl.bounding_box_ymax
                 FROM sys.tables AS tbl
                 JOIN sys.schemas AS scm
                   ON tbl.schema_id = scm.schema_id
@@ -391,6 +419,9 @@ SQL,
                 JOIN sys.columns AS col
                   ON idxcol.object_id = col.object_id
                  AND idxcol.column_id = col.column_id
+           LEFT JOIN sys.spatial_index_tessellations AS tsl
+                  ON idx.object_id = tsl.object_id
+                 AND idx.index_id = tsl.index_id
                WHERE %s
             ORDER BY scm.name,
                      tbl.name,

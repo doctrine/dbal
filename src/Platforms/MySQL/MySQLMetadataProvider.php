@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function array_map;
@@ -173,7 +174,8 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                    c.EXTRA,
                    c.COLUMN_COMMENT,
                    c.CHARACTER_SET_NAME,
-                   c.COLLATION_NAME
+                   c.COLLATION_NAME,
+                   %s
             FROM information_schema.COLUMNS c
                      INNER JOIN information_schema.TABLES t
                                 ON t.TABLE_NAME = c.TABLE_NAME
@@ -184,6 +186,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                      c.ORDINAL_POSITION
             SQL,
             $this->platform->getColumnTypeSQLSnippet('c', $this->databaseName),
+            $this->platform->getColumnSridSQLSnippet('c'),
             implode(' AND ', $conditions),
         );
 
@@ -214,6 +217,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             $columnComment,
             $characterSetName,
             $collationName,
+            $srid,
         ] = $row;
 
         $editor = Column::editor()
@@ -283,6 +287,19 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
 
             case 'enum':
                 $editor->setValues($this->parseEnumExpression($columnType));
+                break;
+
+            case 'geometry':
+            case 'point':
+            case 'linestring':
+            case 'polygon':
+            case 'multipoint':
+            case 'multilinestring':
+            case 'multipolygon':
+            case 'geometrycollection':
+            case 'geomcollection':
+                $editor->setGeometryType(GeometryKind::fromName($dbType))
+                    ->setSrid($srid !== null ? (int) $srid : null);
                 break;
         }
 

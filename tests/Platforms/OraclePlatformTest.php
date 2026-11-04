@@ -10,8 +10,11 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Spatial\Dimension;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -26,6 +29,72 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function createPlatform(): AbstractPlatform
     {
         return new OraclePlatform();
+    }
+
+    public function testCreateSpatialIndex(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('idx_location')
+            ->setUnquotedColumnNames('location')
+            ->setType(IndexType::SPATIAL)
+            ->create();
+
+        self::assertSame(
+            'CREATE INDEX idx_location ON places (location) INDEXTYPE IS MDSYS.SPATIAL_INDEX_V2',
+            $this->platform->getCreateIndexSQL($index, 'places'),
+        );
+    }
+
+    public function testCreateTableRegistersGeometryColumns(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('places')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::GEOMETRY)
+                    ->setCoordinateDimension(Dimension::XYZ)
+                    ->setSrid(4326)
+                    ->create(),
+                Column::editor()
+                    ->setQuotedName('Area')
+                    ->setTypeName(Types::GEOMETRY)
+                    ->create(),
+            )
+            ->create();
+
+        $sql = $this->platform->getCreateTableSQL($table);
+
+        self::assertCount(3, $sql);
+        self::assertStringContainsString(
+            "DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'PLACES' AND COLUMN_NAME = 'LOCATION'",
+            $sql[1],
+        );
+        self::assertStringContainsString("SDO_DIM_ELEMENT('Z', -1E15, 1E15, 0.000000001)) END, 4326", $sql[1]);
+        self::assertStringContainsString(
+            'DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = \'PLACES\' AND COLUMN_NAME = \'"Area"\'',
+            $sql[2],
+        );
+        self::assertStringContainsString("SDO_DIM_ELEMENT('Y', -1E15, 1E15, 0.000000001)) END, NULL", $sql[2]);
+    }
+
+    public function testCreateTableRegistersGeographyColumnsWithTheSridOfWgs84(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('places')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('location')
+                    ->setTypeName(Types::GEOGRAPHY)
+                    ->create(),
+            )
+            ->create();
+
+        $sql = $this->platform->getCreateTableSQL($table);
+
+        self::assertCount(2, $sql);
+        self::assertSame('CREATE TABLE places (location SDO_GEOMETRY NOT NULL)', $sql[0]);
+        self::assertStringContainsString("SDO_DIM_ELEMENT('Y', -1E15, 1E15, 0.000000001)) END, 4326", $sql[1]);
     }
 
     public function getGenerateTableSql(): string
