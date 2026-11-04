@@ -22,11 +22,11 @@ previous versions. Use `IndexEditor::setMethod()` to configure the method of an 
 
 ## Schema comparison takes the index method into account
 
-Indexes are now compared by their method in addition to their columns, type and predicate. On PostgreSQL, a GiST index
-that exists in the database is introspected with `IndexMethod::GIST`.
+Indexes are now compared by their method in addition to their columns, type and predicate. On PostgreSQL, GIN and GiST
+indexes that exist in the database are introspected with `IndexMethod::GIN` and `IndexMethod::GIST` respectively.
 
 If your schema declares such an index without a method (e.g. because the index has been created by a raw SQL migration),
-the schema comparison will now detect a difference and generate SQL that drops the GiST index and recreates it using
+the schema comparison will now detect a difference and generate SQL that drops the GIN or GiST index and recreates it using
 the default B-tree method. To prevent that, declare the method of the index explicitly:
 
 ```php

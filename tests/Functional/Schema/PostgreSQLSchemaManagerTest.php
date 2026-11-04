@@ -522,6 +522,43 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame([], $tableDiff->getRenamedIndexes());
     }
 
+    public function testGinIndex(): void
+    {
+        $offlineTable = Table::editor()
+            ->setUnquotedName('gin_index_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('data')
+                    ->setTypeName(Types::JSON)
+                    ->create()
+                    ->setPlatformOption('jsonb', true),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_gin')
+                    ->setUnquotedColumnNames('data')
+                    ->setMethod(IndexMethod::GIN)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('gin_index_test');
+        self::assertSame(IndexMethod::GIN, $onlineTable->getIndex('idx_gin')->getMethod());
+
+        $indexes = $this->schemaManager->listTableIndexes('gin_index_test');
+        self::assertSame(IndexMethod::GIN, $indexes['idx_gin']->getMethod());
+
+        $tableDiff = $this->schemaManager
+            ->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($onlineTable, $offlineTable);
+
+        self::assertSame([], $tableDiff->getAddedIndexes());
+        self::assertSame([], $tableDiff->getDroppedIndexes());
+        self::assertSame([], $tableDiff->getRenamedIndexes());
+    }
+
     public function testGistIndexInNonDefaultSchema(): void
     {
         $schemaName = UnqualifiedName::unquoted('gist_schema');

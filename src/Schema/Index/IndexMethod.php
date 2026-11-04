@@ -12,6 +12,13 @@ namespace Doctrine\DBAL\Schema\Index;
 enum IndexMethod: string
 {
     /**
+     * Generalized Inverted Index (PostgreSQL).
+     *
+     * @link https://www.postgresql.org/docs/current/gin.html
+     */
+    case GIN = 'gin';
+
+    /**
      * Generalized Search Tree (PostgreSQL).
      *
      * @link https://www.postgresql.org/docs/current/gist.html

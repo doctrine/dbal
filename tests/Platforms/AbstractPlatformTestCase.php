@@ -233,7 +233,24 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testSupportsIndexMethod(): void
     {
+        self::assertFalse($this->platform->supportsIndexMethod(IndexMethod::GIN));
         self::assertFalse($this->platform->supportsIndexMethod(IndexMethod::GIST));
+    }
+
+    public function testGetCreateIndexSQLWithGinMethod(): void
+    {
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateIndexSQL($this->createGinIndex(), 'test');
+    }
+
+    protected function createGinIndex(): Index
+    {
+        return Index::editor()
+            ->setUnquotedName('idx_gin')
+            ->setUnquotedColumnNames('data')
+            ->setMethod(IndexMethod::GIN)
+            ->create();
     }
 
     public function testGetCreateIndexSQLWithGistMethod(): void

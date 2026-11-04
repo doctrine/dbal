@@ -339,13 +339,15 @@ class IndexTest extends TestCase
         $index->getPredicate();
     }
 
-    #[TestWith(['gist'])]
-    #[TestWith(['GIST'])]
-    public function testParseMethod(string $method): void
+    #[TestWith(['gist', IndexMethod::GIST])]
+    #[TestWith(['GIST', IndexMethod::GIST])]
+    #[TestWith(['gin', IndexMethod::GIN])]
+    #[TestWith(['GIN', IndexMethod::GIN])]
+    public function testParseMethod(string $method, IndexMethod $expected): void
     {
         $index = new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
 
-        self::assertSame(IndexMethod::GIST, $index->getMethod());
+        self::assertSame($expected, $index->getMethod());
     }
 
     #[TestWith(['btree'])]
@@ -391,7 +393,7 @@ class IndexTest extends TestCase
     }
 
     #[TestWith(['unknown'])]
-    #[TestWith(['gin'])]
+    #[TestWith(['brin'])]
     public function testUnsupportedMethodIsIgnored(string $method): void
     {
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7576');
@@ -406,7 +408,11 @@ class IndexTest extends TestCase
     {
         $regular = new Index('idx_regular', ['data']);
         $gist    = new Index('idx_gist', ['data'], false, false, [], ['method' => 'gist']);
+        $gin     = new Index('idx_gin', ['data'], false, false, [], ['method' => 'gin']);
         $unique  = new Index('idx_unique', ['data'], true);
+
+        self::assertFalse($gist->isFulfilledBy($gin));
+        self::assertFalse($gin->isFulfilledBy($gist));
 
         self::assertFalse($regular->isFulfilledBy($gist));
         self::assertFalse($gist->isFulfilledBy($regular));

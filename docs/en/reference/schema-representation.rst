@@ -105,6 +105,7 @@ Index methods
 
 By default, an index is created using the default method of the platform
 (B-tree on all supported platforms). On PostgreSQL, you can create a
+`GIN <https://www.postgresql.org/docs/current/gin.html>`_ or a
 `GiST <https://www.postgresql.org/docs/current/gist.html>`_ index
 by specifying the index method:
 
@@ -131,7 +132,7 @@ supports a given method.
 
 When the index is configured via the ``method`` option, e.g. by the ORM, the
 value must be a lowercase or uppercase name of an ``IndexMethod`` case
-(e.g. ``gist``), or ``btree`` for the platform default method.
+(e.g. ``gin`` or ``gist``), or ``btree`` for the platform default method.
 
 Now if you want to compare this schema with another schema, you can
 use the ``Comparator`` class to get instances of ``SchemaDiff``,

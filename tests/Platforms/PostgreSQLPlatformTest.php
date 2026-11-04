@@ -1008,7 +1008,16 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function testSupportsIndexMethod(): void
     {
+        self::assertTrue($this->platform->supportsIndexMethod(IndexMethod::GIN));
         self::assertTrue($this->platform->supportsIndexMethod(IndexMethod::GIST));
+    }
+
+    public function testGetCreateIndexSQLWithGinMethod(): void
+    {
+        self::assertSame(
+            'CREATE INDEX idx_gin ON test USING gin (data)',
+            $this->platform->getCreateIndexSQL($this->createGinIndex(), 'test'),
+        );
     }
 
     public function testGetCreateIndexSQLWithGistMethod(): void

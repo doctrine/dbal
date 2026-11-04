@@ -172,15 +172,17 @@ class IndexEditorTest extends TestCase
         self::assertNull($index->getMethod());
     }
 
-    public function testSetMethod(): void
+    #[TestWith([IndexMethod::GIN])]
+    #[TestWith([IndexMethod::GIST])]
+    public function testSetMethod(IndexMethod $method): void
     {
         $index = Index::editor()
             ->setName($this->createName())
             ->setColumnNames($this->createColumnName())
-            ->setMethod(IndexMethod::GIST)
+            ->setMethod($method)
             ->create();
 
-        self::assertSame(IndexMethod::GIST, $index->getMethod());
+        self::assertSame($method, $index->getMethod());
     }
 
     #[TestWith([IndexType::UNIQUE])]

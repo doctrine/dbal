@@ -14,6 +14,7 @@ use PHPUnit\Framework\TestCase;
 class IndexColumnMetadataProcessorTest extends TestCase
 {
     #[TestWith([null])]
+    #[TestWith([IndexMethod::GIN])]
     #[TestWith([IndexMethod::GIST])]
     public function testPropagatesMethod(?IndexMethod $method): void
     {

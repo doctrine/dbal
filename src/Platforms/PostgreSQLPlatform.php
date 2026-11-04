@@ -151,6 +151,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function supportsIndexMethod(IndexMethod $method): bool
     {
         return match ($method) {
+            IndexMethod::GIN,
             IndexMethod::GIST => true,
         };
     }
