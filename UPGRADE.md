@@ -522,6 +522,11 @@ all drivers and middleware.
 
 # Upgrade to 4.6
 
+## Deprecated support for MariaDB 10.6 - 10.10 and MySQL 8.0 - 8.3
+
+* Upgrade to MariaDB 10.11 or later.
+* Upgrade to MySQL 8.4 or later.
+
 ## Schema introspection maps date and time columns to immutable types
 
 Introspecting a table now maps date and time columns to the immutable DBAL types instead of their

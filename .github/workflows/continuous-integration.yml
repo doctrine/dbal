@@ -26,6 +26,10 @@ on:
   schedule:
     - cron: "42 3 * * *"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   phpunit-smoke-check:
     name: >
@@ -46,7 +50,6 @@ jobs:
     strategy:
       matrix:
         os:
-          - "ubuntu-22.04"
           - "ubuntu-24.04"
         php-version:
           - "8.4"
@@ -57,6 +60,10 @@ jobs:
           - "sqlite3"
           - "pdo_sqlite"
         include:
+          - os: "ubuntu-22.04"
+            php-version: "8.2"
+            dependency-versions: "lowest"
+            extension: "pdo_sqlite"
           - os: "ubuntu-24.04"
             php-version: "8.5"
             dependency-versions: "highest"
@@ -88,7 +95,6 @@ jobs:
           - "23" # Oracle 26ai internally still uses the major version 23
                  # Oracle 26ai LTR is supported until December 2031
         extension:
-          - oci8
           - pdo_oci
 
   phpunit-postgres:
@@ -114,11 +120,11 @@ jobs:
           - "8.5"
         postgres-locale-provider:
             - "libc"
+        # Supported Postgres releases: https://www.postgresql.org/support/versioning/
         postgres-version:
           - "12"
           - "18"
         extension:
-          - "pgsql"
           - "pdo_pgsql"
         include:
           - php-version: "8.4"
@@ -159,7 +165,6 @@ jobs:
           - "12.3"  # LTS (Jun 2029) We have code specific to ^12.3
           - "13.1-rc"  # Rolling (EOL Q1 2027)
         extension:
-          - "mysqli"
           - "pdo_mysql"
         include:
           - config-file-suffix: "-stringify_fetches"
@@ -193,7 +198,6 @@ jobs:
           - "8.4" # LTS
           - "9.7" # LTS
         extension:
-          - "mysqli"
           - "pdo_mysql"
         include:
           - config-file-suffix: "-tls"
@@ -227,14 +231,32 @@ jobs:
           - "8.4"
           - "8.5"
         sqlserver-version:
-          - "2022"
           - "2025"
         extension:
-          - "sqlsrv"
           - "pdo_sqlsrv"
         collation:
           - "Latin1_General_100_CI_AS_SC_UTF8"
-          - "Latin1_General_100_CS_AS_SC_UTF8"
+        include:
+          - php-version: "8.5"
+            sqlserver-version: "2017"
+            extension: "pdo_sqlsrv"
+            collation: "Latin1_General_CI_AS"
+          - php-version: "8.5"
+            sqlserver-version: "2025"
+            extension: "sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
+          - php-version: "8.4"
+            sqlserver-version: "2025"
+            extension: "sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
+          - php-version: "8.4"
+            sqlserver-version: "2025"
+            extension: "pdo_sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
+          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
+            php-version: "8.4"
+            sqlserver-version: "2025"
+            extension: "pdo_sqlsrv"
 
   phpunit-db2:
     name: >
@@ -255,7 +277,7 @@ jobs:
     name: >
       PDO_SQLite and development dependencies -
       ${{ matrix.php-version || 'Ø' }}
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -287,7 +309,7 @@ jobs:
 
   upload_coverage:
     name: "Upload coverage to Codecov"
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-latest"
     if: "github.event.pull_request.head.repo.full_name != github.repository || !contains(github.event.pull_request.head.ref, '.x')"
     needs:
       - "phpunit-smoke-check"

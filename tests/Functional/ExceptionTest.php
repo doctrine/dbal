@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
@@ -14,6 +15,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -217,6 +219,55 @@ class ExceptionTest extends FunctionalTestCase
         $sql = 'SELECT id FRO syntax_error_table';
         $this->expectException(Exception\SyntaxErrorException::class);
         $this->connection->executeQuery($sql);
+    }
+
+    public function testDeadlockExceptionOnSnapshotIsolationConflict(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof MariaDBPlatform) {
+            self::markTestSkipped('Restricted to MariaDB.');
+        }
+
+        if ($this->connection->fetchOne("SHOW VARIABLES LIKE 'innodb_snapshot_isolation'") === false) {
+            self::markTestSkipped('Requires a MariaDB version with innodb_snapshot_isolation.');
+        }
+
+        $this->markConnectionNotReusable();
+
+        $table = Table::editor()
+            ->setUnquotedName('snapshot_isolation_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('val')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $this->connection->insert('snapshot_isolation_table', ['id' => 1, 'val' => 1]);
+
+        $this->connection->executeStatement('SET SESSION innodb_snapshot_isolation = ON');
+        $this->connection->setTransactionIsolation(TransactionIsolationLevel::REPEATABLE_READ);
+
+        $this->connection->beginTransaction();
+        $this->connection->fetchOne('SELECT val FROM snapshot_isolation_table WHERE id = 1');
+
+        TestUtil::getConnection()->update('snapshot_isolation_table', ['val' => 2], ['id' => 1]);
+
+        $this->expectException(Exception\DeadlockException::class);
+        $this->expectExceptionCode(1020);
+
+        $this->connection->update('snapshot_isolation_table', ['val' => 3], ['id' => 1]);
     }
 
     public function testConnectionExceptionSqLite(): void

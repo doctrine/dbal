@@ -11,6 +11,7 @@ use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Override;
+use Pdo\Pgsql;
 
 use function array_merge;
 
@@ -34,31 +35,31 @@ class DriverTest extends AbstractDriverTestCase
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
+            $connection->getNativeConnection()->getAttribute(Pgsql::ATTR_DISABLE_PREPARES),
         );
     }
 
     public function testConnectionDoesNotDisablePreparesWhenAttributeDefined(): void
     {
         $connection = $this->connect(
-            [\PDO::PGSQL_ATTR_DISABLE_PREPARES => false],
+            [Pgsql::ATTR_DISABLE_PREPARES => false],
         );
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertNotTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
+            $connection->getNativeConnection()->getAttribute(Pgsql::ATTR_DISABLE_PREPARES),
         );
     }
 
     public function testConnectionDisablePreparesWhenDisablePreparesIsExplicitlyDefined(): void
     {
         $connection = $this->connect(
-            [\PDO::PGSQL_ATTR_DISABLE_PREPARES => true],
+            [Pgsql::ATTR_DISABLE_PREPARES => true],
         );
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
+            $connection->getNativeConnection()->getAttribute(Pgsql::ATTR_DISABLE_PREPARES),
         );
     }
 
