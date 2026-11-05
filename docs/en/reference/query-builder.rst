@@ -489,6 +489,15 @@ query as SQL.
     //
     // SELECT id, name FROM users
 
+.. note::
+
+    Comments become part of the generated SQL string. They therefore take part
+    in the cache key of the result cache and in the identity a driver uses to
+    reuse a prepared statement. A comment whose text changes on every execution,
+    such as one carrying a request or trace id, makes the query look different
+    every time and defeats both caches. Keep this in mind when deciding what to
+    put into a comment.
+
 Building Expressions
 --------------------
 
