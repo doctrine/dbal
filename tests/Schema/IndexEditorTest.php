@@ -160,6 +160,74 @@ class IndexEditorTest extends TestCase
         self::assertSame($flags, $index2->getFlags());
     }
 
+    public function testMethodDefaultsToNull(): void
+    {
+        $index = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->create();
+
+        self::assertNull($index->getMethod());
+    }
+
+    public function testSetMethod(): void
+    {
+        $index = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->setMethod('hash')
+            ->create();
+
+        self::assertSame('hash', $index->getMethod());
+    }
+
+    public function testPreservesMethod(): void
+    {
+        $index1 = Index::editor()
+            ->setName($this->createName())
+            ->setColumnNames($this->createColumnName())
+            ->setMethod('hash')
+            ->setPredicate('id > 0')
+            ->create();
+
+        $index2 = $index1->edit()
+            ->create();
+
+        self::assertSame('hash', $index2->getMethod());
+        self::assertSame('id > 0', $index2->getPredicate());
+    }
+
+    public function testAddColumnWithOptions(): void
+    {
+        $index = Index::editor()
+            ->setName($this->createName())
+            ->addUnquotedColumnName('id')
+            ->addQuotedColumnName('data', null, ['option' => 'value'])
+            ->create();
+
+        self::assertEquals([
+            new IndexedColumn(UnqualifiedName::unquoted('id'), null),
+            new IndexedColumn(UnqualifiedName::quoted('data'), null, ['option' => 'value']),
+        ], $index->getIndexedColumns());
+
+        self::assertSame([[], ['option' => 'value']], $index->getIndexedColumnOptions());
+    }
+
+    public function testPreservesColumnOptions(): void
+    {
+        $index1 = Index::editor()
+            ->setName($this->createName())
+            ->addUnquotedColumnName('data', null, ['option' => 'value'])
+            ->setMethod('hash')
+            ->create();
+
+        $index2 = $index1->edit()
+            ->create();
+
+        self::assertEquals($index1->getIndexedColumns(), $index2->getIndexedColumns());
+        self::assertSame('hash', $index2->getMethod());
+    }
+
     private function createName(): UnqualifiedName
     {
         return UnqualifiedName::unquoted('idx');

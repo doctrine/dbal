@@ -1398,6 +1398,10 @@ abstract class AbstractSchemaManager
                     $options['where'] = $row['where'];
                 }
 
+                if (isset($row['method'])) {
+                    $options['method'] = $row['method'];
+                }
+
                 $result[$keyName] = [
                     'name' => $indexName,
                     'columns' => [],
@@ -1408,12 +1412,22 @@ abstract class AbstractSchemaManager
                 ];
             }
 
-            $result[$keyName]['columns'][]            = $row['column_name'];
-            $result[$keyName]['options']['lengths'][] = $row['length'] ?? null;
+            $result[$keyName]['columns'][]                   = $row['column_name'];
+            $result[$keyName]['options']['lengths'][]        = $row['length'] ?? null;
+            $result[$keyName]['options']['column_options'][] = $row['column_options'] ?? [];
         }
 
         $indexes = [];
         foreach ($result as $indexKey => $data) {
+            $columnOptions = array_filter(
+                $data['options']['column_options'],
+                static fn (array $options): bool => $options !== [],
+            );
+
+            if ($columnOptions === []) {
+                unset($data['options']['column_options']);
+            }
+
             $indexes[$indexKey] = new Index(
                 $data['name'],
                 $data['columns'],

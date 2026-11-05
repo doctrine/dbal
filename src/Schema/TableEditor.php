@@ -190,7 +190,11 @@ final class TableEditor
             foreach ($index->getIndexedColumns() as $column) {
                 $columnName = $column->getColumnName();
                 if ($this->namesEqual($columnName, $oldColumnName)) {
-                    $columns[] = new Index\IndexedColumn($newColumnName, $column->getLength());
+                    $columns[] = new Index\IndexedColumn(
+                        $newColumnName,
+                        $column->getLength(),
+                        $column->getOptions(),
+                    );
                     $modified  = true;
                 } else {
                     $columns[] = $column;
