@@ -24,13 +24,6 @@ Index::editor()
     ->addUnquotedColumnName('name', options: ['option' => 'value'])
     ->setMethod('hash')
     ->create();
-
-// or, with the ORM
-#[ORM\Index(
-    name: 'idx_name',
-    columns: ['name'],
-    options: ['method' => 'hash', 'column_options' => [['option' => 'value']]],
-)]
 ```
 
 ## Deprecated support for MariaDB 10.6 - 10.10 and MySQL 8.0 - 8.3

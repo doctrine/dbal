@@ -125,16 +125,7 @@ have no options. The options of an indexed column are available via
 
 The method and the column options can also be configured via the ``method`` and
 ``column_options`` index options, the latter containing the options of each
-indexed column, in the order of the columns, e.g. with the ORM:
-
-.. code-block:: php
-
-    <?php
-
-    #[ORM\Index(columns: ['name'], options: [
-        'method' => 'hash',
-        'column_options' => [['option' => 'value']],
-    ])]
+indexed column, in the order of the columns.
 
 Platforms that do not support specifying the index method or a given column
 option throw a ``NotSupported`` exception when generating the SQL for such an
