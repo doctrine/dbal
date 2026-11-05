@@ -19,9 +19,9 @@ class ErrorHandlingTest extends FunctionalTestCase
 {
     public function testQueryFailsOnBrokenConnection(): void
     {
-        $this->breakConnection();
-
         $sql = $this->connection->getDatabasePlatform()->getDummySelectSQL();
+
+        $this->breakConnection();
 
         $this->expectException(DriverException::class);
 
@@ -30,9 +30,9 @@ class ErrorHandlingTest extends FunctionalTestCase
 
     public function testPreparedStatementFailsOnBrokenConnection(): void
     {
-        $this->breakConnection();
-
         $sql = $this->connection->getDatabasePlatform()->getDummySelectSQL();
+
+        $this->breakConnection();
 
         $this->expectException(DriverException::class);
 
@@ -41,7 +41,10 @@ class ErrorHandlingTest extends FunctionalTestCase
         $this->connection->prepare($sql)->executeQuery();
     }
 
-    /** Render the current connection unusable so that the next operation fails. */
+    /**
+     * Render the current connection unusable so that the next operation fails.
+     * Resolve platform-dependent SQL first: platform selection may need to query the server version.
+     */
     private function breakConnection(): void
     {
         $this->markConnectionNotReusable();

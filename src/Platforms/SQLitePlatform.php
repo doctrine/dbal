@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
@@ -27,6 +28,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
+use WeakMap;
 
 use function array_combine;
 use function array_fill_keys;
@@ -39,6 +41,7 @@ use function array_values;
 use function count;
 use function explode;
 use function implode;
+use function is_numeric;
 use function sprintf;
 use function str_replace;
 use function strpos;
@@ -54,6 +57,9 @@ use function substr;
  */
 class SQLitePlatform extends AbstractPlatform
 {
+    /** @var WeakMap<Connection, array<string, int>>|null */
+    private ?WeakMap $compileTimeLimits = null;
+
     public function __construct()
     {
         parent::__construct(UnquotedIdentifierFolding::NONE);
@@ -1024,5 +1030,50 @@ class SQLitePlatform extends AbstractPlatform
     public function getUnionSelectPartSQL(string $subQuery): string
     {
         return $subQuery;
+    }
+
+    /** @see https://www.sqlite.org/limits.html */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return $this->getCompileTimeLimit($connection, 'MAX_VARIABLE_NUMBER', 999);
+    }
+
+    /**
+     * SQLITE_MAX_SQL_LENGTH defaults to 1,000,000,000 bytes and can be changed at compile time.
+     * Runtime sqlite3_limit() reductions are not exposed by all DBAL drivers.
+     * VALUES has no arbitrary row limit, so getMaximumRowsPerInsert() uses the default batch size.
+     *
+     * @see https://www.sqlite.org/limits.html#max_sql_length
+     * @see https://www.sqlite.org/lang_select.html#the_values_clause
+     *
+     * @throws Exception
+     */
+    public function getMaximumInsertSQLLength(Connection $connection): int
+    {
+        return $this->getCompileTimeLimit($connection, 'MAX_SQL_LENGTH', 1000000000);
+    }
+
+    /** @throws Exception */
+    private function getCompileTimeLimit(Connection $connection, string $name, int $default): int
+    {
+        if ($this->compileTimeLimits === null) {
+            /** @var WeakMap<Connection, array<string, int>> $limits */
+            $limits                  = new WeakMap();
+            $this->compileTimeLimits = $limits;
+        }
+
+        if (! isset($this->compileTimeLimits[$connection])) {
+            $limits = [];
+            foreach ($connection->fetchFirstColumn('PRAGMA compile_options') as $option) {
+                $parts = explode('=', $option, 2);
+                if (count($parts) === 2 && is_numeric($parts[1])) {
+                    $limits[$parts[0]] = (int) $parts[1];
+                }
+            }
+
+            $this->compileTimeLimits[$connection] = $limits;
+        }
+
+        return $this->compileTimeLimits[$connection][$name] ?? $default;
     }
 }
