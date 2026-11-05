@@ -38,7 +38,16 @@ final class Parser
     private const ONE_LINE_COMMENT     = '--[^\r\n]*';
     private const MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
     private const SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
-    private const OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
+    private const OTHER                = '[^' . self::SPECIAL_CHARS . ']++';
+
+    /**
+     * How many consecutive non-parameter tokens one preg_match() call may consume.
+     *
+     * PCRE compiles a bounded repetition of a group into that many copies of the group, so the bound is
+     * limited by the maximum compiled pattern size (192 is already too large). An unbounded repetition
+     * would exhaust the backtracking limit on multi-megabyte statements when the JIT is disabled.
+     */
+    private const MAX_TOKENS_PER_MATCH = 64;
 
     private readonly string $sqlPattern;
     private readonly string $tokenPattern;
@@ -66,11 +75,18 @@ final class Parser
             self::OTHER,
         ]);
 
-        $this->sqlPattern   = sprintf('(%s)', implode('|', $patterns));
+        $this->sqlPattern = sprintf('(%s)', implode('|', $patterns));
+
+        // The "other" group consumes a run of up to MAX_TOKENS_PER_MATCH non-parameter tokens instead of a single
+        // one. None of the alternatives in $sqlPattern can start where a parameter starts (':' and '?' are in
+        // SPECIAL_CHARS and no alternative begins with them), so the run always stops in front of the next
+        // parameter and the visitor receives the same parameters and the same SQL text as before, in fewer
+        // and larger acceptOther() calls. On a SELECT list of hundreds of quoted identifiers, this cuts the
+        // number of preg_match() calls by about 98%.
         $this->tokenPattern = '~\\G'
             . '(?P<named>' . self::NAMED_PARAMETER . ')'
             . '|(?P<positional>' . self::POSITIONAL_PARAMETER . ')'
-            . '|(?P<other>' . $this->sqlPattern . '|' . self::SPECIAL . ')'
+            . '|(?P<other>(?:' . $this->sqlPattern . '){1,' . self::MAX_TOKENS_PER_MATCH . '}+|' . self::SPECIAL . ')'
             . '~s';
     }
 
