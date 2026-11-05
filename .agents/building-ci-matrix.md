@@ -24,6 +24,8 @@ Test the lowest supported, the latest stable, and nightly. Test an intermediate 
 3. Every LTS release that the vendor still supports, for vendors that designate LTS releases.
 4. Intermediate versions with a dedicated code path, as determined by code coverage. Prefer an LTS release over a non-LTS one, even if an older non-LTS release would trigger the same code path.
 
+SQLite has no server. Its version is the version of the SQLite library that PHP uses, which comes with the operating system of the runner. So the runner's operating system selects the SQLite version, and these rules apply to the operating system images.
+
 ## Pattern
 
 1. Each selected platform version runs once, on the latest stable PHP, with the PDO driver of the platform.
