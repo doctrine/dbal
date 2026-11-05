@@ -6,6 +6,7 @@
 
    /reference/introduction
    /reference/architecture
+   /reference/supported-versions
    /reference/configuration
    /reference/data-retrieval-and-manipulation
    /reference/query-builder

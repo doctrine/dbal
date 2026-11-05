@@ -10,6 +10,8 @@ use function implode;
 
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB 10.10 database platform.
+ *
+ * @deprecated This class will be removed once support for MariaDB 10.6 is dropped.
  */
 class MariaDB1010Platform extends MariaDB1060Platform
 {
