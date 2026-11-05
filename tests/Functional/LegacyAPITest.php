@@ -82,7 +82,11 @@ class LegacyAPITest extends FunctionalTestCase
 
         $this->expectException(LogicException::class);
 
-        $stmt->fetch(FetchMode::COLUMN, 2);
+        try {
+            $stmt->fetch(FetchMode::COLUMN, 2);
+        } finally {
+            $stmt->free();
+        }
     }
 
     public function testFetchWithUnsupportedFetchMode(): void
@@ -93,7 +97,11 @@ class LegacyAPITest extends FunctionalTestCase
 
         $this->expectException(LogicException::class);
 
-        $stmt->fetch(1);
+        try {
+            $stmt->fetch(1);
+        } finally {
+            $stmt->free();
+        }
     }
 
     public function testFetchAllWithAssociativeModes(): void
@@ -144,7 +152,11 @@ class LegacyAPITest extends FunctionalTestCase
 
         $this->expectException(LogicException::class);
 
-        $stmt->fetchAll(FetchMode::COLUMN, 2);
+        try {
+            $stmt->fetchAll(FetchMode::COLUMN, 2);
+        } finally {
+            $stmt->free();
+        }
     }
 
     public function testFetchAllWithUnsupportedFetchMode(): void
@@ -155,7 +167,11 @@ class LegacyAPITest extends FunctionalTestCase
 
         $this->expectException(LogicException::class);
 
-        $stmt->fetchAll(1);
+        try {
+            $stmt->fetchAll(1);
+        } finally {
+            $stmt->free();
+        }
     }
 
     public function testExecuteUpdate(): void
