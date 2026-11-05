@@ -49,7 +49,8 @@ jobs:
     strategy:
       matrix:
         os:
-          - "ubuntu-24.04"
+          # We don't install SQLite ourselves. Instead, we rely on the SQLite library shipped by Ubuntu.
+          - "ubuntu-26.04" # SQLite 3.53.4
         php-version:
           - "7.4"
           - "8.5"
@@ -59,11 +60,11 @@ jobs:
           - "sqlite3"
           - "pdo_sqlite"
         include:
-          - os: "ubuntu-22.04"
+          - os: "ubuntu-22.04" # SQLite 3.37.2
             php-version: "7.4"
             dependency-versions: "lowest"
             extension: "pdo_sqlite"
-          - os: "ubuntu-24.04"
+          - os: "ubuntu-26.04" # SQLite 3.53.4
             php-version: "8.5"
             dependency-versions: "minimal"
             extension: "sqlite3"
