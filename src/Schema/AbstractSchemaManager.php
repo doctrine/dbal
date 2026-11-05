@@ -261,6 +261,7 @@ abstract class AbstractSchemaManager
                     $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName] ?? []),
                     $tableOptionsByTable[$tableName] ?? [],
                     $configuration,
+                    addImplicitIndexes: false,
                 );
             }
         }
@@ -488,6 +489,7 @@ abstract class AbstractSchemaManager
             [],
             $this->listTableForeignKeys($name),
             $this->getTableOptions($name),
+            addImplicitIndexes: false,
         );
     }
 
@@ -662,6 +664,7 @@ abstract class AbstractSchemaManager
             ->setUniqueConstraints(...$this->introspectTableUniqueConstraints($tableName))
             ->setForeignKeyConstraints(...$this->introspectTableForeignKeyConstraints($tableName))
             ->setOptions($options)
+            ->disableImplicitIndexes()
             ->create();
     }
 
