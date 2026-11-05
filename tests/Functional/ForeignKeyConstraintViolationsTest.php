@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Platforms\DB2Platform;
@@ -17,6 +18,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Assert;
 use Throwable;
@@ -164,6 +166,40 @@ final class ForeignKeyConstraintViolationsTest extends FunctionalTestCase
 
         $this->expectConstraintViolation(true);
         $this->connection->commit();
+    }
+
+    public function testAutoCommitIsRestoredAfterCommitViolatesDeferredConstraint(): void
+    {
+        $this->skipIfDeferrableIsNotSupported();
+
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
+            self::markTestIncomplete('PDO_OCI does not restore auto-commit mode after a failed commit');
+        }
+
+        $this->connection->beginTransaction();
+        $this->connection->executeStatement(sprintf('SET CONSTRAINTS "%s" DEFERRED', $this->constraintName));
+        $this->connection->executeStatement('INSERT INTO test_t1 VALUES (1)');
+
+        try {
+            $this->connection->commit();
+        } catch (Throwable) {
+        }
+
+        $this->connection->executeStatement('INSERT INTO test_t2 VALUES (1)');
+
+        $params = TestUtil::getConnectionParams();
+
+        if (TestUtil::isDriverOneOf('oci8')) {
+            $params['driverOptions']['exclusive'] = true;
+        }
+
+        $connection = DriverManager::getConnection($params);
+
+        try {
+            self::assertEquals(1, $connection->fetchOne('SELECT COUNT(*) FROM test_t2'));
+        } finally {
+            $connection->close();
+        }
     }
 
     public function testInsertViolatesConstraint(): void

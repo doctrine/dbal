@@ -44,6 +44,7 @@ final class ExceptionConverter implements ExceptionConverterInterface
 
         return match ($exception->getCode()) {
             1008 => new DatabaseDoesNotExist($exception, $query),
+            1020,
             1213 => new DeadlockException($exception, $query),
             1205 => new LockWaitTimeoutException($exception, $query),
             1050 => new TableExistsException($exception, $query),
