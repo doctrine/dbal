@@ -9,9 +9,11 @@ use Doctrine\DBAL\SQL\Parser\Visitor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+use function array_fill;
 use function array_merge;
 use function implode;
 use function sprintf;
+use function str_repeat;
 
 class ParserTest extends TestCase implements Visitor
 {
@@ -422,6 +424,103 @@ WHERE (foo.bar LIKE {:condition_0} ESCAPE '\\')
   AND (foo.bak LIKE {:condition_2} ESCAPE '\\')
 SQL
 ,
+        ];
+    }
+
+    #[DataProvider('largeStatementsProvider')]
+    public function testLargeStatements(bool $mySQLStringEscaping, string $sql, string $expected): void
+    {
+        $parser = new Parser($mySQLStringEscaping);
+        $parser->parse($sql, $this);
+
+        $this->assertParsed($expected);
+    }
+
+    /** @return iterable<string, array{bool, string, string}> */
+    public static function largeStatementsProvider(): iterable
+    {
+        foreach (self::getModes() as $mode => $mySQLStringEscaping) {
+            foreach (self::getLargeStatements() as $item => $arguments) {
+                yield sprintf('%s: %s', $mode, $item) => array_merge([$mySQLStringEscaping], $arguments);
+            }
+        }
+
+        foreach (self::getLargeMySQLStatements() as $item => $arguments) {
+            yield sprintf('MySQL: %s', $item) => array_merge([true], $arguments);
+        }
+    }
+
+    /** @return iterable<string, array{string, string}> */
+    private static function getLargeStatements(): iterable
+    {
+        $unterminatedComment = '/* ' . str_repeat('a*b ', 1000);
+
+        yield 'Unterminated multi-line comment' => [
+            $unterminatedComment . 'FROM foo WHERE bar = ? AND baz = :baz',
+            $unterminatedComment . 'FROM foo WHERE bar = {?} AND baz = {:baz}',
+        ];
+
+        $comment = '/*' . str_repeat("\n * ? :note", 20000) . "\n */";
+
+        yield 'Multi-line comment with many asterisks' => [
+            $comment . ' SELECT ?',
+            $comment . ' SELECT {?}',
+        ];
+
+        $comments = str_repeat('/*' . str_repeat("\n * note", 220) . "\n */\nCREATE TABLE foo (bar INT);\n", 30);
+
+        yield 'Adjacent multi-line comments' => [
+            $comments . 'SELECT :bar',
+            $comments . 'SELECT {:bar}',
+        ];
+
+        $identifier = '[' . str_repeat('x', 65536) . ']';
+
+        yield 'Bracket identifier' => [
+            'SELECT ' . $identifier . ' FROM foo WHERE bar = ?',
+            'SELECT ' . $identifier . ' FROM foo WHERE bar = {?}',
+        ];
+
+        $identifiers = str_repeat('[' . str_repeat('x', 1024) . ']', 64);
+
+        yield 'Adjacent bracket identifiers' => [
+            'SELECT ' . $identifiers . ' FROM foo WHERE bar = ?',
+            'SELECT ' . $identifiers . ' FROM foo WHERE bar = {?}',
+        ];
+
+        foreach ([62, 63, 64, 65, 66, 128, 129] as $count) {
+            $tokens = str_repeat('`foo`', $count);
+
+            yield sprintf('Parameter after %d tokens', $count) => [
+                $tokens . '? ' . $tokens . ':bar',
+                $tokens . '{?} ' . $tokens . '{:bar}',
+            ];
+        }
+
+        $columns = str_repeat('`foo`, ', 1048576);
+
+        yield 'Multi-megabyte statement' => [
+            'SELECT ' . $columns . '? FROM foo',
+            'SELECT ' . $columns . '{?} FROM foo',
+        ];
+    }
+
+    /** @return iterable<string, array{string, string}> */
+    private static function getLargeMySQLStatements(): iterable
+    {
+        $singleQuoted = "'" . str_repeat(str_repeat('x', 62) . "\\'", 2048) . "'";
+        $doubleQuoted = '"' . str_repeat(str_repeat('x', 62) . '\\"', 2048) . '"';
+
+        yield 'String literals' => [
+            sprintf('SELECT %s, %s FROM foo WHERE bar = ? AND baz = :baz', $singleQuoted, $doubleQuoted),
+            sprintf('SELECT %s, %s FROM foo WHERE bar = {?} AND baz = {:baz}', $singleQuoted, $doubleQuoted),
+        ];
+
+        $literals = implode(', ', array_fill(0, 64, "'" . str_repeat("lorem \\' ipsum \\\\ dolor ", 48) . "'"));
+
+        yield 'Adjacent string literals' => [
+            'SELECT ' . $literals . ' FROM foo WHERE bar = ?',
+            'SELECT ' . $literals . ' FROM foo WHERE bar = {?}',
         ];
     }
 
