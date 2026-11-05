@@ -57,7 +57,7 @@ final class Driver extends AbstractPostgreSQLDriver
      *
      * @param array<string, mixed> $params
      */
-    public static function constructConnectionString(
+    private static function constructConnectionString(
         #[SensitiveParameter]
         array $params,
     ): string {
