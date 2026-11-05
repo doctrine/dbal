@@ -136,6 +136,7 @@ jobs:
           - "8.5"
         postgres-locale-provider:
             - "libc"
+        # Supported Postgres releases: https://www.postgresql.org/support/versioning/
         postgres-version:
           - "10"
           - "18"
