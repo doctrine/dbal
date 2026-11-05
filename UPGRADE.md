@@ -514,11 +514,12 @@ The `CREATE_INDEXES` and `CREATE_FOREIGNKEYS` constants have been removed from t
 A new method `getColumnName()` has been added to the `Result` interface and must be implemented by
 all drivers and middleware.
 
-## BC BREAK: Removed support for MariaDB 10.4 + 10.5, MySQL 5.7 and Postgres 10 + 11
+## BC BREAK: Removed support for older database versions
 
-* Upgrade to MariaDB 10.6 or later.
-* Upgrade to MySQL 8.0 or later.
-* Upgrade to Postgres 12 or later.
+* Upgrade to MariaDB 10.11 or later.
+* Upgrade to MySQL 8.4 or later.
+* Upgrade to Postgres 15 or later.
+* Upgrade to SQL Server 2019 or later.
 
 # Upgrade to 4.6
 

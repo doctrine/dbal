@@ -33,32 +33,27 @@ can be found as follows:
 MySQL
 ^^^^^
 
--  ``MySQLPlatform`` for version 8.0 and above.
--  ``MySQL84Platform`` for version 8.4 and above.
+-  ``MySQLPlatform`` for all versions.
 
 MariaDB
 ^^^^^
 
--  ``MariaDBPlatform`` for version 10.5.2 and above.
--  ``MariaDb1060Platform`` for version 10.6 and above.
--  ``MariaDB1010Platform`` for version 10.10 and above.
--  ``MariaDB110700Platform`` for version 11.7 and above.
--  ``MariaDB120300Platform`` for version 12.3 and above.
+-  ``MariaDBPlatform`` for all versions.
 
 Oracle
 ^^^^^^
 
--  ``OraclePlatform`` for version 19c and above.
+-  ``OraclePlatform`` for all versions.
 
 Microsoft SQL Server
 ^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLServerPlatform`` for version 2017 and above.
+-  ``SQLServerPlatform`` for all versions.
 
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSQLPlatform`` for version 12.0 and above.
+-  ``PostgreSQLPlatform`` for all versions.
 
 Db2
 ^^^

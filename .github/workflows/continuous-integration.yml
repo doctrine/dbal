@@ -134,7 +134,7 @@ jobs:
         postgres-locale-provider:
           - "libc"
         postgres-version:
-          - "12"
+          - "15"
           - "18"
         extension:
           - "pdo_pgsql"
@@ -182,11 +182,8 @@ jobs:
           - "8.5"
         mariadb-version:
           # keep in sync with https://mariadb.org/about/#maintenance-policy
-          - "10.6"  # Oldest version supported by DBAL, LTS (Jul 2026) We have code specific to 10.6.0-10.10.0
-          - "10.11" # LTS (Feb 2028) We have code specific to ^10.10
-          - "11.4"  # LTS (May 2029)
-          - "11.8"  # LTS (Jun 2028)
-          - "12.3"  # LTS (Jun 2029) We have code specific to ^12.3
+          - "10.11" # Oldest version supported by DBAL, LTS (Feb 2028)
+          - "12.3"  # LTS (Jun 2029)
           - "13.1-rc"  # Rolling (EOL Q1 2027)
         extension:
           - "pdo_mysql"
@@ -226,7 +223,6 @@ jobs:
         php-version:
           - "8.5"
         mysql-version:
-          - "8.0"
           - "8.4" # LTS
           - "9.7" # LTS
         extension:
@@ -271,7 +267,7 @@ jobs:
         php-version:
           - "8.5"
         sqlserver-version:
-          - "2022"
+          - "2019"
           - "2025"
         extension:
           - "pdo_sqlsrv"
