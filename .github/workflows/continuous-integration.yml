@@ -90,13 +90,14 @@ jobs:
         oracle-version:
           - "18" # There is no XE of Oracle 19 which is why we use the 18c XE image instead.
                  # Oracle 19c LTR is supported until December 2029
-          - "21" # Supported until July 2027
           - "23" # Oracle 26ai internally still uses the major version 23
                  # Oracle 26ai LTR is supported until December 2031
         extension:
-          - oci8
           - pdo_oci
         include:
+          - php-version: "8.5"
+            oracle-version: "23"
+            extension: oci8
           - php-version: "7.4"
             oracle-version: "23"
             extension: oci8
@@ -127,9 +128,11 @@ jobs:
           - "11" # We have code specific to 10.0-12.0
           - "18"
         extension:
-          - "pgsql"
           - "pdo_pgsql"
         include:
+          - php-version: "8.5"
+            postgres-version: "18"
+            extension: "pgsql"
           - php-version: "7.4"
             postgres-version: "18"
             extension: "pgsql"
@@ -167,14 +170,16 @@ jobs:
           - "12.3"  # LTS (Jun 2029) We have code specific to ^12.3
           - "13.1-rc"  # Rolling (EOL Q1 2027)
         extension:
-          - "mysqli"
           - "pdo_mysql"
         include:
-          - php-version: "7.4"
-            mariadb-version: "11.4"
+          - php-version: "8.5"
+            mariadb-version: "12.3"
             extension: "mysqli"
           - php-version: "7.4"
-            mariadb-version: "11.4"
+            mariadb-version: "12.3"
+            extension: "mysqli"
+          - php-version: "7.4"
+            mariadb-version: "12.3"
             extension: "pdo_mysql"
 
   phpunit-mysql:
@@ -203,11 +208,13 @@ jobs:
           - "8.4" # LTS
           - "9.7" # LTS
         extension:
-          - "mysqli"
           - "pdo_mysql"
         include:
           - config-file-suffix: "-tls"
             php-version: "7.4"
+            mysql-version: "9.7"
+            extension: "mysqli"
+          - php-version: "8.5"
             mysql-version: "9.7"
             extension: "mysqli"
           - php-version: "7.4"
@@ -236,21 +243,27 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
           - "8.5"
         sqlserver-version:
           - "2022"
           - "2025"
         extension:
-          - "sqlsrv"
           - "pdo_sqlsrv"
         collation:
           - "Latin1_General_100_CI_AS_SC_UTF8"
         include:
-          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
-            php-version: "7.4"
+          - php-version: "8.5"
             sqlserver-version: "2025"
             extension: "sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
+          - php-version: "7.4"
+            sqlserver-version: "2025"
+            extension: "sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
+          - php-version: "7.4"
+            sqlserver-version: "2025"
+            extension: "pdo_sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
           - collation: "Latin1_General_100_CS_AS_SC_UTF8"
             php-version: "7.4"
             sqlserver-version: "2025"

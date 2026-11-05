@@ -27,6 +27,7 @@ Read these when the task calls for them:
 
 - Before writing or changing PHP under `src/` or `tests/`, read [`.agents/writing-code.md`](.agents/writing-code.md).
 - Before writing or changing a test, read [`.agents/writing-tests.md`](.agents/writing-tests.md).
+- Before changing the CI build matrix, read [`.agents/building-ci-matrix.md`](.agents/building-ci-matrix.md).
 
 ## Commands
 
