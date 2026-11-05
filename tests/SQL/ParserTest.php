@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use function array_merge;
 use function implode;
 use function sprintf;
+use function str_repeat;
 
 class ParserTest extends TestCase implements Visitor
 {
@@ -422,6 +423,16 @@ WHERE (foo.bar LIKE {:condition_0} ESCAPE '\\')
   AND (foo.bak LIKE {:condition_2} ESCAPE '\\')
 SQL
 ,
+        ];
+
+        // 128 KB per literal, with an escape sequence every 64 bytes. The previous pattern needed a PCRE
+        // backtracking frame per character and failed above roughly 6 KB with the JIT enabled (50 KB without).
+        $singleQuoted = "'" . str_repeat(str_repeat('x', 62) . "\\'", 2048) . "'";
+        $doubleQuoted = '"' . str_repeat(str_repeat('x', 62) . '\\"', 2048) . '"';
+
+        yield 'Literals larger than the PCRE JIT stack' => [
+            sprintf('SELECT %s, %s FROM foo WHERE bar = ? AND baz = :baz', $singleQuoted, $doubleQuoted),
+            sprintf('SELECT %s, %s FROM foo WHERE bar = {?} AND baz = {:baz}', $singleQuoted, $doubleQuoted),
         ];
     }
 
