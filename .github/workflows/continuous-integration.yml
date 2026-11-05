@@ -276,13 +276,16 @@ jobs:
           - "8.4"
           - "8.5"
         sqlserver-version:
-          - "2022"
           - "2025"
         extension:
           - "pdo_sqlsrv"
         collation:
           - "Latin1_General_100_CI_AS_SC_UTF8"
         include:
+          - php-version: "8.5"
+            sqlserver-version: "2017"
+            extension: "pdo_sqlsrv"
+            collation: "Latin1_General_CI_AS"
           - php-version: "8.5"
             sqlserver-version: "2025"
             extension: "sqlsrv"
