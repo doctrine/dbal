@@ -8,17 +8,6 @@ awareness about deprecated code.
 
 # Upgrade to 4.6
 
-## Deprecated invalid index method and indexed column options configuration
-
-Configuring the following options of an index via the `Index` constructor (or `Table::addIndex()` and
-`Table::addUniqueIndex()`) with an invalid value is deprecated:
-
-1. The `method` option with a value that is not a non-empty string.
-2. The `column_options` option with a value that is not a list of string-keyed arrays.
-
-Such values are ignored, as in previous versions. Use `IndexEditor::setMethod()` and the `$options` parameter of
-`IndexEditor::addUnquotedColumnName()` and `IndexEditor::addQuotedColumnName()` instead.
-
 ## Schema comparison takes the index method and indexed column options into account
 
 Indexes are now compared by their method and by the options of their columns in addition to their columns, type and

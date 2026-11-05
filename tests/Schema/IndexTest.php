@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
@@ -340,23 +341,22 @@ class IndexTest extends TestCase
 
     #[TestWith(['hash'])]
     #[TestWith(['custom'])]
-    public function testGetMethod(string $method): void
+    #[TestWith([null])]
+    public function testGetMethod(?string $method): void
     {
-        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7578');
         $index = new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
 
         self::assertSame($method, $index->getMethod());
     }
 
-    #[TestWith([''])]
-    #[TestWith([42])]
-    public function testInvalidMethodIsIgnored(mixed $method): void
+    #[TestWith(['', 'Index method must be a non-empty string, empty string given.'])]
+    #[TestWith([42, 'Index method must be a non-empty string, int given.'])]
+    public function testInvalidMethod(mixed $method, string $message): void
     {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7578');
-        $index = new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
+        $this->expectException(InvalidIndexDefinition::class);
+        $this->expectExceptionMessage($message);
 
-        self::assertNull($index->getMethod());
-        self::assertTrue($index->isFulfilledBy(new Index('idx_user_name', ['user_id'])));
+        new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
     }
 
     public function testMethodsAreComparedCaseInsensitively(): void
@@ -370,7 +370,6 @@ class IndexTest extends TestCase
 
     public function testParseColumnOptions(): void
     {
-        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7578');
         $index = new Index('idx_data', ['id', 'data'], false, false, [], [
             'column_options' => [[], ['option' => 'value']],
         ]);
@@ -385,13 +384,12 @@ class IndexTest extends TestCase
     #[TestWith([['option' => 'value']])]
     #[TestWith([['value']])]
     #[TestWith([[['value']]])]
-    public function testInvalidColumnOptionsAreIgnored(mixed $columnOptions): void
+    public function testInvalidColumnOptions(mixed $columnOptions): void
     {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7578');
-        $index = new Index('idx_data', ['data'], false, false, [], ['column_options' => $columnOptions]);
+        $this->expectException(InvalidIndexDefinition::class);
+        $this->expectExceptionMessage('Indexed column options must be a list of string-keyed arrays.');
 
-        self::assertSame([], $index->getIndexedColumnOptions());
-        self::assertSame([], $index->getIndexedColumns()[0]->getOptions());
+        new Index('idx_data', ['data'], false, false, [], ['column_options' => $columnOptions]);
     }
 
     public function testFulfilledWithColumnOptions(): void

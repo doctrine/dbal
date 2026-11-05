@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -21,7 +22,6 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
-use function get_debug_type;
 use function gettype;
 use function implode;
 use function is_array;
@@ -710,39 +710,24 @@ class Index extends AbstractNamedObject
         return $type;
     }
 
-    /** @return ?non-empty-string */
-    private function parseMethod(mixed $method): ?string
+    /** @return non-empty-string */
+    private function parseMethod(mixed $method): string
     {
-        if (is_string($method) && $method !== '') {
-            return $method;
+        if (! is_string($method) || $method === '') {
+            throw InvalidIndexDefinition::fromInvalidMethod($method);
         }
 
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7578',
-            'Configuring an index with a method that is not a non-empty string is deprecated, %s given.'
-                . ' The method is ignored.',
-            get_debug_type($method),
-        );
-
-        return null;
+        return $method;
     }
 
     /** @return list<array<string, mixed>> */
     private function parseColumnOptions(mixed $columnOptions): array
     {
-        if ($this->isValidColumnOptions($columnOptions)) {
-            return $columnOptions;
+        if (! $this->isValidColumnOptions($columnOptions)) {
+            throw InvalidIndexDefinition::fromInvalidColumnOptions();
         }
 
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/7578',
-            'Configuring indexed column options with a value that is not a list of string-keyed arrays is'
-                . ' deprecated. The options are ignored.',
-        );
-
-        return [];
+        return $columnOptions;
     }
 
     /** @phpstan-assert-if-true list<array<string, mixed>> $columnOptions */
