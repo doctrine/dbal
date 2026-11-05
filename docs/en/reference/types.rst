@@ -1023,3 +1023,58 @@ The provider must be keyed by type name::
 
 .. _`DoctrineBundle documentation`: https://www.doctrine-project.org/projects/doctrine-bundle/en/current/dbal-type.html
 
+Detecting Changes on Value Objects
+----------------------------------
+
+Consumers of the DBAL that track changes, such as object mappers, usually
+compare mapped values by identity. Replacing a value object with an equal one
+therefore looks like a change, even when the mapped value did not change.
+
+Make your custom type implement the
+``Doctrine\DBAL\Types\ChangeDetectingType`` interface to compare values by
+value instead of by identity. The comparison lives in the type, so it also
+works for classes you cannot modify, such as a value object from a third-party
+library. The ``hasValueChanged()`` method returns ``true`` when the values
+differ, which prevents useless updates when they are equal.
+
+Both values passed to ``hasValueChanged()`` must be supported by the type. When
+one of them is not, the method throws a
+``Doctrine\DBAL\Types\ConversionException``. A caller may skip the call when
+both values are the same instance, since an object is always equal to itself.
+
+Only object values are compared. Scalars are already compared by value with a
+strict comparison, so a type that maps a scalar does not need this interface.
+
+::
+
+    <?php
+
+    namespace My\Project\Types;
+
+    use Doctrine\DBAL\Platforms\AbstractPlatform;
+    use Doctrine\DBAL\Types\ChangeDetectingType;
+    use Doctrine\DBAL\Types\Type;
+    use Money\Money;
+
+    final class MoneyType extends Type implements ChangeDetectingType
+    {
+        // getSQLDeclaration(), convertToPHPValue() and
+        // convertToDatabaseValue() omitted
+
+        public function hasValueChanged(object $oldValue, object $newValue, AbstractPlatform $platform): bool
+        {
+            return ! ($oldValue instanceof Money
+                && $newValue instanceof Money
+                && $oldValue->equals($newValue));
+        }
+    }
+
+The ``$platform`` argument lets the type compare the database representations
+of the values, which is the most reliable definition of a change for the data
+that is actually persisted. Use the
+``Doctrine\DBAL\Types\DatabaseValueEquality`` trait to compare the values
+through ``convertToDatabaseValue()`` instead of writing the method yourself.
+The built-in date and time types use this trait. This way, a type that only
+stores part of a value does not report a change the database does not store:
+``date`` ignores the time of day, ``time`` ignores the date, and
+``datetime_utc`` ignores the timezone.

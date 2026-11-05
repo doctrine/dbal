@@ -18,8 +18,10 @@ use Throwable;
  * information needs to be stored in the database. When read back, the stored value is
  * always interpreted as being in the UTC timezone.
  */
-class DateTimeUtcImmutableType extends Type implements PhpDateTimeMappingType
+class DateTimeUtcImmutableType extends Type implements PhpDateTimeMappingType, ChangeDetectingType
 {
+    use DatabaseValueEquality;
+
     private static ?DateTimeZone $utc = null;
 
     /**
