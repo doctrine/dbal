@@ -101,11 +101,13 @@ final readonly class Connection implements ConnectionInterface
     #[Override]
     public function commit(): void
     {
-        if (! @oci_commit($this->connection)) {
-            throw Error::new($this->connection);
+        try {
+            if (! @oci_commit($this->connection)) {
+                throw Error::new($this->connection);
+            }
+        } finally {
+            $this->executionMode->enableAutoCommit();
         }
-
-        $this->executionMode->enableAutoCommit();
     }
 
     #[Override]

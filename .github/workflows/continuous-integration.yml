@@ -26,14 +26,19 @@ on:
   schedule:
     - cron: "42 3 * * *"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   phpunit-smoke-check:
     name: >
-      ${{ format('SQLite - PHP {0} - OS {1} - ext. {2} - deps {3}',
+      ${{ format('SQLite - PHP {0} - OS {1} - ext. {2} - deps {3} - suffix {4}',
         matrix.php-version || 'Ø',
         matrix.os || 'Ø',
         matrix.extension || 'Ø',
-        matrix.dependency-versions || 'Ø'
+        matrix.dependency-versions || 'Ø',
+        matrix.config-file-suffix || 'Ø'
       ) }}
     uses: ./.github/workflows/phpunit-sqlite.yml
     with:
@@ -46,7 +51,6 @@ jobs:
     strategy:
       matrix:
         os:
-          - "ubuntu-22.04"
           - "ubuntu-24.04"
         php-version:
           - "8.4"
@@ -56,7 +60,14 @@ jobs:
         extension:
           - "sqlite3"
           - "pdo_sqlite"
+        config-file-suffix:
+          - ""
         include:
+          - os: "ubuntu-22.04"
+            php-version: "8.5"
+            dependency-versions: "highest"
+            extension: "pdo_sqlite"
+            config-file-suffix: ""
           - os: "ubuntu-24.04"
             php-version: "8.5"
             dependency-versions: "highest"
@@ -88,8 +99,17 @@ jobs:
           - "23" # Oracle 26ai internally still uses the major version 23
                  # Oracle 26ai LTR is supported until December 2031
         extension:
-          - oci8
           - pdo_oci
+        include:
+          - php-version: "8.5"
+            oracle-version: "23"
+            extension: oci8
+          - php-version: "8.4"
+            oracle-version: "23"
+            extension: oci8
+          - php-version: "8.4"
+            oracle-version: "23"
+            extension: pdo_oci
 
   phpunit-postgres:
     name: >
@@ -110,7 +130,6 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
           - "8.5"
         postgres-locale-provider:
             - "libc"
@@ -118,9 +137,20 @@ jobs:
           - "12"
           - "18"
         extension:
-          - "pgsql"
           - "pdo_pgsql"
         include:
+          - php-version: "8.5"
+            postgres-version: "18"
+            extension: "pgsql"
+            postgres-locale-provider: "libc"
+          - php-version: "8.4"
+            postgres-version: "18"
+            extension: "pgsql"
+            postgres-locale-provider: "libc"
+          - php-version: "8.4"
+            postgres-version: "18"
+            extension: "pdo_pgsql"
+            postgres-locale-provider: "libc"
           - php-version: "8.4"
             postgres-version: "15"
             extension: "pdo_pgsql"
@@ -128,6 +158,7 @@ jobs:
           - php-version: "8.4"
             postgres-version: "18"
             extension: "pdo_pgsql"
+            postgres-locale-provider: "libc"
             config-file-suffix: "-stringify_fetches"
 
   phpunit-mariadb:
@@ -148,7 +179,6 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
           - "8.5"
         mariadb-version:
           # keep in sync with https://mariadb.org/about/#maintenance-policy
@@ -159,12 +189,20 @@ jobs:
           - "12.3"  # LTS (Jun 2029) We have code specific to ^12.3
           - "13.1-rc"  # Rolling (EOL Q1 2027)
         extension:
-          - "mysqli"
           - "pdo_mysql"
         include:
+          - php-version: "8.5"
+            mariadb-version: "12.3"
+            extension: "mysqli"
+          - php-version: "8.4"
+            mariadb-version: "12.3"
+            extension: "mysqli"
+          - php-version: "8.4"
+            mariadb-version: "12.3"
+            extension: "pdo_mysql"
           - config-file-suffix: "-stringify_fetches"
             php-version: "8.4"
-            mariadb-version: "11.4"
+            mariadb-version: "12.3"
             extension: "pdo_mysql"
 
   phpunit-mysql:
@@ -186,14 +224,12 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
           - "8.5"
         mysql-version:
           - "8.0"
           - "8.4" # LTS
           - "9.7" # LTS
         extension:
-          - "mysqli"
           - "pdo_mysql"
         include:
           - config-file-suffix: "-tls"
@@ -202,6 +238,15 @@ jobs:
             extension: "mysqli"
           - config-file-suffix: "-stringify_fetches"
             php-version: "8.4"
+            mysql-version: "9.7"
+            extension: "pdo_mysql"
+          - php-version: "8.5"
+            mysql-version: "9.7"
+            extension: "mysqli"
+          - php-version: "8.4"
+            mysql-version: "9.7"
+            extension: "mysqli"
+          - php-version: "8.4"
             mysql-version: "9.7"
             extension: "pdo_mysql"
 
@@ -224,17 +269,31 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.4"
           - "8.5"
         sqlserver-version:
           - "2022"
           - "2025"
         extension:
-          - "sqlsrv"
           - "pdo_sqlsrv"
         collation:
           - "Latin1_General_100_CI_AS_SC_UTF8"
-          - "Latin1_General_100_CS_AS_SC_UTF8"
+        include:
+          - php-version: "8.5"
+            sqlserver-version: "2025"
+            extension: "sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
+          - php-version: "8.4"
+            sqlserver-version: "2025"
+            extension: "sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
+          - php-version: "8.4"
+            sqlserver-version: "2025"
+            extension: "pdo_sqlsrv"
+            collation: "Latin1_General_100_CI_AS_SC_UTF8"
+          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
+            php-version: "8.4"
+            sqlserver-version: "2025"
+            extension: "pdo_sqlsrv"
 
   phpunit-db2:
     name: >
@@ -255,7 +314,7 @@ jobs:
     name: >
       PDO_SQLite and development dependencies -
       ${{ matrix.php-version || 'Ø' }}
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -287,7 +346,7 @@ jobs:
 
   upload_coverage:
     name: "Upload coverage to Codecov"
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-latest"
     if: "github.event.pull_request.head.repo.full_name != github.repository || !contains(github.event.pull_request.head.ref, '.x')"
     needs:
       - "phpunit-smoke-check"
