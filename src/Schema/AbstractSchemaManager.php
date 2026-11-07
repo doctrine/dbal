@@ -20,7 +20,6 @@ use function array_filter;
 use function array_intersect;
 use function array_map;
 use function array_values;
-use function assert;
 use function count;
 use function strtolower;
 
@@ -236,23 +235,19 @@ abstract class AbstractSchemaManager
      */
     public function introspectTable(OptionallyQualifiedName $tableName): Table
     {
-        $columns = $this->introspectTableColumns($tableName);
+        $table = $this->introspectTableObjects(
+            $tableName,
+            static function (SchemaProvider $schemaProvider, ?string $schemaName, string $tableName): ?Table {
+                return $schemaProvider->getTable($schemaName, $tableName);
+            },
+        );
 
-        if ($columns === []) {
+        if ($table === null) {
             throw TableDoesNotExist::new($tableName->toString());
         }
 
-        $options = $this->introspectTableOptions($tableName);
-        assert($options !== null);
-
-        return Table::editor()
+        return $table->edit()
             ->setName($tableName)
-            ->setColumns(...$columns)
-            ->setPrimaryKeyConstraint($this->introspectTablePrimaryKeyConstraint($tableName))
-            ->setIndexes(...$this->introspectTableIndexes($tableName))
-            ->setUniqueConstraints(...$this->introspectTableUniqueConstraints($tableName))
-            ->setForeignKeyConstraints(...$this->introspectTableForeignKeyConstraints($tableName))
-            ->setOptions($options)
             ->create();
     }
 
@@ -584,28 +579,6 @@ abstract class AbstractSchemaManager
 
         return $function(
             $this->createSchemaProvider(),
-            $schemaName,
-            $tableName->getUnqualifiedName()->toNormalizedValue($folding),
-        );
-    }
-
-    /**
-     * @return ?array<non-empty-string, mixed>
-     *
-     * @throws Exception
-     */
-    private function introspectTableOptions(OptionallyQualifiedName $tableName): ?array
-    {
-        $folding   = $this->platform->getUnquotedIdentifierFolding();
-        $qualifier = $tableName->getQualifier();
-
-        if ($qualifier !== null) {
-            $schemaName = $qualifier->toNormalizedValue($folding);
-        } else {
-            $schemaName = $this->getCurrentSchemaName();
-        }
-
-        return $this->createSchemaProvider()->getOptionsForTable(
             $schemaName,
             $tableName->getUnqualifiedName()->toNormalizedValue($folding),
         );

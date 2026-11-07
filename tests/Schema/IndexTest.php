@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -46,6 +47,14 @@ class IndexTest extends TestCase
             ->setUnquotedColumnNames('USER_ID')
             ->create();
 
+        $otherColumnIndex = $regularIndex->edit()
+            ->setUnquotedColumnNames('account_id')
+            ->create();
+
+        $twoColumnIndex = $regularIndex->edit()
+            ->setUnquotedColumnNames('user_id', 'account_id')
+            ->create();
+
         yield 'regular-by-regular' => [$regularIndex, $regularIndex, true];
         yield 'regular-by-unique' => [$regularIndex, $uniqueIndex, true];
         yield 'unique-by-regular' => [$uniqueIndex, $regularIndex, false];
@@ -56,6 +65,9 @@ class IndexTest extends TestCase
         yield 'partial-by-partial' => [$regularIndex, $upperCaseIndex, true];
 
         yield 'upper-case-by-lower-case' => [$upperCaseIndex, $regularIndex, true];
+
+        yield 'different-column' => [$regularIndex, $otherColumnIndex, false];
+        yield 'different-column-count' => [$regularIndex, $twoColumnIndex, false];
     }
 
     /**
@@ -102,7 +114,7 @@ class IndexTest extends TestCase
         $this->expectException(InvalidIndexDefinition::class);
 
         /** @phpstan-ignore argument.type */
-        new Index(UnqualifiedName::unquoted('id'), IndexType::REGULAR, [], false, null);
+        new Index(UnqualifiedName::unquoted('id'), IndexType::REGULAR, [], false, null, false);
     }
 
     public function testSpatialIndexWithColumnLength(): void
@@ -253,5 +265,54 @@ class IndexTest extends TestCase
                 ->setPredicate('is_active = 1')
                 ->create(),
         ];
+    }
+
+    public function testDerivedIndexCannotHoldDerivedUniqueConstraint(): void
+    {
+        $editor = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setIsDerived(true)
+            ->setDerivedUniqueConstraint(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            );
+
+        $this->expectException(InvalidIndexDefinition::class);
+
+        $editor->create();
+    }
+
+    public function testHeldUniqueConstraintMustBeDerived(): void
+    {
+        $editor = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setDerivedUniqueConstraint(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            );
+
+        $this->expectException(InvalidIndexDefinition::class);
+
+        $editor->create();
+    }
+
+    public function testEditedIndexIsNotDerived(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setIsDerived(true)
+            ->create();
+
+        self::assertFalse($index->edit()->create()->isDerived());
     }
 }

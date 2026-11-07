@@ -11,7 +11,11 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableEditor;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -64,6 +68,110 @@ final class ComparatorTest extends FunctionalTestCase
         $table = $this->createLobTable($type, $length);
         $table = $this->setBlobLength($table, $length + 1);
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
+    }
+
+    /**
+     * A unique index over a prefix of a column enforces uniqueness of the prefix only, so it is not the unique
+     * constraint the desired table declares over the whole column.
+     *
+     * @throws Exception
+     */
+    public function testUniqueConstraintReplacesUniqueIndexOverPrefix(): void
+    {
+        $this->dropTableIfExists('uc_prefix');
+
+        $this->schemaManager->createTable(
+            $this->createEmailTable()
+                ->setIndexes(
+                    Index::editor()
+                        ->setUnquotedName('uc_prefix_email_uq')
+                        ->setType(IndexType::UNIQUE)
+                        ->addUnquotedColumnName('email', 10)
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $desired = $this->createEmailTable()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
+
+        $this->schemaManager->alterTable(
+            ComparatorTestUtils::diffFromActualToDesiredTable($this->schemaManager, $this->comparator, $desired),
+        );
+
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $desired,
+        )->isEmpty());
+
+        self::assertFalse(
+            $this->schemaManager->introspectTableByUnquotedName('uc_prefix')
+                ->hasIndex('uc_prefix_email_uq'),
+        );
+    }
+
+    /**
+     * MySQL reports a unique index as a unique constraint too. A named unique constraint must match it before an
+     * unnamed one does, or the named one would be added under a name the index already has.
+     *
+     * @throws Exception
+     */
+    public function testUnnamedUniqueConstraintDeclaredBeforeNamedOne(): void
+    {
+        $this->dropTableIfExists('uc_prefix');
+
+        $this->schemaManager->createTable(
+            $this->createEmailTable()
+                ->setIndexes(
+                    Index::editor()
+                        ->setUnquotedName('uc_prefix_email_uq')
+                        ->setType(IndexType::UNIQUE)
+                        ->setUnquotedColumnNames('email')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $desired = $this->createEmailTable()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uc_prefix_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
+
+        $this->schemaManager->alterTable(
+            ComparatorTestUtils::diffFromActualToDesiredTable($this->schemaManager, $this->comparator, $desired),
+        );
+
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $desired,
+        )->isEmpty());
+    }
+
+    private function createEmailTable(): TableEditor
+    {
+        return Table::editor()
+            ->setUnquotedName('uc_prefix')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            );
     }
 
     /** @return iterable<array{string,int}> */

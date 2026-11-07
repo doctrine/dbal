@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema\Introspection;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\DerivedObjectNotHeld;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraintEditor;
 use Doctrine\DBAL\Schema\Index;
@@ -19,6 +20,7 @@ use Doctrine\DBAL\Schema\Introspection\MetadataProcessor\ViewMetadataProcessor;
 use Doctrine\DBAL\Schema\Metadata\ForeignKeyConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\IndexColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
+use Doctrine\DBAL\Schema\Metadata\PrimaryKeyConstraintColumnRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -27,12 +29,14 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraintEditor;
 use Doctrine\DBAL\Schema\SchemaProvider;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableConfiguration;
+use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Schema\UniqueConstraintEditor;
 use Override;
 
 use function array_map;
 use function array_values;
+use function in_array;
 
 /**
  * Provides access to the database schema obtained by introspection.
@@ -88,9 +92,13 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     public function getAllTables(): array
     {
         $tableColumnsByTable          = $this->getColumnsForAllTables();
-        $indexesByTable               = $this->getIndexesForAllTables();
-        $primaryKeyConstraintsByTable = $this->getPrimaryKeyConstraintsForAllTables();
-        $uniqueConstraintsByTable     = $this->getUniqueConstraintsForAllTables();
+        $indexRowsByTable             = $this->groupRowsByTable($this->metadataProvider->getIndexColumnsForAllTables());
+        $primaryKeyRowsByTable        = $this->groupRowsByTable(
+            $this->metadataProvider->getPrimaryKeyConstraintColumnsForAllTables(),
+        );
+        $uniqueConstraintRowsByTable  = $this->groupRowsByTable(
+            $this->metadataProvider->getUniqueConstraintColumnsForAllTables(),
+        );
         $foreignKeyConstraintsByTable = $this->getForeignKeyConstraintsForAllTables();
         $tableOptionsByTable          = $this->getOptionsForAllTables();
 
@@ -104,26 +112,19 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
             }
 
             foreach ($schemaTables as $unqualifiedName => $tableColumns) {
+                $tableName = OptionallyQualifiedName::quoted($unqualifiedName, $schemaName);
+
                 $editor = Table::editor()
-                    ->setName(
-                        OptionallyQualifiedName::quoted($unqualifiedName, $schemaName),
-                    )
-                    ->setColumns(...$tableColumns)
-                    ->setIndexes(
-                        ...$indexesByTable[$schemaNameKey][$unqualifiedName] ?? [],
-                    );
+                    ->setName($tableName)
+                    ->setColumns(...$tableColumns);
 
-                if (isset($primaryKeyConstraintsByTable[$schemaNameKey][$unqualifiedName])) {
-                    $editor->setPrimaryKeyConstraint(
-                        $primaryKeyConstraintsByTable[$schemaNameKey][$unqualifiedName],
-                    );
-                }
-
-                if (isset($uniqueConstraintsByTable[$schemaNameKey][$unqualifiedName])) {
-                    $editor->setUniqueConstraints(
-                        ...$uniqueConstraintsByTable[$schemaNameKey][$unqualifiedName],
-                    );
-                }
+                $this->setIndexesAndConstraints(
+                    $editor,
+                    $tableName,
+                    $this->groupIndexEditors($indexRowsByTable[$schemaNameKey][$unqualifiedName] ?? []),
+                    $this->groupPrimaryKeyConstraint($primaryKeyRowsByTable[$schemaNameKey][$unqualifiedName] ?? []),
+                    $this->groupUniqueConstraints($uniqueConstraintRowsByTable[$schemaNameKey][$unqualifiedName] ?? []),
+                );
 
                 if (isset($foreignKeyConstraintsByTable[$schemaNameKey][$unqualifiedName])) {
                     $editor->setForeignKeyConstraints(
@@ -142,6 +143,143 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
         }
 
         return $tables;
+    }
+
+    #[Override]
+    public function getTable(?string $schemaName, string $tableName): ?Table
+    {
+        $columns = $this->getColumnsForTable($schemaName, $tableName);
+
+        if ($columns === []) {
+            return null;
+        }
+
+        $name = OptionallyQualifiedName::quoted($tableName, $schemaName);
+
+        $editor = Table::editor()
+            ->setName($name)
+            ->setColumns(...$columns);
+
+        $this->setIndexesAndConstraints(
+            $editor,
+            $name,
+            $this->groupIndexEditors($this->metadataProvider->getIndexColumnsForTable($schemaName, $tableName)),
+            $this->groupPrimaryKeyConstraint(
+                $this->metadataProvider->getPrimaryKeyConstraintColumnsForTable($schemaName, $tableName),
+            ),
+            $this->groupUniqueConstraints(
+                $this->metadataProvider->getUniqueConstraintColumnsForTable($schemaName, $tableName),
+            ),
+        );
+
+        $editor->setForeignKeyConstraints(...$this->getForeignKeyConstraintsForTable($schemaName, $tableName));
+
+        $options = $this->getOptionsForTable($schemaName, $tableName);
+
+        if ($options !== null) {
+            $editor->setOptions($options);
+        }
+
+        return $editor->create();
+    }
+
+    /**
+     * Sets the indexes and constraints of a table. Each derived object is given to the object that holds it: a
+     * derived unique constraint to the index its row names, and a derived index to the constraint whose row names it.
+     *
+     * @param array<string, IndexEditor>                           $indexEditors         By index name.
+     * @param ?IntrospectedConstraint<PrimaryKeyConstraintEditor>  $primaryKeyConstraint
+     * @param list<IntrospectedConstraint<UniqueConstraintEditor>> $uniqueConstraints
+     *
+     * @throws DerivedObjectNotHeld If a derived object has no holder.
+     */
+    private function setIndexesAndConstraints(
+        TableEditor $editor,
+        OptionallyQualifiedName $tableName,
+        array $indexEditors,
+        ?IntrospectedConstraint $primaryKeyConstraint,
+        array $uniqueConstraints,
+    ): void {
+        $declaredUniqueConstraints = [];
+
+        foreach ($uniqueConstraints as $uniqueConstraint) {
+            if (! $uniqueConstraint->isDerived()) {
+                $declaredUniqueConstraints[] = $uniqueConstraint;
+
+                continue;
+            }
+
+            $derivedUniqueConstraint = $uniqueConstraint->getEditor()->create();
+            $indexName               = $uniqueConstraint->getIndexName();
+
+            if ($indexName === null || ! isset($indexEditors[$indexName])) {
+                throw DerivedObjectNotHeld::fromUniqueConstraint($tableName, $derivedUniqueConstraint->getObjectName());
+            }
+
+            $indexEditors[$indexName]->setDerivedUniqueConstraint($derivedUniqueConstraint);
+        }
+
+        $indexes = array_map(static fn (IndexEditor $editor): Index => $editor->create(), $indexEditors);
+
+        $heldIndexes = [];
+
+        if ($primaryKeyConstraint !== null) {
+            $derivedIndex = $this->findDerivedIndex($indexes, $primaryKeyConstraint->getIndexName());
+
+            if ($derivedIndex !== null) {
+                $heldIndexes[] = $derivedIndex;
+            }
+
+            $editor->setPrimaryKeyConstraint(
+                $primaryKeyConstraint->getEditor()
+                    ->setDerivedIndex($derivedIndex)
+                    ->create(),
+            );
+        }
+
+        $sources = [];
+
+        foreach ($declaredUniqueConstraints as $uniqueConstraint) {
+            $derivedIndex = $this->findDerivedIndex($indexes, $uniqueConstraint->getIndexName());
+
+            if ($derivedIndex !== null) {
+                $heldIndexes[] = $derivedIndex;
+            }
+
+            $sources[] = $uniqueConstraint->getEditor()
+                ->setDerivedIndex($derivedIndex)
+                ->create();
+        }
+
+        $declaredIndexes = [];
+
+        foreach ($indexes as $index) {
+            if (! $index->isDerived()) {
+                $declaredIndexes[] = $index;
+            } elseif (! in_array($index, $heldIndexes, true)) {
+                throw DerivedObjectNotHeld::fromIndex($tableName, $index->getObjectName());
+            }
+        }
+
+        $editor
+            ->setIndexes(...$declaredIndexes)
+            ->setUniqueConstraints(...$sources);
+    }
+
+    /**
+     * Returns the index with the given name if introspection reports it and it is derived. An existing index that a
+     * constraint adopted is not derived.
+     *
+     * @param array<string, Index> $indexes   By index name.
+     * @param ?non-empty-string    $indexName
+     */
+    private function findDerivedIndex(array $indexes, ?string $indexName): ?Index
+    {
+        if ($indexName === null || ! isset($indexes[$indexName]) || ! $indexes[$indexName]->isDerived()) {
+            return null;
+        }
+
+        return $indexes[$indexName];
     }
 
     #[Override]
@@ -201,10 +339,46 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
     #[Override]
     public function getIndexesForTable(?string $schemaName, string $tableName): array
     {
+        return array_map(
+            static fn (IndexEditor $editor): Index => $editor->create(),
+            array_values($this->groupIndexEditors(
+                $this->metadataProvider->getIndexColumnsForTable($schemaName, $tableName),
+            )),
+        );
+    }
+
+    #[Override]
+    public function getPrimaryKeyConstraintForTable(?string $schemaName, string $tableName): ?PrimaryKeyConstraint
+    {
+        return $this->groupPrimaryKeyConstraint(
+            $this->metadataProvider->getPrimaryKeyConstraintColumnsForTable($schemaName, $tableName),
+        )?->getEditor()->create();
+    }
+
+    #[Override]
+    public function getUniqueConstraintsForTable(?string $schemaName, string $tableName): array
+    {
+        return array_map(
+            static fn (IntrospectedConstraint $constraint): UniqueConstraint => $constraint->getEditor()->create(),
+            $this->groupUniqueConstraints(
+                $this->metadataProvider->getUniqueConstraintColumnsForTable($schemaName, $tableName),
+            ),
+        );
+    }
+
+    /**
+     * Builds one index editor per index of a table.
+     *
+     * @param iterable<IndexColumnMetadataRow> $rows The rows of one table.
+     *
+     * @return array<string, IndexEditor> By index name.
+     */
+    private function groupIndexEditors(iterable $rows): array
+    {
         $editors   = [];
         $processor = new IndexColumnMetadataProcessor();
 
-        foreach ($this->metadataProvider->getIndexColumnsForTable($schemaName, $tableName) as $row) {
+        foreach ($rows as $row) {
             $indexName = $row->getIndexName();
 
             if (! isset($editors[$indexName])) {
@@ -214,125 +388,79 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
             $processor->applyRow($editors[$indexName], $row);
         }
 
-        return array_map(
-            static fn (IndexEditor $e): Index => $e->create(),
-            array_values($editors),
-        );
+        return $editors;
     }
 
     /**
-     * Returns indexes for all tables, grouped by schema and table.
+     * Builds the editor of a table's primary key constraint, if the table has one.
      *
-     * If the underlying database does not support schemas, the schema key will be {@link NULL_SCHEMA_KEY}.
+     * @param iterable<PrimaryKeyConstraintColumnRow> $rows The rows of one table.
      *
-     * @return array<string, array<non-empty-string, list<Index>>>
-     *
-     * @throws Exception
+     * @return ?IntrospectedConstraint<PrimaryKeyConstraintEditor>
      */
-    private function getIndexesForAllTables(): array
+    private function groupPrimaryKeyConstraint(iterable $rows): ?IntrospectedConstraint
     {
-        $processor = new IndexColumnMetadataProcessor();
+        $constraint = null;
+        $processor  = new PrimaryKeyConstraintColumnMetadataProcessor();
 
-        return $this->groupByTable(
-            static fn (IndexColumnMetadataRow $row): string => $row->getIndexName(),
-            $processor->initializeEditor(...),
-            $processor->applyRow(...),
-            static fn (IndexEditor $editor): Index => $editor->create(),
-            $this->metadataProvider->getIndexColumnsForAllTables(),
-        );
-    }
+        foreach ($rows as $row) {
+            $constraint ??= new IntrospectedConstraint($processor->initializeEditor($row), $row->getIndexName(), false);
 
-    #[Override]
-    public function getPrimaryKeyConstraintForTable(?string $schemaName, string $tableName): ?PrimaryKeyConstraint
-    {
-        $editor    = null;
-        $processor = new PrimaryKeyConstraintColumnMetadataProcessor();
-
-        foreach ($this->metadataProvider->getPrimaryKeyConstraintColumnsForTable($schemaName, $tableName) as $row) {
-            $editor ??= $processor->initializeEditor($row);
-
-            $processor->applyRow($editor, $row);
+            $processor->applyRow($constraint->getEditor(), $row);
         }
 
-        return $editor?->create();
+        return $constraint;
     }
 
     /**
-     * Returns the primary key constraints for all tables, grouped by schema and table.
+     * Builds one editor per unique constraint of a table.
      *
-     * If the underlying database does not support schemas, the schema key will be {@link NULL_SCHEMA_KEY}.
+     * @param iterable<UniqueConstraintColumnMetadataRow> $rows The rows of one table.
      *
-     * @return array<string, array<non-empty-string, PrimaryKeyConstraint>>
-     *
-     * @throws Exception
+     * @return list<IntrospectedConstraint<UniqueConstraintEditor>>
      */
-    private function getPrimaryKeyConstraintsForAllTables(): array
+    private function groupUniqueConstraints(iterable $rows): array
     {
-        $editors   = [];
-        $processor = new PrimaryKeyConstraintColumnMetadataProcessor();
+        $constraints = [];
+        $processor   = new UniqueConstraintColumnMetadataProcessor();
 
-        foreach ($this->metadataProvider->getPrimaryKeyConstraintColumnsForAllTables() as $row) {
-            $schemaName = $row->getSchemaName() ?? self::NULL_SCHEMA_KEY;
-            $tableName  = $row->getTableName();
-
-            if (! isset($editors[$schemaName][$tableName])) {
-                $editors[$schemaName][$tableName] = $processor->initializeEditor($row);
-            }
-
-            $processor->applyRow($editors[$schemaName][$tableName], $row);
-        }
-
-        return array_map(
-            static fn (array $editors): array => array_map(
-                static fn (PrimaryKeyConstraintEditor $editor): PrimaryKeyConstraint => $editor->create(),
-                $editors,
-            ),
-            $editors,
-        );
-    }
-
-    #[Override]
-    public function getUniqueConstraintsForTable(?string $schemaName, string $tableName): array
-    {
-        $editors   = [];
-        $processor = new UniqueConstraintColumnMetadataProcessor();
-
-        foreach ($this->metadataProvider->getUniqueConstraintColumnsForTable($schemaName, $tableName) as $row) {
+        foreach ($rows as $row) {
             $id = $row->getId();
 
-            if (! isset($editors[$id])) {
-                $editors[$id] = $processor->initializeEditor($row);
+            if (! isset($constraints[$id])) {
+                $constraints[$id] = new IntrospectedConstraint(
+                    $processor->initializeEditor($row),
+                    $row->getIndexName(),
+                    $row->isDerived(),
+                );
             }
 
-            $processor->applyRow($editors[$id], $row);
+            $processor->applyRow($constraints[$id]->getEditor(), $row);
         }
 
-        return array_map(
-            static fn (UniqueConstraintEditor $e): UniqueConstraint => $e->create(),
-            array_values($editors),
-        );
+        return array_values($constraints);
     }
 
     /**
-     * Returns the unique constraints, grouped by schema and table.
+     * Groups rows by schema and table.
      *
      * If the underlying database does not support schemas, the schema key will be {@link NULL_SCHEMA_KEY}.
      *
-     * @return array<string, array<non-empty-string, list<UniqueConstraint>>>
+     * @param iterable<R> $rows
      *
-     * @throws Exception
+     * @return array<string, array<non-empty-string, list<R>>>
+     *
+     * @template R of IndexColumnMetadataRow|PrimaryKeyConstraintColumnRow|UniqueConstraintColumnMetadataRow
      */
-    private function getUniqueConstraintsForAllTables(): array
+    private function groupRowsByTable(iterable $rows): array
     {
-        $processor = new UniqueConstraintColumnMetadataProcessor();
+        $rowsByTable = [];
 
-        return $this->groupByTable(
-            static fn (UniqueConstraintColumnMetadataRow $row): int|string => $row->getId(),
-            $processor->initializeEditor(...),
-            $processor->applyRow(...),
-            static fn (UniqueConstraintEditor $editor): UniqueConstraint => $editor->create(),
-            $this->metadataProvider->getUniqueConstraintColumnsForAllTables(),
-        );
+        foreach ($rows as $row) {
+            $rowsByTable[$row->getSchemaName() ?? self::NULL_SCHEMA_KEY][$row->getTableName()][] = $row;
+        }
+
+        return $rowsByTable;
     }
 
     #[Override]
@@ -392,7 +520,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
      *
      * @return array<string, array<non-empty-string, list<T>>>
      *
-     * @template R of ForeignKeyConstraintColumnMetadataRow|IndexColumnMetadataRow|UniqueConstraintColumnMetadataRow
+     * @template R of ForeignKeyConstraintColumnMetadataRow
      * @template E of object
      * @template T of object
      */

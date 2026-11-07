@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
+use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
+use function array_values;
+use function assert;
 use function count;
 use function strtolower;
 
@@ -120,16 +125,14 @@ class Comparator
      */
     public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
-        $addedColumns                     = [];
-        $modifiedColumns                  = [];
-        $droppedColumns                   = [];
-        $addedIndexes                     = [];
-        $droppedIndexes                   = [];
-        $indexRenames                     = [];
-        $addedForeignKeys                 = [];
-        $droppedForeignKeyConstraintNames = [];
-        $addedPrimaryKeyConstraint        = null;
-        $droppedPrimaryKeyConstraint      = null;
+        $addedColumns                = [];
+        $modifiedColumns             = [];
+        $droppedColumns              = [];
+        $addedIndexes                = [];
+        $droppedIndexes              = [];
+        $indexRenames                = [];
+        $addedPrimaryKeyConstraint   = null;
+        $droppedPrimaryKeyConstraint = null;
 
         $oldColumns = $oldTable->getColumns();
         $newColumns = $newTable->getColumns();
@@ -212,31 +215,36 @@ class Comparator
             $addedPrimaryKeyConstraint   = $newPrimaryKeyConstraint;
         }
 
-        $oldIndexes = $oldTable->getIndexes();
-        $newIndexes = $newTable->getIndexes();
-        $folding    = $this->platform->getUnquotedIdentifierFolding();
+        $folding = $this->platform->getUnquotedIdentifierFolding();
+
+        $oldIndexes = $this->getNonDerivedIndexes($oldTable);
+        $newIndexes = $this->getNonDerivedIndexes($newTable);
+
+        [$addedUniqueConstraints, $droppedUniqueConstraintNames] = $this->compareUniqueConstraints(
+            $oldTable,
+            $newTable,
+            $oldIndexes,
+            $newIndexes,
+            $folding,
+        );
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndex) {
-            $newIndexName = $newIndex->getObjectName();
-
-            if (! $oldTable->hasIndex($newIndexName->toString())) {
+            if ($oldIndexes->get($newIndex->getObjectName()) === null) {
                 $addedIndexes[] = $newIndex;
             }
         }
 
         // See if there are any removed indexes in the new table
         foreach ($oldIndexes as $oldIndex) {
-            $oldIndexName = $oldIndex->getObjectName();
+            // See if index has changed in the new table.
+            $newIndex = $newIndexes->get($oldIndex->getObjectName());
 
-            if (! $newTable->hasIndex($oldIndexName->toString())) {
+            if ($newIndex === null) {
                 $droppedIndexes[] = $oldIndex;
 
                 continue;
             }
-
-            // See if index has changed in the new table.
-            $newIndex = $newTable->getIndex($oldIndexName->toString());
 
             if ($oldIndex->equals($newIndex, $folding)) {
                 continue;
@@ -250,43 +258,12 @@ class Comparator
             $indexRenames = $this->detectIndexRenames($addedIndexes, $droppedIndexes, $folding);
         }
 
-        $oldForeignKeys = $oldTable->getForeignKeys();
-        $newForeignKeys = $newTable->getForeignKeys();
-
-        foreach ($oldForeignKeys as $oldKey => $oldForeignKey) {
-            foreach ($newForeignKeys as $newKey => $newForeignKey) {
-                if ($newForeignKey->equals($oldForeignKey, $folding)) {
-                    unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
-                } else {
-                    $oldForeignKeyName = $oldForeignKey->getObjectName();
-                    $newForeignKeyName = $newForeignKey->getObjectName();
-                    if (
-                        $oldForeignKeyName !== null
-                        && $newForeignKeyName !== null
-                        && strtolower($oldForeignKeyName->getIdentifier()->getValue())
-                        === strtolower($newForeignKeyName->getIdentifier()->getValue())
-                    ) {
-                        $droppedForeignKeyConstraintNames[$oldKey] = $oldForeignKeyName;
-                        $addedForeignKeys[$newKey]                 = $newForeignKey;
-
-                        unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
-                    }
-                }
-            }
-        }
-
-        foreach ($oldForeignKeys as $oldForeignKey) {
-            $constraintName = $oldForeignKey->getObjectName();
-            if ($constraintName === null) {
-                throw UnspecifiedConstraintName::forForeignKeyConstraint();
-            }
-
-            $droppedForeignKeyConstraintNames[] = $constraintName;
-        }
-
-        foreach ($newForeignKeys as $newForeignKey) {
-            $addedForeignKeys[] = $newForeignKey;
-        }
+        [$addedForeignKeys, $droppedForeignKeyConstraintNames] = $this->compareConstraints(
+            $oldTable->getForeignKeys(),
+            $newTable->getForeignKeys(),
+            static fn (ForeignKeyConstraint $old, ForeignKeyConstraint $new): bool => $old->equals($new, $folding),
+            UnspecifiedConstraintName::forForeignKeyConstraint(...),
+        );
 
         return new TableDiff(
             $oldTable,
@@ -300,6 +277,8 @@ class Comparator
             droppedForeignKeyConstraintNames: $droppedForeignKeyConstraintNames,
             addedPrimaryKeyConstraint: $addedPrimaryKeyConstraint,
             droppedPrimaryKeyConstraint: $droppedPrimaryKeyConstraint,
+            addedUniqueConstraints: $addedUniqueConstraints,
+            droppedUniqueConstraintNames: $droppedUniqueConstraintNames,
         );
     }
 
@@ -364,6 +343,302 @@ class Comparator
         }
 
         return $oldPrimaryKeyConstraint === null && $newPrimaryKeyConstraint === null;
+    }
+
+    /**
+     * Compares the unique constraints of the tables.
+     *
+     * The derived constraints of a table are compared only with the declared constraints of the other table. When one
+     * matches, its source index is removed from the given indexes of its table.
+     *
+     * @param UnqualifiedNamedObjectSet<Index> $oldIndexes The non-derived indexes of the old table.
+     * @param UnqualifiedNamedObjectSet<Index> $newIndexes The non-derived indexes of the new table.
+     *
+     * @return array{list<UniqueConstraint>, list<UnqualifiedName>} the constraints to add and the names of the ones to
+     *                                                              drop
+     */
+    private function compareUniqueConstraints(
+        Table $oldTable,
+        Table $newTable,
+        UnqualifiedNamedObjectSet $oldIndexes,
+        UnqualifiedNamedObjectSet $newIndexes,
+        UnquotedIdentifierFolding $folding,
+    ): array {
+        [$oldDeclared, $oldDerived] = $this->partitionUniqueConstraints($oldTable);
+        [$newDeclared, $newDerived] = $this->partitionUniqueConstraints($newTable);
+
+        $equals = static fn (UniqueConstraint $old, UniqueConstraint $new): bool => $old->equals($new, $folding);
+
+        [$oldDeclared, $newDeclared, $modified] = $this->matchConstraints($oldDeclared, $newDeclared, $equals);
+
+        $newDeclared = $this->matchDerivedUniqueConstraints(
+            $newDeclared,
+            $oldDerived,
+            $oldIndexes,
+            $newIndexes,
+            $folding,
+        );
+
+        $oldDeclared = $this->matchDerivedUniqueConstraints(
+            $oldDeclared,
+            $newDerived,
+            $newIndexes,
+            $oldIndexes,
+            $folding,
+        );
+
+        return $this->toAddedAndDropped(
+            $oldDeclared,
+            $newDeclared,
+            $modified,
+            UnspecifiedConstraintName::forUniqueConstraint(...),
+        );
+    }
+
+    /**
+     * Matches the declared unique constraints of one table with the derived ones of the other.
+     *
+     * A derived unique constraint matches a declared one if its source index, which has the same name, is the unique
+     * index the declared constraint would be: it has the same columns, indexes them whole, and the other table does not
+     * declare an index of the same name. A matched source index is removed from the indexes of its table.
+     *
+     * @param list<UniqueConstraint>           $declared
+     * @param list<UniqueConstraint>           $derived
+     * @param UnqualifiedNamedObjectSet<Index> $derivedTableIndexes  The non-derived indexes of the table that has the
+     *                                                               derived constraints.
+     * @param UnqualifiedNamedObjectSet<Index> $declaredTableIndexes The non-derived indexes of the other table.
+     *
+     * @return list<UniqueConstraint> the declared constraints that remain unmatched
+     */
+    private function matchDerivedUniqueConstraints(
+        array $declared,
+        array $derived,
+        UnqualifiedNamedObjectSet $derivedTableIndexes,
+        UnqualifiedNamedObjectSet $declaredTableIndexes,
+        UnquotedIdentifierFolding $folding,
+    ): array {
+        $unmatched = [];
+
+        foreach ($this->namedFirst($declared) as $declaredConstraint) {
+            foreach ($derived as $key => $derivedConstraint) {
+                $sourceIndexName = $derivedConstraint->getObjectName();
+                assert($sourceIndexName !== null);
+
+                $sourceIndex = $derivedTableIndexes->get($sourceIndexName);
+
+                if (
+                    $sourceIndex !== null
+                    && $declaredTableIndexes->get($sourceIndexName) === null
+                    && $derivedConstraint->equals($declaredConstraint, $folding)
+                    && $this->isUniqueIndexOver($sourceIndex, $declaredConstraint->getColumnNames(), $folding)
+                ) {
+                    $derivedTableIndexes->remove($sourceIndexName);
+                    unset($derived[$key]);
+
+                    continue 2;
+                }
+            }
+
+            $unmatched[] = $declaredConstraint;
+        }
+
+        return $unmatched;
+    }
+
+    /** @param non-empty-list<UnqualifiedName> $columnNames */
+    private function isUniqueIndexOver(Index $index, array $columnNames, UnquotedIdentifierFolding $folding): bool
+    {
+        $indexedColumns = $index->getIndexedColumns();
+
+        if ($index->getType() !== IndexType::UNIQUE || count($indexedColumns) !== count($columnNames)) {
+            return false;
+        }
+
+        foreach ($indexedColumns as $i => $indexedColumn) {
+            if (
+                $indexedColumn->getLength() !== null
+                || ! $indexedColumn->getColumnName()->equals($columnNames[$i], $folding)
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /** @return array{list<UniqueConstraint>, list<UniqueConstraint>} the declared and the derived constraints */
+    private function partitionUniqueConstraints(Table $table): array
+    {
+        $declared = [];
+        $derived  = [];
+
+        foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
+            if (! $uniqueConstraint->isDerived()) {
+                $declared[] = $uniqueConstraint;
+            } else {
+                $derived[] = $uniqueConstraint;
+            }
+        }
+
+        return [$declared, $derived];
+    }
+
+    /**
+     * Compares the old constraints of a table with the new ones.
+     *
+     * @param list<T>                               $oldConstraints
+     * @param list<T>                               $newConstraints
+     * @param callable(T, T): bool                  $equals          Returns whether an old constraint and a new one
+     *                                                               are equal.
+     * @param callable(): UnspecifiedConstraintName $unspecifiedName Returns the exception reporting a constraint of
+     *                                                               this kind whose name is unspecified.
+     *
+     * @return array{list<T>, list<UnqualifiedName>} the constraints to add and the names of the ones to drop
+     *
+     * @template T of OptionallyNamedObject<UnqualifiedName>
+     */
+    private function compareConstraints(
+        array $oldConstraints,
+        array $newConstraints,
+        callable $equals,
+        callable $unspecifiedName,
+    ): array {
+        [$oldConstraints, $newConstraints, $modified] = $this->matchConstraints(
+            $oldConstraints,
+            $newConstraints,
+            $equals,
+        );
+
+        return $this->toAddedAndDropped($oldConstraints, $newConstraints, $modified, $unspecifiedName);
+    }
+
+    /**
+     * @param list<T>                               $oldConstraints  The unmatched old constraints.
+     * @param list<T>                               $newConstraints  The unmatched new constraints.
+     * @param list<array{T, T}>                     $modified        The modified constraints as old and new.
+     * @param callable(): UnspecifiedConstraintName $unspecifiedName Returns the exception reporting a constraint of
+     *                                                               this kind whose name is unspecified.
+     *
+     * @return array{list<T>, list<UnqualifiedName>} the constraints to add and the names of the ones to drop
+     *
+     * @template T of OptionallyNamedObject<UnqualifiedName>
+     */
+    private function toAddedAndDropped(
+        array $oldConstraints,
+        array $newConstraints,
+        array $modified,
+        callable $unspecifiedName,
+    ): array {
+        $addedConstraints       = [];
+        $droppedConstraintNames = [];
+
+        foreach ($modified as [$oldConstraint, $newConstraint]) {
+            $name = $oldConstraint->getObjectName();
+            assert($name !== null);
+
+            $droppedConstraintNames[] = $name;
+            $addedConstraints[]       = $newConstraint;
+        }
+
+        foreach ($oldConstraints as $oldConstraint) {
+            $name = $oldConstraint->getObjectName();
+
+            if ($name === null) {
+                throw $unspecifiedName();
+            }
+
+            $droppedConstraintNames[] = $name;
+        }
+
+        foreach ($newConstraints as $newConstraint) {
+            $addedConstraints[] = $newConstraint;
+        }
+
+        return [$addedConstraints, $droppedConstraintNames];
+    }
+
+    /**
+     * Matches the old constraints of a table with the new ones.
+     *
+     * A constraint equal to one on the other side matches it and is left out of the result. One that keeps its name
+     * but changes its definition is modified: it has to be dropped and added back. What remains unmatched is dropped
+     * or added outright.
+     *
+     * Named constraints are matched first. An unnamed constraint equals a named one with the same definition, so it
+     * could otherwise take the constraint that a named one would match.
+     *
+     * @param list<T>              $oldConstraints
+     * @param list<T>              $newConstraints
+     * @param callable(T, T): bool $equals         Returns whether an old constraint and a new one are equal.
+     *
+     * @return array{list<T>, list<T>, list<array{T, T}>} the unmatched old constraints, the unmatched new ones, and
+     *                                                    the modified ones as old and new
+     *
+     * @template T of OptionallyNamedObject<UnqualifiedName>
+     */
+    private function matchConstraints(array $oldConstraints, array $newConstraints, callable $equals): array
+    {
+        $oldConstraints = $this->namedFirst($oldConstraints);
+        $unmatchedNew   = [];
+        $modified       = [];
+
+        foreach ($this->namedFirst($newConstraints) as $newConstraint) {
+            foreach ($oldConstraints as $oldKey => $oldConstraint) {
+                if ($equals($oldConstraint, $newConstraint)) {
+                    unset($oldConstraints[$oldKey]);
+
+                    continue 2;
+                }
+            }
+
+            $newName = $newConstraint->getObjectName();
+
+            if ($newName !== null) {
+                foreach ($oldConstraints as $oldKey => $oldConstraint) {
+                    $oldName = $oldConstraint->getObjectName();
+
+                    if (
+                        $oldName !== null
+                        && strtolower($oldName->getIdentifier()->getValue())
+                        === strtolower($newName->getIdentifier()->getValue())
+                    ) {
+                        $modified[] = [$oldConstraint, $newConstraint];
+                        unset($oldConstraints[$oldKey]);
+
+                        continue 2;
+                    }
+                }
+            }
+
+            $unmatchedNew[] = $newConstraint;
+        }
+
+        return [array_values($oldConstraints), $unmatchedNew, $modified];
+    }
+
+    /**
+     * Returns the given constraints with the named ones first, keeping the order within each group.
+     *
+     * @param list<T> $constraints
+     *
+     * @return list<T>
+     *
+     * @template T of OptionallyNamedObject<UnqualifiedName>
+     */
+    private function namedFirst(array $constraints): array
+    {
+        $named   = [];
+        $unnamed = [];
+
+        foreach ($constraints as $constraint) {
+            if ($constraint->getObjectName() !== null) {
+                $named[] = $constraint;
+            } else {
+                $unnamed[] = $constraint;
+            }
+        }
+
+        return [...$named, ...$unnamed];
     }
 
     /**
@@ -434,5 +709,20 @@ class Comparator
     protected function columnsEqual(Column $column1, Column $column2): bool
     {
         return $this->platform->columnsEqual($column1, $column2);
+    }
+
+    /** @return UnqualifiedNamedObjectSet<Index> */
+    private function getNonDerivedIndexes(Table $table): UnqualifiedNamedObjectSet
+    {
+        /** @var UnqualifiedNamedObjectSet<Index> $indexes */
+        $indexes = new UnqualifiedNamedObjectSet();
+
+        foreach ($table->getIndexes() as $index) {
+            if (! $index->isDerived()) {
+                $indexes->add($index);
+            }
+        }
+
+        return $indexes;
     }
 }

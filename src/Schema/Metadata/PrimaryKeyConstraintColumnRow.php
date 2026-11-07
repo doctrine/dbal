@@ -14,6 +14,8 @@ final readonly class PrimaryKeyConstraintColumnRow
      * @param non-empty-string  $tableName
      * @param ?non-empty-string $constraintName
      * @param non-empty-string  $columnName
+     * @param ?non-empty-string $indexName      The name of the index that the catalog reports as enforcing the
+     *                                          constraint, if any.
      */
     public function __construct(
         private ?string $schemaName,
@@ -21,6 +23,7 @@ final readonly class PrimaryKeyConstraintColumnRow
         private ?string $constraintName,
         private bool $isClustered,
         private string $columnName,
+        private ?string $indexName,
     ) {
     }
 
@@ -51,5 +54,11 @@ final readonly class PrimaryKeyConstraintColumnRow
     public function getColumnName(): string
     {
         return $this->columnName;
+    }
+
+    /** @return ?non-empty-string */
+    public function getIndexName(): ?string
+    {
+        return $this->indexName;
     }
 }

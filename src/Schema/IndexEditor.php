@@ -34,6 +34,10 @@ final class IndexEditor
     /** @var ?non-empty-string */
     private ?string $predicate = null;
 
+    private bool $isDerived = false;
+
+    private ?UniqueConstraint $derivedUniqueConstraint = null;
+
     /** @internal Use {@link Index::editor()} or {@link Index::edit()} to create an instance */
     public function __construct()
     {
@@ -158,6 +162,22 @@ final class IndexEditor
         return $this;
     }
 
+    /** @internal Sets whether the database created the index to enforce a constraint. */
+    public function setIsDerived(bool $isDerived): self
+    {
+        $this->isDerived = $isDerived;
+
+        return $this;
+    }
+
+    /** @internal Sets the unique constraint that the database reports because of the index. It must be derived. */
+    public function setDerivedUniqueConstraint(?UniqueConstraint $uniqueConstraint): self
+    {
+        $this->derivedUniqueConstraint = $uniqueConstraint;
+
+        return $this;
+    }
+
     public function create(): Index
     {
         if ($this->name === null) {
@@ -185,7 +205,15 @@ final class IndexEditor
             throw InvalidIndexDefinition::columnsNotSet($name);
         }
 
-        return new Index($name, $this->type, $this->columns, $this->isClustered, $this->predicate);
+        return new Index(
+            $name,
+            $this->type,
+            $this->columns,
+            $this->isClustered,
+            $this->predicate,
+            $this->isDerived,
+            $this->derivedUniqueConstraint,
+        );
     }
 
     /** @param positive-int $maxIdentifierLength */

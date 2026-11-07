@@ -6,8 +6,10 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Override;
 
+use function array_all;
 use function count;
 
 /**
@@ -31,9 +33,19 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
         private ?UnqualifiedName $name,
         private array $columnNames,
         private bool $isClustered,
+        private bool $isDerived,
+        private ?Index $derivedIndex = null,
     ) {
         if (count($columnNames) < 1) {
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet($name);
+        }
+
+        if ($isDerived && $derivedIndex !== null) {
+            throw InvalidUniqueConstraintDefinition::fromDerivedConstraintWithDerivedIndex($name);
+        }
+
+        if ($derivedIndex !== null && ! $derivedIndex->isDerived()) {
+            throw InvalidUniqueConstraintDefinition::fromHeldIndexNotDerived($name);
         }
     }
 
@@ -59,6 +71,45 @@ final readonly class UniqueConstraint implements OptionallyNamedObject
     public function isClustered(): bool
     {
         return $this->isClustered;
+    }
+
+    public function equals(self $other, UnquotedIdentifierFolding $folding): bool
+    {
+        if ($this === $other) {
+            return true;
+        }
+
+        if ($this->isClustered !== $other->isClustered) {
+            return false;
+        }
+
+        if ($this->name !== null && $other->name !== null && ! $this->name->equals($other->name, $folding)) {
+            return false;
+        }
+
+        if (count($this->columnNames) !== count($other->columnNames)) {
+            return false;
+        }
+
+        return array_all(
+            $this->columnNames,
+            static fn ($columnName, $i) => $columnName->equals($other->columnNames[$i], $folding),
+        );
+    }
+
+    /**
+     * Returns whether the database reports this constraint because of the unique index of the same name. Returns
+     * <code>false</code> if the constraint was declared or the platform does not report where it came from.
+     */
+    public function isDerived(): bool
+    {
+        return $this->isDerived;
+    }
+
+    /** @internal Returns the index that the database created to enforce this constraint. */
+    public function getDerivedIndex(): ?Index
+    {
+        return $this->derivedIndex;
     }
 
     /**

@@ -20,6 +20,8 @@ final class PrimaryKeyConstraintEditor
 
     private bool $isClustered = true;
 
+    private ?Index $derivedIndex = null;
+
     /**
      * @internal Use {@link PrimaryKeyConstraint::editor()} or {@link PrimaryKeyConstraint::edit()} to create
      *           an instance.
@@ -116,12 +118,25 @@ final class PrimaryKeyConstraintEditor
         return $this;
     }
 
+    /** @internal Sets the index that the database created to enforce the constraint. It must be derived. */
+    public function setDerivedIndex(?Index $index): self
+    {
+        $this->derivedIndex = $index;
+
+        return $this;
+    }
+
     public function create(): PrimaryKeyConstraint
     {
         if (count($this->columnNames) < 1) {
             throw InvalidPrimaryKeyConstraintDefinition::columnNamesNotSet();
         }
 
-        return new PrimaryKeyConstraint($this->name, $this->columnNames, $this->isClustered);
+        return new PrimaryKeyConstraint(
+            $this->name,
+            $this->columnNames,
+            $this->isClustered,
+            $this->derivedIndex,
+        );
     }
 }

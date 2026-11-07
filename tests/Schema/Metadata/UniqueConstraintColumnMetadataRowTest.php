@@ -21,6 +21,8 @@ class UniqueConstraintColumnMetadataRowTest extends TestCase
             name: null,
             columnName: 'user_id',
             isClustered: false,
+            isDerived: false,
+            indexName: null,
         );
     }
 }

@@ -315,7 +315,8 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                    i.name,
                    i.is_unique,
                    i.type,
-                   c.name
+                   c.name,
+                   i.is_primary_key | i.is_unique_constraint
             FROM sys.tables AS t
                      JOIN sys.schemas AS s
                           ON t.schema_id = s.schema_id
@@ -328,7 +329,6 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                           ON idxcol.object_id = c.object_id
                               AND idxcol.column_id = c.column_id
             WHERE %s
-              AND i.is_primary_key = 0
             ORDER BY s.name,
                      t.name,
                      i.name,
@@ -347,6 +347,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[5],
                 columnLength: null,
+                isDerived: (bool) $row[6],
             );
         }
     }
@@ -412,6 +413,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 constraintName: $row[2],
                 isClustered: (int) $row[3] === 1,
                 columnName: $row[4],
+                indexName: $row[2],
             );
         }
     }
@@ -477,6 +479,8 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 name: $row[2],
                 columnName: $row[3],
                 isClustered: (int) $row[4] === 1,
+                isDerived: false,
+                indexName: $row[2],
             );
         }
     }

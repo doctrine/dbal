@@ -506,7 +506,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 ->setUnquotedName('test_composite_idx')
                 ->setUnquotedColumnNames('id', 'test')
                 ->create(),
-        ], $this->schemaManager->introspectTableIndexesByUnquotedName('list_table_indexes_test'));
+        ], self::withoutDerivedIndexes(
+            $this->schemaManager->introspectTableIndexesByUnquotedName('list_table_indexes_test'),
+        ));
     }
 
     public function testDropAndCreateIndex(): void
@@ -543,7 +545,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 ->setUnquotedColumnNames('test')
                 ->setType(IndexType::UNIQUE)
                 ->create(),
-        ], $this->schemaManager->introspectTableIndexesByUnquotedName('test_create_index'));
+        ], self::withoutDerivedIndexes(
+            $this->schemaManager->introspectTableIndexesByUnquotedName('test_create_index'),
+        ));
     }
 
     public function testDropAndCreateUniqueConstraint(): void
@@ -674,7 +678,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foreign_key_test'));
         self::assertCount(0, $table->getForeignKeys());
-        self::assertCount(0, $table->getIndexes());
+        self::assertCount(0, self::withoutDerivedIndexes($table->getIndexes()));
 
         $newTable = $table->edit()
             ->addColumn(
@@ -710,7 +714,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
-        self::assertCount(1, $table->getIndexes());
+        self::assertCount(1, self::withoutDerivedIndexes($table->getIndexes()));
         self::assertTrue($table->hasIndex('foo_idx'));
 
         $this->assertIndexEquals(
@@ -736,7 +740,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
-        self::assertCount(1, $table->getIndexes());
+        self::assertCount(1, self::withoutDerivedIndexes($table->getIndexes()));
         self::assertTrue($table->hasIndex('foo_idx'));
 
         $this->assertIndexEquals($fooIndex, $table->getIndex('foo_idx'));
@@ -756,7 +760,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTableByUnquotedName('alter_table');
-        self::assertCount(1, $table->getIndexes());
+        self::assertCount(1, self::withoutDerivedIndexes($table->getIndexes()));
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
 
@@ -1533,72 +1537,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
     }
 
-    public function testDoesNotListIndexesImplicitlyCreatedByForeignKeys(): void
-    {
-        $primaryTable = Table::editor()
-            ->setUnquotedName('test_list_index_impl_primary')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        $foreignTable = Table::editor()
-            ->setUnquotedName('test_list_index_impl_foreign')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('fk1')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('fk2')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setIndexes(
-                Index::editor()
-                    ->setUnquotedName('explicit_fk1_idx')
-                    ->setUnquotedColumnNames('fk1')
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('fk1')
-                    ->setUnquotedReferencedTableName('test_list_index_impl_primary')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('fk2')
-                    ->setUnquotedReferencedTableName('test_list_index_impl_primary')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        $this->dropAndCreateTable($primaryTable);
-        $this->dropAndCreateTable($foreignTable);
-
-        $this->assertIndexListEquals([
-            Index::editor()
-                ->setName(UnqualifiedName::unquoted('IDX_3D6C147FDC58D6C'))
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('fk2'),
-                )
-                ->create(),
-            Index::editor()
-                ->setName(UnqualifiedName::unquoted('explicit_fk1_idx'))
-                ->setColumnNames(UnqualifiedName::unquoted('fk1'))
-                ->create(),
-        ], $this->schemaManager->introspectTableIndexesByUnquotedName('test_list_index_impl_foreign'));
-    }
-
     public function testCreateAndListSequences(): void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
@@ -1787,7 +1725,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $user = $this->schemaManager->introspectTableByUnquotedName('user');
         self::assertCount(2, $user->getColumns());
-        self::assertCount(1, $user->getIndexes());
         self::assertCount(1, $user->getForeignKeys());
     }
 
@@ -1800,7 +1737,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $user = $this->findObjectByName($tables, OptionallyQualifiedName::unquoted('user'));
         self::assertNotNull($user);
         self::assertCount(2, $user->getColumns());
-        self::assertCount(1, $user->getIndexes());
         self::assertCount(1, $user->getForeignKeys());
     }
 
@@ -1961,7 +1897,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 ->setQuotedName('Idx_Artist_Name')
                 ->setQuotedColumnNames('Name')
                 ->create(),
-        ], $artists->getIndexes());
+        ], self::withoutDerivedIndexes($artists->getIndexes()));
 
         $primaryKey = $artists->getPrimaryKeyConstraint();
         self::assertNotNull($primaryKey);

@@ -972,11 +972,15 @@ abstract class AbstractPlatform
         $parameters['foreignKeys']       = [];
 
         foreach ($table->getIndexes() as $index) {
-            $parameters['indexes'][] = $index;
+            if (! $index->isDerived()) {
+                $parameters['indexes'][] = $index;
+            }
         }
 
         foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
-            $parameters['uniqueConstraints'][] = $uniqueConstraint;
+            if (! $uniqueConstraint->isDerived()) {
+                $parameters['uniqueConstraints'][] = $uniqueConstraint;
+            }
         }
 
         if ($createForeignKeys) {

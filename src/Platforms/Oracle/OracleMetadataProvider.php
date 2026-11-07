@@ -292,14 +292,18 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             SELECT I.TABLE_NAME,
                    I.INDEX_NAME,
                    I.UNIQUENESS,
-                   IC.COLUMN_NAME
+                   IC.COLUMN_NAME,
+                   CASE
+                       WHEN C.CONSTRAINT_TYPE IN ('P', 'U') AND I.CONSTRAINT_INDEX = 'YES' THEN 1
+                       ELSE 0
+                   END
             FROM USER_INDEXES I
                      LEFT JOIN USER_CONSTRAINTS C
                                ON C.INDEX_NAME = I.INDEX_NAME
                      JOIN USER_IND_COLUMNS IC
                           ON IC.INDEX_NAME = I.INDEX_NAME
             WHERE %s
-              AND (C.CONSTRAINT_TYPE IS NULL OR C.CONSTRAINT_TYPE != 'P')
+              AND (C.CONSTRAINT_TYPE IS NULL OR C.CONSTRAINT_TYPE != 'P' OR I.CONSTRAINT_INDEX = 'YES')
             ORDER BY I.TABLE_NAME,
                      I.INDEX_NAME,
                      IC.COLUMN_POSITION
@@ -317,6 +321,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[3],
                 columnLength: null,
+                isDerived: (bool) $row[4],
             );
         }
     }
@@ -353,7 +358,8 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             <<<'SQL'
             SELECT C.TABLE_NAME,
                    C.CONSTRAINT_NAME,
-                   CC.COLUMN_NAME
+                   CC.COLUMN_NAME,
+                   C.INDEX_NAME
             FROM USER_CONSTRAINTS C
                      JOIN USER_CONS_COLUMNS CC
                           ON CC.TABLE_NAME = C.TABLE_NAME
@@ -374,6 +380,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 constraintName: $row[1],
                 isClustered: true,
                 columnName: $row[2],
+                indexName: $row[3],
             );
         }
     }
@@ -407,7 +414,8 @@ final readonly class OracleMetadataProvider implements MetadataProvider
             <<<'SQL'
             SELECT C.TABLE_NAME,
                    C.CONSTRAINT_NAME,
-                   CC.COLUMN_NAME
+                   CC.COLUMN_NAME,
+                   C.INDEX_NAME
             FROM USER_CONSTRAINTS C
                      JOIN USER_CONS_COLUMNS CC
                           ON CC.TABLE_NAME = C.TABLE_NAME
@@ -429,6 +437,8 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 name: $row[1],
                 columnName: $row[2],
                 isClustered: false,
+                isDerived: false,
+                indexName: $row[3],
             );
         }
     }

@@ -28,6 +28,7 @@ final readonly class IndexColumnMetadataRow
         private ?string $predicate,
         private string $columnName,
         private ?int $columnLength,
+        private bool $isDerived,
     ) {
     }
 
@@ -75,5 +76,10 @@ final readonly class IndexColumnMetadataRow
     public function getColumnLength(): ?int
     {
         return $this->columnLength;
+    }
+
+    public function isDerived(): bool
+    {
+        return $this->isDerived;
     }
 }

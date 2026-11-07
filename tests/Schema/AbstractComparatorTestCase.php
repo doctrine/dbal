@@ -8,9 +8,11 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\IndexRename;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -22,6 +24,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Types\Types;
 use Override;
@@ -265,6 +268,45 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertCount(1, $tableDiff->getChangedColumns());
     }
 
+    public function testDerivedIndexIsNotDiffed(): void
+    {
+        $declared = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
+
+        $withDerivedIndex = $declared->edit()
+            ->setUniqueConstraints(
+                $declared->getUniqueConstraint('users_email_uq')
+                    ->edit()
+                    ->setDerivedIndex(
+                        Index::editor()
+                            ->setUnquotedName('users_email_uq')
+                            ->setType(IndexType::UNIQUE)
+                            ->setUnquotedColumnNames('email')
+                            ->setIsDerived(true)
+                            ->create(),
+                    )
+                    ->create(),
+            )
+            ->create();
+
+        self::assertTrue($this->comparator->compareTables($withDerivedIndex, $declared)->isEmpty());
+        self::assertTrue($this->comparator->compareTables($declared, $withDerivedIndex)->isEmpty());
+    }
+
     public function testCompareSequences(): void
     {
         $sequence1 = Sequence::editor()
@@ -349,6 +391,166 @@ abstract class AbstractComparatorTestCase extends TestCase
         $tableDiff = $this->comparator->compareTables($table1, $table2);
 
         self::assertCount(1, $tableDiff->getAddedForeignKeys());
+    }
+
+    public function testTableAddUniqueConstraint(): void
+    {
+        $table1 = $this->tableWithUserId();
+
+        $table2 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns($this->userIdColumn())
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uq_foo_user_id')
+                    ->setUnquotedColumnNames('user_id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
+
+        self::assertCount(1, $tableDiff->getAddedUniqueConstraints());
+        self::assertCount(0, $tableDiff->getDroppedUniqueConstraintNames());
+    }
+
+    public function testTableDropUniqueConstraint(): void
+    {
+        $table1 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns($this->userIdColumn())
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uq_foo_user_id')
+                    ->setUnquotedColumnNames('user_id')
+                    ->create(),
+            )
+            ->create();
+
+        $table2 = $this->tableWithUserId();
+
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
+
+        self::assertCount(1, $tableDiff->getDroppedUniqueConstraintNames());
+        self::assertCount(0, $tableDiff->getAddedUniqueConstraints());
+    }
+
+    public function testTableUpdateUniqueConstraint(): void
+    {
+        $columns = [
+            $this->userIdColumn(),
+            Column::editor()
+                ->setUnquotedName('account_id')
+                ->setTypeName(Types::INTEGER)
+                ->create(),
+        ];
+
+        $table1 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(...$columns)
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uq_foo')
+                    ->setUnquotedColumnNames('user_id')
+                    ->create(),
+            )
+            ->create();
+
+        $table2 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(...$columns)
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uq_foo')
+                    ->setUnquotedColumnNames('user_id', 'account_id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
+
+        self::assertCount(1, $tableDiff->getDroppedUniqueConstraintNames());
+        self::assertCount(1, $tableDiff->getAddedUniqueConstraints());
+    }
+
+    public function testUnchangedUniqueConstraint(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns($this->userIdColumn())
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uq_foo_user_id')
+                    ->setUnquotedColumnNames('user_id')
+                    ->create(),
+            )
+            ->create();
+
+        self::assertTrue($this->comparator->compareTables($table, $table)->isEmpty());
+    }
+
+    public function testDropUnnamedUniqueConstraint(): void
+    {
+        $table1 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns($this->userIdColumn())
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('user_id')
+                    ->create(),
+            )
+            ->create();
+
+        $table2 = $this->tableWithUserId();
+
+        $this->expectException(UnspecifiedConstraintName::class);
+
+        $this->comparator->compareTables($table1, $table2);
+    }
+
+    public function testNamedUniqueConstraintIsMatchedFirst(): void
+    {
+        $named = UniqueConstraint::editor()
+            ->setUnquotedName('uq_foo_user_id')
+            ->setUnquotedColumnNames('user_id')
+            ->create();
+
+        $unnamed = UniqueConstraint::editor()
+            ->setUnquotedColumnNames('user_id')
+            ->create();
+
+        $table1 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns($this->userIdColumn())
+            ->setUniqueConstraints($named)
+            ->create();
+
+        $table2 = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns($this->userIdColumn())
+            ->setUniqueConstraints($unnamed, $named)
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
+
+        self::assertSame([$unnamed], $tableDiff->getAddedUniqueConstraints());
+        self::assertSame([], $tableDiff->getDroppedUniqueConstraintNames());
+    }
+
+    private function tableWithUserId(): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns($this->userIdColumn())
+            ->create();
+    }
+
+    private function userIdColumn(): Column
+    {
+        return Column::editor()
+            ->setUnquotedName('user_id')
+            ->setTypeName(Types::INTEGER)
+            ->create();
     }
 
     public function testTableUpdateForeignKey(): void

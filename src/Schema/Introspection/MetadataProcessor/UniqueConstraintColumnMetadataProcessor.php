@@ -18,7 +18,8 @@ final readonly class UniqueConstraintColumnMetadataProcessor
     public function initializeEditor(UniqueConstraintColumnMetadataRow $row): UniqueConstraintEditor
     {
         $editor = UniqueConstraint::editor()
-            ->setIsClustered($row->isClustered());
+            ->setIsClustered($row->isClustered())
+            ->setIsDerived($row->isDerived());
 
         $name = $row->getName();
         if ($name !== null) {

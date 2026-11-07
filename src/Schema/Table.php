@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Collections\OptionallyUnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Collections\ReadableObjectSet;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
-use Doctrine\DBAL\Schema\Collections\UnqualifiedNameSet;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
@@ -37,13 +36,14 @@ final readonly class Table implements NamedObject
     /** @var ReadableObjectSet<Index> */
     private ReadableObjectSet $indexes;
 
-    /**
-     * The names of the indexes that were implicitly created as backing for foreign key constraints.
-     */
-    private UnqualifiedNameSet $implicitIndexNames;
-
     /** @var ReadableObjectSet<UniqueConstraint> */
     private ReadableObjectSet $uniqueConstraints;
+
+    /** @var ReadableObjectSet<Index> The declared indexes and the ones the constraints hold. */
+    private ReadableObjectSet $allIndexes;
+
+    /** @var ReadableObjectSet<UniqueConstraint> The declared unique constraints and the ones the indexes hold. */
+    private ReadableObjectSet $allUniqueConstraints;
 
     /** @var ReadableObjectSet<ForeignKeyConstraint> */
     private ReadableObjectSet $foreignKeyConstraints;
@@ -57,7 +57,6 @@ final readonly class Table implements NamedObject
      *
      * @param non-empty-list<Column>     $columns
      * @param list<Index>                $indexes
-     * @param list<UnqualifiedName>      $implicitIndexNames
      * @param list<UniqueConstraint>     $uniqueConstraints
      * @param list<ForeignKeyConstraint> $foreignKeyConstraints
      * @param array<string, mixed>       $options
@@ -67,7 +66,6 @@ final readonly class Table implements NamedObject
         private OptionallyQualifiedName $name,
         array $columns,
         array $indexes,
-        array $implicitIndexNames,
         array $uniqueConstraints,
         array $foreignKeyConstraints,
         array $options,
@@ -79,11 +77,25 @@ final readonly class Table implements NamedObject
             throw InvalidTableDefinition::columnsNotSet($name);
         }
 
+        foreach ($indexes as $index) {
+            if ($index->isDerived()) {
+                throw InvalidTableDefinition::derivedObjectDeclared($name, $index->getObjectName());
+            }
+        }
+
+        foreach ($uniqueConstraints as $uniqueConstraint) {
+            if ($uniqueConstraint->isDerived()) {
+                throw InvalidTableDefinition::derivedObjectDeclared($name, $uniqueConstraint->getObjectName());
+            }
+        }
+
         $this->columns               = new UnqualifiedNamedObjectSet(...$columns);
         $this->indexes               = new UnqualifiedNamedObjectSet(...$indexes);
-        $this->implicitIndexNames    = new UnqualifiedNameSet(...$implicitIndexNames);
         $this->uniqueConstraints     = new OptionallyUnqualifiedNamedObjectSet(...$uniqueConstraints);
         $this->foreignKeyConstraints = new OptionallyUnqualifiedNamedObjectSet(...$foreignKeyConstraints);
+
+        $this->allIndexes           = $this->combineIndexes();
+        $this->allUniqueConstraints = $this->combineUniqueConstraints();
 
         foreach ($indexes as $index) {
             $this->ensureColumnsExist(...array_map(
@@ -175,7 +187,7 @@ final readonly class Table implements NamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        return $this->uniqueConstraints->get($parsedName) !== null;
+        return $this->allUniqueConstraints->get($parsedName) !== null;
     }
 
     /**
@@ -185,7 +197,7 @@ final readonly class Table implements NamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        $uniqueConstraint = $this->uniqueConstraints->get($parsedName);
+        $uniqueConstraint = $this->allUniqueConstraints->get($parsedName);
 
         if ($uniqueConstraint === null) {
             throw UniqueConstraintDoesNotExist::new($this->name, $parsedName);
@@ -243,7 +255,7 @@ final readonly class Table implements NamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        return $this->indexes->get($parsedName) !== null;
+        return $this->allIndexes->get($parsedName) !== null;
     }
 
     /**
@@ -253,7 +265,7 @@ final readonly class Table implements NamedObject
     {
         $parsedName = $this->parseUnqualifiedName($name);
 
-        $index = $this->indexes->get($parsedName);
+        $index = $this->allIndexes->get($parsedName);
 
         if ($index === null) {
             throw IndexDoesNotExist::new($this->name, $parsedName);
@@ -265,7 +277,7 @@ final readonly class Table implements NamedObject
     /** @return list<Index> */
     public function getIndexes(): array
     {
-        return $this->indexes->toList();
+        return $this->allIndexes->toList();
     }
 
     /**
@@ -275,7 +287,7 @@ final readonly class Table implements NamedObject
      */
     public function getUniqueConstraints(): array
     {
-        return $this->uniqueConstraints->toList();
+        return $this->allUniqueConstraints->toList();
     }
 
     /**
@@ -310,6 +322,52 @@ final readonly class Table implements NamedObject
     }
 
     /**
+     * Combines the declared indexes with the ones held by the primary key and the unique constraints.
+     *
+     * @return UnqualifiedNamedObjectSet<Index>
+     */
+    private function combineIndexes(): UnqualifiedNamedObjectSet
+    {
+        $indexes = $this->indexes->toList();
+
+        $derivedIndex = $this->primaryKeyConstraint?->getDerivedIndex();
+
+        if ($derivedIndex !== null) {
+            $indexes[] = $derivedIndex;
+        }
+
+        foreach ($this->uniqueConstraints as $uniqueConstraint) {
+            $derivedIndex = $uniqueConstraint->getDerivedIndex();
+
+            if ($derivedIndex !== null) {
+                $indexes[] = $derivedIndex;
+            }
+        }
+
+        return new UnqualifiedNamedObjectSet(...$indexes);
+    }
+
+    /**
+     * Combines the declared unique constraints with the ones held by the indexes.
+     *
+     * @return OptionallyUnqualifiedNamedObjectSet<UniqueConstraint>
+     */
+    private function combineUniqueConstraints(): OptionallyUnqualifiedNamedObjectSet
+    {
+        $uniqueConstraints = $this->uniqueConstraints->toList();
+
+        foreach ($this->indexes as $index) {
+            $derivedUniqueConstraint = $index->getDerivedUniqueConstraint();
+
+            if ($derivedUniqueConstraint !== null) {
+                $uniqueConstraints[] = $derivedUniqueConstraint;
+            }
+        }
+
+        return new OptionallyUnqualifiedNamedObjectSet(...$uniqueConstraints);
+    }
+
+    /**
      * Instantiates a new table editor.
      */
     public static function editor(): TableEditor
@@ -322,18 +380,10 @@ final readonly class Table implements NamedObject
      */
     public function edit(): TableEditor
     {
-        $explicitIndexes = [];
-
-        foreach ($this->indexes as $index) {
-            if (! $this->implicitIndexNames->contains($index->getObjectName())) {
-                $explicitIndexes[] = $index;
-            }
-        }
-
         $editor = self::editor()
             ->setName($this->getObjectName())
             ->setColumns(...$this->columns->toList())
-            ->setIndexes(...$explicitIndexes)
+            ->setIndexes(...$this->indexes->toList())
             ->setPrimaryKeyConstraint($this->primaryKeyConstraint)
             ->setUniqueConstraints(...$this->uniqueConstraints->toList())
             ->setForeignKeyConstraints(...$this->foreignKeyConstraints->toList());
