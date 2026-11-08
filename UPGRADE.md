@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: `$isClustered` is required in the `UniqueConstraintColumnMetadataRow` constructor
+
+The `$isClustered` parameter of the `Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow` constructor is
+now required.
+
 ## BC BREAK: Removed support for Oracle 18c (12.2.0.2) and older
 
 Oracle 18c (12.2.0.2) and older are not supported anymore.
