@@ -199,19 +199,19 @@ abstract class FunctionalTestCase extends TestCase
         OptionallyQualifiedName $actual,
     ): void {
         self::assertEquals(
-            $this->toQuotedOptionallyQualifiedName($expected),
-            $this->toQuotedOptionallyQualifiedName($actual),
+            $this->toComparableOptionallyQualifiedName($expected),
+            $this->toComparableOptionallyQualifiedName($actual),
         );
     }
 
     /** @throws Exception */
-    protected function toQuotedOptionallyQualifiedName(OptionallyQualifiedName $name): OptionallyQualifiedName
+    protected function toComparableOptionallyQualifiedName(OptionallyQualifiedName $name): OptionallyQualifiedName
     {
         return new OptionallyQualifiedName(
-            $this->toQuotedIdentifier($name->getUnqualifiedName()),
+            $this->toComparableIdentifier($name->getUnqualifiedName()),
             $name->getQualifier() === null
                 ? null
-                : $this->toQuotedIdentifier($name->getQualifier()),
+                : $this->toComparableIdentifier($name->getQualifier()),
         );
     }
 
@@ -221,16 +221,16 @@ abstract class FunctionalTestCase extends TestCase
         UnqualifiedName $actual,
     ): void {
         self::assertEquals(
-            $this->toQuotedUnqualifiedName($expected),
-            $this->toQuotedUnqualifiedName($actual),
+            $this->toComparableUnqualifiedName($expected),
+            $this->toComparableUnqualifiedName($actual),
         );
     }
 
     /** @throws Exception */
-    protected function toQuotedUnqualifiedName(UnqualifiedName $name): UnqualifiedName
+    protected function toComparableUnqualifiedName(UnqualifiedName $name): UnqualifiedName
     {
         return new UnqualifiedName(
-            $this->toQuotedIdentifier($name->getIdentifier()),
+            $this->toComparableIdentifier($name->getIdentifier()),
         );
     }
 
@@ -243,8 +243,8 @@ abstract class FunctionalTestCase extends TestCase
     protected function assertUnqualifiedNameListEquals(array $expected, array $actual): void
     {
         self::assertEquals(
-            $this->toQuotedUnqualifiedNameList($expected),
-            $this->toQuotedUnqualifiedNameList($actual),
+            $this->toComparableUnqualifiedNameList($expected),
+            $this->toComparableUnqualifiedNameList($actual),
         );
     }
 
@@ -369,19 +369,19 @@ abstract class FunctionalTestCase extends TestCase
      *
      * @throws Exception
      */
-    protected function toQuotedUnqualifiedNameList(array $names): array
+    protected function toComparableUnqualifiedNameList(array $names): array
     {
         return array_map(
-            fn (UnqualifiedName $name): UnqualifiedName => $this->toQuotedUnqualifiedName($name),
+            fn (UnqualifiedName $name): UnqualifiedName => $this->toComparableUnqualifiedName($name),
             $names,
         );
     }
 
     /** @throws Exception */
-    protected function toQuotedColumn(Column $column): Column
+    protected function toComparableColumn(Column $column): Column
     {
         return $column->edit()
-            ->setName($this->toQuotedUnqualifiedName($column->getObjectName()))
+            ->setName($this->toComparableUnqualifiedName($column->getObjectName()))
             ->create();
     }
 
@@ -412,10 +412,10 @@ abstract class FunctionalTestCase extends TestCase
      *
      * @throws Exception
      */
-    protected function toQuotedColumnList(array $columns): array
+    protected function toComparableColumnList(array $columns): array
     {
         return array_map(
-            fn (Column $column): Column => $this->toQuotedColumn($column),
+            fn (Column $column): Column => $this->toComparableColumn($column),
             $columns,
         );
     }
@@ -426,16 +426,16 @@ abstract class FunctionalTestCase extends TestCase
         IndexedColumn $actual,
     ): void {
         self::assertEquals(
-            $this->toQuotedIndexedColumn($expected),
-            $this->toQuotedIndexedColumn($actual),
+            $this->toComparableIndexedColumn($expected),
+            $this->toComparableIndexedColumn($actual),
         );
     }
 
     /** @throws Exception */
-    protected function toQuotedIndexedColumn(IndexedColumn $column): IndexedColumn
+    protected function toComparableIndexedColumn(IndexedColumn $column): IndexedColumn
     {
         return new IndexedColumn(
-            $this->toQuotedUnqualifiedName($column->getColumnName()),
+            $this->toComparableUnqualifiedName($column->getColumnName()),
             $column->getLength(),
         );
     }
@@ -449,8 +449,8 @@ abstract class FunctionalTestCase extends TestCase
     protected function assertIndexedColumnListEquals(array $expected, array $actual): void
     {
         self::assertEquals(
-            $this->toQuotedIndexedColumnList($expected),
-            $this->toQuotedIndexedColumnList($actual),
+            $this->toComparableIndexedColumnList($expected),
+            $this->toComparableIndexedColumnList($actual),
         );
     }
 
@@ -461,10 +461,10 @@ abstract class FunctionalTestCase extends TestCase
      *
      * @throws Exception
      */
-    protected function toQuotedIndexedColumnList(array $indexedColumns): array
+    protected function toComparableIndexedColumnList(array $indexedColumns): array
     {
         return array_map(
-            fn (IndexedColumn $indexedColumn): IndexedColumn => $this->toQuotedIndexedColumn($indexedColumn),
+            fn (IndexedColumn $indexedColumn): IndexedColumn => $this->toComparableIndexedColumn($indexedColumn),
             $indexedColumns,
         );
     }
@@ -472,15 +472,15 @@ abstract class FunctionalTestCase extends TestCase
     /** @throws Exception */
     protected function assertIndexEquals(Index $expected, Index $actual): void
     {
-        self::assertEquals($this->toQuotedIndex($expected), $this->toQuotedIndex($actual));
+        self::assertEquals($this->toComparableIndex($expected), $this->toComparableIndex($actual));
     }
 
     /** @throws Exception */
-    protected function toQuotedIndex(Index $index): Index
+    protected function toComparableIndex(Index $index): Index
     {
         return $index->edit()
-            ->setName($this->toQuotedUnqualifiedName($index->getObjectName()))
-            ->setColumns(...$this->toQuotedIndexedColumnList($index->getIndexedColumns()))
+            ->setName($this->toComparableUnqualifiedName($index->getObjectName()))
+            ->setColumns(...$this->toComparableIndexedColumnList($index->getIndexedColumns()))
             ->create();
     }
 
@@ -492,8 +492,8 @@ abstract class FunctionalTestCase extends TestCase
      */
     protected function assertIndexListEquals(array $expected, array $actual): void
     {
-        $quotedExpected = $this->toQuotedIndexList(array_values($expected));
-        $quotedActual   = $this->toQuotedIndexList(array_values($actual));
+        $comparableExpected = $this->toComparableIndexList(array_values($expected));
+        $comparableActual   = $this->toComparableIndexList(array_values($actual));
 
         $folding = $this->connection->getDatabasePlatform()
             ->getUnquotedIdentifierFolding();
@@ -505,10 +505,10 @@ abstract class FunctionalTestCase extends TestCase
                 <=> $b->getObjectName()->getIdentifier()->toNormalizedValue($folding);
         };
 
-        usort($quotedExpected, $comparator);
-        usort($quotedActual, $comparator);
+        usort($comparableExpected, $comparator);
+        usort($comparableActual, $comparator);
 
-        self::assertEquals($quotedExpected, $quotedActual);
+        self::assertEquals($comparableExpected, $comparableActual);
     }
 
     /**
@@ -518,10 +518,10 @@ abstract class FunctionalTestCase extends TestCase
      *
      * @throws Exception
      */
-    protected function toQuotedIndexList(array $indexes): array
+    protected function toComparableIndexList(array $indexes): array
     {
         return array_map(
-            fn (Index $index): Index => $this->toQuotedIndex($index),
+            fn (Index $index): Index => $this->toComparableIndex($index),
             $indexes,
         );
     }
@@ -544,23 +544,23 @@ abstract class FunctionalTestCase extends TestCase
         }
 
         self::assertEquals(
-            $this->toQuotedPrimaryKeyConstraint($expected),
-            $this->toQuotedPrimaryKeyConstraint($actual),
+            $this->toComparablePrimaryKeyConstraint($expected),
+            $this->toComparablePrimaryKeyConstraint($actual),
         );
     }
 
     /** @throws Exception */
-    protected function toQuotedPrimaryKeyConstraint(PrimaryKeyConstraint $constraint): PrimaryKeyConstraint
+    protected function toComparablePrimaryKeyConstraint(PrimaryKeyConstraint $constraint): PrimaryKeyConstraint
     {
         $name = $constraint->getObjectName();
 
         if ($name !== null) {
-            $name = $this->toQuotedUnqualifiedName($name);
+            $name = $this->toComparableUnqualifiedName($name);
         }
 
         return $constraint->edit()
             ->setName($name)
-            ->setColumnNames(...$this->toQuotedUnqualifiedNameList($constraint->getColumnNames()))
+            ->setColumnNames(...$this->toComparableUnqualifiedNameList($constraint->getColumnNames()))
             ->create();
     }
 
@@ -570,25 +570,29 @@ abstract class FunctionalTestCase extends TestCase
         ForeignKeyConstraint $actual,
     ): void {
         self::assertEquals(
-            $this->toQuotedForeignKeyConstraint($expected),
-            $this->toQuotedForeignKeyConstraint($actual),
+            $this->toComparableForeignKeyConstraint($expected),
+            $this->toComparableForeignKeyConstraint($actual),
         );
     }
 
     /** @throws Exception */
-    protected function toQuotedForeignKeyConstraint(ForeignKeyConstraint $constraint): ForeignKeyConstraint
+    protected function toComparableForeignKeyConstraint(ForeignKeyConstraint $constraint): ForeignKeyConstraint
     {
         $name = $constraint->getObjectName();
 
         if ($name !== null) {
-            $name = $this->toQuotedUnqualifiedName($name);
+            $name = $this->toComparableUnqualifiedName($name);
         }
 
         return $constraint->edit()
             ->setName($name)
-            ->setReferencingColumnNames(...$this->toQuotedUnqualifiedNameList($constraint->getReferencingColumnNames()))
-            ->setReferencedTableName($this->toQuotedOptionallyQualifiedName($constraint->getReferencedTableName()))
-            ->setReferencedColumnNames(...$this->toQuotedUnqualifiedNameList($constraint->getReferencedColumnNames()))
+            ->setReferencingColumnNames(
+                ...$this->toComparableUnqualifiedNameList($constraint->getReferencingColumnNames()),
+            )
+            ->setReferencedTableName($this->toComparableOptionallyQualifiedName($constraint->getReferencedTableName()))
+            ->setReferencedColumnNames(
+                ...$this->toComparableUnqualifiedNameList($constraint->getReferencedColumnNames()),
+            )
             ->create();
     }
 
@@ -601,8 +605,8 @@ abstract class FunctionalTestCase extends TestCase
     protected function assertForeignKeyConstraintListEquals(array $expected, array $actual): void
     {
         self::assertEquals(
-            $this->toQuotedForeignKeyConstraintList($expected),
-            $this->toQuotedForeignKeyConstraintList($actual),
+            $this->toComparableForeignKeyConstraintList($expected),
+            $this->toComparableForeignKeyConstraintList($actual),
         );
     }
 
@@ -613,10 +617,10 @@ abstract class FunctionalTestCase extends TestCase
      *
      * @throws Exception
      */
-    protected function toQuotedForeignKeyConstraintList(array $constraints): array
+    protected function toComparableForeignKeyConstraintList(array $constraints): array
     {
         return array_map(
-            fn (ForeignKeyConstraint $constraint): ForeignKeyConstraint => $this->toQuotedForeignKeyConstraint(
+            fn (ForeignKeyConstraint $constraint): ForeignKeyConstraint => $this->toComparableForeignKeyConstraint(
                 $constraint,
             ),
             $constraints,
@@ -639,23 +643,23 @@ abstract class FunctionalTestCase extends TestCase
         }
 
         self::assertEquals(
-            $this->toQuotedUniqueConstraint($expected),
-            $this->toQuotedUniqueConstraint($actual),
+            $this->toComparableUniqueConstraint($expected),
+            $this->toComparableUniqueConstraint($actual),
         );
     }
 
     /** @throws Exception */
-    protected function toQuotedUniqueConstraint(UniqueConstraint $constraint): UniqueConstraint
+    protected function toComparableUniqueConstraint(UniqueConstraint $constraint): UniqueConstraint
     {
         $name = $constraint->getObjectName();
 
         if ($name !== null) {
-            $name = $this->toQuotedUnqualifiedName($name);
+            $name = $this->toComparableUnqualifiedName($name);
         }
 
         return $constraint->edit()
             ->setName($name)
-            ->setColumnNames(...$this->toQuotedUnqualifiedNameList($constraint->getColumnNames()))
+            ->setColumnNames(...$this->toComparableUnqualifiedNameList($constraint->getColumnNames()))
             ->create();
     }
 
@@ -668,8 +672,8 @@ abstract class FunctionalTestCase extends TestCase
     protected function assertUniqueConstraintListEquals(array $expected, array $actual): void
     {
         self::assertEquals(
-            $this->toQuotedUniqueConstraintList($expected),
-            $this->toQuotedUniqueConstraintList($actual),
+            $this->toComparableUniqueConstraintList($expected),
+            $this->toComparableUniqueConstraintList($actual),
         );
     }
 
@@ -680,16 +684,16 @@ abstract class FunctionalTestCase extends TestCase
      *
      * @throws Exception
      */
-    protected function toQuotedUniqueConstraintList(array $constraints): array
+    protected function toComparableUniqueConstraintList(array $constraints): array
     {
         return array_map(
-            fn (UniqueConstraint $constraint): UniqueConstraint => $this->toQuotedUniqueConstraint($constraint),
+            fn (UniqueConstraint $constraint): UniqueConstraint => $this->toComparableUniqueConstraint($constraint),
             $constraints,
         );
     }
 
     /** @throws Exception */
-    protected function toQuotedIdentifier(Identifier $identifier): Identifier
+    protected function toComparableIdentifier(Identifier $identifier): Identifier
     {
         if ($identifier->isQuoted()) {
             return $identifier;
