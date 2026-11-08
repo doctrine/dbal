@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
@@ -336,6 +337,115 @@ class IndexTest extends TestCase
 
         $this->expectException(InvalidState::class);
         $index->getPredicate();
+    }
+
+    #[TestWith(['hash'])]
+    #[TestWith(['custom'])]
+    #[TestWith([null])]
+    public function testGetMethod(?string $method): void
+    {
+        $index = new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
+
+        self::assertSame($method, $index->getMethod());
+    }
+
+    #[TestWith(['', 'Index method must be a non-empty string, empty string given.'])]
+    #[TestWith([42, 'Index method must be a non-empty string, int given.'])]
+    public function testInvalidMethod(mixed $method, string $message): void
+    {
+        $this->expectException(InvalidIndexDefinition::class);
+        $this->expectExceptionMessage($message);
+
+        new Index('idx_user_name', ['user_id'], false, false, [], ['method' => $method]);
+    }
+
+    public function testMethodsAreComparedCaseInsensitively(): void
+    {
+        $lower = new Index('idx_lower', ['data'], false, false, [], ['method' => 'hash']);
+        $upper = new Index('idx_upper', ['data'], false, false, [], ['method' => 'HASH']);
+
+        self::assertTrue($lower->isFulfilledBy($upper));
+        self::assertTrue($upper->isFulfilledBy($lower));
+    }
+
+    public function testParseColumnOptions(): void
+    {
+        $index = new Index('idx_data', ['id', 'data'], false, false, [], [
+            'column_options' => [[], ['option' => 'value']],
+        ]);
+
+        self::assertEquals([
+            new IndexedColumn(UnqualifiedName::unquoted('id'), null),
+            new IndexedColumn(UnqualifiedName::unquoted('data'), null, ['option' => 'value']),
+        ], $index->getIndexedColumns());
+    }
+
+    #[TestWith(['value'])]
+    #[TestWith([['option' => 'value']])]
+    #[TestWith([['value']])]
+    #[TestWith([[['value']]])]
+    public function testInvalidColumnOptions(mixed $columnOptions): void
+    {
+        $this->expectException(InvalidIndexDefinition::class);
+        $this->expectExceptionMessage('Indexed column options must be a list of string-keyed arrays.');
+
+        new Index('idx_data', ['data'], false, false, [], ['column_options' => $columnOptions]);
+    }
+
+    public function testFulfilledWithColumnOptions(): void
+    {
+        $plain  = new Index('idx_plain', ['data']);
+        $empty  = new Index('idx_empty', ['data'], false, false, [], ['column_options' => [[]]]);
+        $option = new Index('idx_option', ['data'], false, false, [], [
+            'column_options' => [['option' => 'value']],
+        ]);
+        $other  = new Index('idx_other', ['data'], false, false, [], [
+            'column_options' => [['option' => 'other_value']],
+        ]);
+
+        self::assertTrue($plain->isFulfilledBy($empty));
+        self::assertTrue($empty->isFulfilledBy($plain));
+        self::assertFalse($plain->isFulfilledBy($option));
+        self::assertFalse($option->isFulfilledBy($plain));
+        self::assertFalse($option->isFulfilledBy($other));
+        self::assertFalse($plain->isFulfilledBy(
+            new Index('idx_unique', ['data'], true, false, [], ['column_options' => [['option' => 'other_value']]]),
+        ));
+        self::assertTrue($option->isFulfilledBy(
+            new Index('idx_option_2', ['data'], false, false, [], [
+                'column_options' => [['option' => 'value']],
+            ]),
+        ));
+    }
+
+    public function testColumnOptionsAreComparedRegardlessOfTheirOrder(): void
+    {
+        $index1 = new Index('idx_1', ['data'], false, false, [], [
+            'column_options' => [['option' => 'value', 'foo' => 'bar']],
+        ]);
+        $index2 = new Index('idx_2', ['data'], false, false, [], [
+            'column_options' => [['foo' => 'bar', 'option' => 'value']],
+        ]);
+
+        self::assertTrue($index1->isFulfilledBy($index2));
+        self::assertTrue($index2->isFulfilledBy($index1));
+    }
+
+    public function testNotFulfilledByIndexWithDifferentMethod(): void
+    {
+        $regular = new Index('idx_regular', ['data']);
+        $custom  = new Index('idx_custom', ['data'], false, false, [], ['method' => 'custom']);
+        $hash    = new Index('idx_hash', ['data'], false, false, [], ['method' => 'hash']);
+        $unique  = new Index('idx_unique', ['data'], true);
+
+        self::assertFalse($custom->isFulfilledBy($hash));
+
+        self::assertFalse($regular->isFulfilledBy($custom));
+        self::assertFalse($custom->isFulfilledBy($regular));
+        self::assertFalse($custom->isFulfilledBy($unique));
+        self::assertTrue($custom->isFulfilledBy(
+            new Index('idx_custom_2', ['data'], false, false, [], ['method' => 'custom']),
+        ));
     }
 
     #[TestWith(['fulltext'])]

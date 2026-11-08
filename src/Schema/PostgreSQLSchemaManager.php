@@ -183,6 +183,8 @@ SQL,
                     'primary' => (bool) $row['indisprimary'],
                     'where' => $row['where'],
                     'column_name' => $row['attname'],
+                    'method' => $row['amname'],
+                    'column_options' => $row['opclass'] !== null ? ['opclass' => $row['opclass']] : [],
                 ];
             },
             $rows,
@@ -441,16 +443,27 @@ SQL;
                    i.indkey,
                    i.indrelid,
                    pg_get_expr(indpred, indrelid) AS "where",
-                   quote_ident(attname) AS attname
+                   quote_ident(attname) AS attname,
+                   NULLIF(am.amname, 'btree') AS amname,
+                   CASE
+                       WHEN opc.oid IS NULL OR opc.opcdefault THEN NULL
+                       WHEN pg_opclass_is_visible(opc.oid) THEN quote_ident(opc.opcname)
+                       ELSE quote_ident(opcn.nspname) || '.' || quote_ident(opc.opcname)
+                   END AS opclass
               FROM pg_index i
                    JOIN pg_class AS c ON c.oid = i.indrelid
                    JOIN pg_namespace n ON n.oid = c.relnamespace
                    JOIN pg_class AS ic ON ic.oid = i.indexrelid
+                   JOIN pg_am AS am ON am.oid = ic.relam
                    JOIN LATERAL UNNEST(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                         ON TRUE
                    JOIN pg_attribute a
                         ON a.attrelid = c.oid
                             AND a.attnum = keys.attnum
+                   LEFT JOIN pg_opclass opc
+                        ON opc.oid = i.indclass[keys.ord::int - 1]
+                   LEFT JOIN pg_namespace opcn
+                        ON opcn.oid = opc.opcnamespace
              WHERE %s
              ORDER BY 1, 2, keys.ord;
             SQL,

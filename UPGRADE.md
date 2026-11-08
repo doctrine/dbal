@@ -13,6 +13,24 @@ awareness about deprecated code.
 Not passing `$isClustered` to the `Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow` constructor is
 deprecated. Pass whether the unique constraint is clustered. The argument will become required in DBAL 5.0.
 
+## Schema comparison takes the index method and indexed column options into account
+
+Indexes are now compared by their method and by the options of their columns in addition to their columns, type and
+predicate. On the platforms that support them (currently PostgreSQL), the method of an index and the options of its
+columns are now introspected as well, unless they are the defaults of the platform.
+
+If your schema declares such an index without its method or column options (e.g. because the index has been created
+by a raw SQL migration), the schema comparison will now detect a difference and generate SQL that drops the index and
+recreates it without them. To prevent that, declare them explicitly:
+
+```php
+Index::editor()
+    ->setUnquotedName('idx_name')
+    ->addUnquotedColumnName('name', options: ['option' => 'value'])
+    ->setMethod('hash')
+    ->create();
+```
+
 ## Deprecated support for MariaDB 10.6 - 10.10 and MySQL 8.0 - 8.3
 
 * Upgrade to MariaDB 10.11 or later.
