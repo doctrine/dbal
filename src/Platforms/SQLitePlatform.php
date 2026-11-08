@@ -589,7 +589,8 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
+        $query .= $this->getIndexMethodSQL($index);
+        $query .= ' (' . $this->getIndexedColumnListSQL($index) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
     }

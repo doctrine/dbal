@@ -27,6 +27,9 @@ final class IndexEditor
     /** @var ?non-empty-string */
     private ?string $predicate = null;
 
+    /** @var ?non-empty-string */
+    private ?string $method = null;
+
     /** @internal Use {@link Index::editor()} or {@link Index::edit()} to create an instance */
     public function __construct()
     {
@@ -77,21 +80,23 @@ final class IndexEditor
     }
 
     /**
-     * @param non-empty-string $name
-     * @param ?positive-int    $length
+     * @param non-empty-string     $name
+     * @param ?positive-int        $length
+     * @param array<string, mixed> $options Platform-specific options of the indexed column
      */
-    public function addUnquotedColumnName(string $name, ?int $length = null): self
+    public function addUnquotedColumnName(string $name, ?int $length = null, array $options = []): self
     {
-        return $this->addColumn(new IndexedColumn(UnqualifiedName::unquoted($name), $length));
+        return $this->addColumn(new IndexedColumn(UnqualifiedName::unquoted($name), $length, $options));
     }
 
     /**
-     * @param non-empty-string $name
-     * @param ?positive-int    $length
+     * @param non-empty-string     $name
+     * @param ?positive-int        $length
+     * @param array<string, mixed> $options Platform-specific options of the indexed column
      */
-    public function addQuotedColumnName(string $name, ?int $length = null): self
+    public function addQuotedColumnName(string $name, ?int $length = null, array $options = []): self
     {
-        return $this->addColumn(new IndexedColumn(UnqualifiedName::quoted($name), $length));
+        return $this->addColumn(new IndexedColumn(UnqualifiedName::quoted($name), $length, $options));
     }
 
     public function setColumnNames(UnqualifiedName $firstColumnName, UnqualifiedName ...$otherColumnNames): self
@@ -151,6 +156,19 @@ final class IndexEditor
         return $this;
     }
 
+    /**
+     * Sets the index method. The method is passed as is to the platform, which is responsible for validating and
+     * rendering it. A null value means that the platform default method will be used.
+     *
+     * @param ?non-empty-string $method
+     */
+    public function setMethod(?string $method): self
+    {
+        $this->method = $method;
+
+        return $this;
+    }
+
     public function create(): Index
     {
         if ($this->name === null) {
@@ -202,8 +220,9 @@ final class IndexEditor
             throw InvalidIndexDefinition::columnsNotSet($name);
         }
 
-        $columnNames = $lengths = $options = $flags = [];
-        $hasLength   = false;
+        $columnNames      = $lengths = $columnOptions = $options = $flags = [];
+        $hasLength        = false;
+        $hasColumnOptions = false;
 
         foreach ($this->columns as $column) {
             $columnNames[] = $column->getColumnName()->toString();
@@ -214,10 +233,20 @@ final class IndexEditor
             if ($length !== null) {
                 $hasLength = true;
             }
+
+            $columnOptions[] = $column->getOptions();
+
+            if (count($column->getOptions()) > 0) {
+                $hasColumnOptions = true;
+            }
         }
 
         if ($hasLength) {
             $options['lengths'] = $lengths;
+        }
+
+        if ($hasColumnOptions) {
+            $options['column_options'] = $columnOptions;
         }
 
         if ($this->type === IndexType::FULLTEXT) {
@@ -232,6 +261,10 @@ final class IndexEditor
 
         if ($this->predicate !== null) {
             $options['where'] = $this->predicate;
+        }
+
+        if ($this->method !== null) {
+            $options['method'] = $this->method;
         }
 
         return [$columnNames, $flags, $options];

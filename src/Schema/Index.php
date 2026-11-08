@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -15,6 +16,7 @@ use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 use function array_filter;
+use function array_is_list;
 use function array_keys;
 use function array_map;
 use function array_search;
@@ -22,8 +24,11 @@ use function array_shift;
 use function count;
 use function gettype;
 use function implode;
+use function is_array;
 use function is_int;
 use function is_object;
+use function is_string;
+use function ksort;
 use function strlen;
 use function strtolower;
 
@@ -76,6 +81,22 @@ class Index extends AbstractNamedObject
     private ?string $predicate = null;
 
     private bool $failedToParsePredicate = false;
+
+    /**
+     * Index method, which is passed as is to the platform.
+     *
+     * A null value indicates that the platform default method is used.
+     *
+     * @var ?non-empty-string
+     */
+    private ?string $method = null;
+
+    /**
+     * Platform-specific options of the indexed columns, in the order of the columns.
+     *
+     * @var list<array<string, mixed>>
+     */
+    private array $columnOptions = [];
 
     /**
      * @internal Use {@link Index::editor()} to instantiate an editor and {@link IndexEditor::create()} to create an
@@ -134,6 +155,10 @@ class Index extends AbstractNamedObject
             }
         }
 
+        if (isset($options['method'])) {
+            $this->method = $this->parseMethod($options['method']);
+        }
+
         foreach ($flags as $flag) {
             $this->addFlag($flag);
         }
@@ -142,7 +167,16 @@ class Index extends AbstractNamedObject
             $this->type = $this->inferType();
         }
 
-        $this->columns = $this->parseColumns($isPrimary, $columns, $options['lengths'] ?? []);
+        if (isset($options['column_options'])) {
+            $this->columnOptions = $this->parseColumnOptions($options['column_options']);
+        }
+
+        $this->columns = $this->parseColumns(
+            $isPrimary,
+            $columns,
+            $options['lengths'] ?? [],
+            $this->columnOptions,
+        );
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -204,6 +238,28 @@ class Index extends AbstractNamedObject
         return $this->hasOption('where')
             ? $this->getOption('where')
             : null;
+    }
+
+    /**
+     * Returns the index method or null if the platform default method is used.
+     *
+     * @return ?non-empty-string
+     */
+    public function getMethod(): ?string
+    {
+        return $this->method;
+    }
+
+    /**
+     * Returns the platform-specific options of the indexed columns, in the order of the columns.
+     *
+     * @internal Use {@see getIndexedColumns()} and {@see IndexedColumn::getOptions()} instead.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getIndexedColumnOptions(): array
+    {
+        return $this->columnOptions;
     }
 
     protected function _addColumn(string $column): void
@@ -389,6 +445,14 @@ class Index extends AbstractNamedObject
 
         if ($sameColumns) {
             if (! $this->samePartialIndex($other)) {
+                return false;
+            }
+
+            if (! $this->hasSameMethod($other)) {
+                return false;
+            }
+
+            if (! $this->hasSameColumnOptions($other)) {
                 return false;
             }
 
@@ -646,13 +710,56 @@ class Index extends AbstractNamedObject
         return $type;
     }
 
+    /** @return non-empty-string */
+    private function parseMethod(mixed $method): string
+    {
+        if (! is_string($method) || $method === '') {
+            throw InvalidIndexDefinition::fromInvalidMethod($method);
+        }
+
+        return $method;
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function parseColumnOptions(mixed $columnOptions): array
+    {
+        if (! $this->isValidColumnOptions($columnOptions)) {
+            throw InvalidIndexDefinition::fromInvalidColumnOptions();
+        }
+
+        return $columnOptions;
+    }
+
+    /** @phpstan-assert-if-true list<array<string, mixed>> $columnOptions */
+    private function isValidColumnOptions(mixed $columnOptions): bool
+    {
+        if (! is_array($columnOptions) || ! array_is_list($columnOptions)) {
+            return false;
+        }
+
+        foreach ($columnOptions as $options) {
+            if (! is_array($options)) {
+                return false;
+            }
+
+            foreach (array_keys($options) as $key) {
+                if (! is_string($key)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     /**
      * @param non-empty-array<int, string> $columnNames
      * @param array<int>                   $lengths
+     * @param list<array<string, mixed>>   $columnOptions
      *
      * @return list<IndexedColumn>
      */
-    private function parseColumns(bool $isPrimary, array $columnNames, array $lengths): array
+    private function parseColumns(bool $isPrimary, array $columnNames, array $lengths, array $columnOptions): array
     {
         $columns = [];
 
@@ -706,7 +813,7 @@ class Index extends AbstractNamedObject
                 }
             }
 
-            $columns[] = new IndexedColumn($parsedName, $length);
+            $columns[] = new IndexedColumn($parsedName, $length, array_shift($columnOptions) ?? []);
         }
 
         return $columns;
@@ -726,6 +833,41 @@ class Index extends AbstractNamedObject
         }
 
         return ! $this->hasOption('where') && ! $other->hasOption('where');
+    }
+
+    /**
+     * Returns whether the index has the same method as the other. Methods are compared case-insensitively.
+     */
+    private function hasSameMethod(self $other): bool
+    {
+        if ($this->method === null || $other->method === null) {
+            return $this->method === $other->method;
+        }
+
+        return strtolower($this->method) === strtolower($other->method);
+    }
+
+    /**
+     * Returns whether the indexed columns have the same platform-specific options as the ones of the other index.
+     */
+    private function hasSameColumnOptions(self $other): bool
+    {
+        return $this->getNormalizedColumnOptions() === $other->getNormalizedColumnOptions();
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function getNormalizedColumnOptions(): array
+    {
+        $normalized = [];
+
+        for ($position = 0, $count = count($this->_columns); $position < $count; $position++) {
+            $options = $this->columnOptions[$position] ?? [];
+            ksort($options);
+
+            $normalized[] = $options;
+        }
+
+        return $normalized;
     }
 
     /**
@@ -759,6 +901,7 @@ class Index extends AbstractNamedObject
             ->setType($this->getType())
             ->setColumns(...$this->getIndexedColumns())
             ->setIsClustered($this->isClustered())
-            ->setPredicate($this->getPredicate());
+            ->setPredicate($this->getPredicate())
+            ->setMethod($this->getMethod());
     }
 }

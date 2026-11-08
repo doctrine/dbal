@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
@@ -1002,6 +1005,109 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('tsvector'));
         self::assertEquals(Types::TEXT, $this->platform->getDoctrineTypeMapping('tsvector'));
+    }
+
+    public function testGetCreateIndexSQLWithMethod(): void
+    {
+        self::assertSame(
+            'CREATE INDEX idx_name ON test USING hash (name)',
+            $this->platform->getCreateIndexSQL($this->createIndexWithMethod(), 'test'),
+        );
+    }
+
+    public function testGetCreateIndexSQLWithMethodAndPredicate(): void
+    {
+        $index = $this->createIndexWithMethod()
+            ->edit()
+            ->setPredicate('name IS NOT NULL')
+            ->create();
+
+        self::assertSame(
+            'CREATE INDEX idx_name ON test USING hash (name) WHERE name IS NOT NULL',
+            $this->platform->getCreateIndexSQL($index, 'test'),
+        );
+    }
+
+    public function testGetCreateIndexSQLWithExtensionMethod(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('idx_embedding')
+            ->setUnquotedColumnNames('embedding')
+            ->setMethod('hnsw')
+            ->create();
+
+        self::assertSame(
+            'CREATE INDEX idx_embedding ON test USING hnsw (embedding)',
+            $this->platform->getCreateIndexSQL($index, 'test'),
+        );
+    }
+
+    public function testGetCreateTableSQLWithIndexMethod(): void
+    {
+        self::assertSame([
+            'CREATE TABLE test (name TEXT NOT NULL)',
+            'CREATE INDEX idx_name ON test USING hash (name)',
+        ], $this->platform->getCreateTableSQL($this->createTableWithIndexMethod()));
+    }
+
+    public function testGetCreateIndexSQLWithOperatorClass(): void
+    {
+        self::assertSame(
+            'CREATE INDEX idx_name ON test (id, name text_pattern_ops)',
+            $this->platform->getCreateIndexSQL(
+                $this->createIndexWithColumnOptions(['opclass' => 'text_pattern_ops']),
+                'test',
+            ),
+        );
+    }
+
+    public function testGetCreateTableSQLWithOperatorClass(): void
+    {
+        self::assertSame([
+            'CREATE TABLE test (id INT NOT NULL, name TEXT NOT NULL)',
+            'CREATE INDEX idx_name ON test (id, name text_pattern_ops)',
+        ], $this->platform->getCreateTableSQL(
+            $this->createTableWithColumnOptions(['opclass' => 'text_pattern_ops']),
+        ));
+    }
+
+    public function testGetCreateIndexSQLWithMethodAndColumnOptions(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('idx_data')
+            ->addUnquotedColumnName('data', null, ['opclass' => 'jsonb_path_ops'])
+            ->setMethod('gin')
+            ->setPredicate('data IS NOT NULL')
+            ->create();
+
+        self::assertSame(
+            'CREATE INDEX idx_data ON test USING gin (data jsonb_path_ops) WHERE data IS NOT NULL',
+            $this->platform->getCreateIndexSQL($index, 'test'),
+        );
+    }
+
+    public function testGetCreateIndexSQLWithOperatorClassAndUnsupportedColumnOption(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('idx_data')
+            ->addUnquotedColumnName('data', null, ['opclass' => 'jsonb_path_ops', 'unknown' => true])
+            ->create();
+
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateIndexSQL($index, 'test');
+    }
+
+    public function testGetCreateIndexSQLWithInvalidOperatorClass(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('idx_data')
+            ->addUnquotedColumnName('data', null, ['opclass' => 42])
+            ->create();
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->platform->getCreateIndexSQL($index, 'test');
     }
 
     public function testSupportsPartialIndexes(): void

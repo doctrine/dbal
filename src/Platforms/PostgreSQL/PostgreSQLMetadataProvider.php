@@ -373,16 +373,27 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                    ic.relname,
                    i.indisunique,
                    pg_get_expr(indpred, indrelid),
-                   attname
+                   attname,
+                   NULLIF(am.amname, 'btree'),
+                   CASE
+                       WHEN opc.oid IS NULL OR opc.opcdefault THEN NULL
+                       WHEN pg_opclass_is_visible(opc.oid) THEN quote_ident(opc.opcname)
+                       ELSE quote_ident(opcn.nspname) || '.' || quote_ident(opc.opcname)
+                   END
             FROM pg_index i
                      JOIN pg_class AS c ON c.oid = i.indrelid
                      JOIN pg_namespace n ON n.oid = c.relnamespace
                      JOIN pg_class AS ic ON ic.oid = i.indexrelid
+                     JOIN pg_am AS am ON am.oid = ic.relam
                      JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
                           ON TRUE
                      JOIN pg_attribute a
                           ON a.attrelid = c.oid
                               AND a.attnum = keys.attnum
+                     LEFT JOIN pg_opclass opc
+                          ON opc.oid = i.indclass[keys.ord::int - 1]
+                     LEFT JOIN pg_namespace opcn
+                          ON opcn.oid = opc.opcnamespace
             WHERE %s
               AND i.indisprimary = false
             ORDER BY n.nspname,
@@ -403,6 +414,8 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
                 predicate: $row[4],
                 columnName: $row[5],
                 columnLength: null,
+                method: $row[6],
+                columnOptions: $row[7] !== null ? ['opclass' => $row[7]] : [],
             );
         }
     }

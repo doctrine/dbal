@@ -202,6 +202,31 @@ class TableEditorTest extends TestCase
         self::assertEquals(['user_name' => 'username'], $table->getRenamedColumns());
     }
 
+    public function testRenameColumnPreservesIndexedColumnOptions(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('documents')
+            ->setColumns($this->createColumn('data', Types::JSON))
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_data')
+                    ->addUnquotedColumnName('data', null, ['option' => 'value'])
+                    ->setMethod('hash')
+                    ->create(),
+            )
+            ->renameColumnByUnquotedName('data', 'content')
+            ->create();
+
+        self::assertEquals(
+            Index::editor()
+                ->setUnquotedName('idx_data')
+                ->addUnquotedColumnName('content', null, ['option' => 'value'])
+                ->setMethod('hash')
+                ->create(),
+            $table->getIndex('idx_data'),
+        );
+    }
+
     public function testRenameColumnToExistingName(): void
     {
         $editor = Table::editor()

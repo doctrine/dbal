@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -228,6 +229,86 @@ abstract class AbstractPlatformTestCase extends TestCase
     }
 
     abstract public function getGenerateUniqueIndexSql(): string;
+
+    public function testGetCreateIndexSQLWithMethod(): void
+    {
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateIndexSQL($this->createIndexWithMethod(), 'test');
+    }
+
+    public function testGetCreateTableSQLWithIndexMethod(): void
+    {
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateTableSQL($this->createTableWithIndexMethod());
+    }
+
+    protected function createIndexWithMethod(): Index
+    {
+        return Index::editor()
+            ->setUnquotedName('idx_name')
+            ->setUnquotedColumnNames('name')
+            ->setMethod('hash')
+            ->create();
+    }
+
+    protected function createTableWithIndexMethod(): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes($this->createIndexWithMethod())
+            ->create();
+    }
+
+    public function testGetCreateIndexSQLWithUnsupportedColumnOptions(): void
+    {
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateIndexSQL($this->createIndexWithColumnOptions(['option' => 'value']), 'test');
+    }
+
+    public function testGetCreateTableSQLWithUnsupportedColumnOptions(): void
+    {
+        $this->expectException(NotSupported::class);
+
+        $this->platform->getCreateTableSQL($this->createTableWithColumnOptions(['option' => 'value']));
+    }
+
+    /** @param array<string, mixed> $options */
+    protected function createIndexWithColumnOptions(array $options): Index
+    {
+        return Index::editor()
+            ->setUnquotedName('idx_name')
+            ->addUnquotedColumnName('id')
+            ->addUnquotedColumnName('name', null, $options)
+            ->create();
+    }
+
+    /** @param array<string, mixed> $options */
+    protected function createTableWithColumnOptions(array $options): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes($this->createIndexWithColumnOptions($options))
+            ->create();
+    }
 
     public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes(): void
     {

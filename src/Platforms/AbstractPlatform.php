@@ -45,6 +45,7 @@ use Doctrine\DBAL\Types\TypeProvider;
 use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
+use function array_keys;
 use function array_map;
 use function array_merge;
 use function array_unique;
@@ -1295,7 +1296,8 @@ abstract class AbstractPlatform
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
+        $query .= $this->getIndexMethodSQL($index);
+        $query .= ' (' . $this->getIndexedColumnListSQL($index) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
     }
@@ -1307,6 +1309,58 @@ abstract class AbstractPlatform
     {
         if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
             return ' WHERE ' . $index->getOption('where');
+        }
+
+        return '';
+    }
+
+    /**
+     * Returns the SQL snippet that specifies the index method.
+     *
+     * @throws NotSupported If the platform does not support specifying the index method.
+     */
+    protected function getIndexMethodSQL(Index $index): string
+    {
+        $method = $index->getMethod();
+
+        if ($method === null) {
+            return '';
+        }
+
+        throw NotSupported::new(sprintf('index method "%s"', $method));
+    }
+
+    /**
+     * Returns the SQL snippet that lists the indexed columns, including their platform-specific options.
+     *
+     * @throws NotSupported If an indexed column uses options that are not supported by the platform.
+     */
+    protected function getIndexedColumnListSQL(Index $index): string
+    {
+        $columnOptions = $index->getIndexedColumnOptions();
+        $columns       = [];
+
+        foreach ($index->getQuotedColumns($this) as $position => $column) {
+            $columns[] = $column . $this->getIndexedColumnOptionsSQL($columnOptions[$position] ?? []);
+        }
+
+        return implode(', ', $columns);
+    }
+
+    /**
+     * Returns the SQL snippet that specifies the platform-specific options of an indexed column.
+     *
+     * @param array<string, mixed> $options
+     *
+     * @throws NotSupported If some of the options are not supported by the platform.
+     */
+    protected function getIndexedColumnOptionsSQL(array $options): string
+    {
+        if (count($options) > 0) {
+            throw NotSupported::new(sprintf(
+                'indexed column options "%s"',
+                implode('", "', array_keys($options)),
+            ));
         }
 
         return '';
@@ -1777,7 +1831,8 @@ abstract class AbstractPlatform
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getQuotedName($this)
-            . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
+            . $this->getIndexMethodSQL($index)
+            . ' (' . $this->getIndexedColumnListSQL($index) . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**

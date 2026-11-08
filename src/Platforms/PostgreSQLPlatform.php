@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\PostgreSQL\PostgreSQLMetadataProvider;
@@ -25,6 +26,7 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function explode;
+use function get_debug_type;
 use function implode;
 use function in_array;
 use function is_array;
@@ -145,6 +147,43 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function supportsPartialIndexes(): bool
     {
         return true;
+    }
+
+    protected function getIndexMethodSQL(Index $index): string
+    {
+        $method = $index->getMethod();
+
+        if ($method === null) {
+            return '';
+        }
+
+        return ' USING ' . $method;
+    }
+
+    /**
+     * Supports the "opclass" option, which specifies the operator class of the indexed column.
+     *
+     * {@inheritDoc}
+     */
+    protected function getIndexedColumnOptionsSQL(array $options): string
+    {
+        $operatorClass = $options['opclass'] ?? null;
+        unset($options['opclass']);
+
+        $sql = parent::getIndexedColumnOptionsSQL($options);
+
+        if ($operatorClass === null) {
+            return $sql;
+        }
+
+        if (! is_string($operatorClass) || $operatorClass === '') {
+            throw new InvalidArgumentException(sprintf(
+                'The "opclass" indexed column option must be a non-empty string, %s given.',
+                get_debug_type($operatorClass),
+            ));
+        }
+
+        return ' ' . $operatorClass;
     }
 
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
