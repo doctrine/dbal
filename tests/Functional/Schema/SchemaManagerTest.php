@@ -31,6 +31,7 @@ use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
+use function array_shift;
 use function array_values;
 use function sprintf;
 
@@ -597,6 +598,109 @@ final class SchemaManagerTest extends FunctionalTestCase
 
         self::assertFalse($table->hasIndex('uniq_parent_id'));
         $this->assertIndexEquals($newIndex, $table->getIndex('idx_parent_id'));
+    }
+
+    /** @param callable(AbstractSchemaManager): list<Table> $introspect */
+    #[DataProvider('foreignKeyBackingIndexIntrospection')]
+    public function testIntrospectionDoesNotAddMissingForeignKeyBackingIndex(callable $introspect): void
+    {
+        $this->dropTableIfExists('fk_index_child');
+        $this->dropTableIfExists('fk_index_parent');
+
+        $parentTable = Table::editor()
+            ->setUnquotedName('fk_index_parent')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        // The compound index does not fulfill the implicit index backing the foreign key, but it lets MySQL drop
+        // the implicit index, since InnoDB refuses to drop the only index backing a foreign key.
+        $compoundIndex = Index::editor()
+            ->setUnquotedName('idx_parent_sort_order')
+            ->setUnquotedColumnNames('parent_id', 'sort_order')
+            ->create();
+
+        $childTable = Table::editor()
+            ->setUnquotedName('fk_index_child')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('parent_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('sort_order')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes($compoundIndex)
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedName('fk_index_child_parent')
+                    ->setUnquotedReferencingColumnNames('parent_id')
+                    ->setUnquotedReferencedTableName('fk_index_parent')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $indexes = $childTable->getIndexes();
+        unset($indexes['idx_parent_sort_order']);
+        self::assertCount(1, $indexes);
+
+        $implicitIndex = array_shift($indexes);
+        self::assertNotNull($implicitIndex);
+
+        $this->schemaManager->createTable($parentTable);
+        $this->schemaManager->createTable($childTable);
+
+        $platform = $this->connection->getDatabasePlatform();
+
+        $this->schemaManager->dropIndex(
+            $implicitIndex->getObjectName()->toSQL($platform),
+            $childTable->getObjectName()->toSQL($platform),
+        );
+
+        $table = $this->findTable(
+            $introspect($this->schemaManager),
+            OptionallyQualifiedName::unquoted('fk_index_child'),
+        );
+        self::assertNotNull($table);
+
+        $this->assertIndexListEquals([$compoundIndex], $table->getIndexes());
+
+        $diff = $this->schemaManager->createComparator()
+            ->compareTables($table, $childTable);
+
+        $this->assertIndexListEquals([$implicitIndex], $diff->getAddedIndexes());
+    }
+
+    /** @return iterable<string, array{callable(AbstractSchemaManager): list<Table>}> */
+    public static function foreignKeyBackingIndexIntrospection(): iterable
+    {
+        yield 'introspectTableByUnquotedName()' => [
+            static fn (AbstractSchemaManager $sm): array => [$sm->introspectTableByUnquotedName('fk_index_child')],
+        ];
+
+        yield 'introspectTables()' => [
+            static fn (AbstractSchemaManager $sm): array => $sm->introspectTables(),
+        ];
+
+        yield 'introspectSchema()' => [
+            static fn (AbstractSchemaManager $sm): array => $sm->introspectSchema()->getTables(),
+        ];
+
+        yield 'introspectTable()' => [
+            static fn (AbstractSchemaManager $sm): array => [$sm->introspectTable('fk_index_child')],
+        ];
     }
 
     /** @param callable(AbstractSchemaManager): list<Index> $introspect */

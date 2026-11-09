@@ -138,6 +138,7 @@ final readonly class IntrospectingSchemaProvider implements SchemaProvider
 
                 $tables[] = $editor
                     ->setConfiguration($this->tableConfiguration)
+                    ->disableImplicitIndexes()
                     ->create();
             }
         }
