@@ -1565,10 +1565,14 @@ class Connection
                 $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
             }
 
-            $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
-            --$this->transactionNestingLevel;
-            if ($logger !== null) {
-                $logger->stopQuery();
+            try {
+                $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
+            } finally {
+                --$this->transactionNestingLevel;
+
+                if ($logger !== null) {
+                    $logger->stopQuery();
+                }
             }
         } else {
             $this->isRollbackOnly = true;
