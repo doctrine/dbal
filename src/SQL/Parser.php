@@ -104,7 +104,12 @@ final class Parser
 
     private function getMySQLStringLiteralPattern(string $delimiter): string
     {
-        return $delimiter . '((\\\\.)|(?![' . $delimiter . '\\\\]).)*' . $delimiter;
+        // A literal is a run of characters that are neither the delimiter nor a backslash, interleaved with
+        // escape sequences (a backslash followed by any character). The quantifiers are possessive: nothing
+        // after a literal can require the engine to back into it, so PCRE does not need to keep a backtracking
+        // frame per character. The previous form, '((\\.)|(?![\'\\]).)*', did, which limited a literal to
+        // roughly 6 KB under the PCRE JIT before preg_match() failed with "JIT stack limit exhausted".
+        return $delimiter . '[^' . $delimiter . '\\\\]*+(?:\\\\.[^' . $delimiter . '\\\\]*+)*+' . $delimiter;
     }
 
     private function getAnsiSQLStringLiteralPattern(string $delimiter): string
