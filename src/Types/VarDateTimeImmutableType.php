@@ -11,7 +11,12 @@ use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use Exception;
 
 /**
- * Immutable type of {@see VarDateTimeType}.
+ * Variable DateTime Type using {@see DateTimeImmutable::__construct()} instead
+ * of {@see DateTimeImmutable::createFromFormat()}.
+ *
+ * This type has performance implications as it runs twice as long as the regular
+ * {@see DateTimeImmutableType}, however in certain PostgreSQL configurations with
+ * TIMESTAMP(n) columns where n > 0 it is necessary to use this type.
  */
 class VarDateTimeImmutableType extends DateTimeImmutableType
 {

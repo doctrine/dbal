@@ -8,6 +8,61 @@ awareness about deprecated code.
 
 # Upgrade to 4.6
 
+## Deprecated the mutable date/time types
+
+The mutable date/time types have been deprecated in favor of their immutable counterparts:
+
+| Deprecated type   | Replacement                |
+| ----------------- | -------------------------- |
+| `DateType`        | `DateImmutableType`        |
+| `DateTimeType`    | `DateTimeImmutableType`    |
+| `DateTimeUtcType` | `DateTimeUtcImmutableType` |
+| `DateTimeTzType`  | `DateTimeTzImmutableType`  |
+| `TimeType`        | `TimeImmutableType`        |
+| `VarDateTimeType` | `VarDateTimeImmutableType` |
+
+The corresponding `Types::*_MUTABLE` constants are deprecated in favor of their `*_IMMUTABLE`
+counterparts. Using one of these types triggers a deprecation; switch the affected columns
+to the immutable type to silence it.
+
+If you want to keep working with mutable `DateTime` objects, you can register your own type that
+adapts the immutable one by converting between `DateTime` and `DateTimeImmutable`. For example, a
+replacement for the `datetime` type:
+
+```php
+final class MutableDateTimeType extends Type implements PhpDateTimeMappingType
+{
+    public function __construct(
+        private DateTimeImmutableType $inner,
+    ) {}
+
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        return $this->inner->getSQLDeclaration($column, $platform);
+    }
+
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
+    {
+        if ($value instanceof DateTime) {
+            $value = DateTimeImmutable::createFromMutable($value);
+        }
+
+        return $this->inner->convertToDatabaseValue($value, $platform);
+    }
+
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTime
+    {
+        if ($value instanceof DateTime) {
+            return $value;
+        }
+
+        $value = $this->inner->convertToPHPValue($value, $platform);
+
+        return $value instanceof DateTimeImmutable ? DateTime::createFromImmutable($value) : $value;
+    }
+}
+```
+
 ## Deprecated not passing `$isClustered` to the `UniqueConstraintColumnMetadataRow` constructor
 
 Not passing `$isClustered` to the `Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow` constructor is
