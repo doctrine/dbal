@@ -29,6 +29,13 @@ Read these when the task calls for them:
 - Before writing or changing a test, read [`.agents/writing-tests.md`](.agents/writing-tests.md).
 - Before changing the CI build matrix, read [`.agents/building-ci-matrix.md`](.agents/building-ci-matrix.md).
 
+## Deprecations and upgrade notes
+
+- Deprecate an API with a `@deprecated` annotation, a `Deprecation::trigger()` call linking the pull request, and an `UPGRADE.md` entry. Use `Deprecation::triggerIfCalledFromOutside()` instead only when code under `src/` still calls the deprecated API.
+- In a minor release, mark an existing symbol `@final since doctrine/dbal X.Y` or `@internal since doctrine/dbal X.Y` instead of making it final or internal outright.
+- In the major section of `UPGRADE.md`, add an entry only for a change that breaks code covered by [Symfony's backward compatibility promise](https://symfony.com/doc/current/contributing/code/bc.html). Symbols marked `@internal` aren't covered. Say only what stops working, unless nothing was deprecated first.
+- Add each `UPGRADE.md` entry at the top of its section.
+
 ## Commands
 
 - Install dependencies with `composer update`, not `composer install`, including after switching to another release branch. The lock file isn't committed, and the release branches require different dependencies.

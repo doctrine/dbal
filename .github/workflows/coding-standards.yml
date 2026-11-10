@@ -29,6 +29,6 @@ concurrency:
 jobs:
   coding-standards:
     name: "Coding Standards"
-    uses: "doctrine/.github/.github/workflows/coding-standards.yml@16.0.0"
+    uses: "doctrine/.github/.github/workflows/coding-standards.yml@16.1.0"
     with:
       composer-options: "--ignore-platform-req=php+"
