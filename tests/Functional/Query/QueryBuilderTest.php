@@ -621,6 +621,7 @@ final class QueryBuilderTest extends FunctionalTestCase
         $qb = $this->connection->createQueryBuilder();
         $qb->select('id')
             ->from('for_update')
+            ->orderBy('id')
             ->addComment('a comment' . $lineTerminator . 'AND id = 2');
 
         self::assertEquals([1, 2], $qb->fetchFirstColumn());
