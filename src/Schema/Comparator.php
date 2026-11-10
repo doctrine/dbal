@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidState;
+use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
@@ -220,11 +223,14 @@ class Comparator
             $newIndexName = $newIndex->getName();
 
             if (
-                (! $newIndex->isPrimary() || $oldTable->getPrimaryKey() === null)
-                && ! $oldTable->hasIndex($newIndexName)
+                ($newIndex->isPrimary() && $oldTable->getPrimaryKey() !== null)
+                || $oldTable->hasIndex($newIndexName)
+                || $this->isBackingIndexOfUniqueConstraint($newIndex, $oldTable)
             ) {
-                $addedIndexes[] = $newIndex;
+                continue;
             }
+
+            $addedIndexes[] = $newIndex;
         }
 
         // See if there are any removed indexes in the new table
@@ -236,6 +242,10 @@ class Comparator
                 ($oldIndex->isPrimary() && $newTable->getPrimaryKey() === null) ||
                 ! $oldIndex->isPrimary() && ! $newTable->hasIndex($oldIndexName)
             ) {
+                if ($this->isBackingIndexOfUniqueConstraint($oldIndex, $newTable)) {
+                    continue;
+                }
+
                 $droppedIndexes[] = $oldIndex;
 
                 continue;
@@ -299,6 +309,61 @@ class Comparator
             addedForeignKeys: $addedForeignKeys,
             droppedForeignKeys: $droppedForeignKeys,
         );
+    }
+
+    /**
+     * Returns whether the given index implements a unique constraint of the given table.
+     *
+     * Platforms implement unique constraints with indexes that are introspected as ordinary indexes, so an index
+     * that is expected to be created by a unique constraint must not be added or dropped on its own.
+     */
+    private function isBackingIndexOfUniqueConstraint(Index $index, Table $table): bool
+    {
+        if ($index->isPrimary()) {
+            return false;
+        }
+
+        try {
+            if ($index->getType() !== IndexType::UNIQUE || $index->getPredicate() !== null) {
+                return false;
+            }
+        } catch (InvalidState) {
+            return false;
+        }
+
+        if (! $table->hasUniqueConstraint($index->getName())) {
+            return false;
+        }
+
+        $constraint = $table->getUniqueConstraint($index->getName());
+
+        try {
+            $constraintColumns = $constraint->getColumnNames();
+            $indexedColumns    = $index->getIndexedColumns();
+        } catch (InvalidState) {
+            return false;
+        }
+
+        if (count($constraintColumns) !== count($indexedColumns)) {
+            return false;
+        }
+
+        foreach ($indexedColumns as $position => $indexedColumn) {
+            if ($indexedColumn->getLength() !== null) {
+                return false;
+            }
+
+            if (! $this->columnNamesEqual($indexedColumn->getColumnName(), $constraintColumns[$position])) {
+                return false;
+            }
+        }
+
+        return $index->isClustered() === $constraint->isClustered();
+    }
+
+    private function columnNamesEqual(UnqualifiedName $name1, UnqualifiedName $name2): bool
+    {
+        return $name1->equals($name2, $this->platform->getUnquotedIdentifierFolding());
     }
 
     /**

@@ -22,6 +22,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
@@ -595,6 +596,322 @@ abstract class AbstractComparatorTestCase extends TestCase
             ]),
             $this->comparator->compareTables($tableA, $tableB),
         );
+    }
+
+    public function testUniqueConstraintIndexIsNotDropped(): void
+    {
+        $tableA = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableB = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertCount(0, $tableDiff->getDroppedIndexes());
+        self::assertTrue($tableDiff->isEmpty());
+    }
+
+    public function testUniqueConstraintIndexIsNotAdded(): void
+    {
+        $tableA = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableB = $tableA->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertCount(0, $tableDiff->getAddedIndexes());
+        self::assertTrue($tableDiff->isEmpty());
+    }
+
+    public function testUniqueIndexIsNotDroppedWhenUniqueConstraintIsDeclared(): void
+    {
+        $tableA = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableB = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertCount(0, $tableDiff->getDroppedIndexes());
+        self::assertTrue($tableDiff->isEmpty());
+    }
+
+    #[DataProvider('standaloneUniqueConstraintIndexProvider')]
+    public function testStandaloneIndexIsStillDropped(Index $index): void
+    {
+        $tableA = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('other')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes($index)
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableB = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('other')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertCount(1, $tableDiff->getDroppedIndexes());
+        self::assertSame($index->getName(), $tableDiff->getDroppedIndexes()[0]->getName());
+    }
+
+    /** @return iterable<string, array{Index}> */
+    public static function standaloneUniqueConstraintIndexProvider(): iterable
+    {
+        yield 'different name' => [
+            Index::editor()
+                ->setUnquotedName('idx_id')
+                ->setType(IndexType::UNIQUE)
+                ->setUnquotedColumnNames('id')
+                ->create(),
+        ];
+
+        yield 'different columns' => [
+            Index::editor()
+                ->setUnquotedName('uniq_id')
+                ->setType(IndexType::UNIQUE)
+                ->setUnquotedColumnNames('other')
+                ->create(),
+        ];
+
+        yield 'not unique' => [
+            Index::editor()
+                ->setUnquotedName('uniq_id')
+                ->setUnquotedColumnNames('id')
+                ->create(),
+        ];
+
+        yield 'partial' => [
+            Index::editor()
+                ->setUnquotedName('uniq_id')
+                ->setType(IndexType::UNIQUE)
+                ->setUnquotedColumnNames('id')
+                ->setPredicate('id > 0')
+                ->create(),
+        ];
+
+        yield 'with column length' => [
+            Index::editor()
+                ->setUnquotedName('uniq_id')
+                ->setType(IndexType::UNIQUE)
+                ->addUnquotedColumnName('id', 10)
+                ->create(),
+        ];
+    }
+
+    public function testComparesIndexThatBacksAUniqueConstraint(): void
+    {
+        $tableA = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('other')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableB = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('other')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('other')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertCount(1, $tableDiff->getModifiedIndexes());
+
+        $modifiedIndex = $tableDiff->getModifiedIndexes()[0];
+
+        self::assertSame('other', $modifiedIndex->getIndexedColumns()[0]->getColumnName()->toString());
+    }
+
+    public function testComparesQuotedIndexColumnWithUniqueConstraint(): void
+    {
+        $tableA = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setQuotedName('ID')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setType(IndexType::UNIQUE)
+                    ->addQuotedColumnName('ID')
+                    ->create(),
+            )
+            ->create();
+
+        $tableB = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setQuotedName('ID')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('uniq_id')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertCount(1, $tableDiff->getDroppedIndexes());
+        self::assertSame('uniq_id', $tableDiff->getDroppedIndexes()[0]->getName());
     }
 
     public function testCompareForeignKeyBasedOnPropertiesNotName(): void
