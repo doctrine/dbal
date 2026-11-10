@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\Deprecations\Deprecation;
 
-use function array_filter;
 use function array_map;
 use function assert;
 use function count;
@@ -216,19 +215,22 @@ class Comparator
             $this->detectRenamedColumns($modifiedColumns, $addedColumns, $droppedColumns);
         }
 
-        $oldIndexes = $this->excludeUniqueConstraintBackingIndexes($oldTable->getIndexes(), $oldTable, $newTable);
-        $newIndexes = $this->excludeUniqueConstraintBackingIndexes($newTable->getIndexes(), $newTable, $oldTable);
+        $oldIndexes = $oldTable->getIndexes();
+        $newIndexes = $newTable->getIndexes();
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndex) {
             $newIndexName = $newIndex->getName();
 
             if (
-                (! $newIndex->isPrimary() || $oldTable->getPrimaryKey() === null)
-                && ! $oldTable->hasIndex($newIndexName)
+                ($newIndex->isPrimary() && $oldTable->getPrimaryKey() !== null)
+                || $oldTable->hasIndex($newIndexName)
+                || $this->isBackingIndexOfUniqueConstraint($newIndex, $oldTable)
             ) {
-                $addedIndexes[] = $newIndex;
+                continue;
             }
+
+            $addedIndexes[] = $newIndex;
         }
 
         // See if there are any removed indexes in the new table
@@ -240,6 +242,10 @@ class Comparator
                 ($oldIndex->isPrimary() && $newTable->getPrimaryKey() === null) ||
                 ! $oldIndex->isPrimary() && ! $newTable->hasIndex($oldIndexName)
             ) {
+                if ($this->isBackingIndexOfUniqueConstraint($oldIndex, $newTable)) {
+                    continue;
+                }
+
                 $droppedIndexes[] = $oldIndex;
 
                 continue;
@@ -306,26 +312,10 @@ class Comparator
     }
 
     /**
-     * Excludes the indexes that are backing a unique constraint in either of the compared tables.
-     *
-     * Platforms implement unique constraints with indexes that are introspected as ordinary indexes. Comparing such
-     * indexes independently of their constraints would result in a spurious index drop.
-     *
-     * @param array<string, Index> $indexes
-     *
-     * @return array<string, Index>
-     */
-    private function excludeUniqueConstraintBackingIndexes(array $indexes, Table $table, Table $otherTable): array
-    {
-        return array_filter(
-            $indexes,
-            fn (Index $index): bool => ! $this->isBackingIndexOfUniqueConstraint($index, $table)
-                && ! $this->isBackingIndexOfUniqueConstraint($index, $otherTable),
-        );
-    }
-
-    /**
      * Returns whether the given index implements a unique constraint of the given table.
+     *
+     * Platforms implement unique constraints with indexes that are introspected as ordinary indexes, so an index
+     * that is expected to be created by a unique constraint must not be added or dropped on its own.
      */
     private function isBackingIndexOfUniqueConstraint(Index $index, Table $table): bool
     {
@@ -373,7 +363,7 @@ class Comparator
 
     private function columnNamesEqual(UnqualifiedName $name1, UnqualifiedName $name2): bool
     {
-        return strtolower($name1->getIdentifier()->getValue()) === strtolower($name2->getIdentifier()->getValue());
+        return $name1->equals($name2, $this->platform->getUnquotedIdentifierFolding());
     }
 
     /**
