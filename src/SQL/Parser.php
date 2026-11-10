@@ -31,14 +31,17 @@ final class Parser
     private const SPECIAL_CHARS = ':\?\'"`\\[\\-\\/';
 
     private const BACKTICK_IDENTIFIER  = '`[^`]*`';
-    private const BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
+    private const BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[[^\]]*+\]';
     private const MULTICHAR            = ':{2,}';
     private const NAMED_PARAMETER      = ':[a-zA-Z0-9_]+';
     private const POSITIONAL_PARAMETER = '(?<!\\?)\\?(?!\\?)';
     private const ONE_LINE_COMMENT     = '--[^\r\n]*';
-    private const MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
+    private const MULTI_LINE_COMMENT   = '/\*[^*]*+\*++(?:[^/*][^*]*+\*++)*+/';
     private const SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
-    private const OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
+    private const OTHER                = '[^' . self::SPECIAL_CHARS . ']++';
+
+    // An unbounded run exhausts pcre.backtrack_limit on multi-megabyte statements.
+    private const MAX_TOKENS_PER_MATCH = 64;
 
     private readonly string $sqlPattern;
     private readonly string $tokenPattern;
@@ -70,7 +73,8 @@ final class Parser
         $this->tokenPattern = '~\\G'
             . '(?P<named>' . self::NAMED_PARAMETER . ')'
             . '|(?P<positional>' . self::POSITIONAL_PARAMETER . ')'
-            . '|(?P<other>' . $this->sqlPattern . '|' . self::SPECIAL . ')'
+            . '|(?P<other>(?&token){1,' . self::MAX_TOKENS_PER_MATCH . '}+|' . self::SPECIAL . ')'
+            . '(?(DEFINE)(?<token>' . $this->sqlPattern . '))'
             . '~s';
     }
 
@@ -103,11 +107,11 @@ final class Parser
 
     private function getMySQLStringLiteralPattern(string $delimiter): string
     {
-        return $delimiter . '((\\\\.)|(?![' . $delimiter . '\\\\]).)*' . $delimiter;
+        return $delimiter . '[^' . $delimiter . '\\\\]*+(?:\\\\.[^' . $delimiter . '\\\\]*+)*+' . $delimiter;
     }
 
     private function getAnsiSQLStringLiteralPattern(string $delimiter): string
     {
-        return $delimiter . '[^' . $delimiter . ']*' . $delimiter;
+        return $delimiter . '[^' . $delimiter . ']*+' . $delimiter;
     }
 }
