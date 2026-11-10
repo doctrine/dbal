@@ -16,6 +16,7 @@ use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
 use Doctrine\DBAL\Query\UnionType;
 use Doctrine\DBAL\Schema\Column;
@@ -646,6 +647,76 @@ final class QueryBuilderTest extends FunctionalTestCase
         self::assertEquals([1], $qb->fetchFirstColumn());
     }
 
+    public function testJoinLateralReturnsExpectedResult(): void
+    {
+        if (! $this->platformSupportsJoinLateral()) {
+            self::markTestSkipped('The database platform does not support LEFT JOIN LATERAL or OUTER APPLY.');
+        }
+
+        $expectedRows = $this->prepareExpectedRows([['id' => 2, 'lateral_field' => 1]]);
+        $platform     = $this->connection->getDatabasePlatform();
+        $qb           = $this->connection->createQueryBuilder();
+        $qb->select('for_update.id', 'jl.lateral_field')
+            ->from('for_update')
+            ->leftJoinLateral('for_update', $platform->getDummySelectSQL('1 as lateral_field'), 'jl')
+            ->where($qb->expr()->eq('for_update.id', ':id'))
+            ->setParameter('id', 2, ParameterType::INTEGER);
+
+        self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
+    }
+
+    public function testJoinLateralWithConditionsReturnsExpectedResult(): void
+    {
+        if (! $this->platformSupportsJoinLateral()) {
+            self::markTestSkipped('The database platform does not support LEFT JOIN LATERAL or OUTER APPLY.');
+        }
+
+        if (! $this->platformSupportsJoinLateralConditions()) {
+            self::markTestSkipped('The database platform does not support conditions on OUTER APPLY.');
+        }
+
+        $expectedRows = $this->prepareExpectedRows([['id' => 2, 'lateral_field' => 1, 'lateral_id' => 2]]);
+        $platform     = $this->connection->getDatabasePlatform();
+        $qb           = $this->connection->createQueryBuilder();
+        $qb->select('for_update.id', 'jl.lateral_field', 'lateral_condition.lateral_id')
+            ->from('for_update')
+            ->leftJoinLateral('for_update', $platform->getDummySelectSQL('1 as lateral_field'), 'jl')
+            ->leftJoinLateral(
+                'for_update',
+                'SELECT id AS lateral_id FROM for_update',
+                'lateral_condition',
+                'for_update.id = lateral_condition.lateral_id',
+            )
+            ->where($qb->expr()->eq('for_update.id', ':id'))
+            ->setParameter('id', 2, ParameterType::INTEGER);
+
+        self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
+    }
+
+    public function testJoinLateralUsingQueryBuilderReturnsExpectedResult(): void
+    {
+        if (! $this->platformSupportsJoinLateral()) {
+            self::markTestSkipped('The database platform does not support LEFT JOIN LATERAL or OUTER APPLY.');
+        }
+
+        $expectedRows = $this->prepareExpectedRows([['id' => 2, 'lateral_id' => 1]]);
+        $joinLateral  = $this->connection->createQueryBuilder();
+        $qb           = $this->connection->createQueryBuilder();
+
+        $joinLateral->select('lateral_for_update.id as lateral_id')
+            ->from('for_update', 'lateral_for_update')
+            ->where($qb->expr()->eq('lateral_for_update.id', ':lateralId'));
+
+        $qb->select('for_update.id', 'jl.lateral_id')
+            ->from('for_update')
+            ->leftJoinLateral('for_update', $joinLateral, 'jl')
+            ->where($qb->expr()->eq('for_update.id', ':id'))
+            ->setParameter('lateralId', 1, ParameterType::INTEGER)
+            ->setParameter('id', 2, ParameterType::INTEGER);
+
+        self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
+    }
+
     /**
      * @param array<array<string, int|string>> $rows
      *
@@ -714,5 +785,31 @@ final class QueryBuilderTest extends FunctionalTestCase
         }
 
         return ! $platform instanceof MySQLPlatform || $platform instanceof MySQL80Platform;
+    }
+
+    private function platformSupportsJoinLateral(): bool
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof MariaDBPlatform) {
+            return false;
+        }
+
+        if ($platform instanceof MySQLPlatform) {
+            return $platform instanceof MySQL80Platform;
+        }
+
+        return ! $platform instanceof SQLitePlatform;
+    }
+
+    private function platformSupportsJoinLateralConditions(): bool
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof OraclePlatform || $platform instanceof SQLServerPlatform) {
+            return false;
+        }
+
+        return $this->platformSupportsJoinLateral();
     }
 }
