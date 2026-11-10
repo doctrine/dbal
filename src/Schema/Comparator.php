@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidState;
+use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\Deprecations\Deprecation;
 
+use function array_filter;
 use function array_map;
 use function assert;
 use function count;
@@ -212,8 +216,8 @@ class Comparator
             $this->detectRenamedColumns($modifiedColumns, $addedColumns, $droppedColumns);
         }
 
-        $oldIndexes = $oldTable->getIndexes();
-        $newIndexes = $newTable->getIndexes();
+        $oldIndexes = $this->excludeUniqueConstraintBackingIndexes($oldTable->getIndexes(), $oldTable, $newTable);
+        $newIndexes = $this->excludeUniqueConstraintBackingIndexes($newTable->getIndexes(), $newTable, $oldTable);
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndex) {
@@ -299,6 +303,77 @@ class Comparator
             addedForeignKeys: $addedForeignKeys,
             droppedForeignKeys: $droppedForeignKeys,
         );
+    }
+
+    /**
+     * Excludes the indexes that are backing a unique constraint in either of the compared tables.
+     *
+     * Platforms implement unique constraints with indexes that are introspected as ordinary indexes. Comparing such
+     * indexes independently of their constraints would result in a spurious index drop.
+     *
+     * @param array<string, Index> $indexes
+     *
+     * @return array<string, Index>
+     */
+    private function excludeUniqueConstraintBackingIndexes(array $indexes, Table $table, Table $otherTable): array
+    {
+        return array_filter(
+            $indexes,
+            fn (Index $index): bool => ! $this->isBackingIndexOfUniqueConstraint($index, $table)
+                && ! $this->isBackingIndexOfUniqueConstraint($index, $otherTable),
+        );
+    }
+
+    /**
+     * Returns whether the given index implements a unique constraint of the given table.
+     */
+    private function isBackingIndexOfUniqueConstraint(Index $index, Table $table): bool
+    {
+        if ($index->isPrimary()) {
+            return false;
+        }
+
+        try {
+            if ($index->getType() !== IndexType::UNIQUE || $index->getPredicate() !== null) {
+                return false;
+            }
+        } catch (InvalidState) {
+            return false;
+        }
+
+        if (! $table->hasUniqueConstraint($index->getName())) {
+            return false;
+        }
+
+        $constraint = $table->getUniqueConstraint($index->getName());
+
+        try {
+            $constraintColumns = $constraint->getColumnNames();
+            $indexedColumns    = $index->getIndexedColumns();
+        } catch (InvalidState) {
+            return false;
+        }
+
+        if (count($constraintColumns) !== count($indexedColumns)) {
+            return false;
+        }
+
+        foreach ($indexedColumns as $position => $indexedColumn) {
+            if ($indexedColumn->getLength() !== null) {
+                return false;
+            }
+
+            if (! $this->columnNamesEqual($indexedColumn->getColumnName(), $constraintColumns[$position])) {
+                return false;
+            }
+        }
+
+        return $index->isClustered() === $constraint->isClustered();
+    }
+
+    private function columnNamesEqual(UnqualifiedName $name1, UnqualifiedName $name2): bool
+    {
+        return strtolower($name1->getIdentifier()->getValue()) === strtolower($name2->getIdentifier()->getValue());
     }
 
     /**
