@@ -287,6 +287,11 @@ pdo_pgsql / pgsql
 -  ``persistent`` (boolean): Whether to establish a persistent connection (currently supported only by ``pdo_pgsql``).
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
+-  ``driverOptions`` (array): For ``pdo_pgsql``, the options passed to the PDO constructor
+   (e.g. ``PDO::ATTR_TIMEOUT`` to limit the time spent on connecting).
+   For ``pgsql``, additional libpq connection keywords and their values (e.g. ``['connect_timeout' => 5]``),
+   see `www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS>`_.
+   Keywords derived from the other parameters take precedence over the ones specified here.
 
 PostgreSQL behaves differently with regard to booleans when you use
 ``PDO::ATTR_EMULATE_PREPARES`` or not. To switch from using ``'true'``
