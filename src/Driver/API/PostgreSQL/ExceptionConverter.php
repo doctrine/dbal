@@ -49,6 +49,7 @@ final class ExceptionConverter implements ExceptionConverterInterface
             case '23502':
                 return new NotNullConstraintViolationException($exception, $query);
 
+            case '23001':
             case '23503':
                 return new ForeignKeyConstraintViolationException($exception, $query);
 
