@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use function array_merge;
 use function implode;
 use function sprintf;
+use function str_repeat;
 
 class ParserTest extends TestCase implements Visitor
 {
@@ -303,6 +304,35 @@ SELECT '{"a":null}'::jsonb ?? {:key}
 SQL
 ,
         ];
+
+        // One preg_match() call consumes up to 64 non-parameter tokens; these cross that boundary several times.
+        yield 'Parameters after more than 64 non-parameter tokens' => [
+            'SELECT ' . str_repeat('`a`, ', 200) . ':p, ? FROM foo WHERE bar = :q',
+            'SELECT ' . str_repeat('`a`, ', 200) . '{:p}, {?} FROM foo WHERE bar = {:q}',
+        ];
+
+        $columns = [];
+        for ($i = 0; $i < 400; $i++) {
+            $columns[] = sprintf('`product`.`field_%d` AS `product.field_%d`', $i, $i);
+        }
+
+        $select = 'SELECT ' . implode(', ', $columns) . ' FROM `product` WHERE `product`.`id` IN (%s)'
+            . ' AND `product`.`version_id` = %s AND (`product`.`active` = %s OR `product`.`name` LIKE \'%%?%%\')';
+
+        yield 'Wide SELECT list' => [
+            sprintf($select, ':ids', ':version', '?'),
+            sprintf($select, '{:ids}', '{:version}', '{?}'),
+        ];
+
+        // Each token in a run keeps its PCRE backtracking state until the run completes, so 64 adjacent literals
+        // share one PCRE stack. A literal pattern that needs a frame per character fails here while handling
+        // each literal on its own just fine.
+        $rows = str_repeat("('" . str_repeat('lorem ipsum dolor sit amet ', 38) . "'), ", 64);
+
+        yield '64 adjacent 1 KB string literals' => [
+            'INSERT INTO foo (bar) VALUES ' . $rows . '(?) ON DUPLICATE KEY UPDATE baz = :baz',
+            'INSERT INTO foo (bar) VALUES ' . $rows . '({?}) ON DUPLICATE KEY UPDATE baz = {:baz}',
+        ];
     }
 
     #[DataProvider('statementsWithoutParametersProvider')]
@@ -422,6 +452,16 @@ WHERE (foo.bar LIKE {:condition_0} ESCAPE '\\')
   AND (foo.bak LIKE {:condition_2} ESCAPE '\\')
 SQL
 ,
+        ];
+
+        // 128 KB per literal, with an escape sequence every 64 bytes. The previous pattern needed a PCRE
+        // backtracking frame per character and failed above roughly 6 KB with the JIT enabled (50 KB without).
+        $singleQuoted = "'" . str_repeat(str_repeat('x', 62) . "\\'", 2048) . "'";
+        $doubleQuoted = '"' . str_repeat(str_repeat('x', 62) . '\\"', 2048) . '"';
+
+        yield 'Literals larger than the PCRE JIT stack' => [
+            sprintf('SELECT %s, %s FROM foo WHERE bar = ? AND baz = :baz', $singleQuoted, $doubleQuoted),
+            sprintf('SELECT %s, %s FROM foo WHERE bar = {?} AND baz = {:baz}', $singleQuoted, $doubleQuoted),
         ];
     }
 
