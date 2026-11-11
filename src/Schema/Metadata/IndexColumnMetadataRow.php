@@ -12,12 +12,14 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 final readonly class IndexColumnMetadataRow
 {
     /**
-     * @param ?non-empty-string $schemaName
-     * @param non-empty-string  $tableName
-     * @param non-empty-string  $indexName
-     * @param ?non-empty-string $predicate
-     * @param non-empty-string  $columnName
-     * @param ?positive-int     $columnLength
+     * @param ?non-empty-string    $schemaName
+     * @param non-empty-string     $tableName
+     * @param non-empty-string     $indexName
+     * @param ?non-empty-string    $predicate
+     * @param non-empty-string     $columnName
+     * @param ?positive-int        $columnLength
+     * @param ?non-empty-string    $method
+     * @param array<string, mixed> $columnOptions Platform-specific options of the indexed column
      */
     public function __construct(
         private ?string $schemaName,
@@ -28,6 +30,8 @@ final readonly class IndexColumnMetadataRow
         private ?string $predicate,
         private string $columnName,
         private ?int $columnLength,
+        private ?string $method = null,
+        private array $columnOptions = [],
     ) {
     }
 
@@ -75,5 +79,17 @@ final readonly class IndexColumnMetadataRow
     public function getColumnLength(): ?int
     {
         return $this->columnLength;
+    }
+
+    /** @return ?non-empty-string */
+    public function getMethod(): ?string
+    {
+        return $this->method;
+    }
+
+    /** @return array<string, mixed> */
+    public function getColumnOptions(): array
+    {
+        return $this->columnOptions;
     }
 }

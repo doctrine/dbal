@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
@@ -466,6 +467,295 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
         self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
         self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
+    }
+
+    public function testIndexMethod(): void
+    {
+        $offlineTable = Table::editor()
+            ->setUnquotedName('gist_index_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('document')
+                    ->setTypeName(Types::TEXT)
+                    ->setColumnDefinition('tsvector')
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_gist')
+                    ->setUnquotedColumnNames('document')
+                    ->setMethod('gist')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('idx_gist_partial')
+                    ->setUnquotedColumnNames('document')
+                    ->setMethod('gist')
+                    ->setPredicate('(id > 0)')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('idx_btree')
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('gist_index_test');
+
+        self::assertSame('gist', $onlineTable->getIndex('idx_gist')->getMethod());
+        self::assertSame('gist', $onlineTable->getIndex('idx_gist_partial')->getMethod());
+        self::assertSame('(id > 0)', $onlineTable->getIndex('idx_gist_partial')->getPredicate());
+        self::assertNull($onlineTable->getIndex('idx_btree')->getMethod());
+
+        $tableDiff = $this->schemaManager
+            ->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($onlineTable, $offlineTable);
+
+        self::assertSame([], $tableDiff->getAddedIndexes());
+        self::assertSame([], $tableDiff->getDroppedIndexes());
+        self::assertSame([], $tableDiff->getRenamedIndexes());
+    }
+
+    public function testIndexMethodInNonDefaultSchema(): void
+    {
+        $schemaName = UnqualifiedName::unquoted('gist_schema');
+        $this->dropAndCreateSchema($schemaName);
+
+        $this->connection->executeStatement('CREATE TABLE gist_schema.gist_index_test (document tsvector)');
+        $this->connection->executeStatement(
+            'CREATE INDEX idx_gist ON gist_schema.gist_index_test USING gist (document)',
+        );
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('gist_index_test', 'gist_schema');
+        self::assertSame('gist', $table->getIndex('idx_gist')->getMethod());
+
+        $indexes = $this->schemaManager->listTableIndexes('gist_schema.gist_index_test');
+        self::assertSame('gist', $indexes['idx_gist']->getMethod());
+    }
+
+    public function testListTableIndexesIntrospectsIndexMethod(): void
+    {
+        $this->dropTableIfExists('gist_index_legacy_test');
+        $this->connection->executeStatement('CREATE TABLE gist_index_legacy_test (id INT, document tsvector)');
+        $this->connection->executeStatement(
+            'CREATE INDEX idx_gist_legacy ON gist_index_legacy_test USING gist (document)',
+        );
+        $this->connection->executeStatement(
+            'CREATE INDEX idx_hash_legacy ON gist_index_legacy_test USING hash (id)',
+        );
+
+        $indexes = $this->schemaManager->listTableIndexes('gist_index_legacy_test');
+
+        self::assertSame('gist', $indexes['idx_gist_legacy']->getMethod());
+        self::assertSame('hash', $indexes['idx_hash_legacy']->getMethod());
+    }
+
+    public function testChangeIndexMethod(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('gist_index_change_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('document')
+                    ->setTypeName(Types::TEXT)
+                    ->setColumnDefinition('tsvector')
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_document')
+                    ->setUnquotedColumnNames('document')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $newTable = $table->edit()
+            ->dropIndexByUnquotedName('idx_document')
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_document')
+                    ->setUnquotedColumnNames('document')
+                    ->setMethod('gist')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager
+            ->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($this->schemaManager->introspectTableByUnquotedName('gist_index_change_test'), $newTable);
+
+        self::assertFalse($diff->isEmpty());
+
+        $this->schemaManager->alterTable($diff);
+
+        self::assertSame(
+            'gist',
+            $this->schemaManager->introspectTableByUnquotedName('gist_index_change_test')
+                ->getIndex('idx_document')
+                ->getMethod(),
+        );
+    }
+
+    public function testIndexedColumnOptions(): void
+    {
+        $offlineTable = Table::editor()
+            ->setUnquotedName('column_options_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(255)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('data')
+                    ->setTypeName(Types::JSON)
+                    ->create()
+                    ->setPlatformOption('jsonb', true),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_colopt_data')
+                    ->addUnquotedColumnName('data', null, ['opclass' => 'jsonb_path_ops'])
+                    ->setMethod('gin')
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('idx_colopt_name_pattern')
+                    ->addUnquotedColumnName('name', null, ['opclass' => 'varchar_pattern_ops'])
+                    ->create(),
+                Index::editor()
+                    ->setUnquotedName('idx_colopt_name')
+                    ->setUnquotedColumnNames('name')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->schemaManager->introspectTableByUnquotedName('column_options_test');
+        $indexes     = $this->schemaManager->listTableIndexes('column_options_test');
+
+        foreach ([$onlineTable->getIndexes(), $indexes] as $introspectedIndexes) {
+            self::assertSame(
+                ['opclass' => 'jsonb_path_ops'],
+                $introspectedIndexes['idx_colopt_data']->getIndexedColumns()[0]->getOptions(),
+            );
+            self::assertSame(
+                ['opclass' => 'varchar_pattern_ops'],
+                $introspectedIndexes['idx_colopt_name_pattern']->getIndexedColumns()[0]->getOptions(),
+            );
+            self::assertSame([], $introspectedIndexes['idx_colopt_name']->getIndexedColumns()[0]->getOptions());
+        }
+
+        $tableDiff = $this->schemaManager
+            ->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($onlineTable, $offlineTable);
+
+        self::assertSame([], $tableDiff->getAddedIndexes());
+        self::assertSame([], $tableDiff->getDroppedIndexes());
+        self::assertSame([], $tableDiff->getRenamedIndexes());
+    }
+
+    public function testChangeIndexedColumnOptions(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('column_options_change_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_colopt_change')
+                    ->setUnquotedColumnNames('name')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $newTable = $table->edit()
+            ->dropIndexByUnquotedName('idx_colopt_change')
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('idx_colopt_change')
+                    ->addUnquotedColumnName('name', null, ['opclass' => 'text_pattern_ops'])
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager
+            ->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables(
+                $this->schemaManager->introspectTableByUnquotedName('column_options_change_test'),
+                $newTable,
+            );
+
+        self::assertFalse($diff->isEmpty());
+
+        $this->schemaManager->alterTable($diff);
+
+        self::assertSame(
+            ['opclass' => 'text_pattern_ops'],
+            $this->schemaManager->introspectTableByUnquotedName('column_options_change_test')
+                ->getIndex('idx_colopt_change')
+                ->getIndexedColumns()[0]
+                ->getOptions(),
+        );
+    }
+
+    public function testOperatorClassOutsideOfSearchPath(): void
+    {
+        if ($this->connection->fetchOne('SHOW is_superuser') !== 'on') {
+            self::markTestSkipped('Creating an operator class requires superuser privileges.');
+        }
+
+        $schemaName = UnqualifiedName::unquoted('opclass_schema');
+        $this->dropAndCreateSchema($schemaName);
+
+        $this->connection->executeStatement(
+            <<<'SQL'
+            CREATE OPERATOR CLASS opclass_schema.int4_alt_ops FOR TYPE int4 USING btree AS
+                OPERATOR 1 <, OPERATOR 2 <=, OPERATOR 3 =, OPERATOR 4 >=, OPERATOR 5 >,
+                FUNCTION 1 btint4cmp(int4, int4)
+            SQL,
+        );
+
+        $table = Table::editor()
+            ->setUnquotedName('opclass_schema_test')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_colopt_id')
+                    ->addUnquotedColumnName('id', null, ['opclass' => 'opclass_schema.int4_alt_ops'])
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        self::assertSame(
+            ['opclass' => 'opclass_schema.int4_alt_ops'],
+            $this->schemaManager->introspectTableByUnquotedName('opclass_schema_test')
+                ->getIndex('idx_colopt_id')
+                ->getIndexedColumns()[0]
+                ->getOptions(),
+        );
+
+        $this->dropTableIfExists('opclass_schema_test');
     }
 
     public function testJsonbColumn(): void
