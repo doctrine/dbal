@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Metadata;
 
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 
 /**
  * A row of metadata describing an index column.
@@ -28,6 +29,7 @@ final readonly class IndexColumnMetadataRow
         private ?string $predicate,
         private string $columnName,
         private ?int $columnLength,
+        private ObjectOrigin $origin,
     ) {
     }
 
@@ -75,5 +77,10 @@ final readonly class IndexColumnMetadataRow
     public function getColumnLength(): ?int
     {
         return $this->columnLength;
+    }
+
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
     }
 }

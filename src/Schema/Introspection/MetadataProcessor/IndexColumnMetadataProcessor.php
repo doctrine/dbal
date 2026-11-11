@@ -24,7 +24,8 @@ final readonly class IndexColumnMetadataProcessor
             )
             ->setType($row->getType())
             ->setIsClustered($row->isClustered())
-            ->setPredicate($row->getPredicate());
+            ->setPredicate($row->getPredicate())
+            ->setOrigin($row->getOrigin());
     }
 
     public function applyRow(IndexEditor $editor, IndexColumnMetadataRow $row): void

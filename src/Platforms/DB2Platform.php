@@ -260,8 +260,8 @@ class DB2Platform extends AbstractPlatform
             $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
         }
 
-        foreach ($diff->getDroppedIndexes() as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
+        foreach ($diff->getDroppedUniqueConstraintNames() as $constraintName) {
+            $sql[] = $this->getDropUniqueConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
         }
 
         $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
@@ -274,6 +274,10 @@ class DB2Platform extends AbstractPlatform
             }
 
             $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
+
+        foreach ($diff->getDroppedIndexes() as $index) {
+            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
         }
 
         $queryParts = [];
@@ -343,6 +347,10 @@ class DB2Platform extends AbstractPlatform
         if ($addedPrimaryKeyConstraint !== null) {
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD '
                 . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
+        }
+
+        foreach ($diff->getAddedUniqueConstraints() as $uniqueConstraint) {
+            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $tableNameSQL);
         }
 
         foreach ($diff->getAddedForeignKeys() as $foreignKey) {

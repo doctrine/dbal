@@ -8,6 +8,28 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: The comparator compares unique constraints
+
+`Comparator::compareTables()` now reports the unique constraints to add and drop, which
+`TableDiff::getAddedUniqueConstraints()` and `TableDiff::getDroppedUniqueConstraintNames()` return. Dropping one that
+has no name raises `Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName`. On SQLite, that includes a unique
+constraint declared without a name in the database.
+
+## BC BREAK: Introspection reports the indexes that back primary keys
+
+`AbstractSchemaManager::introspectTableIndexes()` and `Table::getIndexes()` on an introspected table now return the
+index that the database created to back the table's primary key. On SQLite, they also return the indexes that it
+created to back unique constraints. `Index::getOrigin()` returns `ObjectOrigin::DERIVED` for such an index.
+
+On Oracle and IBM Db2, they also return an index that was created separately and then used to back the primary
+key. `Index::getOrigin()` returns `ObjectOrigin::DECLARED` for such an index.
+
+## BC BREAK: No index is created for a foreign key constraint
+
+Declaring a foreign key constraint no longer adds an index over its referencing columns. On every platform except
+MySQL and MariaDB, the next schema migration drops the indexes earlier versions created this way. To keep one, declare
+it explicitly.
+
 ## BC BREAK: `$isClustered` is required in the `UniqueConstraintColumnMetadataRow` constructor
 
 The `$isClustered` parameter of the `Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow` constructor is
@@ -291,10 +313,7 @@ The following conflicting index configurations are no longer allowed:
 
 ## BC BREAK: Changes in features related to primary key constraints
 
-1. The `Index` class can no longer represent a primary key constraint. As a result:
-    1. The `Table::getIndexes()` and `AbstractSchemaManager::listTableIndexes()` methods no longer return the index that  
-       backs the primary key constraint.
-    2. The index that backs the primary key constraint is no longer considered during implicit index management.
+1. The `Index` class can no longer represent a primary key constraint.
 2. The `Table::getPrimaryKey()` and `Table::setPrimaryKey()` methods have been removed.
 3. The `Table::renameIndex()` method can no longer be used to rename a primary key constraint.
 4. The `AbstractPlatform::getCreatePrimaryKeySQL()` method has been removed.

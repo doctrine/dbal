@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
 use Override;
@@ -318,12 +319,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
             SELECT t.name,
                    i.name,
                    i."unique",
-                   c.name
+                   c.name,
+                   i.origin
             FROM sqlite_master t
                      JOIN pragma_index_list(t.name) i
                      JOIN pragma_index_info(i.name) c
             WHERE %s
-              AND i.name NOT LIKE 'sqlite_%%'
             ORDER BY t.name,
                      i.name,
                      c.seqno
@@ -341,6 +342,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[3],
                 columnLength: null,
+                origin: $row[4] !== 'c' ? ObjectOrigin::DERIVED : ObjectOrigin::DECLARED,
             );
         }
     }
@@ -365,6 +367,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
 
     /**
      * @link https://www.sqlite.org/pragma.html#pragma_table_info
+     * @link https://www.sqlite.org/pragma.html#pragma_index_list
      *
      * @return iterable<PrimaryKeyConstraintColumnRow>
      *
@@ -377,9 +380,12 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         $sql = sprintf(
             <<<'SQL'
             SELECT t.name,
-                   c.name
+                   c.name,
+                   i.name
             FROM sqlite_master t
                      JOIN pragma_table_info(t.name) c
+                     LEFT JOIN pragma_index_list(t.name) i
+                               ON i.origin = 'pk'
             WHERE %s
               AND c.pk > 0
             ORDER BY t.name,
@@ -395,6 +401,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 constraintName: null,
                 isClustered: true,
                 columnName: $row[1],
+                indexName: $row[2],
             );
         }
     }
@@ -466,6 +473,8 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 name: $constraintNames[$position] ?? null,
                 columnName: $row[2],
                 isClustered: false,
+                origin: ObjectOrigin::DECLARED,
+                indexName: $row[1],
             );
         }
     }

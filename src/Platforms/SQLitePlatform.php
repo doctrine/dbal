@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
@@ -29,6 +30,7 @@ use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Override;
 
+use function array_filter;
 use function array_merge;
 use function array_values;
 use function assert;
@@ -684,6 +686,8 @@ class SQLitePlatform extends AbstractPlatform
             || count($diff->getAddedIndexes()) > 0
             || count($diff->getDroppedIndexes()) > 0
             || count($diff->getIndexRenames()) > 0
+            || count($diff->getAddedUniqueConstraints()) > 0
+            || count($diff->getDroppedUniqueConstraintNames()) > 0
             || count($diff->getAddedForeignKeys()) > 0
             || count($diff->getDroppedForeignKeyConstraintNames()) > 0
             || $diff->getDroppedPrimaryKeyConstraint() !== null
@@ -793,7 +797,10 @@ class SQLitePlatform extends AbstractPlatform
     private function getIndexesForAlteredTable(TableDiff $diff): array
     {
         $oldTable = $diff->getOldTable();
-        $indexes  = new UnqualifiedNamedObjectSet(...$oldTable->getIndexes());
+        $indexes  = new UnqualifiedNamedObjectSet(...array_filter(
+            $oldTable->getIndexes(),
+            static fn (Index $index): bool => $index->getOrigin() === ObjectOrigin::DECLARED,
+        ));
         $nameMap  = $this->getDiffColumnNameMap($diff);
 
         $alreadyDropped = [];
@@ -856,16 +863,28 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
-     * Returns the unique constraints to create the altered table with, leaving out those over a dropped column.
+     * Returns the unique constraints to create the altered table with: the added ones, and the old ones that are
+     * neither dropped nor over a dropped column.
      *
      * @return list<UniqueConstraint>
      */
     private function getUniqueConstraintsForAlteredTable(TableDiff $diff): array
     {
         $nameMap           = $this->getDiffColumnNameMap($diff);
+        $droppedNames      = [];
         $uniqueConstraints = [];
 
+        foreach ($diff->getDroppedUniqueConstraintNames() as $constraintName) {
+            $droppedNames[$this->getKey($constraintName)] = true;
+        }
+
         foreach ($diff->getOldTable()->getUniqueConstraints() as $uniqueConstraint) {
+            $constraintName = $uniqueConstraint->getObjectName();
+
+            if ($constraintName !== null && isset($droppedNames[$this->getKey($constraintName)])) {
+                continue;
+            }
+
             $columnNames = $this->getColumnNamesForAlteredTable($uniqueConstraint->getColumnNames(), $nameMap);
 
             if ($columnNames !== null) {
@@ -873,6 +892,10 @@ class SQLitePlatform extends AbstractPlatform
                     ->setUnquotedColumnNames(...$columnNames)
                     ->create();
             }
+        }
+
+        foreach ($diff->getAddedUniqueConstraints() as $uniqueConstraint) {
+            $uniqueConstraints[] = $uniqueConstraint;
         }
 
         return $uniqueConstraints;
