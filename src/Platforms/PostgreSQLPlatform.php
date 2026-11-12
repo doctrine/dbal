@@ -169,7 +169,8 @@ class PostgreSQLPlatform extends AbstractPlatform
                 FROM   information_schema.sequences
                 WHERE  sequence_catalog = ' . $this->quoteStringLiteral($database) . "
                 AND    sequence_schema NOT LIKE 'pg\_%'
-                AND    sequence_schema != 'information_schema'";
+                AND    sequence_schema != 'information_schema'
+                AND    " . $this->getNotExtensionMemberSQLSnippet('sequence_schema', 'sequence_name');
     }
 
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
@@ -179,7 +180,8 @@ class PostgreSQLPlatform extends AbstractPlatform
                        table_schema AS schemaname,
                        view_definition AS definition
                 FROM   information_schema.views
-                WHERE  view_definition IS NOT NULL';
+                WHERE  view_definition IS NOT NULL
+                AND    ' . $this->getNotExtensionMemberSQLSnippet('table_schema', 'table_name');
     }
 
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
@@ -721,6 +723,35 @@ class PostgreSQLPlatform extends AbstractPlatform
              WHERE c.oid = pg_attrdef.adrelid
                 AND pg_attrdef.adnum=a.attnum
         SQL;
+    }
+
+    /**
+     * Returns the condition that excludes the tables, views and sequences belonging to an extension, which the
+     * extension manages (e.g. the tables and sequences of PostGIS Topology), given the SQL expressions of the schema
+     * name and of the relation name.
+     *
+     * @internal The method should be only used from within the {@see PostgreSQLSchemaManager} class hierarchy.
+     */
+    public function getNotExtensionMemberSQLSnippet(string $schemaName, string $relationName): string
+    {
+        return sprintf(
+            <<<'SQL'
+            NOT EXISTS (
+                SELECT 1
+                FROM pg_depend ext_dep
+                         INNER JOIN pg_class ext_c
+                                    ON ext_c.oid = ext_dep.objid
+                         INNER JOIN pg_namespace ext_n
+                                    ON ext_n.oid = ext_c.relnamespace
+                WHERE ext_dep.classid = (SELECT oid FROM pg_class WHERE relname = 'pg_class')
+                  AND ext_dep.deptype = 'e'
+                  AND ext_n.nspname = %s
+                  AND ext_c.relname = %s
+            )
+            SQL,
+            $schemaName,
+            $relationName,
+        );
     }
 
     protected function initializeDoctrineTypeMappings(): void
