@@ -139,6 +139,7 @@ class ComparatorTest extends FunctionalTestCase
         yield 'SQL Server rand()' => [SQLServerPlatform::class, '0', Types::FLOAT, 'rand()'];
         yield 'SQL Server upper()' => [SQLServerPlatform::class, '0', Types::STRING, "upper('abc')"];
         yield 'SQL Server concatenation' => [SQLServerPlatform::class, '0', Types::STRING, "'a'+'b'"];
+        yield 'SQL Server arithmetic' => [SQLServerPlatform::class, '0', Types::INTEGER, '(1)+(2)'];
 
         yield 'Oracle SYS_GUID()' => [OraclePlatform::class, '0', Types::GUID, 'SYS_GUID()'];
         yield 'Oracle SYSDATE' => [OraclePlatform::class, '0', Types::DATE_MUTABLE, 'SYSDATE'];
