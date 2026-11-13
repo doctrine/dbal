@@ -32,7 +32,11 @@ use function in_array;
 use function is_numeric;
 use function preg_match;
 use function sprintf;
+use function str_ends_with;
 use function str_replace;
+use function str_starts_with;
+use function strlen;
+use function substr;
 
 final readonly class SQLServerMetadataProvider implements MetadataProvider
 {
@@ -264,8 +268,8 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
 
     private function parseDefaultExpression(string $value): string|SQLExpression|null
     {
-        while (preg_match('/^\((.*)\)$/s', $value, $matches) === 1) {
-            $value = $matches[1];
+        while ($this->isEnclosedInParentheses($value)) {
+            $value = substr($value, 1, -1);
         }
 
         if ($value === 'NULL') {
@@ -292,6 +296,46 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         }
 
         return new SQLExpression($value);
+    }
+
+    /**
+     * Returns whether the whole expression is enclosed in a single pair of parentheses, e.g. "(1 + 2)",
+     * as opposed to an expression that only starts and ends with parentheses, e.g. "(1)+(2)".
+     */
+    private function isEnclosedInParentheses(string $expression): bool
+    {
+        if (! str_starts_with($expression, '(') || ! str_ends_with($expression, ')')) {
+            return false;
+        }
+
+        $depth    = 0;
+        $inString = false;
+
+        for ($i = 0, $length = strlen($expression) - 1; $i < $length; $i++) {
+            $char = $expression[$i];
+
+            if ($char === "'") {
+                $inString = ! $inString;
+
+                continue;
+            }
+
+            if ($inString) {
+                continue;
+            }
+
+            if ($char === '(') {
+                $depth++;
+            } elseif ($char === ')') {
+                $depth--;
+            }
+
+            if ($depth === 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /** {@inheritDoc} */
