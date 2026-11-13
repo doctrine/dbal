@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
@@ -28,6 +29,8 @@ use Doctrine\DBAL\Types\Exception\TypesException;
 use function assert;
 use function count;
 use function implode;
+use function in_array;
+use function is_numeric;
 use function preg_match;
 use function sprintf;
 use function str_replace;
@@ -333,7 +336,18 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             return str_replace("''", "'", $matches[1]);
         }
 
-        return $expression;
+        if (
+            is_numeric($expression)
+            || in_array($expression, [
+                $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getCurrentDateSQL(),
+                $this->platform->getCurrentTimeSQL(),
+            ], true)
+        ) {
+            return $expression;
+        }
+
+        return new SQLExpression($expression);
     }
 
     /** {@inheritDoc} */

@@ -8,11 +8,14 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 
 use function array_change_key_case;
 use function array_key_exists;
 use function assert;
 use function implode;
+use function in_array;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -114,11 +117,10 @@ class OracleSchemaManager extends AbstractSchemaManager
             $tableColumn['data_default'] = null;
         }
 
-        if ($tableColumn['data_default'] !== null) {
-            // Default values returned from database are represented as literal expressions
-            if (preg_match('/^\'(.*)\'$/s', $tableColumn['data_default'], $matches) === 1) {
-                $tableColumn['data_default'] = str_replace("''", "'", $matches[1]);
-            }
+        $default = $tableColumn['data_default'];
+
+        if ($default !== null) {
+            $default = $this->parseDefaultExpression($default);
         }
 
         if ($tableColumn['data_precision'] !== null) {
@@ -173,7 +175,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $options = [
             'notnull'    => $tableColumn['nullable'] === 'N',
             'fixed'      => $fixed,
-            'default'    => $tableColumn['data_default'],
+            'default'    => $default,
             'length'     => $length,
             'precision'  => $precision,
             'scale'      => $scale,
@@ -187,6 +189,30 @@ class OracleSchemaManager extends AbstractSchemaManager
         $column->setTypeProvider($this->connection->getConfiguration()->getTypeProvider());
 
         return $column;
+    }
+
+    /**
+     * Parses a default value expression as given by Oracle
+     */
+    private function parseDefaultExpression(string $expression): string|SQLExpression
+    {
+        // Default values returned from database are represented as literal expressions
+        if (preg_match('/^\'((?:[^\']|\'\')*)\'$/s', $expression, $matches) === 1) {
+            return str_replace("''", "'", $matches[1]);
+        }
+
+        if (
+            is_numeric($expression)
+            || in_array($expression, [
+                $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getCurrentDateSQL(),
+                $this->platform->getCurrentTimeSQL(),
+            ], true)
+        ) {
+            return $expression;
+        }
+
+        return new SQLExpression($expression);
     }
 
     /**

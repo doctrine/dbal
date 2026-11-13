@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
@@ -18,6 +19,8 @@ use function explode;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
+use function in_array;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -339,7 +342,18 @@ SQL,
             return str_replace("''", "'", $matches[1]);
         }
 
-        return $expression;
+        if (
+            is_numeric($expression)
+            || in_array($expression, [
+                $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getCurrentDateSQL(),
+                $this->platform->getCurrentTimeSQL(),
+            ], true)
+        ) {
+            return $expression;
+        }
+
+        return new SQLExpression($expression);
     }
 
     protected function selectTableNames(string $databaseName): Result
