@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 
 use function array_change_key_case;
 use function assert;
@@ -16,6 +17,8 @@ use function explode;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
+use function in_array;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -159,15 +162,26 @@ SQL,
             return null;
         }
 
-        if (preg_match('/^\'(.*)\'$/s', $value, $matches) === 1) {
-            $value = str_replace("''", "'", $matches[1]);
+        if (preg_match('/^\'((?:[^\']|\'\')*)\'$/s', $value, $matches) === 1) {
+            return str_replace("''", "'", $matches[1]);
         }
 
         if ($value === 'getdate()') {
             return new CurrentTimestamp();
         }
 
-        return $value;
+        if (
+            is_numeric($value)
+            || in_array($value, [
+                $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getCurrentDateSQL(),
+                $this->platform->getCurrentTimeSQL(),
+            ], true)
+        ) {
+            return $value;
+        }
+
+        return new SQLExpression($value);
     }
 
     /**

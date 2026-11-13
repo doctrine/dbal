@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
@@ -30,6 +31,7 @@ use function array_map;
 use function assert;
 use function explode;
 use function implode;
+use function is_numeric;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -288,6 +290,12 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
 
         if ($this->platform instanceof MariaDBPlatform) {
             $default = $this->parseMariaDBColumnDefault($this->platform, $columnDefault);
+        } elseif (
+            $columnDefault !== null
+            && str_contains($extra, 'DEFAULT_GENERATED')
+            && $columnDefault !== $this->platform->getCurrentTimestampSQL()
+        ) {
+            $default = new SQLExpression(sprintf('(%s)', $columnDefault));
         } else {
             $default = $columnDefault;
         }
@@ -335,8 +343,10 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
      *
      * @param string|null $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
-    private function parseMariaDBColumnDefault(MariaDBPlatform $platform, ?string $columnDefault): ?string
-    {
+    private function parseMariaDBColumnDefault(
+        MariaDBPlatform $platform,
+        ?string $columnDefault,
+    ): string|SQLExpression|null {
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             return null;
         }
@@ -345,11 +355,15 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             return strtr($matches[1], self::MARIADB_ESCAPE_SEQUENCES);
         }
 
+        if (is_numeric($columnDefault)) {
+            return $columnDefault;
+        }
+
         return match ($columnDefault) {
             'current_timestamp()' => $platform->getCurrentTimestampSQL(),
             'curdate()' => $platform->getCurrentDateSQL(),
             'curtime()' => $platform->getCurrentTimeSQL(),
-            default => $columnDefault,
+            default => new SQLExpression($columnDefault),
         };
     }
 

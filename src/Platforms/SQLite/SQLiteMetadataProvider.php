@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\SQLite\SQLiteMetadataProvider\ForeignKeyConstraintDetails;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\Exception\UnsupportedSchema;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
@@ -30,6 +31,8 @@ use function array_map;
 use function assert;
 use function count;
 use function implode;
+use function in_array;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function preg_match_all;
@@ -217,17 +220,28 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         return new TableColumnMetadataRow(null, $tableName, $editor->create());
     }
 
-    private function parseDefaultExpression(string $value): ?string
+    private function parseDefaultExpression(string $value): string|SQLExpression|null
     {
         if ($value === 'NULL') {
             return null;
         }
 
-        if (preg_match('/^\'(.*)\'$/s', $value, $matches) === 1) {
-            $value = str_replace("''", "'", $matches[1]);
+        if (preg_match('/^\'((?:[^\']|\'\')*)\'$/s', $value, $matches) === 1) {
+            return str_replace("''", "'", $matches[1]);
         }
 
-        return $value;
+        if (
+            is_numeric($value)
+            || in_array($value, [
+                $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getCurrentDateSQL(),
+                $this->platform->getCurrentTimeSQL(),
+            ], true)
+        ) {
+            return $value;
+        }
+
+        return new SQLExpression(sprintf('(%s)', $value));
     }
 
     /** @link https://www.sqlite.org/autoinc.html#the_autoincrement_keyword */

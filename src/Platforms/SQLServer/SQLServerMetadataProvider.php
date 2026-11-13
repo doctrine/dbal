@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
@@ -27,6 +28,8 @@ use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function assert;
 use function implode;
+use function in_array;
+use function is_numeric;
 use function preg_match;
 use function sprintf;
 use function str_replace;
@@ -259,7 +262,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         return new TableColumnMetadataRow($schemaName, $tableName, $editor->create());
     }
 
-    private function parseDefaultExpression(string $value): ?string
+    private function parseDefaultExpression(string $value): string|SQLExpression|null
     {
         while (preg_match('/^\((.*)\)$/s', $value, $matches) === 1) {
             $value = $matches[1];
@@ -269,15 +272,26 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
             return null;
         }
 
-        if (preg_match('/^\'(.*)\'$/s', $value, $matches) === 1) {
-            $value = str_replace("''", "'", $matches[1]);
+        if (preg_match('/^\'((?:[^\']|\'\')*)\'$/s', $value, $matches) === 1) {
+            return str_replace("''", "'", $matches[1]);
         }
 
         if ($value === 'getdate()') {
             return $this->platform->getCurrentTimestampSQL();
         }
 
-        return $value;
+        if (
+            is_numeric($value)
+            || in_array($value, [
+                $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getCurrentDateSQL(),
+                $this->platform->getCurrentTimeSQL(),
+            ], true)
+        ) {
+            return $value;
+        }
+
+        return new SQLExpression($value);
     }
 
     /** {@inheritDoc} */

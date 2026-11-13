@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
@@ -27,6 +28,8 @@ use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function assert;
 use function implode;
+use function in_array;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -243,7 +246,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
         return new TableColumnMetadataRow(null, $tableName, $editor->create());
     }
 
-    private function parseDefaultExpression(?string $expression): ?string
+    private function parseDefaultExpression(?string $expression): string|SQLExpression|null
     {
         // Default values returned from the database sometimes have trailing spaces.
         if (is_string($expression)) {
@@ -255,11 +258,22 @@ final readonly class OracleMetadataProvider implements MetadataProvider
         }
 
         // Default values returned from the database are represented as literal expressions
-        if (preg_match('/^\'(.*)\'$/s', $expression, $matches) === 1) {
+        if (preg_match('/^\'((?:[^\']|\'\')*)\'$/s', $expression, $matches) === 1) {
             return str_replace("''", "'", $matches[1]);
         }
 
-        return $expression;
+        if (
+            is_numeric($expression)
+            || in_array($expression, [
+                $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getCurrentDateSQL(),
+                $this->platform->getCurrentTimeSQL(),
+            ], true)
+        ) {
+            return $expression;
+        }
+
+        return new SQLExpression($expression);
     }
 
     /** {@inheritDoc} */
