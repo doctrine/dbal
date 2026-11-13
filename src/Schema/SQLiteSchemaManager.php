@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
@@ -20,6 +21,8 @@ use function count;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
+use function in_array;
+use function is_numeric;
 use function is_string;
 use function preg_match;
 use function preg_match_all;
@@ -102,10 +105,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         }
 
         if ($default !== null) {
-            // SQLite returns the default value as a literal expression, so we need to parse it
-            if (preg_match('/^\'(.*)\'$/s', $default, $matches) === 1) {
-                $default = str_replace("''", "'", $matches[1]);
-            }
+            $default = $this->parseDefaultExpression($default);
         }
 
         $notnull = (bool) $tableColumn['notnull'];
@@ -134,6 +134,30 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         }
 
         return $column;
+    }
+
+    /**
+     * Parses a default value expression as given by SQLite
+     */
+    private function parseDefaultExpression(string $value): string|SQLExpression
+    {
+        // SQLite returns the default value as a literal expression, so we need to parse it
+        if (preg_match('/^\'((?:[^\']|\'\')*)\'$/s', $value, $matches) === 1) {
+            return str_replace("''", "'", $matches[1]);
+        }
+
+        if (
+            is_numeric($value)
+            || in_array($value, [
+                $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getCurrentDateSQL(),
+                $this->platform->getCurrentTimeSQL(),
+            ], true)
+        ) {
+            return $value;
+        }
+
+        return new SQLExpression(sprintf('(%s)', $value));
     }
 
     /**
