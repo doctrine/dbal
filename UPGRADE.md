@@ -8,6 +8,16 @@ awareness about deprecated code.
 
 # Upgrade to 4.6
 
+## Non-literal column defaults are introspected as SQL expressions
+
+Schema introspection now returns non-literal column defaults, such as function calls, as
+`Doctrine\DBAL\Schema\DefaultExpression\SQLExpression` objects instead of strings. Code consuming
+`Column::getDefault()` must handle `DefaultExpression` values.
+
+Declare function defaults with `new SQLExpression('gen_random_uuid()')` instead of a plain string,
+using the expression in the form normalized by the database. Existing string declarations may now
+produce schema differences that replace the function default with a string literal.
+
 ## Deprecated not passing `$isClustered` to the `UniqueConstraintColumnMetadataRow` constructor
 
 Not passing `$isClustered` to the `Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow` constructor is
