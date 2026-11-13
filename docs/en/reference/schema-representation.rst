@@ -172,8 +172,8 @@ Portable options
 The following options are considered to be fully portable across all database platforms:
 
 -  **notnull** (boolean): Whether the column is nullable or not. Defaults to ``true``.
--  **default** (integer|string): The default value of the column if no value was specified.
-   Defaults to ``null``.
+-  **default** (integer|string or ``DefaultExpression``): The default value of the column if no
+   value was specified. See `Default expressions`_. Defaults to ``null``.
 -  **autoincrement** (boolean): Whether this column should use an autoincremented value if
    no value was specified. Only applies to Doctrine's ``smallint``, ``integer``
    and ``bigint`` types. Defaults to ``false``.
@@ -189,6 +189,53 @@ The following options are considered to be fully portable across all database pl
    ``decimal``, ``number`` or ``float`` type column. Defaults to ``0``.
 -  **customSchemaOptions** (array): Additional options for the column that are
    supported by all vendors:
+
+Default expressions
+^^^^^^^^^^^^^^^^^^^
+
+A string default value is always declared as a string literal. To use an SQL expression, such as
+a function call, as the default value, use an implementation of
+``Doctrine\DBAL\Schema\DefaultExpression``:
+
+-  ``CurrentTimestamp``, ``CurrentDate`` and ``CurrentTime`` represent the current date and time
+   in a portable way.
+-  ``SQLExpression`` represents an arbitrary SQL expression, which is declared as is.
+
+.. code-block:: php
+
+    <?php
+    use Doctrine\DBAL\Schema\Column;
+    use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
+    use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
+
+    $createdAt = Column::editor()
+        ->setUnquotedName('created_at')
+        ->setTypeName('datetime')
+        ->setDefaultValue(new CurrentTimestamp())
+        ->create();
+
+    $id = Column::editor()
+        ->setUnquotedName('id')
+        ->setTypeName('guid')
+        ->setDefaultValue(new SQLExpression('gen_random_uuid()'))
+        ->create();
+
+Schema introspection returns an expression default as an ``SQLExpression`` containing the expression
+as normalized by the database. In order for the declared and the introspected column to match,
+specify the expression in the normalized form, for example:
+
+-  PostgreSQL: ``gen_random_uuid()``, ``upper('abc'::text)``
+-  MySQL: ``(uuid())``
+-  MariaDB: ``uuid()``, ``ucase('abc')``
+-  SQL Server: ``newid()``, ``(1)+(2)``
+-  Oracle: ``SYS_GUID()``, ``SYSDATE``
+-  SQLite: ``(lower(hex(randomblob(16))))``
+
+.. note::
+
+    A function declared as a string default value, e.g. ``'gen_random_uuid()'``, is a string
+    literal, so it does not match an introspected expression default. Declare it as an
+    ``SQLExpression`` instead.
 
 Common options
 ^^^^^^^^^^^^^^
