@@ -1145,8 +1145,11 @@ class Connection implements ServerVersionProvider
                 }
             }
         } else {
-            $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
-            --$this->transactionNestingLevel;
+            try {
+                $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
+            } finally {
+                --$this->transactionNestingLevel;
+            }
         }
     }
 
