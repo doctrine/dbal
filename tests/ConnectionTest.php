@@ -276,6 +276,57 @@ class ConnectionTest extends TestCase
         self::assertTrue($conn->isTransactionActive());
     }
 
+    public function testNestedRollBackFailureDoesNotLeaveTransactionNestingLevelStuck(): void
+    {
+        $platform = self::createStub(AbstractPlatform::class);
+        $platform
+            ->method('supportsSavepoints')
+            ->willReturn(true);
+        $platform
+            ->method('createSavePoint')
+            ->willReturn('SAVEPOINT SAVEPOINT_2');
+        $platform
+            ->method('rollbackSavePoint')
+            ->willReturn('ROLLBACK TO SAVEPOINT SAVEPOINT_2');
+
+        $driver = self::createStub(Driver::class);
+        $driver
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $conn = $this->getMockBuilder(Connection::class)
+            ->onlyMethods(['executeStatement'])
+            ->setConstructorArgs([[], $driver])
+            ->getMock();
+
+        $failure = new RuntimeException('Savepoint does not exist');
+
+        $conn->method('executeStatement')
+            ->willReturnCallback(static function (string $sql) use ($failure): int {
+                if ($sql === 'ROLLBACK TO SAVEPOINT SAVEPOINT_2') {
+                    throw $failure;
+                }
+
+                return 0;
+            });
+
+        $conn->beginTransaction();
+        $conn->beginTransaction();
+
+        try {
+            $conn->rollBack();
+            self::fail('Expected the savepoint rollback to fail.');
+        } catch (RuntimeException $e) {
+            self::assertSame($failure, $e);
+        }
+
+        self::assertSame(1, $conn->getTransactionNestingLevel());
+
+        $conn->rollBack();
+
+        self::assertFalse($conn->isTransactionActive());
+    }
+
     public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions(): void
     {
         $platform = self::createStub(AbstractPlatform::class);
