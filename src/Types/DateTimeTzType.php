@@ -78,6 +78,14 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             return $dateTime;
         }
 
+        foreach ($platform->getDateTimeTzFallbackFormatStrings() as $format) {
+            $dateTime = DateTime::createFromFormat($format, $value);
+
+            if ($dateTime !== false) {
+                return $dateTime;
+            }
+        }
+
         throw InvalidFormat::new(
             $value,
             static::class,
