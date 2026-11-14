@@ -11,11 +11,14 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeUtcType;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class DateTimeUtcTypeTest extends TestCase
 {
+    use VerifyDeprecations;
+
     private AbstractPlatform&Stub $platform;
     private DateTimeUtcType $type;
 
@@ -104,5 +107,12 @@ class DateTimeUtcTypeTest extends TestCase
         $this->expectException(ConversionException::class);
 
         $this->type->convertToPHPValue('invalid datetime string', $this->platform);
+    }
+
+    public function testIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7575');
+
+        $this->type->convertToPHPValue('2016-01-01 20:58:59', $this->platform);
     }
 }

@@ -8,11 +8,14 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\VarDateTimeType;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class VarDateTimeTest extends TestCase
 {
+    use VerifyDeprecations;
+
     private AbstractPlatform&Stub $platform;
     private VarDateTimeType $type;
 
@@ -67,5 +70,12 @@ class VarDateTimeTest extends TestCase
     {
         $date = new DateTime('now');
         self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
+    }
+
+    public function testIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7575');
+
+        $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
     }
 }
