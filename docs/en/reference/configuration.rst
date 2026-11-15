@@ -186,6 +186,130 @@ driver ``Connection``. The ``wrapperClass`` option allows
 specifying a custom wrapper implementation to use, however, a custom
 wrapper class must be a subclass of ``Doctrine\DBAL\Connection``.
 
+Primary/Replica Connections
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``Doctrine\DBAL\Connections\PrimaryReadReplicaConnection`` wrapper routes
+read operations to a replica server and write operations to the primary server.
+Configure it by passing the connection parameters of the primary server in the
+``primary`` parameter, a list of replicas in the ``replica`` parameter and the
+wrapper class in the ``wrapperClass`` parameter:
+
+.. code-block:: php
+
+    <?php
+    use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
+    use Doctrine\DBAL\DriverManager;
+
+    //..
+    $conn = DriverManager::getConnection([
+        'wrapperClass' => PrimaryReadReplicaConnection::class,
+        'driver' => 'pdo_mysql',
+        'primary' => [
+            'user' => 'primary_user',
+            'password' => 'secret',
+            'host' => 'primary.example.com',
+            'dbname' => 'mydb',
+        ],
+        'replica' => [
+            [
+                'user' => 'replica_user',
+                'password' => 'secret',
+                'host' => 'replica1.example.com',
+                'dbname' => 'mydb',
+            ],
+            [
+                'user' => 'replica_user',
+                'password' => 'secret',
+                'host' => 'replica2.example.com',
+                'dbname' => 'mydb',
+            ],
+        ],
+    ]);
+
+Both ``primary`` and ``replica`` are required, and at least one replica must be
+configured. The connection details of each server must be given in its own
+entry. The top-level ``driver`` is reused for all of them, and a replica that
+does not specify ``charset`` inherits it from the primary. ``keepReplica`` is a
+top-level option; its value inside the ``primary`` or ``replica`` entries is
+ignored.
+
+The connection routes the operations as follows:
+
+-  Read operations, such as ``executeQuery()`` and the fetching methods built
+   on it, such as ``fetchAllAssociative()``, use a replica while the connection
+   is not currently connected to the primary server.
+-  Write operations, such as ``executeStatement()``, ``insert()``, ``update()``
+   and ``delete()``, as well as transaction control methods, including the
+   savepoint methods, and ``prepare()``, connect to the primary server.
+   ``prepare()`` does not modify data; it just binds the statement to the
+   primary connection.
+-  Once the connection has been switched to the primary server, subsequent
+   operations use it for the remaining lifetime of the connection, unless it is
+   switched back to a replica explicitly with ``ensureConnectedToReplica()``.
+
+One replica is picked at random when a replica connection is opened. The
+selected replica is reused until the connection is closed; the next replica
+connection is chosen randomly again.
+
+While a transaction is open, the connection always uses the primary server, and
+``ensureConnectedToReplica()`` has no effect. Switch back to a replica only
+after ``commit()`` or ``rollBack()``.
+
+The ``keepReplica`` parameter controls whether the replica connection stays
+open when the connection is switched to the primary server. By default, the
+replica connection is replaced by the primary connection, and
+``ensureConnectedToReplica()`` silently keeps the primary connection. When
+``keepReplica`` is ``true``, an already open replica connection is kept, and
+``ensureConnectedToReplica()`` switches back to it, opening a new replica
+connection if none was open:
+
+.. code-block:: php
+
+    <?php
+    use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
+    use Doctrine\DBAL\DriverManager;
+
+    //..
+    $conn = DriverManager::getConnection([
+        'wrapperClass' => PrimaryReadReplicaConnection::class,
+        'driver' => 'pdo_mysql',
+        'primary' => [/* ... */],
+        'replica' => [/* ... */],
+        'keepReplica' => true,
+    ]);
+
+    // opens a replica connection
+    $conn->ensureConnectedToReplica();
+
+    // switches to the primary server, keeping the replica connection open
+    $conn->ensureConnectedToPrimary();
+
+    // switches back to the replica
+    $conn->ensureConnectedToReplica();
+
+Enabling ``keepReplica`` does not by itself route read operations to a replica.
+Once the connection has been switched to the primary server, read operations
+continue to use it until the connection is switched back to a replica
+explicitly with ``ensureConnectedToReplica()``, or until the connection is
+closed. A later write operation switches the connection to the primary server
+again.
+
+Use ``isConnectedToPrimary()`` to check whether the connection is currently
+connected to the primary server. It returns ``false`` when no connection is
+open. ``connect()`` no longer accepts a connection name; use
+``ensureConnectedToPrimary()`` and ``ensureConnectedToReplica()`` to switch
+explicitly.
+
+.. note::
+
+    Operations are routed based on the method that is called, not based on the
+    SQL statement being executed. A statement that modifies data and is
+    executed via ``executeQuery()`` is routed like a read operation and may be
+    sent to a replica, or to the primary server if the connection has already
+    been switched to it. Use ``executeStatement()`` for such statements so
+    that they are sent to the primary server.
+
 Connection Details
 ~~~~~~~~~~~~~~~~~~
 
