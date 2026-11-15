@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Types;
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateType;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use Override;
 
 use function date_default_timezone_set;
@@ -14,6 +15,8 @@ use function date_default_timezone_set;
 /** @extends BaseDateTypeTestCase<DateType> */
 class DateTest extends BaseDateTypeTestCase
 {
+    use VerifyDeprecations;
+
     #[Override]
     protected function setUp(): void
     {
@@ -58,5 +61,12 @@ class DateTest extends BaseDateTypeTestCase
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
+    }
+
+    public function testIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7575');
+
+        $this->type->convertToPHPValue('1985-09-01', $this->platform);
     }
 }

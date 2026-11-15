@@ -7,11 +7,14 @@ namespace Doctrine\DBAL\Tests\Types;
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\TimeType;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use Override;
 
 /** @extends BaseDateTypeTestCase<TimeType> */
 class TimeTest extends BaseDateTypeTestCase
 {
+    use VerifyDeprecations;
+
     #[Override]
     protected function setUp(): void
     {
@@ -40,5 +43,12 @@ class TimeTest extends BaseDateTypeTestCase
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
+    }
+
+    public function testIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7575');
+
+        $this->type->convertToPHPValue('5:30:55', $this->platform);
     }
 }

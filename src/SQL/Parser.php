@@ -31,14 +31,17 @@ final readonly class Parser
     private const string SPECIAL_CHARS = ':\?\'"`\\[\\-\\/';
 
     private const string BACKTICK_IDENTIFIER  = '`[^`]*`';
-    private const string BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
+    private const string BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[[^\]]*+\]';
     private const string MULTICHAR            = ':{2,}';
     private const string NAMED_PARAMETER      = ':[a-zA-Z0-9_]+';
     private const string POSITIONAL_PARAMETER = '(?<!\\?)\\?(?!\\?)';
     private const string ONE_LINE_COMMENT     = '--[^\r\n]*';
-    private const string MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
+    private const string MULTI_LINE_COMMENT   = '/\*[^*]*+\*++(?:[^/*][^*]*+\*++)*+/';
     private const string SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
-    private const string OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
+    private const string OTHER                = '[^' . self::SPECIAL_CHARS . ']++';
+
+    // An unbounded run exhausts pcre.backtrack_limit on multi-megabyte statements.
+    private const int MAX_TOKENS_PER_MATCH = 64;
 
     private string $sqlPattern;
     private string $tokenPattern;
@@ -70,7 +73,8 @@ final readonly class Parser
         $this->tokenPattern = '~\\G'
             . '(?P<named>' . self::NAMED_PARAMETER . ')'
             . '|(?P<positional>' . self::POSITIONAL_PARAMETER . ')'
-            . '|(?P<other>' . $this->sqlPattern . '|' . self::SPECIAL . ')'
+            . '|(?P<other>(?&token){1,' . self::MAX_TOKENS_PER_MATCH . '}+|' . self::SPECIAL . ')'
+            . '(?(DEFINE)(?<token>' . $this->sqlPattern . '))'
             . '~s';
     }
 
@@ -103,11 +107,11 @@ final readonly class Parser
 
     private function getMySQLStringLiteralPattern(string $delimiter): string
     {
-        return $delimiter . '((\\\\.)|(?![' . $delimiter . '\\\\]).)*' . $delimiter;
+        return $delimiter . '[^' . $delimiter . '\\\\]*+(?:\\\\.[^' . $delimiter . '\\\\]*+)*+' . $delimiter;
     }
 
     private function getAnsiSQLStringLiteralPattern(string $delimiter): string
     {
-        return $delimiter . '[^' . $delimiter . ']*' . $delimiter;
+        return $delimiter . '[^' . $delimiter . ']*+' . $delimiter;
     }
 }

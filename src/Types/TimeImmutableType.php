@@ -11,7 +11,7 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 use Override;
 
 /**
- * Immutable type of {@see TimeType}.
+ * Type that maps an SQL TIME to a PHP {@see DateTimeImmutable} object.
  */
 class TimeImmutableType extends Type
 {

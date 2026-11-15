@@ -8,16 +8,21 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+use Doctrine\Deprecations\Deprecation;
 use Override;
 
 /**
- * Type that maps an SQL TIME to a PHP DateTime object.
+ * Mutable variant of {@see TimeImmutableType}.
+ *
+ * @deprecated Use {@see TimeImmutableType} instead.
  */
 class TimeType extends Type
 {
     #[Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
+        $this->triggerDeprecation();
+
         return $platform->getTimeTypeDeclarationSQL($column);
     }
 
@@ -31,6 +36,8 @@ class TimeType extends Type
     #[Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
+        $this->triggerDeprecation();
+
         if ($value === null) {
             return $value;
         }
@@ -52,6 +59,8 @@ class TimeType extends Type
     #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTime
     {
+        $this->triggerDeprecation();
+
         if ($value === null || $value instanceof DateTime) {
             return $value;
         }
@@ -65,6 +74,17 @@ class TimeType extends Type
             $value,
             static::class,
             $platform->getTimeFormatString(),
+        );
+    }
+
+    private function triggerDeprecation(): void
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7575',
+            'The "%s" type is deprecated. Use the "%s" type instead.',
+            self::class,
+            TimeImmutableType::class,
         );
     }
 }

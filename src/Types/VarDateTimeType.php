@@ -7,15 +7,14 @@ namespace Doctrine\DBAL\Types;
 use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+use Doctrine\Deprecations\Deprecation;
 use Exception;
 use Override;
 
 /**
- * Variable DateTime Type using DateTime::__construct() instead of DateTime::createFromFormat().
+ * Mutable variant of {@see VarDateTimeImmutableType}.
  *
- * This type has performance implications as it runs twice as long as the regular
- * {@see DateTimeType}, however in certain PostgreSQL configurations with
- * TIMESTAMP(n) columns where n > 0 it is necessary to use this type.
+ * @deprecated Use {@see VarDateTimeImmutableType} instead.
  */
 class VarDateTimeType extends DateTimeType
 {
@@ -29,6 +28,8 @@ class VarDateTimeType extends DateTimeType
     #[Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTime
     {
+        $this->triggerDeprecation();
+
         if ($value === null || $value instanceof DateTime) {
             return $value;
         }
@@ -40,5 +41,17 @@ class VarDateTimeType extends DateTimeType
         }
 
         return $dateTime;
+    }
+
+    #[Override]
+    protected function triggerDeprecation(): void
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7575',
+            'The "%s" type is deprecated. Use the "%s" type instead.',
+            self::class,
+            VarDateTimeImmutableType::class,
+        );
     }
 }

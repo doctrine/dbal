@@ -13,7 +13,7 @@ use Override;
 use Throwable;
 
 /**
- * Immutable variant of {@see DateTimeUtcType}.
+ * Type that maps an SQL DATETIME/TIMESTAMP to a PHP {@see DateTimeImmutable} object and stores it in UTC.
  *
  * Values are converted to the UTC timezone before being persisted, so that no timezone
  * information needs to be stored in the database. When read back, the stored value is
