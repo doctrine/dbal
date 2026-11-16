@@ -19,7 +19,7 @@ final class UnsupportedSchema extends RuntimeException implements SchemaExceptio
         if ($constraintName !== null) {
             $constraintReference = sprintf('"%s"', $constraintName);
         } else {
-            $constraintReference = '<unnamed>';
+            $constraintReference = self::UNNAMED;
         }
 
         return new self(sprintf(
