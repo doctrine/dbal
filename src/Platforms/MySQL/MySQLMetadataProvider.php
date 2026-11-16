@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function array_map;
@@ -435,6 +436,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[4],
                 columnLength: $length,
+                origin: ObjectOrigin::DECLARED,
             );
         }
     }

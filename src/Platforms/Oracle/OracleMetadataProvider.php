@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function assert;
@@ -35,6 +36,7 @@ use function str_replace;
 use function str_starts_with;
 use function strtolower;
 use function trim;
+use function version_compare;
 
 final readonly class OracleMetadataProvider implements MetadataProvider
 {
@@ -291,12 +293,26 @@ final readonly class OracleMetadataProvider implements MetadataProvider
     {
         $params = [];
 
+        $reportsDerivedIndexes = version_compare($this->connection->getServerVersion(), '19', '>=');
+
+        if ($reportsDerivedIndexes) {
+            $isDerivedColumnSQL = <<<'SQL'
+                ,
+                CASE
+                    WHEN C.CONSTRAINT_TYPE = 'U' AND I.CONSTRAINT_INDEX = 'YES' THEN 1
+                    ELSE 0
+                END
+                SQL;
+        } else {
+            $isDerivedColumnSQL = '';
+        }
+
         $sql = sprintf(
             <<<'SQL'
             SELECT I.TABLE_NAME,
                    I.INDEX_NAME,
                    I.UNIQUENESS,
-                   IC.COLUMN_NAME
+                   IC.COLUMN_NAME%s
             FROM USER_INDEXES I
                      LEFT JOIN USER_CONSTRAINTS C
                                ON C.INDEX_NAME = I.INDEX_NAME
@@ -308,10 +324,17 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                      I.INDEX_NAME,
                      IC.COLUMN_POSITION
             SQL,
+            $isDerivedColumnSQL,
             $this->buildTableQueryPredicate('I', $tableName, $params),
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            if ($reportsDerivedIndexes && $row[4]) {
+                $origin = ObjectOrigin::DERIVED;
+            } else {
+                $origin = ObjectOrigin::DECLARED;
+            }
+
             yield new IndexColumnMetadataRow(
                 schemaName: null,
                 tableName: $row[0],
@@ -321,6 +344,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[3],
                 columnLength: null,
+                origin: $origin,
             );
         }
     }
@@ -444,6 +468,7 @@ final readonly class OracleMetadataProvider implements MetadataProvider
                 name: $row[1],
                 columnName: $row[2],
                 isClustered: false,
+                origin: ObjectOrigin::DECLARED,
             );
         }
     }

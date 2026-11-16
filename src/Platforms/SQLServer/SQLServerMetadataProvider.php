@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function assert;
@@ -312,7 +313,8 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                    i.name,
                    i.is_unique,
                    i.type,
-                   c.name
+                   c.name,
+                   i.is_unique_constraint
             FROM sys.tables AS t
                      JOIN sys.schemas AS s
                           ON t.schema_id = s.schema_id
@@ -335,6 +337,12 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
         );
 
         foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            if ($row[6]) {
+                $origin = ObjectOrigin::DERIVED;
+            } else {
+                $origin = ObjectOrigin::DECLARED;
+            }
+
             yield new IndexColumnMetadataRow(
                 schemaName: $row[0],
                 tableName: $row[1],
@@ -344,6 +352,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 predicate: null,
                 columnName: $row[5],
                 columnLength: null,
+                origin: $origin,
             );
         }
     }
@@ -485,6 +494,7 @@ final readonly class SQLServerMetadataProvider implements MetadataProvider
                 name: $row[2],
                 columnName: $row[3],
                 isClustered: (int) $row[4] === 1,
+                origin: ObjectOrigin::DECLARED,
             );
         }
     }
