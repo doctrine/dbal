@@ -201,6 +201,7 @@ final class TableEditor
                 $this->indexes->modify($index->getObjectName(), static function (Index $index) use ($columns): Index {
                     return $index->edit()
                         ->setColumns(...$columns)
+                        ->setOrigin($index->getOrigin())
                         ->create();
                 });
             }

@@ -1092,6 +1092,43 @@ final class SchemaManagerTest extends FunctionalTestCase
         self::assertCount(1, [...array_values($declaredIndexes), ...array_values($declaredUniqueConstraints)]);
     }
 
+    public function testRecreateIntrospectedTableWithUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+
+        $table = $this->createTableWithEmailUniqueConstraint();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        $recreated = $this->schemaManager->introspectTableByUnquotedName('users');
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($table, $recreated)
+                ->isEmpty(),
+        );
+    }
+
+    public function testRecreateIntrospectedTableAfterRenamingUniqueConstraintColumn(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+
+        $table = $this->createTableWithEmailUniqueConstraint()
+            ->edit()
+            ->renameColumnByUnquotedName('email', 'login')
+            ->create();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $table)
+                ->isEmpty(),
+        );
+    }
+
     private function skipUnlessUniqueConstraintIndexIsDerived(): void
     {
         $platform = $this->connection->getDatabasePlatform();
