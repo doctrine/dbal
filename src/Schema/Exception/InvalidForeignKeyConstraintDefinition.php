@@ -38,6 +38,6 @@ final class InvalidForeignKeyConstraintDefinition extends LogicException impleme
 
     private static function formatName(?UnqualifiedName $constraintName): string
     {
-        return $constraintName === null ? '<unnamed>' : $constraintName->toString();
+        return $constraintName === null ? self::UNNAMED : $constraintName->toString();
     }
 }

@@ -121,6 +121,6 @@ final class InvalidTableModification extends LogicException implements SchemaExc
 
     private static function formatTableName(?OptionallyQualifiedName $tableName): string
     {
-        return $tableName === null ? '<unnamed>' : $tableName->toString();
+        return $tableName === null ? self::UNNAMED : $tableName->toString();
     }
 }
