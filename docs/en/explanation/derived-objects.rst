@@ -11,3 +11,14 @@ objects that exist because of them:
 The DBAL calls such an object *derived*, and an object of the application's
 schema *declared*. ``Index::getOrigin()`` and ``UniqueConstraint::getOrigin()``
 tell them apart.
+
+How the DBAL treats derived objects
+-----------------------------------
+
+The DBAL emits DDL only for declared objects. The database maintains the
+derived ones itself.
+
+Only introspection produces derived objects. An index or unique constraint that
+the application creates or changes is declared. Renaming a column changes the
+column, not the objects that cover it, so a derived object that covers the
+column stays derived.

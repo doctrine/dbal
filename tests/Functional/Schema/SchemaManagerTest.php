@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -1111,6 +1112,80 @@ final class SchemaManagerTest extends FunctionalTestCase
         );
     }
 
+    public function testCompareIntrospectedTableWithUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReportedAsDerived();
+
+        $table = $this->declareTableWithEmailUniqueConstraint();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $table)
+                ->isEmpty(),
+        );
+    }
+
+    public function testDeclareUniqueIndexOnOtherColumnWithNameOfUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReportedAsDerived();
+
+        $desired = $this->declareTableWithEmailUniqueConstraint()
+            ->edit()
+            ->setUniqueConstraints()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()
+            ->compareTables($this->createTableWithEmailUniqueConstraint(), $desired);
+
+        self::assertCount(1, $diff->getAddedIndexes());
+        self::assertCount(0, $diff->getDroppedIndexes());
+    }
+
+    public function testDeclarePrimaryKeyWithNameOfUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReportedAsDerived();
+
+        $table = $this->declareTableWithEmailUniqueConstraint()
+            ->edit()
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        $desired = $table->edit()
+            ->setUniqueConstraints()
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $desired);
+
+        self::assertCount(
+            1,
+            array_filter($diff->getAddedIndexes(), static fn (Index $index): bool => $index->isPrimary()),
+        );
+    }
+
     public function testRecreateIntrospectedTableAfterRenamingUniqueConstraintColumn(): void
     {
         $this->skipUnlessUniqueConstraintIndexIsReported();
@@ -1146,6 +1221,20 @@ final class SchemaManagerTest extends FunctionalTestCase
 
         self::assertCount(0, $diff->getAddedIndexes());
         self::assertSame(['users_email_uq'], array_keys($diff->getRenamedIndexes()));
+    }
+
+    /**
+     * Skips the test unless introspection reports the index that backs a unique constraint as a derived object.
+     */
+    private function skipUnlessUniqueConstraintIndexIsReportedAsDerived(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('MySQL and MariaDB implement a unique constraint as a unique index.');
+        }
+
+        $this->skipUnlessUniqueConstraintIndexIsReported();
     }
 
     /**
