@@ -21,13 +21,13 @@ class InvalidColumnDeclarationTest extends TestCase
     {
         $exception = InvalidColumnDeclaration::fromInvalidColumnType(null, ColumnPrecisionRequired::new());
 
-        self::assertSame('Column has invalid type', $exception->getMessage());
+        self::assertSame('Column "<unnamed>" has invalid type', $exception->getMessage());
     }
 
     public function testFromInvalidColumnTypeWithEmptyColumnName(): void
     {
         $exception = InvalidColumnDeclaration::fromInvalidColumnType('', ColumnPrecisionRequired::new());
 
-        self::assertSame('Column has invalid type', $exception->getMessage());
+        self::assertSame('Column "<unnamed>" has invalid type', $exception->getMessage());
     }
 }
