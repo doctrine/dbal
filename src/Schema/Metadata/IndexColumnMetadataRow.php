@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Metadata;
 
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\ObjectOrigin;
+use Doctrine\Deprecations\Deprecation;
+
+use function func_num_args;
 
 /**
  * A row of metadata describing an index column.
@@ -28,7 +32,16 @@ final readonly class IndexColumnMetadataRow
         private ?string $predicate,
         private string $columnName,
         private ?int $columnLength,
+        private ObjectOrigin $origin = ObjectOrigin::DECLARED,
     ) {
+        if (func_num_args() < 9) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7620',
+                'Not passing $origin to %s() is deprecated.',
+                __METHOD__,
+            );
+        }
     }
 
     /** @return ?non-empty-string */
@@ -75,5 +88,10 @@ final readonly class IndexColumnMetadataRow
     public function getColumnLength(): ?int
     {
         return $this->columnLength;
+    }
+
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
     }
 }

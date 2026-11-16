@@ -6,6 +6,14 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 4.7
+
+## Deprecated not passing `$origin` to the metadata row constructors
+
+Not passing `$origin` to the constructors of `Doctrine\DBAL\Schema\Metadata\IndexColumnMetadataRow` and
+`Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow` is deprecated. Pass the origin of the index or
+unique constraint. The argument will become required in DBAL 5.0.
+
 # Upgrade to 4.6
 
 ## Deprecated the mutable date/time types

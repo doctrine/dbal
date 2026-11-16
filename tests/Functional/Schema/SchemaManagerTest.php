@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -20,6 +21,7 @@ use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
@@ -31,8 +33,10 @@ use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
+use function array_filter;
 use function array_values;
 use function sprintf;
+use function version_compare;
 
 final class SchemaManagerTest extends FunctionalTestCase
 {
@@ -1067,5 +1071,87 @@ final class SchemaManagerTest extends FunctionalTestCase
                 return $provider->getTableOptionsForTable($schemaName, $tableName);
             },
         ];
+    }
+
+    public function testUniqueConstraintIntrospectsAsOneDeclaredObject(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+
+        $table = $this->createTableWithEmailUniqueConstraint();
+
+        $declaredIndexes = array_filter(
+            $table->getIndexes(),
+            static fn (Index $index): bool => $index->getOrigin() === ObjectOrigin::DECLARED,
+        );
+
+        $declaredUniqueConstraints = array_filter(
+            $table->getUniqueConstraints(),
+            static fn (UniqueConstraint $constraint): bool => $constraint->getOrigin() === ObjectOrigin::DECLARED,
+        );
+
+        self::assertCount(1, [...array_values($declaredIndexes), ...array_values($declaredUniqueConstraints)]);
+    }
+
+    private function skipUnlessUniqueConstraintIndexIsDerived(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('MySQL and MariaDB introspect a unique constraint as a unique index.');
+        }
+
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+    }
+
+    private function skipUnlessUniqueConstraintIndexIsReported(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLitePlatform) {
+            self::markTestSkipped('SQLite does not report the index that backs a unique constraint.');
+        }
+
+        if (! $platform instanceof OraclePlatform) {
+            return;
+        }
+
+        if (version_compare($this->connection->getServerVersion(), '19', '>=')) {
+            return;
+        }
+
+        self::markTestSkipped('Oracle 18c does not report which indexes back unique constraints.');
+    }
+
+    private function createTableWithEmailUniqueConstraint(): Table
+    {
+        $this->dropTableIfExists('users');
+
+        $this->schemaManager->createTable($this->declareTableWithEmailUniqueConstraint());
+
+        return $this->schemaManager->introspectTableByUnquotedName('users');
+    }
+
+    private function declareTableWithEmailUniqueConstraint(): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
     }
 }

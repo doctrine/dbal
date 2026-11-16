@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -91,5 +92,55 @@ class UniqueConstraintTest extends TestCase
     {
         yield 'clustered' => [['clustered'], true];
         yield 'not clustered' => [[], false];
+    }
+
+    public function testEditedUniqueConstraintIsDeclared(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        self::assertSame(ObjectOrigin::DECLARED, $uniqueConstraint->edit()->create()->getOrigin());
+    }
+
+    public function testClusteredUniqueConstraintKeepsItsOrigin(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setIsClustered(true)
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        self::assertSame(ObjectOrigin::DERIVED, $uniqueConstraint->getOrigin());
+    }
+
+    public function testUniqueConstraintWithAddedFlagIsDeclared(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        $uniqueConstraint->addFlag('clustered');
+
+        self::assertSame(ObjectOrigin::DECLARED, $uniqueConstraint->getOrigin());
+    }
+
+    public function testUniqueConstraintWithRemovedFlagIsDeclared(): void
+    {
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setUnquotedColumnNames('email')
+            ->setIsClustered(true)
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        $uniqueConstraint->removeFlag('clustered');
+
+        self::assertSame(ObjectOrigin::DECLARED, $uniqueConstraint->getOrigin());
     }
 }

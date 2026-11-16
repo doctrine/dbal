@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -345,5 +346,59 @@ class IndexTest extends TestCase
     {
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
         new Index('idx_user_name', ['user_id'], false, false, [$flag], ['where' => 'is_active = 1']);
+    }
+
+    public function testEditedIndexIsDeclared(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        self::assertSame(ObjectOrigin::DECLARED, $index->edit()->create()->getOrigin());
+    }
+
+    public function testClusteredIndexKeepsItsOrigin(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setIsClustered(true)
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        self::assertSame(ObjectOrigin::DERIVED, $index->getOrigin());
+    }
+
+    public function testIndexWithAddedFlagIsDeclared(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        $index->addFlag('clustered');
+
+        self::assertSame(ObjectOrigin::DECLARED, $index->getOrigin());
+    }
+
+    public function testIndexWithRemovedFlagIsDeclared(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setIsClustered(true)
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        $index->removeFlag('clustered');
+
+        self::assertSame(ObjectOrigin::DECLARED, $index->getOrigin());
     }
 }

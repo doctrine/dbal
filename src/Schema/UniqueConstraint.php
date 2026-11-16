@@ -65,6 +65,7 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         array $columns,
         array $flags = [],
         private readonly array $options = [],
+        private ObjectOrigin $origin = ObjectOrigin::DECLARED,
     ) {
         if (count($columns) < 1) {
             Deprecation::trigger(
@@ -92,6 +93,9 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         foreach ($flags as $flag) {
             $this->addFlag($flag);
         }
+
+        // addFlag() resets the origin.
+        $this->origin = $origin;
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -230,6 +234,7 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         );
 
         $this->flags[strtolower($flag)] = true;
+        $this->origin                   = ObjectOrigin::DECLARED;
 
         return $this;
     }
@@ -260,6 +265,14 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
     }
 
     /**
+     * Returns the origin of the unique constraint.
+     */
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
+    }
+
+    /**
      * Removes a flag.
      *
      * @deprecated Use {@see UniqueConstraintEditor::setIsClustered()} instead.
@@ -274,6 +287,8 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         );
 
         unset($this->flags[strtolower($flag)]);
+
+        $this->origin = ObjectOrigin::DECLARED;
     }
 
     /** @deprecated */
