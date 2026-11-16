@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -1107,6 +1108,80 @@ final class SchemaManagerTest extends FunctionalTestCase
             $this->schemaManager->createComparator()
                 ->compareTables($table, $recreated)
                 ->isEmpty(),
+        );
+    }
+
+    public function testIndexBackingUniqueConstraintIsNotDropped(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsDerived();
+
+        $table = $this->declareTableWithEmailUniqueConstraint();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $table)
+                ->isEmpty(),
+        );
+    }
+
+    public function testDeclareUniqueIndexOnOtherColumnWithNameOfUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsDerived();
+
+        $desired = $this->declareTableWithEmailUniqueConstraint()
+            ->edit()
+            ->setUniqueConstraints()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()
+            ->compareTables($this->createTableWithEmailUniqueConstraint(), $desired);
+
+        self::assertCount(1, $diff->getAddedIndexes());
+        self::assertSame([], $diff->getDroppedIndexes());
+    }
+
+    public function testDeclarePrimaryKeyWithNameOfUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsDerived();
+
+        $table = $this->declareTableWithEmailUniqueConstraint()
+            ->edit()
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        $desired = $table->edit()
+            ->setUniqueConstraints()
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $desired);
+
+        self::assertCount(
+            1,
+            array_filter($diff->getAddedIndexes(), static fn (Index $index): bool => $index->isPrimary()),
         );
     }
 
