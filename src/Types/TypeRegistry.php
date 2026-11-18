@@ -39,14 +39,10 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
         Types::BINARY                 => BinaryType::class,
         Types::BLOB                   => BlobType::class,
         Types::BOOLEAN                => BooleanType::class,
-        Types::DATE_MUTABLE           => DateType::class,
         Types::DATE_IMMUTABLE         => DateImmutableType::class,
         Types::DATEINTERVAL           => DateIntervalType::class,
-        Types::DATETIME_MUTABLE       => DateTimeType::class,
         Types::DATETIME_IMMUTABLE     => DateTimeImmutableType::class,
-        Types::DATETIME_UTC_MUTABLE   => DateTimeUtcType::class,
         Types::DATETIME_UTC_IMMUTABLE => DateTimeUtcImmutableType::class,
-        Types::DATETIMETZ_MUTABLE     => DateTimeTzType::class,
         Types::DATETIMETZ_IMMUTABLE   => DateTimeTzImmutableType::class,
         Types::DECIMAL                => DecimalType::class,
         Types::NUMBER                 => NumberType::class,
@@ -62,7 +58,6 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
         Types::SMALLINT               => SmallIntType::class,
         Types::STRING                 => StringType::class,
         Types::TEXT                   => TextType::class,
-        Types::TIME_MUTABLE           => TimeType::class,
         Types::TIME_IMMUTABLE         => TimeImmutableType::class,
     ];
 

@@ -55,7 +55,6 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
         self::assertSame(['one', 'DEFAULT'], $result);
     }
 
-    #[TestWith([Types::DATETIME_MUTABLE], Types::DATETIME_MUTABLE)]
     #[TestWith([Types::DATETIME_IMMUTABLE], Types::DATETIME_IMMUTABLE)]
     public function testAddColumnWithCurrentTimestampDefaultToPopulatedTable(string $type): void
     {

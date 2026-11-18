@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use BcMath\Number;
-use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -64,11 +62,6 @@ class TypeConversionTest extends FunctionalTestCase
                 Column::editor()
                     ->setUnquotedName('test_datetime_immutable')
                     ->setTypeName(Types::DATETIME_IMMUTABLE)
-                    ->setNotNull(false)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('test_datetime_utc')
-                    ->setTypeName(Types::DATETIME_UTC_MUTABLE)
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
@@ -250,8 +243,8 @@ class TypeConversionTest extends FunctionalTestCase
     #[DataProvider('toUtcDateTimeProvider')]
     public function testConversionToUtcDateTime(
         string $type,
-        DateTimeInterface $originalValue,
-        DateTimeInterface $expectedDate,
+        DateTimeImmutable $originalValue,
+        DateTimeImmutable $expectedDate,
     ): void {
         $oldTimeZone = date_default_timezone_get();
         // A timezone that is neither UTC nor one of the input timezones.
@@ -263,7 +256,7 @@ class TypeConversionTest extends FunctionalTestCase
             date_default_timezone_set($oldTimeZone);
         }
 
-        self::assertInstanceOf(DateTimeInterface::class, $dbValue);
+        self::assertInstanceOf(DateTimeImmutable::class, $dbValue);
         self::assertInstanceOf($expectedDate::class, $dbValue);
 
         self::assertSame($originalValue->getTimestamp(), $dbValue->getTimestamp());
@@ -271,7 +264,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($expectedDate, $dbValue);
     }
 
-    /** @return Generator<string, array{string, DateTimeInterface, DateTimeInterface}> */
+    /** @return Generator<string, array{string, DateTimeImmutable, DateTimeImmutable}> */
     public static function toUtcDateTimeProvider(): Generator
     {
         $referenceDate = '2010-04-05 10:10:10';
@@ -281,12 +274,6 @@ class TypeConversionTest extends FunctionalTestCase
         ];
 
         foreach ($timezones as [$tz, $utcTime]) {
-            yield implode(' ', [Types::DATETIME_UTC_MUTABLE, $tz]) => [
-                Types::DATETIME_UTC_MUTABLE,
-                new DateTime($referenceDate, new DateTimeZone($tz)),
-                new DateTime($utcTime, new DateTimeZone('UTC')),
-            ];
-
             yield implode(' ', [Types::DATETIME_UTC_IMMUTABLE, $tz]) => [
                 Types::DATETIME_UTC_IMMUTABLE,
                 new DateTimeImmutable($referenceDate, new DateTimeZone($tz)),

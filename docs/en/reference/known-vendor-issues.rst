@@ -26,31 +26,26 @@ full representation:
 
     2010-10-10 10:10:10.123456 (Y-m-d H:i:s.u)
 
-Using the DateTime, DateTimeTz or Time type (and immutable variants) with microseconds
-enabled columns can lead to errors because internally types expect
-the exact format 'Y-m-d H:i:s' in combination with
-``DateTime::createFromFormat()``. This method is twice as fast as
-passing the date to the constructor of ``DateTime``.
+Using the ``datetime_immutable``, ``datetimetz_immutable`` or
+``time_immutable`` type with microseconds enabled columns can lead to
+errors because internally types expect the exact format 'Y-m-d H:i:s' in
+combination with ``DateTimeImmutable::createFromFormat()``. This method is
+twice as fast as passing the date to the constructor of ``DateTimeImmutable``.
 
 This is why Doctrine always wants to create the time related types
 without microseconds:
 
--  DateTime to ``TIMESTAMP(0) WITHOUT TIME ZONE``
--  DateTimeTz to ``TIMESTAMP(0) WITH TIME ZONE``
--  Time to ``TIME(0) WITHOUT TIME ZONE``
+-  ``datetime_immutable`` to ``TIMESTAMP(0) WITHOUT TIME ZONE``
+-  ``datetimetz_immutable`` to ``TIMESTAMP(0) WITH TIME ZONE``
+-  ``time_immutable`` to ``TIME(0) WITHOUT TIME ZONE``
 
 If you do not let Doctrine create the date column types and rather
-use types with microseconds you have replace the "DateTime",
-"DateTimeTz" and "Time" types (and immutable variants) with a more
+use types with microseconds you have replace the datetime types with a more
 liberal DateTime parser that detects the format automatically:
 
 ::
 
     use Doctrine\DBAL\Types\Type;
-
-    Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTimeType');
-    Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTimeType');
-    Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTimeType');
 
     Type::overrideType('datetime_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
     Type::overrideType('datetimetz_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
