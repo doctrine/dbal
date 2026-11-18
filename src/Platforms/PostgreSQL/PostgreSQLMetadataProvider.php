@@ -740,7 +740,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
     /**
      * {@inheritDoc}
      *
-     * @link https://www.postgresql.org/docs/current/catalog-pg-views.html
+     * @link https://www.postgresql.org/docs/current/view-pg-views.html
      */
     public function getAllViews(): iterable
     {
