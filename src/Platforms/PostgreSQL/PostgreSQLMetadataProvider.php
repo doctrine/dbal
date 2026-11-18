@@ -725,7 +725,7 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
         return implode(' AND ', $conditions);
     }
 
-    /** @link https://www.postgresql.org/docs/current/catalog-pg-views.html */
+    /** @link https://www.postgresql.org/docs/current/view-pg-views.html */
     #[Override]
     public function getAllViews(): iterable
     {

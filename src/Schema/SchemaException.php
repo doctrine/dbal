@@ -8,4 +8,5 @@ use Doctrine\DBAL\Exception;
 
 interface SchemaException extends Exception
 {
+    public const string UNNAMED = '<unnamed>';
 }

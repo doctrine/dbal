@@ -16,7 +16,7 @@ final class InvalidUniqueConstraintDefinition extends LogicException implements 
     {
         return new self(sprintf(
             'Column names are not set for unique constraint %s.',
-            $constraintName === null ? '<unnamed>' : $constraintName->toString(),
+            $constraintName === null ? self::UNNAMED : $constraintName->toString(),
         ));
     }
 }
