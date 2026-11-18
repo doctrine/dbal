@@ -8,7 +8,6 @@ use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
 use Doctrine\DBAL\Schema\Collections\Exception\ObjectDoesNotExist;
 use Doctrine\DBAL\Schema\Collections\OptionallyUnqualifiedNamedObjectSet;
 use Doctrine\DBAL\Schema\Collections\UnqualifiedNamedObjectSet;
-use Doctrine\DBAL\Schema\Collections\UnqualifiedNameSet;
 use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidTableModification;
@@ -582,8 +581,7 @@ final class TableEditor
         $unqualifiedName = $name->getUnqualifiedName();
 
         /** @var UnqualifiedNamedObjectSet<Index> $indexes */
-        $indexes            = new UnqualifiedNamedObjectSet();
-        $implicitIndexNames = new UnqualifiedNameSet();
+        $indexes = new UnqualifiedNamedObjectSet();
 
         foreach ($this->indexes as $index) {
             $this->registerIndex($name, $indexes, $index);
@@ -597,26 +595,6 @@ final class TableEditor
             );
         }
 
-        foreach ($this->uniqueConstraints as $uniqueConstraint) {
-            $this->registerUniqueConstraint(
-                $name,
-                $maxIdentifierLength,
-                $indexes,
-                $implicitIndexNames,
-                $uniqueConstraint,
-            );
-        }
-
-        foreach ($this->foreignKeyConstraints as $foreignKeyConstraint) {
-            $this->registerForeignKeyConstraint(
-                $name,
-                $maxIdentifierLength,
-                $indexes,
-                $implicitIndexNames,
-                $foreignKeyConstraint,
-            );
-        }
-
         $options = $this->options;
 
         if ($this->comment !== '') {
@@ -627,7 +605,6 @@ final class TableEditor
             $name,
             $columns,
             $indexes->toList(),
-            $implicitIndexNames->toList(),
             $this->uniqueConstraints->toList(),
             $this->foreignKeyConstraints->toList(),
             $options,
@@ -650,59 +627,5 @@ final class TableEditor
         }
 
         $indexes->add($index);
-    }
-
-    /**
-     * @param positive-int                     $maxIdentifierLength
-     * @param UnqualifiedNamedObjectSet<Index> $indexes
-     */
-    private function registerUniqueConstraint(
-        OptionallyQualifiedName $tableName,
-        int $maxIdentifierLength,
-        UnqualifiedNamedObjectSet $indexes,
-        UnqualifiedNameSet $implicitIndexNames,
-        UniqueConstraint $constraint,
-    ): void {
-        $columnNames = $constraint->getColumnNames();
-
-        $indexCandidate = Index::editor()
-            ->setType(Index\IndexType::UNIQUE)
-            ->setColumnNames(...$columnNames)
-            ->createForTable($tableName->getUnqualifiedName(), $maxIdentifierLength);
-
-        foreach ($indexes as $existingIndex) {
-            if ($indexCandidate->isFulfilledBy($existingIndex)) {
-                return;
-            }
-        }
-
-        $implicitIndexNames->add($indexCandidate->getObjectName());
-    }
-
-    /**
-     * @param positive-int                     $maxIdentifierLength
-     * @param UnqualifiedNamedObjectSet<Index> $indexes
-     */
-    private function registerForeignKeyConstraint(
-        OptionallyQualifiedName $tableName,
-        int $maxIdentifierLength,
-        UnqualifiedNamedObjectSet $indexes,
-        UnqualifiedNameSet $implicitIndexNames,
-        ForeignKeyConstraint $constraint,
-    ): void {
-        $columnNames = $constraint->getReferencingColumnNames();
-
-        $indexCandidate = Index::editor()
-            ->setColumnNames(...$columnNames)
-            ->createForTable($tableName->getUnqualifiedName(), $maxIdentifierLength);
-
-        foreach ($indexes as $existingIndex) {
-            if ($indexCandidate->isFulfilledBy($existingIndex)) {
-                return;
-            }
-        }
-
-        $this->registerIndex($tableName, $indexes, $indexCandidate);
-        $implicitIndexNames->add($indexCandidate->getObjectName());
     }
 }

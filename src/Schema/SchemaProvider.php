@@ -55,6 +55,19 @@ interface SchemaProvider
     public function getAllTables(): array;
 
     /**
+     * Returns the table with the given name, or null if it does not exist.
+     *
+     * If the current database platform supports schemas, the schema name must be specified. Otherwise, null must be
+     * specified.
+     *
+     * @param ?non-empty-string $schemaName
+     * @param non-empty-string  $tableName
+     *
+     * @throws Exception
+     */
+    public function getTable(?string $schemaName, string $tableName): ?Table;
+
+    /**
      * Returns columns for the given table.
      *
      * If the current database platform supports schemas, the schema name must be specified. Otherwise, null must be

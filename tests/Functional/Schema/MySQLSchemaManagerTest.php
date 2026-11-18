@@ -14,8 +14,11 @@ use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTime;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
@@ -873,6 +876,71 @@ SQL;
                 $introspectedTable,
                 $this->schemaManager->introspectTableByUnquotedName('unique_round_trip'),
             )->isEmpty(),
+        );
+    }
+
+    public function testIntrospectUniqueConstraintNamedAfterForeignKey(): void
+    {
+        $this->dropTableIfExists('orders');
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('articles')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('orders')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('article_id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('quantity')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setIndexes(
+                    Index::editor()
+                        ->setUnquotedName('orders_article_idx')
+                        ->setUnquotedColumnNames('article_id')
+                        ->create(),
+                )
+                ->setForeignKeyConstraints(
+                    ForeignKeyConstraint::editor()
+                        ->setUnquotedName('articles_fk')
+                        ->setUnquotedReferencingColumnNames('article_id')
+                        ->setUnquotedReferencedTableName('articles')
+                        ->setUnquotedReferencedColumnNames('id')
+                        ->create(),
+                )
+                ->setUniqueConstraints(
+                    UniqueConstraint::editor()
+                        ->setUnquotedName('articles_fk')
+                        ->setUnquotedColumnNames('quantity')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        self::assertEquals(
+            [UnqualifiedName::quoted('quantity')],
+            $this->schemaManager->introspectTableByUnquotedName('orders')
+                ->getUniqueConstraint('articles_fk')
+                ->getColumnNames(),
         );
     }
 

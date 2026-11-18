@@ -26,12 +26,6 @@
 
 
 .. toctree::
-   :caption: Explanation
-   :depth: 3
-
-   /explanation/implicit-indexes
-
-.. toctree::
    :caption: How To
    :depth: 3
 

@@ -28,6 +28,7 @@ final readonly class PrimaryKeyConstraint implements OptionallyNamedObject
         private ?UnqualifiedName $name,
         private array $columnNames,
         private bool $isClustered,
+        private ?Index $backingIndex = null,
     ) {
         if (count($this->columnNames) < 1) {
             throw InvalidPrimaryKeyConstraintDefinition::columnNamesNotSet();
@@ -56,6 +57,14 @@ final readonly class PrimaryKeyConstraint implements OptionallyNamedObject
     public function isClustered(): bool
     {
         return $this->isClustered;
+    }
+
+    /**
+     * Returns the index that backs this constraint, if introspection reported one.
+     */
+    public function getBackingIndex(): ?Index
+    {
+        return $this->backingIndex;
     }
 
     /**

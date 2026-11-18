@@ -10,7 +10,9 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraintEditor;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableEditor;
@@ -400,11 +402,7 @@ class AlterTableTest extends FunctionalTestCase
             ->setUnquotedReferencedColumnNames('sku')
             ->create();
 
-        $this->assertForeignKeyConstraintModification($old, static function (TableEditor $editor) use ($new): void {
-            $editor
-                ->dropForeignKeyConstraintByUnquotedName('articles_fk')
-                ->addForeignKeyConstraint($new);
-        });
+        $this->assertForeignKeyConstraintModification($old, $new);
     }
 
     public function testRenameForeignKeyConstraint(): void
@@ -422,71 +420,23 @@ class AlterTableTest extends FunctionalTestCase
             ->setUnquotedName('new_fk')
             ->create();
 
-        $this->assertForeignKeyConstraintModification($old, static function (TableEditor $editor) use ($new): void {
-            $editor
-                ->dropForeignKeyConstraintByUnquotedName('articles_fk')
-                ->addForeignKeyConstraint($new);
-        });
+        $this->assertForeignKeyConstraintModification($old, $new);
     }
 
     /**
-     * Creates a table with the given foreign key, applies the modification and asserts the altered
-     * table introspects back to the desired state.
-     *
-     * @param callable(TableEditor): void $modify
+     * Creates a table with the old foreign key and asserts that migrating it to the table with the new one reaches the
+     * new table.
      */
-    private function assertForeignKeyConstraintModification(ForeignKeyConstraint $old, callable $modify): void
+    private function assertForeignKeyConstraintModification(ForeignKeyConstraint $old, ForeignKeyConstraint $new): void
     {
-        $articles = Table::editor()
-            ->setUnquotedName('articles')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('sku')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setPrimaryKeyConstraint(
-                PrimaryKeyConstraint::editor()
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            )
-            ->setUniqueConstraints(
-                UniqueConstraint::editor()
-                    ->setUnquotedColumnNames('sku')
-                    ->create(),
-            )
-            ->create();
-
-        $orders = Table::editor()
-            ->setUnquotedName('orders')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('article_id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('article_sku')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setForeignKeyConstraints($old)
-            ->create();
-
-        $this->dropTableIfExists('orders');
-        $this->dropTableIfExists('articles');
-
-        $this->connection->createSchemaManager()
-            ->createTable($articles);
-
-        $this->testMigration($orders, $modify);
+        $this->assertMigrationReachesDesiredTable(
+            $this->createOrdersEditor()
+                ->setForeignKeyConstraints($old)
+                ->create(),
+            $this->createOrdersEditor()
+                ->setForeignKeyConstraints($new)
+                ->create(),
+        );
     }
 
     public function testDropColumnCoveredByForeignKey(): void
@@ -628,6 +578,301 @@ class AlterTableTest extends FunctionalTestCase
             )
             ->setIndexes($index)
             ->create();
+    }
+
+    public function testWithdrawUniqueIndexSupportingForeignKey(): void
+    {
+        $orders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable(
+            $orders->create(),
+            $this->createOrdersEditor()->create(),
+        );
+    }
+
+    public function testWithdrawUniqueIndexSupportingUnnamedForeignKey(): void
+    {
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            )
+            ->create();
+
+        $newOrders = $this->createOrdersEditor()
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('article_id')
+                    ->setUnquotedReferencedTableName('articles')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->assertMigrationReachesDesiredTable($oldOrders, $newOrders);
+    }
+
+    public function testWithdrawUniqueIndexSupportingEqualForeignKeys(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('Only MySQL and MariaDB accept two equal foreign keys on one table.');
+        }
+
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                $this->createArticlesForeignKeyEditor()
+                    ->setUnquotedName('articles_fk')
+                    ->create(),
+                $this->createArticlesForeignKeyEditor()
+                    ->setUnquotedName('articles_fk2')
+                    ->create(),
+            )
+            ->create();
+
+        $newOrders = $this->createOrdersEditor()
+            ->setForeignKeyConstraints(
+                $this->createArticlesForeignKeyEditor()
+                    ->setUnquotedName('articles_fk')
+                    ->create(),
+                $this->createArticlesForeignKeyEditor()
+                    ->create(),
+            )
+            ->create();
+
+        $this->assertMigrationReachesDesiredTable($oldOrders, $newOrders);
+    }
+
+    public function testReplaceIndexSupportingForeignKeyWithUniqueConstraint(): void
+    {
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_article_idx')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $newOrders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable($oldOrders->create(), $newOrders->create());
+    }
+
+    public function testReplaceIndexSupportingForeignKeyWithUniqueConstraintOfSameName(): void
+    {
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_idx')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $newOrders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_idx')
+                    ->setUnquotedColumnNames('quantity')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable($oldOrders->create(), $newOrders->create());
+    }
+
+    public function testWithdrawUniqueConstraintSupportingForeignKey(): void
+    {
+        $orders = $this->createOrdersEditor()
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('orders_article_uq')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable(
+            $orders->create(),
+            $this->createOrdersEditor()->create(),
+        );
+    }
+
+    public function testDropPrimaryKeySupportingForeignKey(): void
+    {
+        $orders = $this->createOrdersEditor()
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            );
+
+        $this->assertMigrationReachesDesiredTable(
+            $orders->create(),
+            $this->createOrdersEditor()->create(),
+        );
+    }
+
+    public function testMoveIndexSupportingForeignKeyToAnotherColumn(): void
+    {
+        $prototype = Index::editor()
+            ->setUnquotedName('orders_idx');
+
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                $prototype
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            )
+            ->create();
+
+        $newOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                $prototype
+                    ->setUnquotedColumnNames('quantity')
+                    ->create(),
+            )
+            ->create();
+
+        $this->assertMigrationReachesDesiredTable($oldOrders, $newOrders);
+    }
+
+    public function testWithdrawIndexSupportingForeignKeyAndAddWiderForeignKey(): void
+    {
+        $narrowForeignKey = ForeignKeyConstraint::editor()
+            ->setUnquotedName('articles_fk')
+            ->setUnquotedReferencingColumnNames('article_id')
+            ->setUnquotedReferencedTableName('articles')
+            ->setUnquotedReferencedColumnNames('id')
+            ->create();
+
+        $oldOrders = $this->createOrdersEditor()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('orders_idx')
+                    ->setUnquotedColumnNames('article_id')
+                    ->create(),
+            )
+            ->create();
+
+        $newOrders = $this->createOrdersEditor()
+            ->setForeignKeyConstraints(
+                $narrowForeignKey,
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedName('articles_sku_fk')
+                    ->setUnquotedReferencingColumnNames('article_id', 'article_sku')
+                    ->setUnquotedReferencedTableName('articles')
+                    ->setUnquotedReferencedColumnNames('id', 'sku')
+                    ->create(),
+            )
+            ->create();
+
+        $this->assertMigrationReachesDesiredTable($oldOrders, $newOrders);
+    }
+
+    private function createArticlesForeignKeyEditor(): ForeignKeyConstraintEditor
+    {
+        return ForeignKeyConstraint::editor()
+            ->setUnquotedReferencingColumnNames('article_id')
+            ->setUnquotedReferencedTableName('articles')
+            ->setUnquotedReferencedColumnNames('id');
+    }
+
+    private function createOrdersEditor(): TableEditor
+    {
+        return Table::editor()
+            ->setUnquotedName('orders')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('article_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('article_sku')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('quantity')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedName('articles_fk')
+                    ->setUnquotedReferencingColumnNames('article_id')
+                    ->setUnquotedReferencedTableName('articles')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            );
+    }
+
+    private function assertMigrationReachesDesiredTable(Table $oldOrders, Table $newOrders): void
+    {
+        $this->dropTableIfExists('orders');
+        $this->dropTableIfExists('articles');
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $schemaManager->createTable(
+            Table::editor()
+                ->setUnquotedName('articles')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('sku')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id')
+                        ->create(),
+                )
+                ->setUniqueConstraints(
+                    UniqueConstraint::editor()
+                        ->setUnquotedColumnNames('sku')
+                        ->create(),
+                    UniqueConstraint::editor()
+                        ->setUnquotedColumnNames('id', 'sku')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $schemaManager->createTable($oldOrders);
+
+        $comparator = $schemaManager->createComparator();
+
+        $schemaManager->alterTable(
+            $comparator->compareTables($schemaManager->introspectTableByUnquotedName('orders'), $newOrders),
+        );
+
+        self::assertTrue(
+            $comparator->compareTables($schemaManager->introspectTableByUnquotedName('orders'), $newOrders)
+                ->isEmpty(),
+        );
     }
 
     /** @param callable(TableEditor): void $migration */

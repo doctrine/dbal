@@ -513,8 +513,8 @@ SQL,
             $sql[] = $this->getDropForeignKeySQL($constraintName->toSQL($this), $tableNameSQL);
         }
 
-        foreach ($diff->getDroppedIndexes() as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
+        foreach ($diff->getDroppedUniqueConstraintNames() as $constraintName) {
+            $sql[] = $this->getDropUniqueConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
         }
 
         $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
@@ -527,6 +527,10 @@ SQL,
             }
 
             $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
+
+        foreach ($diff->getDroppedIndexes() as $index) {
+            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
         }
 
         foreach ($diff->getAddedColumns() as $column) {
@@ -623,6 +627,10 @@ SQL,
         if ($addedPrimaryKeyConstraint !== null) {
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD '
                 . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
+        }
+
+        foreach ($diff->getAddedUniqueConstraints() as $uniqueConstraint) {
+            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $tableNameSQL);
         }
 
         foreach ($diff->getAddedForeignKeys() as $foreignKey) {

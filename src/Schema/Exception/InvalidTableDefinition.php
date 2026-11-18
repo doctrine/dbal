@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Exception;
 
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SchemaException;
 use LogicException;
 
@@ -20,5 +21,16 @@ final class InvalidTableDefinition extends LogicException implements SchemaExcep
     public static function columnsNotSet(OptionallyQualifiedName $tableName): self
     {
         return new self(sprintf('Columns are not set for table %s.', $tableName->toString()));
+    }
+
+    public static function derivedObjectDeclared(
+        OptionallyQualifiedName $tableName,
+        ?UnqualifiedName $objectName,
+    ): self {
+        return new self(sprintf(
+            'Table %s declares %s, which is derived from another object of the table.',
+            $tableName->toString(),
+            $objectName?->toString() ?? '<unnamed>',
+        ));
     }
 }

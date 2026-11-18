@@ -34,6 +34,10 @@ final class IndexEditor
     /** @var ?non-empty-string */
     private ?string $predicate = null;
 
+    private ObjectOrigin $origin = ObjectOrigin::DECLARED;
+
+    private ?UniqueConstraint $derivedUniqueConstraint = null;
+
     /** @internal Use {@link Index::editor()} or {@link Index::edit()} to create an instance */
     public function __construct()
     {
@@ -158,6 +162,26 @@ final class IndexEditor
         return $this;
     }
 
+    /** @internal Use only to build an index introspected from the database, never one that the application declares. */
+    public function setOrigin(ObjectOrigin $origin): self
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    /**
+     * Attaches the unique constraint as which the database exposes the index.
+     *
+     * @internal Use only to build an index introspected from the database, never one that the application declares.
+     */
+    public function setDerivedUniqueConstraint(?UniqueConstraint $uniqueConstraint): self
+    {
+        $this->derivedUniqueConstraint = $uniqueConstraint;
+
+        return $this;
+    }
+
     public function create(): Index
     {
         if ($this->name === null) {
@@ -185,7 +209,15 @@ final class IndexEditor
             throw InvalidIndexDefinition::columnsNotSet($name);
         }
 
-        return new Index($name, $this->type, $this->columns, $this->isClustered, $this->predicate);
+        return new Index(
+            $name,
+            $this->type,
+            $this->columns,
+            $this->isClustered,
+            $this->predicate,
+            $this->origin,
+            $this->derivedUniqueConstraint,
+        );
     }
 
     /** @param positive-int $maxIdentifierLength */

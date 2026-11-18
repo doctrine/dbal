@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\Collections\Exception\ObjectAlreadyExists;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
@@ -18,6 +19,7 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
@@ -39,7 +41,6 @@ class TableTest extends TestCase
         new Table(
             OptionallyQualifiedName::unquoted('users'),
             [], // @phpstan-ignore argument.type
-            [],
             [],
             [],
             [],
@@ -807,135 +808,6 @@ class TableTest extends TestCase
         $editor->create();
     }
 
-    public function testAddForeignKeyIndexImplicitly(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('bar')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('bar')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        $indexes = $table->getIndexes();
-        self::assertCount(1, $indexes);
-        $index = $indexes[0];
-
-        self::assertTrue($table->hasIndex($index->getObjectName()->toString()));
-
-        self::assertEquals([
-            new IndexedColumn(UnqualifiedName::unquoted('id'), null),
-        ], $index->getIndexedColumns());
-    }
-
-    public function testAddForeignKeyDoesNotCreateDuplicateIndex(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('bar')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setIndexes(
-                Index::editor()
-                    ->setUnquotedName('bar_idx')
-                    ->setUnquotedColumnNames('bar')
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('bar')
-                    ->setUnquotedReferencedTableName('foo')
-                    ->setUnquotedReferencedColumnNames('foo')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertCount(1, $table->getIndexes());
-        self::assertTrue($table->hasIndex('bar_idx'));
-
-        self::assertEquals([
-            new IndexedColumn(UnqualifiedName::unquoted('bar'), null),
-        ], $table->getIndex('bar_idx')->getIndexedColumns());
-    }
-
-    public function testAddForeignKeyAddsImplicitIndexIfIndexColumnsDoNotSpan(): void
-    {
-        $table = Table::editor()
-            ->setUnquotedName('foo')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('bar')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('baz')
-                    ->setTypeName(Types::STRING)
-                    ->create(),
-                Column::editor()
-                    ->setUnquotedName('bloo')
-                    ->setTypeName(Types::STRING)
-                    ->create(),
-            )
-            ->setIndexes(
-                Index::editor()
-                    ->setUnquotedName('composite_idx')
-                    ->setUnquotedColumnNames('baz', 'bar')
-                    ->create(),
-                Index::editor()
-                    ->setUnquotedName('full_idx')
-                    ->setUnquotedColumnNames('bar', 'baz', 'bloo')
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('bar', 'baz')
-                    ->setUnquotedReferencedTableName('bar')
-                    ->setUnquotedReferencedColumnNames('foo', 'baz')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertCount(3, $table->getIndexes());
-        self::assertTrue($table->hasIndex('composite_idx'));
-        self::assertTrue($table->hasIndex('full_idx'));
-        self::assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
-
-        self::assertEquals([
-            new IndexedColumn(UnqualifiedName::unquoted('baz'), null),
-            new IndexedColumn(UnqualifiedName::unquoted('bar'), null),
-        ], $table->getIndex('composite_idx')->getIndexedColumns());
-
-        self::assertEquals([
-            new IndexedColumn(UnqualifiedName::unquoted('bar'), null),
-            new IndexedColumn(UnqualifiedName::unquoted('baz'), null),
-            new IndexedColumn(UnqualifiedName::unquoted('bloo'), null),
-        ], $table->getIndex('full_idx')->getIndexedColumns());
-
-        self::assertEquals([
-            new IndexedColumn(UnqualifiedName::unquoted('bar'), null),
-            new IndexedColumn(UnqualifiedName::unquoted('baz'), null),
-        ], $table->getIndex('idx_8c73652176ff8caa78240498')->getIndexedColumns());
-    }
-
     public function testOverrulingIndexDoesNotDropOverruledIndex(): void
     {
         $table = Table::editor()
@@ -1051,127 +923,6 @@ class TableTest extends TestCase
             new IndexedColumn(UnqualifiedName::unquoted('bar'), null),
             new IndexedColumn(UnqualifiedName::unquoted('baz'), null),
         ], $table->getIndex('fulfilling_idx')->getIndexedColumns());
-    }
-
-    public function testAddingFulfillingRegularIndexOverridesImplicitForeignKeyConstraintIndex(): void
-    {
-        $localTable = Table::editor()
-            ->setUnquotedName('local')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('foreign')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('foreign')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertCount(1, $localTable->getIndexes());
-
-        $localTable = $localTable->edit()
-            ->addIndex(
-                Index::editor()
-                    ->setUnquotedName('explicit_idx')
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertCount(1, $localTable->getIndexes());
-        self::assertTrue($localTable->hasIndex('explicit_idx'));
-    }
-
-    public function testAddingFulfillingUniqueIndexOverridesImplicitForeignKeyConstraintIndex(): void
-    {
-        $localTable = Table::editor()
-            ->setUnquotedName('local')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('foreign')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertCount(1, $localTable->getIndexes());
-
-        $localTable = $localTable->edit()
-            ->addIndex(
-                Index::editor()
-                    ->setUnquotedName('explicit_idx')
-                    ->setType(IndexType::UNIQUE)
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertCount(1, $localTable->getIndexes());
-        self::assertTrue($localTable->hasIndex('explicit_idx'));
-    }
-
-    public function testAddingFulfillingExplicitIndexOverridingImplicitForeignKeyConstraintIndexWithSameName(): void
-    {
-        $localTable = Table::editor()
-            ->setUnquotedName('local')
-            ->setColumns(
-                Column::editor()
-                    ->setUnquotedName('id')
-                    ->setTypeName(Types::INTEGER)
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('foreign')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->setForeignKeyConstraints(
-                ForeignKeyConstraint::editor()
-                    ->setUnquotedReferencingColumnNames('id')
-                    ->setUnquotedReferencedTableName('foreign')
-                    ->setUnquotedReferencedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertCount(1, $localTable->getIndexes());
-        self::assertTrue($localTable->hasIndex('IDX_8BD688E8BF396750'));
-
-        $implicitIndex = $localTable->getIndex('IDX_8BD688E8BF396750');
-
-        $localTable = $localTable->edit()
-            ->addIndex(
-                Index::editor()
-                    ->setUnquotedName('IDX_8BD688E8BF396750')
-                    ->setUnquotedColumnNames('id')
-                    ->create(),
-            )
-            ->create();
-
-        self::assertCount(1, $localTable->getIndexes());
-        self::assertTrue($localTable->hasIndex('IDX_8BD688E8BF396750'));
-        self::assertNotSame($implicitIndex, $localTable->getIndex('IDX_8BD688E8BF396750'));
     }
 
     public function testQuotedTableName(): void
@@ -1525,5 +1276,140 @@ class TableTest extends TestCase
 
         // The index is named after the table's final name, not the one set when the index was added.
         self::assertTrue($table->hasIndex('IDX_76FF8CAABF396750'));
+    }
+
+    public function testEditKeepsDerivedObjects(): void
+    {
+        $table = $this->createTableWithDerivedObjects();
+
+        $edited = $table->edit()
+            ->create();
+
+        self::assertSame($table->getIndexes(), $edited->getIndexes());
+        self::assertSame($table->getUniqueConstraints(), $edited->getUniqueConstraints());
+    }
+
+    public function testDerivedObjectsAreListedAndFoundByName(): void
+    {
+        $table = $this->createTableWithDerivedObjects();
+
+        self::assertCount(2, $table->getIndexes());
+        self::assertCount(2, $table->getUniqueConstraints());
+        self::assertSame(ObjectOrigin::DERIVED, $table->getIndex('users_email_uq')->getOrigin());
+        self::assertSame(ObjectOrigin::DERIVED, $table->getUniqueConstraint('users_name_uq')->getOrigin());
+    }
+
+    public function testDroppingSourceDropsDerivedIndex(): void
+    {
+        $table = $this->createTableWithDerivedObjects()
+            ->edit()
+            ->dropUniqueConstraintByUnquotedName('users_email_uq')
+            ->dropColumnByUnquotedName('email')
+            ->create();
+
+        self::assertFalse($table->hasIndex('users_email_uq'));
+    }
+
+    public function testDerivedIndexNameIsTakenWhileSourceExists(): void
+    {
+        $this->expectException(ObjectAlreadyExists::class);
+
+        $this->createTableWithDerivedObjects()
+            ->edit()
+            ->addIndex(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('name')
+                    ->create(),
+            )
+            ->create();
+    }
+
+    public function testDeclaredBackingIndexIsListedOnce(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_idx')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->create();
+
+        $table = Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setIndexes($index)
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->setBackingIndex($index)
+                    ->create(),
+            )
+            ->create();
+
+        self::assertSame([$index], $table->getIndexes());
+    }
+
+    public function testDeclaringDerivedIndexIsRejected(): void
+    {
+        $table = $this->createTableWithDerivedObjects();
+
+        $this->expectException(InvalidTableDefinition::class);
+
+        $table->edit()
+            ->setIndexes(...$table->getIndexes())
+            ->create();
+    }
+
+    private function createTableWithDerivedObjects(): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('users_name_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('name')
+                    ->setDerivedUniqueConstraint(
+                        UniqueConstraint::editor()
+                            ->setUnquotedName('users_name_uq')
+                            ->setUnquotedColumnNames('name')
+                            ->setOrigin(ObjectOrigin::DERIVED)
+                            ->create(),
+                    )
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->setBackingIndex(
+                        Index::editor()
+                            ->setUnquotedName('users_email_uq')
+                            ->setType(IndexType::UNIQUE)
+                            ->setUnquotedColumnNames('email')
+                            ->setOrigin(ObjectOrigin::DERIVED)
+                            ->create(),
+                    )
+                    ->create(),
+            )
+            ->create();
     }
 }

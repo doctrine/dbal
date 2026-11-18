@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -25,6 +26,7 @@ use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\LogicalNot;
 use PHPUnit\Framework\TestCase;
 
+use function array_filter;
 use function array_map;
 use function array_values;
 use function sprintf;
@@ -482,6 +484,19 @@ abstract class FunctionalTestCase extends TestCase
             ->setName($this->toComparableUnqualifiedName($index->getObjectName()))
             ->setColumns(...$this->toComparableIndexedColumnList($index->getIndexedColumns()))
             ->create();
+    }
+
+    /**
+     * @param list<Index> $indexes
+     *
+     * @return list<Index>
+     */
+    protected static function withoutDerivedIndexes(array $indexes): array
+    {
+        return array_values(array_filter(
+            $indexes,
+            static fn (Index $index): bool => $index->getOrigin() === ObjectOrigin::DECLARED,
+        ));
     }
 
     /**

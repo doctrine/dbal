@@ -18,4 +18,9 @@ final class UnspecifiedConstraintName extends InvalidArgumentException implement
     {
         return new self('Foreign key constraint name is not specified.');
     }
+
+    public static function forUniqueConstraint(): self
+    {
+        return new self('Unique constraint name is not specified.');
+    }
 }
