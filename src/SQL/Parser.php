@@ -31,7 +31,7 @@ final class Parser
     private const SPECIAL_CHARS = ':\?\'"`\\[\\-\\/';
 
     private const BACKTICK_IDENTIFIER  = '`[^`]*`';
-    private const BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[[^\]]*+\]';
+    private const BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY)|\b(?i:ARRAY)\s)\[[^\]]*+\]';
     private const MULTICHAR            = ':{2,}';
     private const NAMED_PARAMETER      = ':[a-zA-Z0-9_]+';
     private const POSITIONAL_PARAMETER = '(?<!\\?)\\?(?!\\?)';

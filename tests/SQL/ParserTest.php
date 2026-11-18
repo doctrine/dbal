@@ -163,6 +163,16 @@ class ParserTest extends TestCase implements Visitor
         ];
 
         yield [
+            'SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY [:foo])',
+            'SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY [{:foo}])',
+        ];
+
+        yield [
+            "SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, array\n[:foo, ?])",
+            "SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, array\n[{:foo}, {?}])",
+        ];
+
+        yield [
             "SELECT table.column1, ARRAY['3'] FROM schema.table table WHERE table.f1 = :foo AND ARRAY['3']",
             "SELECT table.column1, ARRAY['3'] FROM schema.table table WHERE table.f1 = {:foo} AND ARRAY['3']",
         ];
