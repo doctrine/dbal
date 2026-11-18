@@ -39,7 +39,7 @@ Read these when the task calls for them:
 ## Commands
 
 - Install dependencies with `composer update`, not `composer install`, including after switching to another release branch. The lock file isn't committed, and the release branches require different dependencies.
-- Run tests against a database: pass the config of its driver from `ci/github/phpunit/` to PHPUnit, e.g. `vendor/bin/phpunit -c ci/github/phpunit/pdo_pgsql.xml`. Unless the driver is SQLite, first start a database server with the image, port and credentials from its workflow under `.github/workflows/`. Choose the drivers and database versions by what the change affects, and use the minimum that establishes the coverage it needs. The versions CI tests are in `.github/workflows/continuous-integration.yml`.
+- Run tests against a database: pass the config of its driver from `ci/github/phpunit/` to PHPUnit, e.g. `vendor/bin/phpunit -c ci/github/phpunit/pdo_pgsql.xml`. Unless the driver is SQLite, first start a database server as its workflow under `.github/workflows/` does: run the service container with its image, ports, environment and options, then run the job's steps that refer to the container through `job.services`. Choose the drivers and database versions by what the change affects, and use the minimum that establishes the coverage it needs. The versions CI tests are in `.github/workflows/continuous-integration.yml`.
 
 ## Commit hygiene
 
