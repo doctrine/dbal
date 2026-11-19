@@ -43,6 +43,58 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
+    public function testIntrospectSchemaExcludesSchemaRequiredByExtension(): void
+    {
+        $isAvailable = $this->connection->fetchOne(
+            "SELECT 1 FROM pg_available_extensions WHERE name = 'postgis_topology'",
+        );
+
+        if ($isAvailable === false) {
+            self::markTestSkipped('The postgis_topology extension is not available.');
+        }
+
+        $this->connection->executeStatement('DROP EXTENSION IF EXISTS postgis_topology');
+        $this->connection->executeStatement('DROP SCHEMA IF EXISTS topology CASCADE');
+        $this->connection->executeStatement('CREATE EXTENSION postgis_topology CASCADE');
+
+        $this->assertUnqualifiedNameListNotContainsUnquotedName(
+            'topology',
+            $this->schemaManager->introspectSchemaNames(),
+        );
+        self::assertFalse($this->schemaManager->introspectSchema()->hasNamespace('topology'));
+    }
+
+    public function testIntrospectSchemaExcludesSchemaOwnedByExtension(): void
+    {
+        $this->connection->executeStatement('DROP EXTENSION IF EXISTS pg_prewarm');
+        $this->connection->executeStatement('DROP SCHEMA IF EXISTS extension_member_schema');
+
+        $this->connection->executeStatement('CREATE EXTENSION pg_prewarm');
+        $this->connection->executeStatement('CREATE SCHEMA extension_member_schema');
+        $this->connection->executeStatement('ALTER EXTENSION pg_prewarm ADD SCHEMA extension_member_schema');
+
+        $this->assertUnqualifiedNameListNotContainsUnquotedName(
+            'extension_member_schema',
+            $this->schemaManager->introspectSchemaNames(),
+        );
+        self::assertFalse($this->schemaManager->introspectSchema()->hasNamespace('extension_member_schema'));
+    }
+
+    public function testIntrospectSchemaExcludesSequenceOwnedByExtension(): void
+    {
+        $this->connection->executeStatement('DROP EXTENSION IF EXISTS pg_prewarm');
+        $this->connection->executeStatement('DROP SEQUENCE IF EXISTS extension_member_seq');
+
+        $this->connection->executeStatement('CREATE EXTENSION pg_prewarm');
+        $this->connection->executeStatement('CREATE SEQUENCE extension_member_seq');
+        $this->connection->executeStatement('ALTER EXTENSION pg_prewarm ADD SEQUENCE extension_member_seq');
+
+        self::assertNull(
+            $this->findObjectByShortestName($this->schemaManager->introspectSequences(), 'extension_member_seq'),
+        );
+        self::assertFalse($this->schemaManager->introspectSchema()->hasSequence('extension_member_seq'));
+    }
+
     public function testSupportDomainTypeFallback(): void
     {
         $createDomainTypeSQL = 'CREATE DOMAIN MyMoney AS DECIMAL(18,2)';
