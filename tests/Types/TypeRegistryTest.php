@@ -61,8 +61,8 @@ class TypeRegistryTest extends TestCase
     public function testGetReturnsSameInstances(): void
     {
         self::assertSame(
-            $this->registry->get(Types::DATE_MUTABLE),
-            $this->registry->get(Types::DATE_MUTABLE),
+            $this->registry->get(Types::DATE_IMMUTABLE),
+            $this->registry->get(Types::DATE_IMMUTABLE),
             'Built-in type',
         );
         self::assertSame(
@@ -89,7 +89,7 @@ class TypeRegistryTest extends TestCase
 
     public function testHas(): void
     {
-        self::assertTrue($this->registry->has(Types::DATE_MUTABLE));
+        self::assertTrue($this->registry->has(Types::DATE_IMMUTABLE));
         self::assertTrue($this->registry->has(self::TEST_TYPE_NAME));
         self::assertTrue($this->registry->has(self::OTHER_TEST_TYPE_NAME));
         self::assertFalse($this->registry->has('unknown'));
