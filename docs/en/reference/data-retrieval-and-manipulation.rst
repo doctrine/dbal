@@ -208,12 +208,12 @@ to the appropriate vendors database format:
 .. code-block:: php
 
     <?php
-    $date = new \DateTime("2011-03-05 14:00:21");
+    $date = new \DateTimeImmutable("2011-03-05 14:00:21");
     $stmt = $conn->prepare("SELECT * FROM articles WHERE publish_date > ?");
-    $stmt->bindValue(1, $date, "datetime");
+    $stmt->bindValue(1, $date, "datetime_immutable");
     $resultSet = $stmt->executeQuery();
 
-If you take a look at ``Doctrine\DBAL\Types\DateTimeType`` you will see that
+If you take a look at ``Doctrine\DBAL\Types\DateTimeImmutableType`` you will see that
 parts of the conversion are delegated to a method on the current database platform,
 which means this code works independent of the database you are using.
 
