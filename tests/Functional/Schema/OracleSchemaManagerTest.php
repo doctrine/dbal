@@ -138,15 +138,15 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('col_date')
-                    ->setTypeName(Types::DATE_MUTABLE)
+                    ->setTypeName(Types::DATE_IMMUTABLE)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('col_datetime')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('col_datetimetz')
-                    ->setTypeName(Types::DATETIMETZ_MUTABLE)
+                    ->setTypeName(Types::DATETIMETZ_IMMUTABLE)
                     ->create(),
             )
             ->create();

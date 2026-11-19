@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use DateTime;
+use DateTimeImmutable;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -45,7 +45,7 @@ class DataAccessTest extends FunctionalTestCase
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('test_datetime')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->setNotNull(false)
                     ->create(),
             )
@@ -129,13 +129,13 @@ class DataAccessTest extends FunctionalTestCase
     public function testFetchAllWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime       = new DateTime($datetimeString);
+        $datetime       = new DateTimeImmutable($datetimeString);
 
         $sql  = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
         $data = $this->connection->fetchAllAssociative(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE],
+            [ParameterType::STRING, Types::DATETIME_IMMUTABLE],
         );
 
         self::assertCount(1, $data);
@@ -164,13 +164,13 @@ class DataAccessTest extends FunctionalTestCase
     public function testFetchAssocWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime       = new DateTime($datetimeString);
+        $datetime       = new DateTimeImmutable($datetimeString);
 
         $sql = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
         $row = $this->connection->fetchAssociative(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE],
+            [ParameterType::STRING, Types::DATETIME_IMMUTABLE],
         );
 
         self::assertNotFalse($row);
@@ -194,13 +194,13 @@ class DataAccessTest extends FunctionalTestCase
     public function testFetchArrayWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime       = new DateTime($datetimeString);
+        $datetime       = new DateTimeImmutable($datetimeString);
 
         $sql = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
         $row = $this->connection->fetchNumeric(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE],
+            [ParameterType::STRING, Types::DATETIME_IMMUTABLE],
         );
 
         self::assertNotFalse($row);
@@ -227,13 +227,13 @@ class DataAccessTest extends FunctionalTestCase
     public function testFetchOneWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime       = new DateTime($datetimeString);
+        $datetime       = new DateTimeImmutable($datetimeString);
 
         $sql    = 'SELECT test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
         $column = $this->connection->fetchOne(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE],
+            [ParameterType::STRING, Types::DATETIME_IMMUTABLE],
         );
 
         self::assertIsString($column);
@@ -245,8 +245,8 @@ class DataAccessTest extends FunctionalTestCase
     {
         $value = $this->connection->fetchOne(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
-            [new DateTime('2010-01-01 10:10:10')],
-            [Types::DATETIME_MUTABLE],
+            [new DateTimeImmutable('2010-01-01 10:10:10')],
+            [Types::DATETIME_IMMUTABLE],
         );
 
         self::assertEquals(1, $value);
@@ -254,7 +254,7 @@ class DataAccessTest extends FunctionalTestCase
 
     public function testExecuteStatementBindDateTimeType(): void
     {
-        $datetime = new DateTime('2010-02-02 20:20:20');
+        $datetime = new DateTimeImmutable('2010-02-02 20:20:20');
 
         $sql          = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
         $affectedRows = $this->connection->executeStatement($sql, [
@@ -264,14 +264,14 @@ class DataAccessTest extends FunctionalTestCase
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
-            Types::DATETIME_MUTABLE,
+            Types::DATETIME_IMMUTABLE,
         ]);
 
         self::assertEquals(1, $affectedRows);
         self::assertEquals(1, $this->connection->executeQuery(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             [$datetime],
-            [Types::DATETIME_MUTABLE],
+            [Types::DATETIME_IMMUTABLE],
         )->fetchOne());
     }
 
@@ -280,7 +280,7 @@ class DataAccessTest extends FunctionalTestCase
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindValue(1, new DateTime('2010-01-01 10:10:10'), Types::DATETIME_MUTABLE);
+        $stmt->bindValue(1, new DateTimeImmutable('2010-01-01 10:10:10'), Types::DATETIME_IMMUTABLE);
         $result = $stmt->executeQuery();
 
         self::assertEquals(1, $result->fetchOne());
@@ -667,7 +667,7 @@ class DataAccessTest extends FunctionalTestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('test_date')
-                    ->setTypeName(Types::DATE_MUTABLE)
+                    ->setTypeName(Types::DATE_IMMUTABLE)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('test_days')

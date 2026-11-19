@@ -868,7 +868,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             ->setQuotedName('Foo')
             ->setColumns(Column::editor()
                 ->setQuotedName('Bar')
-                ->setTypeName(Types::DATETIMETZ_MUTABLE)
+                ->setTypeName(Types::DATETIME_IMMUTABLE)
                 ->create())
             ->create();
 
@@ -876,7 +876,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             ->setQuotedName('Foo')
             ->setColumns(Column::editor()
                 ->setQuotedName('Bar')
-                ->setTypeName(Types::DATETIMETZ_IMMUTABLE)
+                ->setTypeName(Types::DATETIME_UTC_IMMUTABLE)
                 ->setComment('Baz')
                 ->create())
             ->create();

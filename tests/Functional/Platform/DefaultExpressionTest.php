@@ -29,7 +29,7 @@ class DefaultExpressionTest extends FunctionalTestCase
             $this->expectException(NotSupported::class);
         }
 
-        $this->assertDefaultExpression(Types::DATE_MUTABLE, new CurrentDate());
+        $this->assertDefaultExpression(Types::DATE_IMMUTABLE, new CurrentDate());
     }
 
     public function testCurrentTime(): void
@@ -40,12 +40,12 @@ class DefaultExpressionTest extends FunctionalTestCase
             $this->expectException(NotSupported::class);
         }
 
-        $this->assertDefaultExpression(Types::TIME_MUTABLE, new CurrentTime());
+        $this->assertDefaultExpression(Types::TIME_IMMUTABLE, new CurrentTime());
     }
 
     public function testCurrentTimestamp(): void
     {
-        $this->assertDefaultExpression(Types::DATETIME_MUTABLE, new CurrentTimestamp());
+        $this->assertDefaultExpression(Types::DATETIME_IMMUTABLE, new CurrentTimestamp());
     }
 
     private function assertDefaultExpression(string $typeName, DefaultExpression $expression): void
