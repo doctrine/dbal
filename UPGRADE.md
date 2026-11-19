@@ -8,6 +8,25 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed the mutable date/time types
+
+The mutable date/time types deprecated in 4.6 have been removed in favor of their immutable
+counterparts:
+
+| Removed type      | Replacement                |
+| ----------------- | -------------------------- |
+| `DateType`        | `DateImmutableType`        |
+| `DateTimeType`    | `DateTimeImmutableType`    |
+| `DateTimeUtcType` | `DateTimeUtcImmutableType` |
+| `DateTimeTzType`  | `DateTimeTzImmutableType`  |
+| `TimeType`        | `TimeImmutableType`        |
+| `VarDateTimeType` | `VarDateTimeImmutableType` |
+
+The matching `Types::*_MUTABLE` constants (`DATE_MUTABLE`, `DATETIME_MUTABLE`,
+`DATETIME_UTC_MUTABLE`, `DATETIMETZ_MUTABLE`, `TIME_MUTABLE`) and the `date`, `datetime`,
+`datetime_utc`, `datetimetz` and `time` type names have been removed as well. Use the
+`*_IMMUTABLE` constants and the `*_immutable` type names instead.
+
 ## BC BREAK: `$isClustered` is required in the `UniqueConstraintColumnMetadataRow` constructor
 
 The `$isClustered` parameter of the `Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow` constructor is

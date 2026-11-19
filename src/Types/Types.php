@@ -35,21 +35,6 @@ final class Types
     public const string TEXT                   = 'text';
     public const string TIME_IMMUTABLE         = 'time_immutable';
 
-    /** @deprecated Use {@see Types::DATE_IMMUTABLE} instead. */
-    public const string DATE_MUTABLE = 'date';
-
-    /** @deprecated Use {@see Types::DATETIME_IMMUTABLE} instead. */
-    public const string DATETIME_MUTABLE = 'datetime';
-
-    /** @deprecated Use {@see Types::DATETIME_UTC_IMMUTABLE} instead. */
-    public const string DATETIME_UTC_MUTABLE = 'datetime_utc';
-
-    /** @deprecated Use {@see Types::DATETIMETZ_IMMUTABLE} instead. */
-    public const string DATETIMETZ_MUTABLE = 'datetimetz';
-
-    /** @deprecated Use {@see Types::TIME_IMMUTABLE} instead. */
-    public const string TIME_MUTABLE = 'time';
-
     /** @codeCoverageIgnore */
     private function __construct()
     {
