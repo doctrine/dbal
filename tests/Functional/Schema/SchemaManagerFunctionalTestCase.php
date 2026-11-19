@@ -317,15 +317,15 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('baz1')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('baz2')
-                    ->setTypeName(Types::TIME_MUTABLE)
+                    ->setTypeName(Types::TIME_IMMUTABLE)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('baz3')
-                    ->setTypeName(Types::DATE_MUTABLE)
+                    ->setTypeName(Types::DATE_IMMUTABLE)
                     ->create(),
             )
             ->setPrimaryKeyConstraint(

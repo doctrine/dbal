@@ -600,12 +600,12 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('col_datetime')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->setDefaultValue($currentTimeStamp)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('col_datetime_nullable')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->setDefaultValue($currentTimeStamp)
                     ->create(),
             )
@@ -632,7 +632,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('col_datetime_null')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
@@ -660,7 +660,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('col_date')
-                    ->setTypeName(Types::DATE_MUTABLE)
+                    ->setTypeName(Types::DATE_IMMUTABLE)
                     ->setDefaultValue('2012-12-12')
                     ->create(),
             )
@@ -710,17 +710,17 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('col_datetime')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->setDefaultValue($currentTimestampSql)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('col_date')
-                    ->setTypeName(Types::DATE_MUTABLE)
+                    ->setTypeName(Types::DATE_IMMUTABLE)
                     ->setDefaultValue($currentDateSql)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('col_time')
-                    ->setTypeName(Types::TIME_MUTABLE)
+                    ->setTypeName(Types::TIME_IMMUTABLE)
                     ->setDefaultValue($currentTimeSql)
                     ->create(),
             )

@@ -61,8 +61,8 @@ class TypeConversionTest extends FunctionalTestCase
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
-                    ->setUnquotedName('test_datetime')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setUnquotedName('test_datetime_immutable')
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
@@ -76,18 +76,18 @@ class TypeConversionTest extends FunctionalTestCase
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
-                    ->setUnquotedName('test_datetimetz')
-                    ->setTypeName(Types::DATETIMETZ_MUTABLE)
+                    ->setUnquotedName('test_datetimetz_immutable')
+                    ->setTypeName(Types::DATETIMETZ_IMMUTABLE)
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
-                    ->setUnquotedName('test_date')
-                    ->setTypeName(Types::DATE_MUTABLE)
+                    ->setUnquotedName('test_date_immutable')
+                    ->setTypeName(Types::DATE_IMMUTABLE)
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
-                    ->setUnquotedName('test_time')
-                    ->setTypeName(Types::TIME_MUTABLE)
+                    ->setUnquotedName('test_time_immutable')
+                    ->setTypeName(Types::TIME_IMMUTABLE)
                     ->setNotNull(false)
                     ->create(),
                 Column::editor()
@@ -217,14 +217,14 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals(['foo' => 'bar'], $this->processValue('json', ['foo' => 'bar']));
     }
 
-    #[DataProvider('toDateTimeProvider')]
-    public function testIdempotentConversionToDateTime(string $type, DateTime $originalValue): void
+    #[DataProvider('toDateTimeImmutableProvider')]
+    public function testIdempotentConversionToDateTime(string $type, DateTimeImmutable $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
 
-        self::assertInstanceOf(DateTime::class, $dbValue);
+        self::assertInstanceOf(DateTimeImmutable::class, $dbValue);
 
-        if ($type === Types::DATETIMETZ_MUTABLE) {
+        if ($type === Types::DATETIMETZ_IMMUTABLE) {
             return;
         }
 
@@ -235,14 +235,14 @@ class TypeConversionTest extends FunctionalTestCase
         );
     }
 
-    /** @return array<string, array{string, DateTime}> */
-    public static function toDateTimeProvider(): iterable
+    /** @return array<string, array{string, DateTimeImmutable}> */
+    public static function toDateTimeImmutableProvider(): iterable
     {
         return [
-            'datetime' => [Types::DATETIME_MUTABLE, new DateTime('2010-04-05 10:10:10')],
-            'datetimetz' => [Types::DATETIMETZ_MUTABLE, new DateTime('2010-04-05 10:10:10')],
-            'date' => [Types::DATE_MUTABLE, new DateTime('2010-04-05')],
-            'time' => [Types::TIME_MUTABLE, new DateTime('1970-01-01 10:10:10')],
+            'datetime' => [Types::DATETIME_IMMUTABLE, new DateTimeImmutable('2010-04-05 10:10:10')],
+            'datetimetz' => [Types::DATETIMETZ_IMMUTABLE, new DateTimeImmutable('2010-04-05 10:10:10')],
+            'date' => [Types::DATE_IMMUTABLE, new DateTimeImmutable('2010-04-05')],
+            'time' => [Types::TIME_IMMUTABLE, new DateTimeImmutable('1970-01-01 10:10:10')],
         ];
     }
 

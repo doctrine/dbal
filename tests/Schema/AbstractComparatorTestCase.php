@@ -236,7 +236,7 @@ abstract class AbstractComparatorTestCase extends TestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('datecolumn1')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->create(),
             )
             ->create();
@@ -246,11 +246,11 @@ abstract class AbstractComparatorTestCase extends TestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('new_datecolumn1')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('new_datecolumn2')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->create(),
             )
             ->create();
@@ -1054,7 +1054,7 @@ abstract class AbstractComparatorTestCase extends TestCase
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('logged_in_at')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->create(),
             )
             ->setPrimaryKeyConstraint(
