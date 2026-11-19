@@ -79,9 +79,11 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             SELECT nspname
             FROM pg_namespace
             WHERE %s
+              AND %s
             ORDER BY nspname
             SQL,
             $this->buildNamespaceNamePredicate('nspname'),
+            $this->buildNotExtensionSchemaPredicate('nspname'),
         );
 
         foreach ($this->connection->iterateColumn($sql) as $schemaName) {
@@ -776,10 +778,12 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
             FROM information_schema.sequences
             WHERE sequence_catalog = CURRENT_DATABASE()
               AND %s
+              AND %s
             ORDER BY sequence_schema,
                      sequence_name
             SQL,
             $this->buildNamespaceNamePredicate('sequence_schema'),
+            $this->buildNotExtensionSequencePredicate('sequence_schema', 'sequence_name'),
         );
 
         foreach ($this->connection->iterateNumeric($sql) as $row) {
@@ -796,6 +800,57 @@ final readonly class PostgreSQLMetadataProvider implements MetadataProvider
     private function buildNamespaceNamePredicate(string $columnName): string
     {
         return sprintf("%1\$s NOT LIKE 'pg\_%%' AND %1\$s != 'information_schema'", $columnName);
+    }
+
+    /**
+     * Builds a predicate that excludes the schemas that are members of an extension and the schemas that an installed
+     * extension requires to be installed in, such as the "topology" schema of PostGIS Topology.
+     */
+    private function buildNotExtensionSchemaPredicate(string $columnName): string
+    {
+        return sprintf(
+            <<<'SQL'
+            %s NOT IN (
+                SELECT n.nspname
+                FROM pg_depend d
+                         INNER JOIN pg_namespace n
+                                    ON n.oid = d.objid
+                WHERE d.classid = 'pg_namespace'::regclass
+                  AND d.deptype = 'e'
+                UNION
+                SELECT v.schema
+                FROM pg_extension e
+                         INNER JOIN pg_available_extension_versions v
+                                    ON v.name = e.extname
+                                        AND v.version = e.extversion
+                WHERE v.schema IS NOT NULL
+            )
+            SQL,
+            $columnName,
+        );
+    }
+
+    /** Builds a predicate that excludes the sequences that are members of an extension. */
+    private function buildNotExtensionSequencePredicate(string $schemaColumnName, string $sequenceColumnName): string
+    {
+        return sprintf(
+            <<<'SQL'
+            NOT EXISTS (
+                SELECT 1
+                FROM pg_depend d
+                         INNER JOIN pg_class c
+                                    ON c.oid = d.objid
+                         INNER JOIN pg_namespace n
+                                    ON n.oid = c.relnamespace
+                WHERE d.classid = 'pg_class'::regclass
+                  AND d.deptype = 'e'
+                  AND n.nspname = %s
+                  AND c.relname = %s
+            )
+            SQL,
+            $schemaColumnName,
+            $sequenceColumnName,
+        );
     }
 
     /**
