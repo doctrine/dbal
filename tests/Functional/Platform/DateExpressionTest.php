@@ -22,11 +22,11 @@ class DateExpressionTest extends FunctionalTestCase
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('date1')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->create(),
                 Column::editor()
                     ->setUnquotedName('date2')
-                    ->setTypeName(Types::DATETIME_MUTABLE)
+                    ->setTypeName(Types::DATETIME_IMMUTABLE)
                     ->create(),
             )
             ->create();

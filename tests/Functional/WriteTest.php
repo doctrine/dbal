@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Closure;
-use DateTime;
+use DateTimeImmutable;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
@@ -219,12 +219,12 @@ class WriteTest extends FunctionalTestCase
 
     public function testInsertWithKeyValueTypes(): void
     {
-        $testString = new DateTime('2013-04-14 10:10:10');
+        $testString = new DateTimeImmutable('2013-04-14 10:10:10');
 
         $this->connection->insert(
             'write_table',
             ['test_int' => '30', 'test_string' => $testString],
-            ['test_string' => 'datetime', 'test_int' => 'integer'],
+            ['test_string' => 'datetime_immutable', 'test_int' => 'integer'],
         );
 
         $data = $this->connection->fetchOne('SELECT test_string FROM write_table WHERE test_int = 30');
@@ -237,21 +237,21 @@ class WriteTest extends FunctionalTestCase
 
     public function testUpdateWithKeyValueTypes(): void
     {
-        $testString = new DateTime('2013-04-14 10:10:10');
+        $testString = new DateTimeImmutable('2013-04-14 10:10:10');
 
         $this->connection->insert(
             'write_table',
             ['test_int' => '30', 'test_string' => $testString],
-            ['test_string' => 'datetime', 'test_int' => 'integer'],
+            ['test_string' => 'datetime_immutable', 'test_int' => 'integer'],
         );
 
-        $testString = new DateTime('2013-04-15 10:10:10');
+        $testString = new DateTimeImmutable('2013-04-15 10:10:10');
 
         $this->connection->update(
             'write_table',
             ['test_string' => $testString],
             ['test_int' => '30'],
-            ['test_string' => 'datetime', 'test_int' => 'integer'],
+            ['test_string' => 'datetime_immutable', 'test_int' => 'integer'],
         );
 
         $data = $this->connection->fetchOne('SELECT test_string FROM write_table WHERE test_int = 30');
@@ -264,18 +264,18 @@ class WriteTest extends FunctionalTestCase
 
     public function testDeleteWithKeyValueTypes(): void
     {
-        $val = new DateTime('2013-04-14 10:10:10');
+        $val = new DateTimeImmutable('2013-04-14 10:10:10');
         $this->connection->insert(
             'write_table',
             ['test_int' => '30', 'test_string' => $val],
-            ['test_string' => 'datetime', 'test_int' => 'integer'],
+            ['test_string' => 'datetime_immutable', 'test_int' => 'integer'],
         );
 
         $this->connection->delete('write_table', [
             'test_int' => 30,
             'test_string' => $val,
         ], [
-            'test_string' => 'datetime',
+            'test_string' => 'datetime_immutable',
             'test_int' => 'integer',
         ]);
 
