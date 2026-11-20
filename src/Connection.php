@@ -16,14 +16,10 @@ use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
-use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
 use Doctrine\DBAL\Exception\ParseError;
 use Doctrine\DBAL\Exception\SavepointsNotSupported;
-use Doctrine\DBAL\Exception\TransactionRolledBack;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -977,13 +973,8 @@ class Connection implements ServerVersionProvider
 
             $shouldRollback = false;
         } catch (TheDriverException $t) {
-            $shouldRollback = ! (
-                $t instanceof TransactionRolledBack
-                || $t instanceof UniqueConstraintViolationException
-                || $t instanceof ForeignKeyConstraintViolationException
-                || $t instanceof DeadlockException
-                || $t instanceof ConnectionLost
-            );
+            // commit() has ended the transaction, also when the database refused it
+            $shouldRollback = false;
 
             throw $t;
         } finally {
@@ -1080,13 +1071,32 @@ class Connection implements ServerVersionProvider
                 try {
                     $connection->commit();
                 } catch (Driver\Exception $e) {
-                    throw $this->convertException($e);
+                    $exception = $this->convertException($e);
+
+                    if (! $exception instanceof ConnectionLost) {
+                        $this->rollBackAfterFailedCommit($connection);
+                    }
+
+                    throw $exception;
                 }
             } else {
                 $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
             }
         } finally {
             $this->updateTransactionStateAfterCommit();
+        }
+    }
+
+    /**
+     * Ends the transaction if the database kept it open after refusing to commit it, as SQLite does when the
+     * database is locked. A database that has already rolled the transaction back makes the rollback fail,
+     * which is ignored.
+     */
+    private function rollBackAfterFailedCommit(DriverConnection $connection): void
+    {
+        try {
+            $connection->rollBack();
+        } catch (Driver\Exception) {
         }
     }
 

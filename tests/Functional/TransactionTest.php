@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\ConnectionLost;
+use Doctrine\DBAL\Exception\LockWaitTimeoutException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -19,11 +22,81 @@ use function func_get_args;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
+use function sys_get_temp_dir;
 
 use const E_WARNING;
 
 class TransactionTest extends FunctionalTestCase
 {
+    private ?Connection $reader = null;
+
+    protected function tearDown(): void
+    {
+        $this->reader?->close();
+        $this->reader = null;
+
+        parent::tearDown();
+    }
+
+    public function testRefusedCommit(): void
+    {
+        $writer = $this->createWriterLockedOutByReader();
+        $writer->beginTransaction();
+        $writer->insert('refused_commit', ['id' => 1]);
+
+        try {
+            $writer->commit();
+            self::fail('The commit was expected to be refused.');
+        } catch (LockWaitTimeoutException) {
+        }
+
+        self::assertFalse($writer->isTransactionActive());
+
+        $this->reader?->rollBack();
+
+        $writer->beginTransaction();
+        $writer->insert('refused_commit', ['id' => 2]);
+        $writer->commit();
+
+        self::assertSame([2], $writer->fetchFirstColumn('SELECT id FROM refused_commit'));
+    }
+
+    public function testTransactionalWithRefusedCommit(): void
+    {
+        $writer = $this->createWriterLockedOutByReader();
+
+        $this->expectException(LockWaitTimeoutException::class);
+        $writer->transactional(static function (Connection $connection): void {
+            $connection->insert('refused_commit', ['id' => 1]);
+        });
+    }
+
+    /**
+     * Returns a connection to an SQLite database on which another connection holds a read transaction,
+     * so SQLite refuses the returned connection's commit of a write with "database is locked".
+     */
+    private function createWriterLockedOutByReader(): Connection
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
+            self::markTestSkipped('Restricted to SQLite.');
+        }
+
+        $params           = $this->connection->getParams();
+        $params['memory'] = false;
+        $params['path']   = sys_get_temp_dir() . '/doctrine_refused_commit.sqlite';
+
+        $writer = DriverManager::getConnection($params, $this->connection->getConfiguration());
+        $writer->executeStatement('PRAGMA busy_timeout = 0');
+        $writer->executeStatement('DROP TABLE IF EXISTS refused_commit');
+        $writer->executeStatement('CREATE TABLE refused_commit (id INTEGER PRIMARY KEY)');
+
+        $this->reader = DriverManager::getConnection($params, $this->connection->getConfiguration());
+        $this->reader->beginTransaction();
+        $this->reader->fetchOne('SELECT COUNT(*) FROM refused_commit');
+
+        return $writer;
+    }
+
     public function testBeginTransactionFailure(): void
     {
         $this->expectConnectionLoss(static function (Connection $connection): void {
