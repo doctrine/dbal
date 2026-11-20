@@ -11,8 +11,12 @@ use function sprintf;
 
 final class InvalidColumnDeclaration extends LogicException implements Exception
 {
-    public static function fromInvalidColumnType(string $columnName, InvalidColumnType $e): self
+    public static function fromInvalidColumnType(?string $columnName, InvalidColumnType $e): self
     {
+        if ($columnName === null || $columnName === '') {
+            return new self('Column "<unnamed>" has invalid type', 0, $e);
+        }
+
         return new self(sprintf('Column "%s" has invalid type', $columnName), 0, $e);
     }
 
