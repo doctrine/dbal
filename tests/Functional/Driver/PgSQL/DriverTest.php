@@ -23,6 +23,16 @@ class DriverTest extends AbstractPostgreSQLDriverTestCase
         self::markTestSkipped('This test requires the pgsql driver.');
     }
 
+    public function testDriverOptionsAreAppliedToConnection(): void
+    {
+        $params                  = $this->connection->getParams();
+        $params['driverOptions'] = ['options' => '-c search_path=foo'];
+
+        $connection = $this->driver->connect($params);
+
+        self::assertSame('foo', $connection->query('SHOW search_path')->fetchOne());
+    }
+
     protected function createDriver(): Driver
     {
         return new Driver();
