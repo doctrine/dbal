@@ -641,6 +641,37 @@ abstract class AbstractComparatorTestCase extends TestCase
         );
     }
 
+    public function testCompareTablesWithMultipleUnnamedForeignKeys(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('bar_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('baz_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setForeignKeyConstraints(
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('bar_id')
+                    ->setUnquotedReferencedTableName('bar')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+                ForeignKeyConstraint::editor()
+                    ->setUnquotedReferencingColumnNames('baz_id')
+                    ->setUnquotedReferencedTableName('baz')
+                    ->setUnquotedReferencedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        self::assertTrue($this->comparator->compareTables($table, $table)->isEmpty());
+    }
+
     public function testDetectRenameColumn(): void
     {
         $tableA = Table::editor()

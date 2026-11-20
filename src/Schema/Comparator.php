@@ -269,7 +269,10 @@ class Comparator
                 if ($this->diffForeignKey($oldForeignKey, $newForeignKey) === false) {
                     unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                 } else {
-                    if (strtolower($oldForeignKey->getName()) === strtolower($newForeignKey->getName())) {
+                    if (
+                        $oldForeignKey->getName() !== ''
+                        && strtolower($oldForeignKey->getName()) === strtolower($newForeignKey->getName())
+                    ) {
                         $droppedForeignKeys[$oldKey] = $oldForeignKey;
                         $addedForeignKeys[$newKey]   = $newForeignKey;
 
