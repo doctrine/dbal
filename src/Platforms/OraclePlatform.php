@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\DBAL\Platforms\Oracle\OracleMetadataProvider;
@@ -857,5 +858,19 @@ SQL,
     public function createSchemaManager(Connection $connection): OracleSchemaManager
     {
         return new OracleSchemaManager($connection, $this);
+    }
+
+    public function getJoinLateralSQL(): string
+    {
+        return 'OUTER APPLY';
+    }
+
+    public function getJoinLateralConditionsSQL(?string $conditions): ?string
+    {
+        if ($conditions === null) {
+            return null;
+        }
+
+        throw new NotSupported('OUTER APPLY conditions are not supported.');
     }
 }

@@ -22,6 +22,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\JoinLateralSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
@@ -1024,5 +1025,10 @@ class SQLitePlatform extends AbstractPlatform
     public function getUnionSelectPartSQL(string $subQuery): string
     {
         return $subQuery;
+    }
+
+    public function createJoinLateralSQLBuilder(): JoinLateralSQLBuilder
+    {
+        throw NotSupported::new(__METHOD__);
     }
 }
