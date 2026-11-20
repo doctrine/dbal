@@ -24,11 +24,12 @@ final readonly class IndexColumnMetadataProcessor
             )
             ->setType($row->getType())
             ->setIsClustered($row->isClustered())
-            ->setPredicate($row->getPredicate());
+            ->setPredicate($row->getPredicate())
+            ->setMethod($row->getMethod());
     }
 
     public function applyRow(IndexEditor $editor, IndexColumnMetadataRow $row): void
     {
-        $editor->addQuotedColumnName($row->getColumnName(), $row->getColumnLength());
+        $editor->addQuotedColumnName($row->getColumnName(), $row->getColumnLength(), $row->getColumnOptions());
     }
 }

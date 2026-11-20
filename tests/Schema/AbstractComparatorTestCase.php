@@ -597,6 +597,92 @@ abstract class AbstractComparatorTestCase extends TestCase
         );
     }
 
+    public function testCompareIndexedColumnOptions(): void
+    {
+        $tableA = $this->createTableWithIndexedColumnOptions([]);
+        $tableB = $this->createTableWithIndexedColumnOptions(['option' => 'value']);
+
+        $diff = $this->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($tableA, $tableB);
+
+        self::assertEquals([$tableA->getIndex('idx_name')], $diff->getDroppedIndexes());
+        self::assertEquals([$tableB->getIndex('idx_name')], $diff->getAddedIndexes());
+        self::assertSame([], $diff->getRenamedIndexes());
+
+        self::assertTrue($this->comparator->compareTables($tableB, $tableB)->isEmpty());
+    }
+
+    /** @param array<string, mixed> $options */
+    private function createTableWithIndexedColumnOptions(array $options): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('name')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('idx_name')
+                    ->addUnquotedColumnName('name', null, $options)
+                    ->create(),
+            )
+            ->create();
+    }
+
+    public function testCompareIndexMethod(): void
+    {
+        $tableA = $this->createTableWithIndex('idx_area', null);
+        $tableB = $this->createTableWithIndex('idx_area', 'hash');
+
+        $diff = $this->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($tableA, $tableB);
+
+        self::assertEquals([$tableA->getIndex('idx_area')], $diff->getDroppedIndexes());
+        self::assertEquals([$tableB->getIndex('idx_area')], $diff->getAddedIndexes());
+        self::assertSame([], $diff->getRenamedIndexes());
+
+        self::assertTrue($this->comparator->compareTables($tableB, $tableB)->isEmpty());
+    }
+
+    public function testIndexWithDifferentMethodIsNotDetectedAsRenamed(): void
+    {
+        $tableA = $this->createTableWithIndex('idx_area', null);
+        $tableB = $this->createTableWithIndex('idx_area_hash', 'hash');
+
+        $diff = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertSame([], $diff->getRenamedIndexes());
+        self::assertEquals([$tableA->getIndex('idx_area')], $diff->getDroppedIndexes());
+        self::assertEquals([$tableB->getIndex('idx_area_hash')], $diff->getAddedIndexes());
+    }
+
+    /**
+     * @param non-empty-string  $indexName
+     * @param ?non-empty-string $method
+     */
+    private function createTableWithIndex(string $indexName, ?string $method): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('area')
+                    ->setTypeName(Types::TEXT)
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName($indexName)
+                    ->setUnquotedColumnNames('area')
+                    ->setMethod($method)
+                    ->create(),
+            )
+            ->create();
+    }
+
     public function testCompareForeignKeyBasedOnPropertiesNotName(): void
     {
         $tableA = Table::editor()

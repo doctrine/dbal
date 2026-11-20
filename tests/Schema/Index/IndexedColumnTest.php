@@ -18,4 +18,18 @@ class IndexedColumnTest extends TestCase
         // @phpstan-ignore argument.type
         new IndexedColumn(UnqualifiedName::unquoted('id'), -1);
     }
+
+    public function testOptionsDefaultToEmpty(): void
+    {
+        $column = new IndexedColumn(UnqualifiedName::unquoted('id'), null);
+
+        self::assertSame([], $column->getOptions());
+    }
+
+    public function testGetOptions(): void
+    {
+        $column = new IndexedColumn(UnqualifiedName::unquoted('data'), null, ['option' => 'value']);
+
+        self::assertSame(['option' => 'value'], $column->getOptions());
+    }
 }

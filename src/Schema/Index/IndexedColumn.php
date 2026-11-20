@@ -12,10 +12,15 @@ final readonly class IndexedColumn
     /**
      * @internal
      *
-     * @param ?positive-int $length
+     * @param ?positive-int        $length
+     * @param array<string, mixed> $options Platform-specific options of the indexed column, which are passed as is to
+     *                                      the platform.
      */
-    public function __construct(private UnqualifiedName $columnName, private ?int $length)
-    {
+    public function __construct(
+        private UnqualifiedName $columnName,
+        private ?int $length,
+        private array $options = [],
+    ) {
         if ($length !== null && $length <= 0) {
             throw InvalidIndexDefinition::fromNonPositiveColumnLength($columnName, $length);
         }
@@ -30,5 +35,15 @@ final readonly class IndexedColumn
     public function getLength(): ?int
     {
         return $this->length;
+    }
+
+    /**
+     * Returns the platform-specific options of the indexed column.
+     *
+     * @return array<string, mixed>
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
     }
 }
