@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Deprecations\Deprecation;
 
+use function array_filter;
 use function array_map;
 use function assert;
 use function count;
@@ -212,17 +213,18 @@ class Comparator
             $this->detectRenamedColumns($modifiedColumns, $addedColumns, $droppedColumns);
         }
 
-        $oldIndexes = $oldTable->getIndexes();
-        $newIndexes = $newTable->getIndexes();
+        $oldIndexes = $this->getDeclaredIndexes($oldTable);
+        $newIndexes = $this->getDeclaredIndexes($newTable);
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndex) {
             $newIndexName = $newIndex->getName();
 
-            if (
-                (! $newIndex->isPrimary() || $oldTable->getPrimaryKey() === null)
-                && ! $oldTable->hasIndex($newIndexName)
-            ) {
+            if ($newIndex->isPrimary() && $oldTable->getPrimaryKey() !== null) {
+                continue;
+            }
+
+            if (! $oldTable->hasIndex($newIndexName) || $this->differsFromDerivedIndex($oldTable, $newIndex)) {
                 $addedIndexes[] = $newIndex;
             }
         }
@@ -234,7 +236,7 @@ class Comparator
             // See if the index is removed in the new table.
             if (
                 ($oldIndex->isPrimary() && $newTable->getPrimaryKey() === null) ||
-                ! $oldIndex->isPrimary() && ! $newTable->hasIndex($oldIndexName)
+                ! $oldIndex->isPrimary() && ! $this->hasDeclaredIndex($newTable, $oldIndexName)
             ) {
                 $droppedIndexes[] = $oldIndex;
 
@@ -450,5 +452,43 @@ class Comparator
     protected function diffIndex(Index $index1, Index $index2): bool
     {
         return ! ($index1->isFulfilledBy($index2) && $index2->isFulfilledBy($index1));
+    }
+
+    /** @return array<string, Index> */
+    private function getDeclaredIndexes(Table $table): array
+    {
+        return array_filter(
+            $table->getIndexes(),
+            static fn (Index $index): bool => $index->getOrigin() === ObjectOrigin::DECLARED,
+        );
+    }
+
+    /**
+     * Returns whether the old table has a derived index with the name of the given index but a different definition.
+     */
+    private function differsFromDerivedIndex(Table $oldTable, Index $newIndex): bool
+    {
+        $name = $newIndex->getName();
+
+        if (! $oldTable->hasIndex($name)) {
+            return false;
+        }
+
+        $oldIndex = $oldTable->getIndex($name);
+
+        if ($oldIndex->getOrigin() !== ObjectOrigin::DERIVED) {
+            return false;
+        }
+
+        return $this->diffIndex($oldIndex, $newIndex);
+    }
+
+    private function hasDeclaredIndex(Table $table, string $name): bool
+    {
+        if (! $table->hasIndex($name)) {
+            return false;
+        }
+
+        return $table->getIndex($name)->getOrigin() === ObjectOrigin::DECLARED;
     }
 }

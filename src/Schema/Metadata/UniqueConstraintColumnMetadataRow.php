@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Metadata;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\Deprecations\Deprecation;
 
 use function func_num_args;
@@ -34,12 +35,22 @@ final readonly class UniqueConstraintColumnMetadataRow
         private ?string $name,
         private string $columnName,
         private bool $isClustered = false,
+        private ObjectOrigin $origin = ObjectOrigin::DECLARED,
     ) {
         if (func_num_args() < 6) {
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/7591',
                 'Not passing $isClustered to %s() is deprecated.',
+                __METHOD__,
+            );
+        }
+
+        if (func_num_args() < 7) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7620',
+                'Not passing $origin to %s() is deprecated.',
                 __METHOD__,
             );
         }
@@ -88,5 +99,10 @@ final readonly class UniqueConstraintColumnMetadataRow
     public function isClustered(): bool
     {
         return $this->isClustered;
+    }
+
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
     }
 }

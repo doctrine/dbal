@@ -92,6 +92,7 @@ class Index extends AbstractNamedObject
         bool $isPrimary = false,
         array $flags = [],
         private readonly array $options = [],
+        private ObjectOrigin $origin = ObjectOrigin::DECLARED,
     ) {
         parent::__construct($name ?? '');
 
@@ -143,6 +144,9 @@ class Index extends AbstractNamedObject
         }
 
         $this->columns = $this->parseColumns($isPrimary, $columns, $options['lengths'] ?? []);
+
+        // addFlag() resets the origin.
+        $this->origin = $origin;
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -188,6 +192,14 @@ class Index extends AbstractNamedObject
     public function isClustered(): bool
     {
         return $this->hasFlag('clustered');
+    }
+
+    /**
+     * Returns the origin of the index.
+     */
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
     }
 
     /**
@@ -481,7 +493,8 @@ class Index extends AbstractNamedObject
 
         $this->validateFlags();
 
-        $this->type = $this->inferType();
+        $this->type   = $this->inferType();
+        $this->origin = ObjectOrigin::DECLARED;
 
         return $this;
     }
@@ -519,7 +532,8 @@ class Index extends AbstractNamedObject
 
         unset($this->_flags[strtolower($flag)]);
 
-        $this->type = $this->inferType();
+        $this->type   = $this->inferType();
+        $this->origin = ObjectOrigin::DECLARED;
     }
 
     /** @deprecated Use {@see getIndexedColumns()} and {@see getPredicate()} instead. */
