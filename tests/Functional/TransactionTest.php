@@ -18,11 +18,16 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
 
+use function array_map;
+use function file_exists;
 use function func_get_args;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
+use function strval;
 use function sys_get_temp_dir;
+use function tempnam;
+use function unlink;
 
 use const E_WARNING;
 
@@ -30,10 +35,22 @@ class TransactionTest extends FunctionalTestCase
 {
     private ?Connection $reader = null;
 
+    private ?Connection $writer = null;
+
+    private ?string $refusedCommitPath = null;
+
     protected function tearDown(): void
     {
         $this->reader?->close();
         $this->reader = null;
+        $this->writer?->close();
+        $this->writer = null;
+
+        if ($this->refusedCommitPath !== null && file_exists($this->refusedCommitPath)) {
+            unlink($this->refusedCommitPath);
+        }
+
+        $this->refusedCommitPath = null;
 
         parent::tearDown();
     }
@@ -58,7 +75,10 @@ class TransactionTest extends FunctionalTestCase
         $writer->insert('refused_commit', ['id' => 2]);
         $writer->commit();
 
-        self::assertSame([2], $writer->fetchFirstColumn('SELECT id FROM refused_commit'));
+        self::assertSame(['2'], array_map(
+            strval(...),
+            $writer->fetchFirstColumn('SELECT id FROM refused_commit'),
+        ));
     }
 
     public function testTransactionalWithRefusedCommit(): void
@@ -83,9 +103,12 @@ class TransactionTest extends FunctionalTestCase
 
         $params           = $this->connection->getParams();
         $params['memory'] = false;
-        $params['path']   = sys_get_temp_dir() . '/doctrine_refused_commit.sqlite';
+        $path             = tempnam(sys_get_temp_dir(), 'doctrine_refused_commit_');
+        self::assertIsString($path);
+        $this->refusedCommitPath = $path;
+        $params['path']          = $path;
 
-        $writer = DriverManager::getConnection($params, $this->connection->getConfiguration());
+        $writer = $this->writer = DriverManager::getConnection($params, $this->connection->getConfiguration());
         $writer->executeStatement('PRAGMA busy_timeout = 0');
         $writer->executeStatement('DROP TABLE IF EXISTS refused_commit');
         $writer->executeStatement('CREATE TABLE refused_commit (id INTEGER PRIMARY KEY)');
