@@ -9,13 +9,16 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Exception\TypeArgumentCountError;
 use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
+use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
 use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use RuntimeException;
@@ -31,6 +34,8 @@ use function sprintf;
 
 class TypeRegistryTest extends TestCase
 {
+    use VerifyDeprecations;
+
     private const TEST_TYPE_NAME       = 'test';
     private const OTHER_TEST_TYPE_NAME = 'other';
 
@@ -184,6 +189,47 @@ class TypeRegistryTest extends TestCase
     {
         $this->expectException(Exception::class);
         $this->registry->register(Types::STRING, new TextType());
+    }
+
+    #[DataProvider('spatialTypeNameProvider')]
+    public function testRegisterOverridesBuiltInSpatialType(string $name): void
+    {
+        $replacement = new TextType();
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/7081');
+
+        $this->registry->register($name, $replacement);
+
+        self::assertSame($replacement, $this->registry->get($name));
+    }
+
+    #[DataProvider('spatialTypeNameProvider')]
+    public function testRegisterOverridesResolvedBuiltInSpatialType(string $name): void
+    {
+        $this->registry->get($name);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/7081');
+
+        $this->registry->register($name, TextType::class);
+
+        self::assertInstanceOf(TextType::class, $this->registry->get($name));
+    }
+
+    #[DataProvider('spatialTypeNameProvider')]
+    public function testRegisterOverriddenSpatialTypeThrows(string $name): void
+    {
+        $this->registry->override($name, new TextType());
+
+        $this->expectException(TypesAlreadyExists::class);
+
+        $this->registry->register($name, new TextType());
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function spatialTypeNameProvider(): iterable
+    {
+        yield 'geometry' => [Types::GEOMETRY];
+        yield 'geography' => [Types::GEOGRAPHY];
     }
 
     public function testRegisterByClassNameInstantiatesLazily(): void

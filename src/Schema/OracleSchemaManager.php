@@ -6,8 +6,10 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
+use Doctrine\DBAL\Platforms\Oracle\GeometryMetadata;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Types\GeometryType;
 
 use function array_change_key_case;
 use function array_key_exists;
@@ -76,11 +78,54 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['non_unique'] = ! $row['is_unique'];
             }
 
+            if (
+                $row['ityp_owner'] === 'MDSYS'
+                && ($row['ityp_name'] === 'SPATIAL_INDEX' || $row['ityp_name'] === 'SPATIAL_INDEX_V2')
+            ) {
+                $buffer['flags'] = ['spatial'];
+            }
+
             $buffer['column_name'] = $this->getQuotedIdentifierName($row['column_name']);
             $indexBuffer[]         = $buffer;
         }
 
         return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    protected function _getPortableTableColumnList(string $table, string $database, array $rows): array
+    {
+        $columns          = parent::_getPortableTableColumnList($table, $database, $rows);
+        $geometryMetadata = null;
+
+        foreach ($columns as $column) {
+            if (! $column->getType() instanceof GeometryType) {
+                continue;
+            }
+
+            // the metadata of the geometry columns requires Oracle Spatial
+            $geometryMetadata ??= GeometryMetadata::fetch($this->connection, $table);
+
+            $columnName = $column->getObjectName()->getIdentifier()->getValue();
+
+            [$srid, $dimension] = $geometryMetadata[$table][$columnName] ?? [null, null];
+
+            if ($srid !== null) {
+                $column->setPlatformOption('srid', $srid);
+            }
+
+            if ($dimension === null) {
+                continue;
+            }
+
+            $column->setPlatformOption('coordinateDimension', $dimension->value);
+        }
+
+        return $columns;
     }
 
     /**
@@ -327,6 +372,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 SELECT TABLE_NAME
 FROM ALL_TABLES
 WHERE OWNER = :OWNER
+  AND SECONDARY = 'N'
 ORDER BY TABLE_NAME
 SQL;
 
@@ -335,7 +381,8 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $conditions = ['C.OWNER = :OWNER'];
+        // the secondary tables are the storage of domain indexes, such as spatial indexes
+        $conditions = ['C.OWNER = :OWNER', "T.SECONDARY = 'N'"];
         $params     = ['OWNER' => $databaseName];
 
         if ($tableName !== null) {
@@ -392,7 +439,9 @@ SQL,
                  DECODE(IND.UNIQUENESS, 'NONUNIQUE', 0, 'UNIQUE', 1) AS IS_UNIQUE,
                  IND_COL.COLUMN_NAME,
                  IND_COL.COLUMN_POSITION AS COLUMN_POS,
-                 CON.CONSTRAINT_TYPE AS IS_PRIMARY
+                 CON.CONSTRAINT_TYPE AS IS_PRIMARY,
+                 IND.ITYP_OWNER,
+                 IND.ITYP_NAME
             FROM ALL_IND_COLUMNS IND_COL
        LEFT JOIN ALL_INDEXES IND
               ON IND.OWNER = IND_COL.INDEX_OWNER

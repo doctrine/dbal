@@ -15,6 +15,8 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\Spatial\Dimension;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -33,6 +35,60 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function createPlatform(): AbstractPlatform
     {
         return new PostgreSQLPlatform();
+    }
+
+    public function testAlterSpatialColumnConvertsTheValues(): void
+    {
+        $column = Column::editor()
+            ->setUnquotedName('geom')
+            ->setTypeName(Types::GEOMETRY)
+            ->setGeometryType(GeometryKind::POINT)
+            ->create();
+
+        $table = Table::editor()
+            ->setUnquotedName('places')
+            ->setColumns($column)
+            ->create();
+
+        $diff = new TableDiff($table, changedColumns: [
+            'geom' => new ColumnDiff($column, $column->edit()
+                ->setTypeName(Types::GEOGRAPHY)
+                ->setGeometryType(GeometryKind::MULTIPOINT)
+                ->setCoordinateDimension(Dimension::XYZ)
+                ->create()),
+        ]);
+
+        self::assertSame(
+            [
+                'ALTER TABLE places ALTER geom TYPE geography(MultiPointZ,4326)'
+                    . ' USING CAST(ST_SetSRID(ST_Multi(ST_Force3DZ(geom)), 4326) AS geography)',
+            ],
+            $this->platform->getAlterTableSQL($diff),
+        );
+    }
+
+    /** @param array<string, mixed> $column */
+    #[DataProvider('geographyColumnProvider')]
+    public function testGeographyTypeDeclarationSQL(array $column, string $expected): void
+    {
+        self::assertSame($expected, $this->platform->getGeographyTypeDeclarationSQL($column));
+    }
+
+    /** @return iterable<string, array{array<string, mixed>, string}> */
+    public static function geographyColumnProvider(): iterable
+    {
+        yield 'unconstrained' => [[], 'geography(Geometry,4326)'];
+        yield 'SRID 0' => [['srid' => 0], 'geography(Geometry,4326)'];
+        yield 'kind' => [['geometryType' => GeometryKind::POINT], 'geography(Point,4326)'];
+        yield 'kind named as by other libraries' => [['geometry_type' => 'point'], 'geography(Point,4326)'];
+        yield 'all' => [
+            [
+                'geometryType' => GeometryKind::MULTIPOLYGON,
+                'coordinateDimension' => Dimension::XYZ,
+                'srid' => 4269,
+            ],
+            'geography(MultiPolygonZ,4269)',
+        ];
     }
 
     public function getGenerateTableSql(): string

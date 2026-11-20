@@ -19,6 +19,11 @@ on:
         required: false
         type: string
         default: ''
+      spatialite:
+        description: 'Installs SpatiaLite and makes it loadable by both SQLite extensions'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   phpunit-sqlite:
@@ -28,12 +33,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Install SpatiaLite
+        if: ${{ inputs.spatialite }}
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libsqlite3-mod-spatialite
+
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ inputs.php-version }}
           coverage: pcov
-          ini-values: zend.assertions=1
+          ini-values: zend.assertions=1${{ inputs.spatialite && ', sqlite3.extension_dir=/usr/lib/x86_64-linux-gnu' || '' }}
         env:
           fail-fast: true
 

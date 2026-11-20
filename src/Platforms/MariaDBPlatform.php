@@ -22,6 +22,15 @@ use function in_array;
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
     /**
+     * MariaDB only accepts strings with a binary collation as geometries in the arguments of spatial functions,
+     * while natively prepared parameters are strings with the connection collation.
+     */
+    public function convertGeometryToDatabaseValueSQL(string $sqlExpr): string
+    {
+        return 'CAST(' . $sqlExpr . ' AS BINARY)';
+    }
+
+    /**
      * Generate SQL snippets to reverse the aliasing of JSON to LONGTEXT.
      *
      * MariaDb aliases columns specified as JSON to LONGTEXT and sets a CHECK constraint to ensure the column

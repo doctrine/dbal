@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
+use Doctrine\DBAL\Schema\Index\BoundingBox;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
@@ -15,6 +17,7 @@ use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 use function array_filter;
+use function array_is_list;
 use function array_keys;
 use function array_map;
 use function array_search;
@@ -22,6 +25,8 @@ use function array_shift;
 use function count;
 use function gettype;
 use function implode;
+use function is_array;
+use function is_float;
 use function is_int;
 use function is_object;
 use function strlen;
@@ -76,6 +81,8 @@ class Index extends AbstractNamedObject
     private ?string $predicate = null;
 
     private bool $failedToParsePredicate = false;
+
+    private ?BoundingBox $boundingBox = null;
 
     /**
      * @internal Use {@link Index::editor()} to instantiate an editor and {@link IndexEditor::create()} to create an
@@ -143,6 +150,16 @@ class Index extends AbstractNamedObject
         }
 
         $this->columns = $this->parseColumns($isPrimary, $columns, $options['lengths'] ?? []);
+
+        if (! isset($options['bounding_box'])) {
+            return;
+        }
+
+        if ($this->type !== IndexType::SPATIAL) {
+            throw InvalidIndexDefinition::fromBoundingBoxOfNonSpatialIndex($this->getName());
+        }
+
+        $this->boundingBox = self::parseBoundingBox($options['bounding_box']);
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -204,6 +221,14 @@ class Index extends AbstractNamedObject
         return $this->hasOption('where')
             ? $this->getOption('where')
             : null;
+    }
+
+    /**
+     * Returns the extent of the geometries indexed by a spatial index, if specified.
+     */
+    public function getBoundingBox(): ?BoundingBox
+    {
+        return $this->boundingBox;
     }
 
     protected function _addColumn(string $column): void
@@ -712,6 +737,26 @@ class Index extends AbstractNamedObject
         return $columns;
     }
 
+    /** @throws InvalidIndexDefinition */
+    private static function parseBoundingBox(mixed $boundingBox): BoundingBox
+    {
+        if ($boundingBox instanceof BoundingBox) {
+            return $boundingBox;
+        }
+
+        if (! is_array($boundingBox) || ! array_is_list($boundingBox) || count($boundingBox) !== 4) {
+            throw InvalidIndexDefinition::fromMalformedBoundingBox($boundingBox);
+        }
+
+        foreach ($boundingBox as $coordinate) {
+            if (! is_int($coordinate) && ! is_float($coordinate)) {
+                throw InvalidIndexDefinition::fromMalformedBoundingBox($boundingBox);
+            }
+        }
+
+        return new BoundingBox(...$boundingBox);
+    }
+
     /**
      * Return whether the two indexes have the same partial index
      */
@@ -759,6 +804,7 @@ class Index extends AbstractNamedObject
             ->setType($this->getType())
             ->setColumns(...$this->getIndexedColumns())
             ->setIsClustered($this->isClustered())
-            ->setPredicate($this->getPredicate());
+            ->setPredicate($this->getPredicate())
+            ->setBoundingBox($this->boundingBox);
     }
 }

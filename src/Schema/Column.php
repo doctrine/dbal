@@ -10,6 +10,9 @@ use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Spatial\Dimension;
+use Doctrine\DBAL\Spatial\Exception\InvalidGeometry;
+use Doctrine\DBAL\Spatial\GeometryKind;
 use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
@@ -48,6 +51,9 @@ use function sprintf;
  *     collation?: ?non-empty-string,
  *     default_constraint_name?: non-empty-string,
  *     enumType?: class-string,
+ *     geometryType?: string,
+ *     coordinateDimension?: string,
+ *     srid?: int|numeric-string,
  *     jsonb?: bool,
  *     version?: bool,
  * }
@@ -499,6 +505,48 @@ class Column extends AbstractNamedObject
     }
 
     /**
+     * Returns the kind of the geometries a spatial column accepts. NULL means any kind.
+     *
+     * @throws InvalidGeometry
+     */
+    public function getGeometryType(): ?GeometryKind
+    {
+        $geometryType = $this->_platformOptions['geometryType'] ?? null;
+
+        if ($geometryType === null || $geometryType instanceof GeometryKind) {
+            return $geometryType;
+        }
+
+        return GeometryKind::fromName($geometryType);
+    }
+
+    /**
+     * Returns the coordinate dimension of the geometries a spatial column accepts. NULL means any dimension.
+     *
+     * @throws InvalidGeometry
+     */
+    public function getCoordinateDimension(): ?Dimension
+    {
+        $dimension = $this->_platformOptions['coordinateDimension'] ?? null;
+
+        if ($dimension === null || $dimension instanceof Dimension) {
+            return $dimension;
+        }
+
+        return Dimension::fromName($dimension);
+    }
+
+    /**
+     * Returns the SRID of the geometries a spatial column accepts. NULL means any SRID.
+     */
+    public function getSrid(): ?int
+    {
+        $srid = $this->_platformOptions['srid'] ?? null;
+
+        return $srid === null ? null : (int) $srid;
+    }
+
+    /**
      * @internal Should be used only from within the {@see AbstractSchemaManager} class hierarchy.
      *
      * Returns the name of the DEFAULT constraint that implements the default value for the column on SQL Server.
@@ -691,6 +739,9 @@ class Column extends AbstractNamedObject
             ->setMinimumValue($this->getMinimumValue())
             ->setMaximumValue($this->getMaximumValue())
             ->setEnumType($this->getEnumType())
+            ->setGeometryType($this->getGeometryType())
+            ->setCoordinateDimension($this->getCoordinateDimension())
+            ->setSrid($this->getSrid())
             ->setDefaultConstraintName($this->getDefaultConstraintName());
     }
 
