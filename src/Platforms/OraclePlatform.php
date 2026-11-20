@@ -858,4 +858,20 @@ SQL,
     {
         return new OracleSchemaManager($connection, $this);
     }
+
+    /** @see https://docs.oracle.com/en/database/oracle/oracle-database/23/tgsql/sql-tuning-guide.pdf */
+    public function getMaximumAmountOfBoundParameters(Connection $connection): int
+    {
+        return 65535;
+    }
+
+    /**
+     * Multiple VALUES rows are not supported before Oracle 23.
+     *
+     * @see https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/INSERT.html
+     */
+    public function supportsMultiRowInsert(): bool
+    {
+        return false;
+    }
 }
