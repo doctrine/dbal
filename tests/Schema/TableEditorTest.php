@@ -655,6 +655,28 @@ class TableEditorTest extends TestCase
         $editor->dropForeignKeyConstraintByUnquotedName('fk_accounts_users');
     }
 
+    public function testDisableImplicitIndexes(): void
+    {
+        $foreignKeyConstraint = ForeignKeyConstraint::editor()
+            ->setUnquotedName('fk_accounts_users')
+            ->setUnquotedReferencingColumnNames('user_id')
+            ->setUnquotedReferencedTableName('users')
+            ->setUnquotedReferencedColumnNames('id')
+            ->create();
+
+        $table = Table::editor()
+            ->setUnquotedName('accounts')
+            ->setColumns(
+                $this->createColumn('user_id', Types::INTEGER),
+            )
+            ->setForeignKeyConstraints($foreignKeyConstraint)
+            ->disableImplicitIndexes()
+            ->create();
+
+        self::assertSame([$foreignKeyConstraint], array_values($table->getForeignKeys()));
+        self::assertEmpty($table->getIndexes());
+    }
+
     public function testSetComment(): void
     {
         $table = Table::editor()

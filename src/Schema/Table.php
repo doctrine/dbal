@@ -30,6 +30,8 @@ use function array_merge;
 use function array_values;
 use function assert;
 use function count;
+use function func_get_arg;
+use function func_num_args;
 use function implode;
 use function in_array;
 use function preg_match;
@@ -97,6 +99,10 @@ class Table extends AbstractNamedObject
      * @param array<ForeignKeyConstraint> $fkConstraints
      * @param array<string, mixed>        $options
      * @param array<string, string>       $renamedColumns
+     * @param bool                        $addImplicitIndexes Whether to add an index backing each foreign key
+     *                                                        constraint that no index in $indexes fulfills. Tables
+     *                                                        introspected from the database must not have such
+     *                                                        indexes since they don't necessarily exist there.
      */
     public function __construct(
         string $name,
@@ -108,6 +114,7 @@ class Table extends AbstractNamedObject
         ?TableConfiguration $configuration = null,
         ?PrimaryKeyConstraint $primaryKeyConstraint = null,
         array $renamedColumns = [],
+        bool $addImplicitIndexes = true,
     ) {
         if ($name === '') {
             throw InvalidTableName::new($name);
@@ -136,7 +143,7 @@ class Table extends AbstractNamedObject
         }
 
         foreach ($fkConstraints as $fkConstraint) {
-            $this->_addForeignKeyConstraint($fkConstraint);
+            $this->_addForeignKeyConstraint($fkConstraint, $addImplicitIndexes);
         }
 
         $this->_options = array_merge($this->_options, $options);
@@ -1095,8 +1102,10 @@ class Table extends AbstractNamedObject
         return $this;
     }
 
-    protected function _addForeignKeyConstraint(ForeignKeyConstraint $constraint): self
-    {
+    protected function _addForeignKeyConstraint(
+        ForeignKeyConstraint $constraint,
+        /* bool $addImplicitIndex = true */
+    ): self {
         $name = $constraint->getName() !== ''
             ? $constraint->getName()
             : $this->_generateIdentifierName(
@@ -1117,10 +1126,12 @@ class Table extends AbstractNamedObject
 
         $this->_fkConstraints[$name] = $constraint;
 
+        if (func_num_args() > 1 && func_get_arg(1) === false) {
+            return $this;
+        }
+
         // add an explicit index on the foreign key columns.
-        // If there is already an index that fulfills this requirements drop the request. In the case of __construct
-        // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
-        // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
+        // If there is already an index that fulfills this requirements drop the request.
         $indexName = $this->_generateIdentifierName(
             array_merge([$this->getName()], $constraint->getLocalColumns()),
             'idx',

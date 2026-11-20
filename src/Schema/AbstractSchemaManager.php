@@ -267,6 +267,7 @@ abstract class AbstractSchemaManager
                 $configuration,
                 null,
                 [],
+                addImplicitIndexes: false,
             );
             $table->setTypeProvider($this->connection->getConfiguration()->getTypeProvider());
 
@@ -499,6 +500,7 @@ abstract class AbstractSchemaManager
             null,
             null,
             [],
+            addImplicitIndexes: false,
         );
         $table->setTypeProvider($this->connection->getConfiguration()->getTypeProvider());
 
@@ -676,6 +678,7 @@ abstract class AbstractSchemaManager
             ->setUniqueConstraints(...$this->introspectTableUniqueConstraints($tableName))
             ->setForeignKeyConstraints(...$this->introspectTableForeignKeyConstraints($tableName))
             ->setOptions($options)
+            ->disableImplicitIndexes()
             ->create();
     }
 
