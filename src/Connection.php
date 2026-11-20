@@ -16,10 +16,14 @@ use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
 use Doctrine\DBAL\Exception\ParseError;
 use Doctrine\DBAL\Exception\SavepointsNotSupported;
+use Doctrine\DBAL\Exception\TransactionRolledBack;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -967,14 +971,21 @@ class Connection implements ServerVersionProvider
             }
         }
 
+        $isTopLevel     = $this->transactionNestingLevel === 1;
         $shouldRollback = true;
         try {
             $this->commit();
 
             $shouldRollback = false;
         } catch (TheDriverException $t) {
-            // commit() has ended the transaction, also when the database refused it
-            $shouldRollback = false;
+            // A failed top-level commit has ended the transaction, also when the database refused it
+            $shouldRollback = ! $isTopLevel && ! (
+                $t instanceof TransactionRolledBack
+                || $t instanceof UniqueConstraintViolationException
+                || $t instanceof ForeignKeyConstraintViolationException
+                || $t instanceof DeadlockException
+                || $t instanceof ConnectionLost
+            );
 
             throw $t;
         } finally {

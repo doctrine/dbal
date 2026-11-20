@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\ConnectionLost;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\LockWaitTimeoutException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
@@ -17,6 +18,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
+use SQLite3;
 
 use function array_map;
 use function file_exists;
@@ -89,6 +91,48 @@ class TransactionTest extends FunctionalTestCase
         $writer->transactional(static function (Connection $connection): void {
             $connection->insert('refused_commit', ['id' => 1]);
         });
+    }
+
+    public function testTransactionalWithRefusedSavepointReleaseRollsBack(): void
+    {
+        $native = $this->connection->getNativeConnection();
+
+        if (! $native instanceof SQLite3) {
+            self::markTestSkipped('Restricted to the sqlite3 driver, which can refuse an SQL statement.');
+        }
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('refused_release')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $this->connection->beginTransaction();
+        $native->setAuthorizer(static function (int $action, ?string $operation): int {
+            return $action === SQLite3::SAVEPOINT && $operation === 'RELEASE' ? SQLite3::DENY : SQLite3::OK;
+        });
+
+        try {
+            $this->connection->transactional(static function (Connection $connection): void {
+                $connection->insert('refused_release', ['id' => 1]);
+            });
+            self::fail('The savepoint release was expected to be refused.');
+        } catch (DriverException) {
+        } finally {
+            $native->setAuthorizer(null);
+        }
+
+        if ($this->connection->isTransactionActive()) {
+            $this->connection->commit();
+        }
+
+        self::assertSame([], $this->connection->fetchFirstColumn('SELECT id FROM refused_release'));
     }
 
     /**
