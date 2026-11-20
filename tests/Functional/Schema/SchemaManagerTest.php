@@ -8,10 +8,12 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnEditor;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -20,6 +22,7 @@ use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
@@ -31,8 +34,10 @@ use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
+use function array_filter;
 use function array_values;
 use function sprintf;
+use function version_compare;
 
 final class SchemaManagerTest extends FunctionalTestCase
 {
@@ -638,10 +643,6 @@ final class SchemaManagerTest extends FunctionalTestCase
         UniqueConstraint $uniqueConstraint,
         callable $introspect,
     ): void {
-        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('MySQL and MariaDB introspect unique constraints as indexes.');
-        }
-
         $this->createTableWithUniqueConstraint($tableName, $uniqueConstraint);
 
         $this->assertUniqueConstraintListEquals(
@@ -750,10 +751,6 @@ final class SchemaManagerTest extends FunctionalTestCase
     {
         if ($this->connection->getDatabasePlatform()->supportsSchemas()) {
             self::markTestSkipped('Platform supports schemas.');
-        }
-
-        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
-            self::markTestSkipped('MySQL and MariaDB introspect unique constraints as indexes.');
         }
 
         $uniqueConstraint = $this->createUniqueConstraint();
@@ -1067,5 +1064,269 @@ final class SchemaManagerTest extends FunctionalTestCase
                 return $provider->getTableOptionsForTable($schemaName, $tableName);
             },
         ];
+    }
+
+    public function testUniqueConstraintIntrospectsAsOneDeclaredObject(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+
+        $table = $this->createTableWithEmailUniqueConstraint();
+
+        $declaredIndexes = array_filter(
+            $table->getIndexes(),
+            static fn (Index $index): bool => $index->getOrigin() === ObjectOrigin::DECLARED,
+        );
+
+        $declaredUniqueConstraints = array_filter(
+            $table->getUniqueConstraints(),
+            static fn (UniqueConstraint $constraint): bool => $constraint->getOrigin() === ObjectOrigin::DECLARED,
+        );
+
+        self::assertCount(1, [...array_values($declaredIndexes), ...array_values($declaredUniqueConstraints)]);
+    }
+
+    public function testRecreateIntrospectedTableWithUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+
+        $table = $this->createTableWithEmailUniqueConstraint();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        $recreated = $this->schemaManager->introspectTableByUnquotedName('users');
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($table, $recreated)
+                ->isEmpty(),
+        );
+    }
+
+    public function testIntrospectForeignKeyAndUniqueConstraintSharingName(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof AbstractMySQLPlatform && ! $platform instanceof SQLitePlatform) {
+            self::markTestSkipped('The platform does not let a foreign key and a unique constraint share a name.');
+        }
+
+        $this->dropTableIfExists('invoices');
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('customers')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setPrimaryKeyConstraint(
+                    PrimaryKeyConstraint::editor()
+                        ->setUnquotedColumnNames('id')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $this->dropAndCreateTable(
+            Table::editor()
+                ->setUnquotedName('invoices')
+                ->setColumns(
+                    Column::editor()
+                        ->setUnquotedName('customer_id')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                    Column::editor()
+                        ->setUnquotedName('number')
+                        ->setTypeName(Types::INTEGER)
+                        ->create(),
+                )
+                ->setIndexes(
+                    Index::editor()
+                        ->setUnquotedName('invoices_customer_idx')
+                        ->setUnquotedColumnNames('customer_id')
+                        ->create(),
+                )
+                ->setForeignKeyConstraints(
+                    ForeignKeyConstraint::editor()
+                        ->setUnquotedName('customers_fk')
+                        ->setUnquotedReferencingColumnNames('customer_id')
+                        ->setUnquotedReferencedTableName('customers')
+                        ->setUnquotedReferencedColumnNames('id')
+                        ->create(),
+                )
+                ->setUniqueConstraints(
+                    UniqueConstraint::editor()
+                        ->setUnquotedName('customers_fk')
+                        ->setUnquotedColumnNames('number')
+                        ->create(),
+                )
+                ->create(),
+        );
+
+        $this->assertUnqualifiedNameListEquals(
+            [UnqualifiedName::unquoted('number')],
+            $this->schemaManager->introspectTableByUnquotedName('invoices')
+                ->getUniqueConstraint('customers_fk')
+                ->getColumnNames(),
+        );
+    }
+
+    public function testIndexBackingUniqueConstraintIsNotDropped(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsDerived();
+
+        $table = $this->declareTableWithEmailUniqueConstraint();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $table)
+                ->isEmpty(),
+        );
+    }
+
+    public function testDeclareUniqueIndexOnOtherColumnWithNameOfUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsDerived();
+
+        $desired = $this->declareTableWithEmailUniqueConstraint()
+            ->edit()
+            ->setUniqueConstraints()
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setType(IndexType::UNIQUE)
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator()
+            ->compareTables($this->createTableWithEmailUniqueConstraint(), $desired);
+
+        self::assertCount(1, $diff->getAddedIndexes());
+        self::assertSame([], $diff->getDroppedIndexes());
+    }
+
+    public function testDeclarePrimaryKeyWithNameOfUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsDerived();
+
+        $table = $this->declareTableWithEmailUniqueConstraint()
+            ->edit()
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        $desired = $table->edit()
+            ->setUniqueConstraints()
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
+
+        $diff = $this->schemaManager->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false))
+            ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $desired);
+
+        self::assertCount(
+            1,
+            array_filter($diff->getAddedIndexes(), static fn (Index $index): bool => $index->isPrimary()),
+        );
+    }
+
+    public function testRecreateIntrospectedTableAfterRenamingUniqueConstraintColumn(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+
+        $table = $this->createTableWithEmailUniqueConstraint()
+            ->edit()
+            ->renameColumnByUnquotedName('email', 'login')
+            ->create();
+
+        $this->dropTableIfExists('users');
+        $this->schemaManager->createTable($table);
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $table)
+                ->isEmpty(),
+        );
+    }
+
+    private function skipUnlessUniqueConstraintIndexIsDerived(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('MySQL and MariaDB expose a unique index as a unique constraint.');
+        }
+
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+    }
+
+    private function skipUnlessUniqueConstraintIndexIsReported(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLitePlatform) {
+            self::markTestSkipped('SQLite does not report the index that backs a unique constraint.');
+        }
+
+        if (! $platform instanceof OraclePlatform) {
+            return;
+        }
+
+        if (version_compare($this->connection->getServerVersion(), '19', '>=')) {
+            return;
+        }
+
+        self::markTestSkipped('Oracle 18c does not report which indexes back unique constraints.');
+    }
+
+    private function createTableWithEmailUniqueConstraint(): Table
+    {
+        $this->dropTableIfExists('users');
+
+        $this->schemaManager->createTable($this->declareTableWithEmailUniqueConstraint());
+
+        return $this->schemaManager->introspectTableByUnquotedName('users');
+    }
+
+    private function declareTableWithEmailUniqueConstraint(): Table
+    {
+        return Table::editor()
+            ->setUnquotedName('users')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('email')
+                    ->setTypeName(Types::STRING)
+                    ->setLength(64)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedName('users_email_uq')
+                    ->setUnquotedColumnNames('email')
+                    ->create(),
+            )
+            ->create();
     }
 }

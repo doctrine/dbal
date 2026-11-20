@@ -201,6 +201,7 @@ final class TableEditor
                 $this->indexes->modify($index->getObjectName(), static function (Index $index) use ($columns): Index {
                     return $index->edit()
                         ->setColumns(...$columns)
+                        ->setOrigin($index->getOrigin())
                         ->create();
                 });
             }
@@ -246,6 +247,7 @@ final class TableEditor
             static function (UniqueConstraint $constraint, array $columnNames): UniqueConstraint {
                 return $constraint->edit()
                     ->setColumnNames(...$columnNames)
+                    ->setOrigin($constraint->getOrigin())
                     ->create();
             },
         );

@@ -29,6 +29,7 @@
    :caption: Explanation
    :depth: 3
 
+   /explanation/derived-objects
    /explanation/implicit-indexes
 
 .. toctree::
