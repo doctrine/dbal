@@ -51,6 +51,11 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
+    public function getRadiansExpression(string $degrees): string
+    {
+        return '((' . $degrees . ') * ACOS(-1) / 180)';
+    }
+
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {

@@ -506,6 +506,18 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to convert an angle in degrees to radians.
+     *
+     * The result is a floating-point or decimal number, whatever the type of the angle.
+     *
+     * @param string $degrees SQL expression producing the angle in degrees.
+     */
+    public function getRadiansExpression(string $degrees): string
+    {
+        return 'RADIANS(' . $degrees . ')';
+    }
+
+    /**
      * Returns the SQL snippet to trim a string.
      *
      * @param string      $str  The expression to apply the trim to.

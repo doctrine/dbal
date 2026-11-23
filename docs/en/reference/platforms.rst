@@ -119,3 +119,21 @@ all the different database vendors, for example MySQL BIGINT and
 Oracle NUMBER should be handled as integer. Doctrine DBAL offers a
 powerful way to abstract the database to php and back conversion,
 which is described in the next section.
+
+Converting degrees to radians
+-----------------------------
+
+``getRadiansExpression()`` converts an angle in degrees to radians, for the trigonometric
+functions of the database, which expect radians. Its argument is an SQL expression:
+
+::
+
+    <?php
+    $platform = $connection->getDatabasePlatform();
+
+    $sql = sprintf(
+        'SELECT name FROM cities WHERE SIN(%s) > 0.5',
+        $platform->getRadiansExpression('latitude'),
+    );
+
+The result is a floating-point or decimal number on every platform, even if the angle is an integer.

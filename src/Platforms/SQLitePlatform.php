@@ -79,6 +79,11 @@ class SQLitePlatform extends AbstractPlatform
         return $dividend . ' % ' . $divisor;
     }
 
+    public function getRadiansExpression(string $degrees): string
+    {
+        return '((' . $degrees . ') * 0.017453292519943295)';
+    }
+
     public function getTrimExpression(
         string $str,
         TrimMode $mode = TrimMode::UNSPECIFIED,

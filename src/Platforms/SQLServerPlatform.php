@@ -848,6 +848,11 @@ class SQLServerPlatform extends AbstractPlatform
         return $dividend . ' % ' . $divisor;
     }
 
+    public function getRadiansExpression(string $degrees): string
+    {
+        return 'RADIANS(CAST(' . $degrees . ' AS FLOAT))';
+    }
+
     public function getTrimExpression(
         string $str,
         TrimMode $mode = TrimMode::UNSPECIFIED,
