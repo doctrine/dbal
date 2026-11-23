@@ -13,11 +13,11 @@ final class InvalidColumnDeclaration extends LogicException implements Exception
 {
     public static function fromInvalidColumnType(?string $columnName, InvalidColumnType $e): self
     {
-        if ($columnName === null || $columnName === '') {
-            return new self('Column "<unnamed>" has invalid type', 0, $e);
-        }
-
-        return new self(sprintf('Column "%s" has invalid type', $columnName), 0, $e);
+        return new self(
+            sprintf('Column "%s" has invalid type', $columnName ?? '<unnamed>'),
+            0,
+            $e,
+        );
     }
 
     public static function fromMissingColumnType(string $columnName): self

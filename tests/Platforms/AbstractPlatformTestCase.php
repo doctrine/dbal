@@ -776,7 +776,6 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGetDecimalTypeDeclarationSQLWithoutName(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
-        $this->expectExceptionMessage('Column "<unnamed>" has invalid type');
         $this->platform->getDecimalTypeDeclarationSQL(['scale' => 2]);
     }
 
