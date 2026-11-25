@@ -383,6 +383,17 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->testIntrospectReservedKeywordTableViaListTableDetails();
     }
 
+    public function testTableExistsInQuotedSearchPathSchema(): void
+    {
+        $this->connection->executeStatement('DROP SCHEMA IF EXISTS "search-path-test" CASCADE');
+        $this->connection->executeStatement('CREATE SCHEMA "search-path-test"');
+        $this->connection->executeStatement('CREATE TABLE "search-path-test".search_path_test (id INT)');
+        $this->connection->executeStatement('SET search_path TO "search-path-test", public');
+        $this->markConnectionNotReusable();
+
+        self::assertTrue($this->schemaManager->tablesExist(['search_path_test']));
+    }
+
     public function testListTablesExcludesViews(): void
     {
         $this->createTestTable('list_tables_excludes_views');

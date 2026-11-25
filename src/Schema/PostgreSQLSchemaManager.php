@@ -23,6 +23,7 @@ use function in_array;
 use function preg_match;
 use function preg_replace;
 use function sprintf;
+use function str_getcsv;
 use function str_replace;
 use function strpos;
 use function strtolower;
@@ -151,13 +152,17 @@ SQL,
         $searchPaths = $this->_conn->fetchOne('SHOW search_path');
         assert($searchPaths !== false);
 
-        $schema = explode(',', $searchPaths);
+        $user = $params['user'] ?? null;
 
-        if (isset($params['user'])) {
-            $schema = str_replace('"$user"', $params['user'], $schema);
-        }
+        return array_map(static function (?string $name) use ($user): string {
+            $name = trim($name ?? '');
 
-        return array_map('trim', $schema);
+            if ($name === '$user' && $user !== null) {
+                return $user;
+            }
+
+            return $name;
+        }, str_getcsv($searchPaths, ',', '"', ''));
     }
 
     /**
