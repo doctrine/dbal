@@ -971,13 +971,15 @@ class Connection implements ServerVersionProvider
             }
         }
 
+        $isTopLevel     = $this->transactionNestingLevel === 1;
         $shouldRollback = true;
         try {
             $this->commit();
 
             $shouldRollback = false;
         } catch (TheDriverException $t) {
-            $shouldRollback = ! (
+            // A failed top-level commit has ended the transaction, also when the database refused it
+            $shouldRollback = ! $isTopLevel && ! (
                 $t instanceof TransactionRolledBack
                 || $t instanceof UniqueConstraintViolationException
                 || $t instanceof ForeignKeyConstraintViolationException
@@ -1080,13 +1082,32 @@ class Connection implements ServerVersionProvider
                 try {
                     $connection->commit();
                 } catch (Driver\Exception $e) {
-                    throw $this->convertException($e);
+                    $exception = $this->convertException($e);
+
+                    if (! $exception instanceof ConnectionLost) {
+                        $this->rollBackAfterFailedCommit($connection);
+                    }
+
+                    throw $exception;
                 }
             } else {
                 $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
             }
         } finally {
             $this->updateTransactionStateAfterCommit();
+        }
+    }
+
+    /**
+     * Ends the transaction if the database kept it open after refusing to commit it, as SQLite does when the
+     * database is locked. A database that has already rolled the transaction back makes the rollback fail,
+     * which is ignored.
+     */
+    private function rollBackAfterFailedCommit(DriverConnection $connection): void
+    {
+        try {
+            $connection->rollBack();
+        } catch (Driver\Exception) {
         }
     }
 
