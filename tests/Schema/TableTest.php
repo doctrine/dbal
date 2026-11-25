@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
@@ -1844,6 +1845,35 @@ class TableTest extends TestCase
 
         self::assertSame($uniqueConstraints[0], $constraints['fk_d87f7e0c341ce00bad15b1b1']);
         self::assertSame($uniqueConstraints[1], $constraints['fk_d87f7e0cda12812744761484']);
+    }
+
+    public function testDropColumnUsedByUniqueConstraint(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            )
+            ->create();
+
+        $editor = $table->edit()
+            ->dropColumnByUnquotedName('bar');
+
+        $this->expectException(ColumnDoesNotExist::class);
+
+        $editor->create();
     }
 
     public function testRemoveUniqueConstraint(): void
