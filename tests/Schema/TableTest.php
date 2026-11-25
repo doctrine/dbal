@@ -1876,6 +1876,53 @@ class TableTest extends TestCase
         $editor->create();
     }
 
+    public function testEditKeepsUnnamedIndexOnUniqueConstraintColumns(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            )
+            ->setIndexes(
+                Index::editor()
+                    ->setUnquotedColumnNames('bar'),
+            )
+            ->create();
+
+        self::assertCount(1, $table->edit()->create()->getIndexes());
+    }
+
+    public function testAddUniqueIndexKeepsUnnamedIndexOnUniqueConstraintColumns(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('foo')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('bar')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setUniqueConstraints(
+                UniqueConstraint::editor()
+                    ->setUnquotedColumnNames('bar')
+                    ->create(),
+            )
+            ->create();
+
+        $table->addIndex(['bar']);
+        $table->addUniqueIndex(['bar'], 'bar_unique');
+
+        self::assertCount(2, $table->getIndexes());
+    }
+
     public function testRemoveUniqueConstraint(): void
     {
         $table = Table::editor()
