@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
@@ -268,6 +269,43 @@ class ExceptionTest extends FunctionalTestCase
         $this->expectExceptionCode(1020);
 
         $this->connection->update('snapshot_isolation_table', ['val' => 3], ['id' => 1]);
+    }
+
+    public function testSelectForUpdateNoWaitOnLockedRow(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof MySQL80Platform && ! $platform instanceof MariaDBPlatform) {
+            self::markTestSkipped('Restricted to MySQL 8.0+ and MariaDB.');
+        }
+
+        $table = Table::editor()
+            ->setUnquotedName('nowait_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $this->connection->insert('nowait_table', ['id' => 1]);
+
+        $this->connection->beginTransaction();
+        $this->connection->fetchOne('SELECT id FROM nowait_table WHERE id = 1 FOR UPDATE');
+
+        $connection = TestUtil::getConnection();
+
+        $this->expectException(Exception\LockWaitTimeoutException::class);
+
+        $connection->fetchOne('SELECT id FROM nowait_table WHERE id = 1 FOR UPDATE NOWAIT');
     }
 
     public function testConnectionExceptionSqLite(): void
