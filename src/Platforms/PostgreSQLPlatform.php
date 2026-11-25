@@ -169,7 +169,17 @@ class PostgreSQLPlatform extends AbstractPlatform
                 FROM   information_schema.sequences
                 WHERE  sequence_catalog = ' . $this->quoteStringLiteral($database) . "
                 AND    sequence_schema NOT LIKE 'pg\_%'
-                AND    sequence_schema != 'information_schema'";
+                AND    sequence_schema != 'information_schema'
+                AND    NOT EXISTS (
+                    SELECT 1
+                    FROM   pg_depend d
+                    JOIN   pg_class c ON c.oid = d.objid
+                    JOIN   pg_namespace n ON n.oid = c.relnamespace
+                    WHERE  d.classid = 'pg_class'::regclass
+                    AND    d.deptype = 'e'
+                    AND    n.nspname = sequence_schema
+                    AND    c.relname = sequence_name
+                )";
     }
 
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */

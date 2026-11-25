@@ -54,6 +54,21 @@ SELECT schema_name
 FROM   information_schema.schemata
 WHERE  schema_name NOT LIKE 'pg\_%'
 AND    schema_name != 'information_schema'
+AND    schema_name NOT IN (
+    SELECT n.nspname
+    FROM   pg_depend d
+    JOIN   pg_namespace n
+    ON     n.oid = d.objid
+    WHERE  d.classid = 'pg_namespace'::regclass
+    AND    d.deptype = 'e'
+    UNION
+    SELECT v.schema
+    FROM   pg_extension e
+    JOIN   pg_available_extension_versions v
+    ON     v.name = e.extname
+    AND    v.version = e.extversion
+    WHERE  v.schema IS NOT NULL
+)
 SQL,
         );
     }
