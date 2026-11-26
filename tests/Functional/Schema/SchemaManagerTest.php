@@ -34,6 +34,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
 use function array_filter;
+use function array_keys;
 use function array_values;
 use function sprintf;
 use function version_compare;
@@ -1127,6 +1128,24 @@ final class SchemaManagerTest extends FunctionalTestCase
                 ->compareTables($this->schemaManager->introspectTableByUnquotedName('users'), $table)
                 ->isEmpty(),
         );
+    }
+
+    public function testRenameIndexBackingUniqueConstraint(): void
+    {
+        $this->skipUnlessUniqueConstraintIndexIsReported();
+
+        $table = $this->createTableWithEmailUniqueConstraint();
+
+        $diff = $this->schemaManager->createComparator()
+            ->compareTables(
+                $table,
+                $table->edit()
+                    ->renameIndexByUnquotedName('users_email_uq', 'users_email_idx')
+                    ->create(),
+            );
+
+        self::assertCount(0, $diff->getAddedIndexes());
+        self::assertSame(['users_email_uq'], array_keys($diff->getRenamedIndexes()));
     }
 
     /**
