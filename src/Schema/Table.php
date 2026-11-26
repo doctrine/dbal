@@ -1073,24 +1073,11 @@ class Table extends AbstractNamedObject
 
         $this->uniqueConstraints[$name] = $constraint;
 
-        // If there is already an index that fulfills this requirements drop the request. In the case of __construct
-        // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
-        // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = $this->_generateIdentifierName(
-            array_merge([$this->getName()], $constraint->getColumns()),
-            'idx',
-            $this->_getMaxIdentifierLength(),
-        );
-
-        $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, true, false);
-
-        foreach ($this->_indexes as $existingIndex) {
-            if ($indexCandidate->isFulfilledBy($existingIndex)) {
-                return $this;
+        foreach ($constraint->getColumns() as $columnName) {
+            if (! $this->hasColumn($columnName)) {
+                throw ColumnDoesNotExist::new($columnName, $this->_name);
             }
         }
-
-        $this->implicitIndexNames[$this->normalizeIdentifier($indexName)] = true;
 
         return $this;
     }
