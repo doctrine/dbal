@@ -28,6 +28,7 @@ use function array_map;
 use function array_shift;
 use function array_values;
 use function assert;
+use function sprintf;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -705,6 +706,47 @@ SQL;
         self::assertTrue($autoincrement1, 'Integer PKs are implicitly autoincrement');
         self::assertFalse($autoincrement2, 'Composite PKs cannot autoincrement');
         self::assertFalse($autoincrement3, 'Non-integer PKs cannot autoincrement');
+    }
+
+    #[DataProvider('autoIncrementColumnDeclarationProvider')]
+    public function testIntrospectAutoIncrementColumnDeclaration(string $declaration): void
+    {
+        $this->dropTableIfExists('autoincrement_declaration');
+        $this->connection->executeStatement(
+            sprintf('CREATE TABLE autoincrement_declaration (%s NOT NULL)', $declaration),
+        );
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('autoincrement_declaration');
+
+        self::assertTrue($table->getColumn('id')->getAutoincrement());
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function autoIncrementColumnDeclarationProvider(): iterable
+    {
+        yield 'Unquoted name' => ['id INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Multiple spaces after name' => ['id  INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Line break after name' => ["id\n    INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Double-quoted name' => ['"id" INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Backtick-quoted name' => ['`id` INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Square-bracket-quoted name' => ['[id] INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Line comment before name' => ["-- the identifier\n    id INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Block comment before name' => ["/* the\n    identifier */ id INTEGER PRIMARY KEY AUTOINCREMENT"];
+    }
+
+    public function testIntrospectColumnNamedLikeEndOfAutoIncrementColumnName(): void
+    {
+        $this->dropTableIfExists('autoincrement_column_name');
+        $this->connection->executeStatement(<<<'SQL'
+            CREATE TABLE autoincrement_column_name (
+                user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                id INTEGER NOT NULL
+            )
+            SQL);
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('autoincrement_column_name');
+
+        self::assertFalse($table->getColumn('id')->getAutoincrement());
     }
 
     public function testListTableNoSchemaEmulation(): void

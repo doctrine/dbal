@@ -233,9 +233,28 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
     /** @link https://www.sqlite.org/autoinc.html#the_autoincrement_keyword */
     private function parseColumnAutoIncrementFromSQL(string $column, string $sql): bool
     {
-        $pattern = '/' . $this->buildIdentifierPattern($column) . 'INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT/i';
+        $pattern = '/[(,](?:\s|--[^\n]*\n|\/\*.*?\*\/)*' . $this->buildColumnNamePattern($column)
+            . '\s*INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT/is';
 
         return preg_match($pattern, $sql) === 1;
+    }
+
+    /**
+     * Builds a pattern that matches the given column name in any of the forms in which SQLite accepts it.
+     *
+     * @link https://www.sqlite.org/lang_keywords.html
+     */
+    private function buildColumnNamePattern(string $column): string
+    {
+        return '(?:' . implode('|', array_map(
+            static fn (string $name): string => preg_quote($name, '/'),
+            [
+                $column,
+                $this->platform->quoteSingleIdentifier($column),
+                '`' . str_replace('`', '``', $column) . '`',
+                '[' . $column . ']',
+            ],
+        )) . ')';
     }
 
     /** @return ?non-empty-string */
