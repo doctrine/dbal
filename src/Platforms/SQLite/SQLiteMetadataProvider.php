@@ -30,13 +30,11 @@ use function array_map;
 use function assert;
 use function count;
 use function implode;
-use function in_array;
 use function is_string;
 use function preg_match;
 use function preg_match_all;
 use function preg_quote;
 use function preg_replace;
-use function preg_replace_callback;
 use function rtrim;
 use function sprintf;
 use function str_contains;
@@ -232,91 +230,31 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         return $value;
     }
 
-    /**
-     * Returns whether the column is declared with the AUTOINCREMENT keyword, either in its own primary key constraint
-     * or in the primary key constraint of the table.
-     *
-     * @link https://www.sqlite.org/autoinc.html#the_autoincrement_keyword
-     */
+    /** @link https://www.sqlite.org/autoinc.html#the_autoincrement_keyword */
     private function parseColumnAutoIncrementFromSQL(string $column, string $sql): bool
     {
-        $quotedNames       = $this->getQuotedColumnNames($column);
-        $sql               = $this->maskCommentsAndQuotedText($sql, $quotedNames);
-        $columnNamePattern = $this->buildColumnNamePattern($column, $quotedNames);
+        $pattern = '/[(,]\s*' . $this->buildColumnNamePattern($column)
+            . '\s*INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT/i';
 
-        $columnConstraintPattern = '/[(,]\s*' . $columnNamePattern
-            . '\s*INTEGER\b[^,]*?\bPRIMARY\s+KEY\b[^,]*?\bAUTOINCREMENT\b/i';
-
-        if (preg_match($columnConstraintPattern, $sql) === 1) {
-            return true;
-        }
-
-        $tableConstraintPattern = '/\bPRIMARY\s+KEY\s*\(\s*' . $columnNamePattern
-            . '(?:\s+ASC)?\s*AUTOINCREMENT\s*\)/i';
-
-        return preg_match($tableConstraintPattern, $sql) === 1;
+        return preg_match($pattern, $sql) === 1;
     }
 
     /**
-     * Returns the forms in which SQLite accepts the given column name quoted.
-     *
-     * @link https://www.sqlite.org/lang_keywords.html
-     *
-     * @return list<string>
-     */
-    private function getQuotedColumnNames(string $column): array
-    {
-        return [
-            $this->platform->quoteSingleIdentifier($column),
-            '`' . str_replace('`', '``', $column) . '`',
-            '[' . $column . ']',
-            $this->platform->quoteStringLiteral($column),
-        ];
-    }
-
-    /**
-     * Replaces the comments in the SQL with whitespace and empties the quoted strings and identifiers other than the
-     * given quoted names, so that their contents can't be mistaken for the SQL around them.
-     *
-     * @param list<string> $quotedNames
-     */
-    private function maskCommentsAndQuotedText(string $sql, array $quotedNames): string
-    {
-        $quotedNames = array_map(strtolower(...), $quotedNames);
-
-        $sql = preg_replace_callback(
-            '/--[^\n]*|\/\*.*?(?:\*\/|$)|\'(?:[^\']|\'\')*\'|"(?:[^"]|"")*"|`(?:[^`]|``)*`|\[[^\]]*\]/s',
-            static function (array $matches) use ($quotedNames): string {
-                $token = $matches[0];
-
-                if (str_starts_with($token, '--') || str_starts_with($token, '/*')) {
-                    return ' ';
-                }
-
-                if (in_array(strtolower($token), $quotedNames, true)) {
-                    return $token;
-                }
-
-                return $token[0] . substr($token, -1);
-            },
-            $sql,
-        );
-        assert(is_string($sql));
-
-        return $sql;
-    }
-
-    /**
-     * Builds a pattern that matches the given column name unquoted or in any of the given quoted forms. An unquoted
+     * Builds a pattern that matches the given column name in any of the forms in which SQLite accepts it. An unquoted
      * name must not be followed by a character that could continue it.
      *
-     * @param list<string> $quotedNames
+     * @link https://www.sqlite.org/lang_keywords.html
      */
-    private function buildColumnNamePattern(string $column, array $quotedNames): string
+    private function buildColumnNamePattern(string $column): string
     {
         return '(?:' . preg_quote($column, '/') . '(?![\w$])|' . implode('|', array_map(
             static fn (string $name): string => preg_quote($name, '/'),
-            $quotedNames,
+            [
+                $this->platform->quoteSingleIdentifier($column),
+                '`' . str_replace('`', '``', $column) . '`',
+                '[' . $column . ']',
+                $this->platform->quoteStringLiteral($column),
+            ],
         )) . ')';
     }
 
