@@ -218,15 +218,19 @@ SQL;
         self::assertSame(Type::getType(Types::TEXT), $bar->getType());
     }
 
-    public function testIntrospectUntypedColumn(): void
+    public function testIntrospectTableColumnsWithUntypedColumn(): void
     {
-        $this->dropTableIfExists('untyped_column');
-        $this->connection->executeStatement('CREATE TABLE untyped_column (untyped)');
+        $this->createTableWithUntypedColumn();
 
         $columns = $this->schemaManager->introspectTableColumnsByUnquotedName('untyped_column');
 
         self::assertCount(1, $columns);
         self::assertSame(Types::BLOB, $columns[0]->getTypeName());
+    }
+
+    public function testIntrospectSchemaWithUntypedColumn(): void
+    {
+        $this->createTableWithUntypedColumn();
 
         $column = $this->schemaManager->introspectSchema()
             ->getTable('untyped_column')
@@ -235,31 +239,56 @@ SQL;
         self::assertSame(Types::BLOB, $column->getTypeName());
     }
 
-    public function testIntrospectionAfterAnalyze(): void
+    private function createTableWithUntypedColumn(): void
     {
-        $this->createAnalyzedTable();
+        $this->dropTableIfExists('untyped_column');
+        $this->connection->executeStatement('CREATE TABLE untyped_column (untyped)');
+    }
 
-        self::assertNull($this->findObjectByShortestName($this->schemaManager->introspectTables(), 'sqlite_stat1'));
-        self::assertFalse($this->schemaManager->introspectSchema()->hasTable('sqlite_stat1'));
-        self::assertFalse($this->schemaManager->tablesExist(['sqlite_stat1']));
+    public function testIntrospectTablesWithInternalTable(): void
+    {
+        $tableName = $this->createInternalTable();
+
+        self::assertNull($this->findObjectByShortestName($this->schemaManager->introspectTables(), $tableName));
+    }
+
+    public function testIntrospectSchemaWithInternalTable(): void
+    {
+        $tableName = $this->createInternalTable();
+
+        self::assertFalse($this->schemaManager->introspectSchema()->hasTable($tableName));
+    }
+
+    public function testTablesExistWithInternalTable(): void
+    {
+        $tableName = $this->createInternalTable();
+
+        self::assertFalse($this->schemaManager->tablesExist([$tableName]));
     }
 
     public function testIntrospectInternalTableColumns(): void
     {
-        $this->createAnalyzedTable();
+        $tableName = $this->createInternalTable();
 
-        self::assertSame([], $this->schemaManager->introspectTableColumnsByUnquotedName('sqlite_stat1'));
+        self::assertSame([], $this->schemaManager->introspectTableColumnsByUnquotedName($tableName));
     }
 
     public function testIntrospectInternalTable(): void
     {
-        $this->createAnalyzedTable();
+        $tableName = $this->createInternalTable();
 
         $this->expectException(TableDoesNotExist::class);
-        $this->schemaManager->introspectTable('sqlite_stat1');
+        $this->schemaManager->introspectTable($tableName);
     }
 
-    private function createAnalyzedTable(): void
+    /**
+     * Makes SQLite create its internal tables and returns the name of one of them.
+     *
+     * @link https://www.sqlite.org/fileformat2.html#intschema
+     *
+     * @return non-empty-string
+     */
+    private function createInternalTable(): string
     {
         $table = Table::editor()
             ->setUnquotedName('analyzed_table')
@@ -273,6 +302,18 @@ SQL;
 
         $this->dropAndCreateTable($table);
         $this->connection->executeStatement('ANALYZE');
+
+        $tableName = $this->connection->fetchOne(<<<'SQL'
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name LIKE 'sqlite\_%' ESCAPE '\'
+            SQL);
+
+        self::assertIsString($tableName);
+        self::assertNotSame('', $tableName);
+
+        return $tableName;
     }
 
     public function testPrimaryKeyAutoIncrement(): void
