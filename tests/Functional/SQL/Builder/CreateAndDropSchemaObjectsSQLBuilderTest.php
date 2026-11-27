@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\TestWith;
 
 use function strtolower;
 
@@ -35,6 +36,74 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
 
         self::assertFalse($schemaManager->tablesExist(['t1']));
         self::assertFalse($schemaManager->tablesExist(['t2']));
+    }
+
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function testDropTablesReferencedByPopulatedTable(bool $isReferencingTableSelfReferencing): void
+    {
+        $this->dropTableIfExists('book');
+        $this->dropTableIfExists('author');
+
+        $author = Table::editor()
+            ->setUnquotedName('author')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $book = Table::editor()
+            ->setUnquotedName('book')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('author_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('previous_book_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setNotNull(false)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $book->addForeignKeyConstraint('author', ['author_id'], ['id']);
+
+        if ($isReferencingTableSelfReferencing) {
+            $book->addForeignKeyConstraint('book', ['previous_book_id'], ['id']);
+        }
+
+        $schema = Schema::editor()
+            ->setTables($author, $book)
+            ->create();
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createSchemaObjects($schema);
+
+        $this->connection->insert('author', ['id' => 1]);
+        $this->connection->insert('book', ['id' => 1, 'author_id' => 1]);
+
+        $schemaManager->dropSchemaObjects($schema);
+
+        self::assertFalse($schemaManager->tablesExist(['author']));
+        self::assertFalse($schemaManager->tablesExist(['book']));
     }
 
     /**
