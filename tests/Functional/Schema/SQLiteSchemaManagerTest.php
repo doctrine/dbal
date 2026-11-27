@@ -734,6 +734,7 @@ SQL;
         yield 'Single-quoted name without space after it' => ["'id'INTEGER PRIMARY KEY AUTOINCREMENT"];
         yield 'Line comment before name' => ["-- the identifier\n    id INTEGER PRIMARY KEY AUTOINCREMENT"];
         yield 'Block comment before name' => ["/* the\n    identifier */ id INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Block comment after name' => ['id /* the type */ INTEGER PRIMARY KEY AUTOINCREMENT'];
         yield 'Constraint before primary key' => ['id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT'];
         yield 'Named primary key' => ['id INTEGER CONSTRAINT pk PRIMARY KEY AUTOINCREMENT'];
         yield 'Sort order' => ['id INTEGER PRIMARY KEY ASC AUTOINCREMENT'];
@@ -742,21 +743,21 @@ SQL;
         yield 'Named table constraint' => ['"id" INTEGER, CONSTRAINT pk PRIMARY KEY ("id" ASC AUTOINCREMENT)'];
     }
 
-    #[DataProvider('columnNextToAutoIncrementColumnProvider')]
-    public function testIntrospectColumnNextToAutoIncrementColumn(string $columnDefinitions): void
+    #[DataProvider('columnNotDeclaredAutoIncrementProvider')]
+    public function testIntrospectColumnNotDeclaredAutoIncrement(string $columnDefinitions): void
     {
-        $this->dropTableIfExists('autoincrement_neighbor');
+        $this->dropTableIfExists('autoincrement_not_declared');
         $this->connection->executeStatement(
-            sprintf('CREATE TABLE autoincrement_neighbor (%s)', $columnDefinitions),
+            sprintf('CREATE TABLE autoincrement_not_declared (%s)', $columnDefinitions),
         );
 
-        $table = $this->schemaManager->introspectTableByUnquotedName('autoincrement_neighbor');
+        $table = $this->schemaManager->introspectTableByUnquotedName('autoincrement_not_declared');
 
         self::assertFalse($table->getColumn('id')->getAutoincrement());
     }
 
     /** @return iterable<string, array{string}> */
-    public static function columnNextToAutoIncrementColumnProvider(): iterable
+    public static function columnNotDeclaredAutoIncrementProvider(): iterable
     {
         yield 'Name ending with the name' => ['user_id INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
         yield 'Quoted name ending with the name' => ['"user id" INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
@@ -765,6 +766,10 @@ SQL;
         yield 'Table constraint' => ['user_id INTEGER, id INTEGER, PRIMARY KEY (user_id AUTOINCREMENT)'];
         yield 'Name followed by the type' => ['idINTEGER INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
         yield 'Name followed by the keyword' => ['idAUTOINCREMENT INTEGER, id INTEGER, PRIMARY KEY (idAUTOINCREMENT)'];
+        yield 'Constraint in block comment' => ['id INTEGER DEFAULT 0 /* PRIMARY KEY AUTOINCREMENT */'];
+        yield 'Constraint in line comment' => ["id INTEGER -- PRIMARY KEY AUTOINCREMENT\n"];
+        yield 'Table constraint in string' => ["id INTEGER, note TEXT DEFAULT 'PRIMARY KEY (id AUTOINCREMENT)'"];
+        yield 'Table constraint in quoted name' => ['id INTEGER, "PRIMARY KEY (id AUTOINCREMENT)" TEXT'];
     }
 
     public function testListTableNoSchemaEmulation(): void
