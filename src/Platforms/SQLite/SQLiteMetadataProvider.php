@@ -815,6 +815,10 @@ SQL,
 
     private function buildTableNamePredicate(string $columnName): string
     {
-        return sprintf("%s NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')", $columnName);
+        return sprintf(
+            "%s NOT IN ('geometry_columns', 'spatial_ref_sys') AND %s NOT LIKE 'sqlite\\_%%' ESCAPE '\\'",
+            $columnName,
+            $columnName,
+        );
     }
 }

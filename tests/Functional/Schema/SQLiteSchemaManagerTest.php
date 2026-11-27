@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -232,6 +233,46 @@ SQL;
             ->getColumn('untyped');
 
         self::assertSame(Types::BLOB, $column->getTypeName());
+    }
+
+    public function testIntrospectionAfterAnalyze(): void
+    {
+        $this->createAnalyzedTable();
+
+        self::assertNull($this->findObjectByShortestName($this->schemaManager->introspectTables(), 'sqlite_stat1'));
+        self::assertFalse($this->schemaManager->introspectSchema()->hasTable('sqlite_stat1'));
+        self::assertFalse($this->schemaManager->tablesExist(['sqlite_stat1']));
+    }
+
+    public function testIntrospectInternalTableColumns(): void
+    {
+        $this->createAnalyzedTable();
+
+        self::assertSame([], $this->schemaManager->introspectTableColumnsByUnquotedName('sqlite_stat1'));
+    }
+
+    public function testIntrospectInternalTable(): void
+    {
+        $this->createAnalyzedTable();
+
+        $this->expectException(TableDoesNotExist::class);
+        $this->schemaManager->introspectTable('sqlite_stat1');
+    }
+
+    private function createAnalyzedTable(): void
+    {
+        $table = Table::editor()
+            ->setUnquotedName('analyzed_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+        $this->connection->executeStatement('ANALYZE');
     }
 
     public function testPrimaryKeyAutoIncrement(): void
