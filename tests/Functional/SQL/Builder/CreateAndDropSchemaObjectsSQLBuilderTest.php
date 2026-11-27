@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\SQL\Builder;
 
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -35,6 +36,108 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
 
         self::assertFalse($schemaManager->tablesExist(['t1']));
         self::assertFalse($schemaManager->tablesExist(['t2']));
+    }
+
+    public function testDropTablesReferencedByPopulatedTable(): void
+    {
+        $this->dropTablesReferencedByPopulatedTable(
+            $this->createAuthorTable('author'),
+            $this->createBookTable('author'),
+        );
+    }
+
+    public function testDropTablesReferencedBySelfReferencingPopulatedTable(): void
+    {
+        $book = $this->createBookTable('author');
+        $book->addForeignKeyConstraint('book', ['previous_book_id'], ['id']);
+
+        $this->dropTablesReferencedByPopulatedTable($this->createAuthorTable('author'), $book);
+    }
+
+    public function testDropTablesReferencedByPopulatedTableUsingDifferentCase(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
+            self::markTestSkipped('This test covers the case-insensitive matching of table names on SQLite.');
+        }
+
+        $this->dropTablesReferencedByPopulatedTable(
+            $this->createAuthorTable('Author'),
+            $this->createBookTable('author'),
+        );
+    }
+
+    private function dropTablesReferencedByPopulatedTable(Table $author, Table $book): void
+    {
+        $authorTableName = $author->getName();
+
+        $this->dropTableIfExists('book');
+        $this->dropTableIfExists($authorTableName);
+
+        $schema = Schema::editor()
+            ->setTables($author, $book)
+            ->create();
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createSchemaObjects($schema);
+
+        $this->connection->insert($authorTableName, ['id' => 1]);
+        $this->connection->insert('book', ['id' => 1, 'author_id' => 1]);
+
+        $schemaManager->dropSchemaObjects($schema);
+
+        self::assertFalse($schemaManager->tablesExist([$authorTableName]));
+        self::assertFalse($schemaManager->tablesExist(['book']));
+    }
+
+    /** @param non-empty-string $name */
+    private function createAuthorTable(string $name): Table
+    {
+        return Table::editor()
+            ->setUnquotedName($name)
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+    }
+
+    /** @param non-empty-string $authorTableName */
+    private function createBookTable(string $authorTableName): Table
+    {
+        $table = Table::editor()
+            ->setUnquotedName('book')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('author_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+                Column::editor()
+                    ->setUnquotedName('previous_book_id')
+                    ->setTypeName(Types::INTEGER)
+                    ->setNotNull(false)
+                    ->create(),
+            )
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setUnquotedColumnNames('id')
+                    ->create(),
+            )
+            ->create();
+
+        $table->addForeignKeyConstraint($authorTableName, ['author_id'], ['id']);
+
+        return $table;
     }
 
     /**

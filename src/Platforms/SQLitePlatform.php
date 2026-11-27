@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
@@ -601,11 +602,86 @@ class SQLitePlatform extends AbstractPlatform
     {
         $sql = [];
 
-        foreach ($tables as $table) {
+        foreach ($this->orderTablesForDrop($tables) as $table) {
             $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
         }
 
         return $sql;
+    }
+
+    /**
+     * Orders the tables so that each table is dropped after the other tables that reference it. The tables that
+     * reference each other are dropped in the given order.
+     *
+     * @param array<Table> $tables
+     *
+     * @return list<Table>
+     */
+    private function orderTablesForDrop(array $tables): array
+    {
+        $remainingTables = array_values($tables);
+        $tableNames      = $referencedTableNames = [];
+
+        foreach ($remainingTables as $i => $table) {
+            $tableNames[$i]           = $this->getTableNameKey($table->getObjectName());
+            $referencedTableNames[$i] = [];
+
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $referencedTableNames[$i][] = $this->getTableNameKey($foreignKey->getReferencedTableName());
+            }
+        }
+
+        $orderedTables = [];
+
+        while ($remainingTables !== []) {
+            $i = $this->findUnreferencedTable($remainingTables, $tableNames, $referencedTableNames);
+
+            if ($i === null) {
+                return array_merge($orderedTables, array_values($remainingTables));
+            }
+
+            $orderedTables[] = $remainingTables[$i];
+            unset($remainingTables[$i]);
+        }
+
+        return $orderedTables;
+    }
+
+    /**
+     * Returns the key of the first table that no other of the given tables references, or null if there is none.
+     *
+     * @param array<int, Table>        $tables
+     * @param array<int, string>       $tableNames
+     * @param array<int, list<string>> $referencedTableNames
+     */
+    private function findUnreferencedTable(array $tables, array $tableNames, array $referencedTableNames): ?int
+    {
+        $referencedNames = [];
+
+        foreach (array_keys($tables) as $i) {
+            foreach ($referencedTableNames[$i] as $referencedTableName) {
+                if ($referencedTableName === $tableNames[$i]) {
+                    continue;
+                }
+
+                $referencedNames[$referencedTableName] = true;
+            }
+        }
+
+        foreach (array_keys($tables) as $i) {
+            if (! isset($referencedNames[$tableNames[$i]])) {
+                return $i;
+            }
+        }
+
+        return null;
+    }
+
+    private function getTableNameKey(OptionallyQualifiedName $tableName): string
+    {
+        return strtolower(
+            $tableName->getUnqualifiedName()->toNormalizedValue($this->getUnquotedIdentifierFolding()),
+        );
     }
 
     /** @deprecated */
