@@ -159,7 +159,7 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
      */
     public function lookupName(Type $type): string
     {
-        $name = $this->findTypeName($type);
+        $name = $this->findTypeName($type) ?? $this->findBuiltinTypeName($type);
 
         if ($name === null) {
             throw TypeNotRegistered::new($type);
@@ -309,5 +309,17 @@ final class TypeRegistry implements TypeProvider, IteratorAggregate
         $name = array_search($type, $this->typeObjects, true);
 
         return $name === false ? null : $name;
+    }
+
+    /** @throws TypesException */
+    private function findBuiltinTypeName(Type $type): ?string
+    {
+        $name = array_search($type::class, self::BUILTIN_TYPES_MAP, true);
+
+        if ($name === false || $this->get($name)::class !== $type::class) {
+            return null;
+        }
+
+        return $name;
     }
 }

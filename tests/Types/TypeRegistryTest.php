@@ -84,6 +84,21 @@ class TypeRegistryTest extends TestCase
         );
 
         $this->expectException(TypeNotRegistered::class);
+        $this->registry->lookupName(new TypeWithConstructor(true));
+    }
+
+    public function testLookupNameOfBuiltinTypeFromAnotherRegistry(): void
+    {
+        $type = (new TypeRegistry())->get(Types::TEXT);
+
+        self::assertSame(Types::TEXT, $this->registry->lookupName($type));
+    }
+
+    public function testLookupNameOfOverriddenBuiltinType(): void
+    {
+        $this->registry->override(Types::TEXT, new StringType());
+
+        $this->expectException(TypeNotRegistered::class);
         $this->registry->lookupName(new TextType());
     }
 
