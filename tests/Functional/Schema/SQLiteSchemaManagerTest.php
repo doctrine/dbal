@@ -217,6 +217,23 @@ SQL;
         self::assertSame(Type::getType(Types::TEXT), $bar->getType());
     }
 
+    public function testIntrospectUntypedColumn(): void
+    {
+        $this->dropTableIfExists('untyped_column');
+        $this->connection->executeStatement('CREATE TABLE untyped_column (untyped)');
+
+        $columns = $this->schemaManager->introspectTableColumnsByUnquotedName('untyped_column');
+
+        self::assertCount(1, $columns);
+        self::assertSame(Types::BLOB, $columns[0]->getTypeName());
+
+        $column = $this->schemaManager->introspectSchema()
+            ->getTable('untyped_column')
+            ->getColumn('untyped');
+
+        self::assertSame(Types::BLOB, $column->getTypeName());
+    }
+
     public function testPrimaryKeyAutoIncrement(): void
     {
         $table = Table::editor()

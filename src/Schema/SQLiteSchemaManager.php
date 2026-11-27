@@ -72,7 +72,13 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
-        $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $tableColumn['type'], $matches);
+        $declaredType = $tableColumn['type'];
+
+        if ($declaredType === '') {
+            $declaredType = 'BLOB';
+        }
+
+        $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $declaredType, $matches);
         assert($matchResult === 1);
 
         $dbType = strtolower($matches[1]);

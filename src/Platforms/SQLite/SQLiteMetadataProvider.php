@@ -160,6 +160,10 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
     {
         [$tableName, $columnName, $type, $notNull, $defaultExpression] = $row;
 
+        if ($type === '') {
+            $type = 'BLOB';
+        }
+
         $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $type, $matches);
         assert($matchResult === 1);
 
