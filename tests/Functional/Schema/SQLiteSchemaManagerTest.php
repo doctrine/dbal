@@ -763,6 +763,8 @@ SQL;
         yield 'Name starting with the name' => ['identity INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
         yield 'Following column' => ['id INTEGER, other_id INTEGER PRIMARY KEY AUTOINCREMENT'];
         yield 'Table constraint' => ['user_id INTEGER, id INTEGER, PRIMARY KEY (user_id AUTOINCREMENT)'];
+        yield 'Name followed by the type' => ['idINTEGER INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
+        yield 'Name followed by the keyword' => ['idAUTOINCREMENT INTEGER, id INTEGER, PRIMARY KEY (idAUTOINCREMENT)'];
     }
 
     public function testListTableNoSchemaEmulation(): void
