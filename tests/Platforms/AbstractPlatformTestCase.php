@@ -773,6 +773,12 @@ abstract class AbstractPlatformTestCase extends TestCase
         $this->platform->getDecimalTypeDeclarationSQL(['name' => 'price', 'scale' => 2]);
     }
 
+    public function testGetDecimalTypeDeclarationSQLWithoutName(): void
+    {
+        $this->expectException(InvalidColumnDeclaration::class);
+        $this->platform->getDecimalTypeDeclarationSQL(['scale' => 2]);
+    }
+
     public function testGetDecimalTypeDeclarationSQLNoScale(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
