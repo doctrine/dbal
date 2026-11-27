@@ -230,13 +230,27 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         return $value;
     }
 
-    /** @link https://www.sqlite.org/autoinc.html#the_autoincrement_keyword */
+    /**
+     * Returns whether the column is declared with the AUTOINCREMENT keyword, either in its own primary key constraint
+     * or in the primary key constraint of the table.
+     *
+     * @link https://www.sqlite.org/autoinc.html#the_autoincrement_keyword
+     */
     private function parseColumnAutoIncrementFromSQL(string $column, string $sql): bool
     {
-        $pattern = '/[(,](?:\s|--[^\n]*\n|\/\*.*?\*\/)*' . $this->buildColumnNamePattern($column)
-            . '\s*INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT/is';
+        $columnNamePattern = $this->buildColumnNamePattern($column);
 
-        return preg_match($pattern, $sql) === 1;
+        $columnConstraintPattern = '/[(,](?:\s|--[^\n]*\n|\/\*.*?\*\/)*' . $columnNamePattern
+            . '\s*INTEGER\b[^,]*?\bPRIMARY\s+KEY\b[^,]*?\bAUTOINCREMENT\b/is';
+
+        if (preg_match($columnConstraintPattern, $sql) === 1) {
+            return true;
+        }
+
+        $tableConstraintPattern = '/\bPRIMARY\s+KEY\s*\(\s*' . $columnNamePattern
+            . '(?:\s+ASC)?\s*AUTOINCREMENT\s*\)/i';
+
+        return preg_match($tableConstraintPattern, $sql) === 1;
     }
 
     /**
