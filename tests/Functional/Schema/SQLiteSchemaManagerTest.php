@@ -730,23 +730,32 @@ SQL;
         yield 'Double-quoted name' => ['"id" INTEGER PRIMARY KEY AUTOINCREMENT'];
         yield 'Backtick-quoted name' => ['`id` INTEGER PRIMARY KEY AUTOINCREMENT'];
         yield 'Square-bracket-quoted name' => ['[id] INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Single-quoted name' => ["'id' INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Single-quoted name without space after it' => ["'id'INTEGER PRIMARY KEY AUTOINCREMENT"];
         yield 'Line comment before name' => ["-- the identifier\n    id INTEGER PRIMARY KEY AUTOINCREMENT"];
         yield 'Block comment before name' => ["/* the\n    identifier */ id INTEGER PRIMARY KEY AUTOINCREMENT"];
     }
 
-    public function testIntrospectColumnNamedLikeEndOfAutoIncrementColumnName(): void
+    #[DataProvider('autoIncrementColumnNameEndingWithColumnNameProvider')]
+    public function testIntrospectColumnNamedLikeEndOfAutoIncrementColumnName(string $autoIncrementColumnName): void
     {
         $this->dropTableIfExists('autoincrement_column_name');
-        $this->connection->executeStatement(<<<'SQL'
-            CREATE TABLE autoincrement_column_name (
-                user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                id INTEGER NOT NULL
-            )
-            SQL);
+        $this->connection->executeStatement(sprintf(
+            'CREATE TABLE autoincrement_column_name (%s INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, %s)',
+            $autoIncrementColumnName,
+            'id INTEGER NOT NULL',
+        ));
 
         $table = $this->schemaManager->introspectTableByUnquotedName('autoincrement_column_name');
 
         self::assertFalse($table->getColumn('id')->getAutoincrement());
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function autoIncrementColumnNameEndingWithColumnNameProvider(): iterable
+    {
+        yield 'Unquoted name' => ['user_id'];
+        yield 'Quoted name' => ['"user id"'];
     }
 
     public function testListTableNoSchemaEmulation(): void

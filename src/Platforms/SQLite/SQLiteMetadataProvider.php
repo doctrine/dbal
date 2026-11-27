@@ -253,6 +253,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
                 $this->platform->quoteSingleIdentifier($column),
                 '`' . str_replace('`', '``', $column) . '`',
                 '[' . $column . ']',
+                $this->platform->quoteStringLiteral($column),
             ],
         )) . ')';
     }
