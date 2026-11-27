@@ -17,6 +17,7 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTime;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
+use Doctrine\DBAL\Schema\DefaultExpression\SQLExpression;
 
 use function array_change_key_case;
 use function array_map;
@@ -25,6 +26,7 @@ use function explode;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
+use function is_numeric;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -194,7 +196,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
         } elseif ($this->platform instanceof MariaDBPlatform) {
             $columnDefault = $this->parseMariaDBColumnDefault($tableColumn['default']);
         } else {
-            $columnDefault = $this->parseMySQLColumnDefault($dbType, $tableColumn['default']);
+            $columnDefault = $this->parseMySQLColumnDefault($dbType, $tableColumn['default'], $tableColumn['extra']);
         }
 
         $options = [
@@ -234,13 +236,17 @@ class MySQLSchemaManager extends AbstractSchemaManager
     }
 
     /** @link https://dev.mysql.com/doc/refman/8.4/en/timestamp-initialization.html */
-    private function parseMySQLColumnDefault(string $type, string $default): string|DefaultExpression
+    private function parseMySQLColumnDefault(string $type, string $default, string $extra): string|DefaultExpression
     {
         // There is no way to tell whether the "CURRENT_TIMESTAMP" value represents a string or an expression in MySQL
         // schema introspection results. We rely on the fact that the "CURRENT_TIMESTAMP" expression is only supported
         // for the "DATETIME" and "TIMESTAMP" data types and represent this value as an expression only in these cases.
         if (($type === 'datetime' || $type === 'timestamp') && $default === 'CURRENT_TIMESTAMP') {
             return new CurrentTimestamp();
+        }
+
+        if (str_contains($extra, 'DEFAULT_GENERATED') && $default !== $this->platform->getCurrentTimestampSQL()) {
+            return new SQLExpression(sprintf('(%s)', $default));
         }
 
         return $default;
@@ -272,11 +278,15 @@ class MySQLSchemaManager extends AbstractSchemaManager
             return strtr($matches[1], self::MARIADB_ESCAPE_SEQUENCES);
         }
 
+        if (is_numeric($columnDefault)) {
+            return $columnDefault;
+        }
+
         return match ($columnDefault) {
             'current_timestamp()' => new CurrentTimestamp(),
             'curdate()' => new CurrentDate(),
             'curtime()' => new CurrentTime(),
-            default => $columnDefault,
+            default => new SQLExpression($columnDefault),
         };
     }
 
