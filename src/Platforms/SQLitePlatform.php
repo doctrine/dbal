@@ -679,7 +679,9 @@ class SQLitePlatform extends AbstractPlatform
 
     private function getTableNameKey(OptionallyQualifiedName $tableName): string
     {
-        return $tableName->getUnqualifiedName()->toNormalizedValue($this->getUnquotedIdentifierFolding());
+        return strtolower(
+            $tableName->getUnqualifiedName()->toNormalizedValue($this->getUnquotedIdentifierFolding()),
+        );
     }
 
     /** @deprecated */

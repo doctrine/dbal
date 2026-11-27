@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\SQL\Builder;
 
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -11,7 +12,6 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
-use PHPUnit\Framework\Attributes\TestWith;
 
 use function strtolower;
 
@@ -38,15 +38,62 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
         self::assertFalse($schemaManager->tablesExist(['t2']));
     }
 
-    #[TestWith([false])]
-    #[TestWith([true])]
-    public function testDropTablesReferencedByPopulatedTable(bool $isReferencingTableSelfReferencing): void
+    public function testDropTablesReferencedByPopulatedTable(): void
     {
-        $this->dropTableIfExists('book');
-        $this->dropTableIfExists('author');
+        $this->dropTablesReferencedByPopulatedTable(
+            $this->createAuthorTable('author'),
+            $this->createBookTable('author'),
+        );
+    }
 
-        $author = Table::editor()
-            ->setUnquotedName('author')
+    public function testDropTablesReferencedBySelfReferencingPopulatedTable(): void
+    {
+        $book = $this->createBookTable('author');
+        $book->addForeignKeyConstraint('book', ['previous_book_id'], ['id']);
+
+        $this->dropTablesReferencedByPopulatedTable($this->createAuthorTable('author'), $book);
+    }
+
+    public function testDropTablesReferencedByPopulatedTableUsingDifferentCase(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
+            self::markTestSkipped('This test covers the case-insensitive matching of table names on SQLite.');
+        }
+
+        $this->dropTablesReferencedByPopulatedTable(
+            $this->createAuthorTable('Author'),
+            $this->createBookTable('author'),
+        );
+    }
+
+    private function dropTablesReferencedByPopulatedTable(Table $author, Table $book): void
+    {
+        $authorTableName = $author->getName();
+
+        $this->dropTableIfExists('book');
+        $this->dropTableIfExists($authorTableName);
+
+        $schema = Schema::editor()
+            ->setTables($author, $book)
+            ->create();
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createSchemaObjects($schema);
+
+        $this->connection->insert($authorTableName, ['id' => 1]);
+        $this->connection->insert('book', ['id' => 1, 'author_id' => 1]);
+
+        $schemaManager->dropSchemaObjects($schema);
+
+        self::assertFalse($schemaManager->tablesExist([$authorTableName]));
+        self::assertFalse($schemaManager->tablesExist(['book']));
+    }
+
+    /** @param non-empty-string $name */
+    private function createAuthorTable(string $name): Table
+    {
+        return Table::editor()
+            ->setUnquotedName($name)
             ->setColumns(
                 Column::editor()
                     ->setUnquotedName('id')
@@ -59,8 +106,12 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
                     ->create(),
             )
             ->create();
+    }
 
-        $book = Table::editor()
+    /** @param non-empty-string $authorTableName */
+    private function createBookTable(string $authorTableName): Table
+    {
+        $table = Table::editor()
             ->setUnquotedName('book')
             ->setColumns(
                 Column::editor()
@@ -84,26 +135,9 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
             )
             ->create();
 
-        $book->addForeignKeyConstraint('author', ['author_id'], ['id']);
+        $table->addForeignKeyConstraint($authorTableName, ['author_id'], ['id']);
 
-        if ($isReferencingTableSelfReferencing) {
-            $book->addForeignKeyConstraint('book', ['previous_book_id'], ['id']);
-        }
-
-        $schema = Schema::editor()
-            ->setTables($author, $book)
-            ->create();
-
-        $schemaManager = $this->connection->createSchemaManager();
-        $schemaManager->createSchemaObjects($schema);
-
-        $this->connection->insert('author', ['id' => 1]);
-        $this->connection->insert('book', ['id' => 1, 'author_id' => 1]);
-
-        $schemaManager->dropSchemaObjects($schema);
-
-        self::assertFalse($schemaManager->tablesExist(['author']));
-        self::assertFalse($schemaManager->tablesExist(['book']));
+        return $table;
     }
 
     /**
