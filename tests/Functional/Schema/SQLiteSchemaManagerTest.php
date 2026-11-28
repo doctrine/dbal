@@ -732,6 +732,8 @@ SQL;
         yield 'Square-bracket-quoted name' => ['[id] INTEGER PRIMARY KEY AUTOINCREMENT'];
         yield 'Single-quoted name' => ["'id' INTEGER PRIMARY KEY AUTOINCREMENT"];
         yield 'Single-quoted name without space after it' => ["'id'INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Line comment before name' => ["-- the identifier\n    id INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Block comment before name' => ["/* the\n    identifier */ id INTEGER PRIMARY KEY AUTOINCREMENT"];
         yield 'After commented column' => ["name TEXT --the name\n, id INTEGER PRIMARY KEY AUTOINCREMENT"];
     }
 

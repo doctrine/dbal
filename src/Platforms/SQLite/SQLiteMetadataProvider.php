@@ -233,7 +233,7 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
     /** @link https://www.sqlite.org/autoinc.html#the_autoincrement_keyword */
     private function parseColumnAutoIncrementFromSQL(string $column, string $sql): bool
     {
-        $pattern = '/[(,]\s*' . $this->buildColumnNamePattern($column)
+        $pattern = '/(?<![\w$])' . $this->buildColumnNamePattern($column)
             . '\s*INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT/i';
 
         return preg_match($pattern, $sql) === 1;
