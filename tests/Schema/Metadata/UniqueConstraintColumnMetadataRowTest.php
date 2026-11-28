@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema\Metadata;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 use TypeError;
@@ -25,6 +26,7 @@ class UniqueConstraintColumnMetadataRowTest extends TestCase
             name: null,
             columnName: 'user_id',
             isClustered: false,
+            origin: ObjectOrigin::DECLARED,
         );
     }
 
@@ -38,6 +40,20 @@ class UniqueConstraintColumnMetadataRowTest extends TestCase
             id: null,
             name: 'orders_user_id_uq',
             columnName: 'user_id',
+        );
+    }
+
+    public function testCreateWithoutOrigin(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/7620');
+
+        new UniqueConstraintColumnMetadataRow(
+            schemaName: null,
+            tableName: 'orders',
+            id: null,
+            name: 'orders_user_id_uq',
+            columnName: 'user_id',
+            isClustered: false,
         );
     }
 

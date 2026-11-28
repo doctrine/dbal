@@ -25,6 +25,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -987,7 +988,9 @@ abstract class AbstractPlatform
 
         foreach ($table->getIndexes() as $index) {
             if (! $index->isPrimary()) {
-                $options['indexes'][] = $index;
+                if ($index->getOrigin() === ObjectOrigin::DECLARED) {
+                    $options['indexes'][] = $index;
+                }
 
                 continue;
             }
@@ -997,7 +1000,9 @@ abstract class AbstractPlatform
         }
 
         foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
-            $options['uniqueConstraints'][] = $uniqueConstraint;
+            if ($uniqueConstraint->getOrigin() === ObjectOrigin::DECLARED) {
+                $options['uniqueConstraints'][] = $uniqueConstraint;
+            }
         }
 
         if ($createForeignKeys) {

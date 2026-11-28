@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Closure;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\ObjectOrigin;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -345,5 +347,57 @@ class IndexTest extends TestCase
     {
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
         new Index('idx_user_name', ['user_id'], false, false, [$flag], ['where' => 'is_active = 1']);
+    }
+
+    public function testCreateDerivedIndexWithFlag(): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setIsClustered(true)
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        self::assertSame(ObjectOrigin::DERIVED, $index->getOrigin());
+    }
+
+    /** @param Closure(Index): Index $modify */
+    #[DataProvider('derivedIndexModificationProvider')]
+    public function testModifyDerivedIndex(bool $isClustered, Closure $modify): void
+    {
+        $index = Index::editor()
+            ->setUnquotedName('users_email_uq')
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedColumnNames('email')
+            ->setIsClustered($isClustered)
+            ->setOrigin(ObjectOrigin::DERIVED)
+            ->create();
+
+        self::assertSame(ObjectOrigin::DECLARED, $modify($index)->getOrigin());
+    }
+
+    /** @return iterable<string, array{bool, Closure(Index): Index}> */
+    public static function derivedIndexModificationProvider(): iterable
+    {
+        yield 'edit' => [false, static fn (Index $index): Index => $index->edit()->create()];
+
+        yield 'add flag' => [
+            false,
+            static function (Index $index): Index {
+                $index->addFlag('clustered');
+
+                return $index;
+            },
+        ];
+
+        yield 'remove flag' => [
+            true,
+            static function (Index $index): Index {
+                $index->removeFlag('clustered');
+
+                return $index;
+            },
+        ];
     }
 }

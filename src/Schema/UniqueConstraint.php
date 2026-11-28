@@ -65,6 +65,7 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         array $columns,
         array $flags = [],
         private readonly array $options = [],
+        private ObjectOrigin $origin = ObjectOrigin::DECLARED,
     ) {
         if (count($columns) < 1) {
             Deprecation::trigger(
@@ -92,6 +93,8 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         foreach ($flags as $flag) {
             $this->addFlag($flag);
         }
+
+        $this->origin = $origin;
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -230,6 +233,7 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         );
 
         $this->flags[strtolower($flag)] = true;
+        $this->origin                   = ObjectOrigin::DECLARED;
 
         return $this;
     }
@@ -259,6 +263,11 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         return $this->hasFlag('clustered');
     }
 
+    public function getOrigin(): ObjectOrigin
+    {
+        return $this->origin;
+    }
+
     /**
      * Removes a flag.
      *
@@ -274,6 +283,8 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
         );
 
         unset($this->flags[strtolower($flag)]);
+
+        $this->origin = ObjectOrigin::DECLARED;
     }
 
     /** @deprecated */
