@@ -25,6 +25,7 @@ use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
+use function array_diff;
 use function array_map;
 use function array_shift;
 use function array_values;
@@ -33,6 +34,20 @@ use function assert;
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     use VerifyDeprecations;
+
+    /** @var list<string> */
+    private array $analyzeTableNames = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->analyzeTableNames as $tableName) {
+            $this->schemaManager->dropTable($tableName);
+        }
+
+        $this->analyzeTableNames = [];
+
+        parent::tearDown();
+    }
 
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
@@ -282,9 +297,10 @@ SQL;
     }
 
     /**
-     * Makes SQLite create its internal tables and returns the name of one of them.
+     * Runs ANALYZE, which makes SQLite create its internal tables for statistics, and returns the name of one of them.
+     * The tables are dropped after the test.
      *
-     * @link https://www.sqlite.org/fileformat2.html#intschema
+     * @link https://www.sqlite.org/fileformat2.html#stat1tab
      *
      * @return non-empty-string
      */
@@ -301,19 +317,34 @@ SQL;
             ->create();
 
         $this->dropAndCreateTable($table);
+
+        $existingTableNames = $this->fetchInternalTableNames();
         $this->connection->executeStatement('ANALYZE');
 
-        $tableName = $this->connection->fetchOne(<<<'SQL'
+        $this->analyzeTableNames = array_values(
+            array_diff($this->fetchInternalTableNames(), $existingTableNames),
+        );
+
+        self::assertNotEmpty($this->analyzeTableNames);
+
+        $tableName = $this->analyzeTableNames[0];
+        self::assertNotSame('', $tableName);
+
+        return $tableName;
+    }
+
+    /** @return list<string> */
+    private function fetchInternalTableNames(): array
+    {
+        /** @var list<string> $tableNames */
+        $tableNames = $this->connection->fetchFirstColumn(<<<'SQL'
             SELECT name
             FROM sqlite_master
             WHERE type = 'table'
               AND name LIKE 'sqlite\_%' ESCAPE '\'
             SQL);
 
-        self::assertIsString($tableName);
-        self::assertNotSame('', $tableName);
-
-        return $tableName;
+        return $tableNames;
     }
 
     public function testPrimaryKeyAutoIncrement(): void
