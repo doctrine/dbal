@@ -28,6 +28,7 @@ use function array_map;
 use function array_shift;
 use function array_values;
 use function assert;
+use function sprintf;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -705,6 +706,58 @@ SQL;
         self::assertTrue($autoincrement1, 'Integer PKs are implicitly autoincrement');
         self::assertFalse($autoincrement2, 'Composite PKs cannot autoincrement');
         self::assertFalse($autoincrement3, 'Non-integer PKs cannot autoincrement');
+    }
+
+    #[DataProvider('autoIncrementColumnDeclarationProvider')]
+    public function testIntrospectAutoIncrementColumnDeclaration(string $columnDefinitions): void
+    {
+        $this->dropTableIfExists('autoincrement_declaration');
+        $this->connection->executeStatement(
+            sprintf('CREATE TABLE autoincrement_declaration (%s)', $columnDefinitions),
+        );
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('autoincrement_declaration');
+
+        self::assertTrue($table->getColumn('id')->getAutoincrement());
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function autoIncrementColumnDeclarationProvider(): iterable
+    {
+        yield 'Unquoted name' => ['id INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Multiple spaces after name' => ['id  INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Line break after name' => ["id\n    INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Double-quoted name' => ['"id" INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Backtick-quoted name' => ['`id` INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Square-bracket-quoted name' => ['[id] INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Single-quoted name' => ["'id' INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Single-quoted name without space after it' => ["'id'INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Line comment before name' => ["-- the identifier\n    id INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'Block comment before name' => ["/* the\n    identifier */ id INTEGER PRIMARY KEY AUTOINCREMENT"];
+        yield 'After commented column' => ["name TEXT --the name\n, id INTEGER PRIMARY KEY AUTOINCREMENT"];
+    }
+
+    #[DataProvider('columnNextToAutoIncrementColumnProvider')]
+    public function testIntrospectColumnNextToAutoIncrementColumn(string $columnDefinitions): void
+    {
+        $this->dropTableIfExists('autoincrement_neighbor');
+        $this->connection->executeStatement(
+            sprintf('CREATE TABLE autoincrement_neighbor (%s)', $columnDefinitions),
+        );
+
+        $table = $this->schemaManager->introspectTableByUnquotedName('autoincrement_neighbor');
+
+        self::assertFalse($table->getColumn('id')->getAutoincrement());
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function columnNextToAutoIncrementColumnProvider(): iterable
+    {
+        yield 'Name ending with the name' => ['user_id INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
+        yield 'Quoted name ending with the name' => ['"user id" INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
+        yield 'Name starting with the name' => ['identity INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
+        yield 'Following column' => ['id INTEGER, other_id INTEGER PRIMARY KEY AUTOINCREMENT'];
+        yield 'Name followed by the type' => ['idINTEGER INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER'];
     }
 
     public function testListTableNoSchemaEmulation(): void
