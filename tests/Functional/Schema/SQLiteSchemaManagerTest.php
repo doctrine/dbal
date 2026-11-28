@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -24,6 +25,7 @@ use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
+use function array_diff;
 use function array_map;
 use function array_shift;
 use function array_values;
@@ -32,6 +34,20 @@ use function assert;
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     use VerifyDeprecations;
+
+    /** @var list<string> */
+    private array $analyzeTableNames = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->analyzeTableNames as $tableName) {
+            $this->schemaManager->dropTable($tableName);
+        }
+
+        $this->analyzeTableNames = [];
+
+        parent::tearDown();
+    }
 
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
@@ -215,6 +231,120 @@ SQL;
 
         self::assertSame(Type::getType(Types::STRING), $foo->getType());
         self::assertSame(Type::getType(Types::TEXT), $bar->getType());
+    }
+
+    public function testIntrospectTableColumnsWithUntypedColumn(): void
+    {
+        $this->createTableWithUntypedColumn();
+
+        $columns = $this->schemaManager->introspectTableColumnsByUnquotedName('untyped_column');
+
+        self::assertCount(1, $columns);
+        self::assertSame(Types::BLOB, $columns[0]->getTypeName());
+    }
+
+    public function testIntrospectSchemaWithUntypedColumn(): void
+    {
+        $this->createTableWithUntypedColumn();
+
+        $column = $this->schemaManager->introspectSchema()
+            ->getTable('untyped_column')
+            ->getColumn('untyped');
+
+        self::assertSame(Types::BLOB, $column->getTypeName());
+    }
+
+    private function createTableWithUntypedColumn(): void
+    {
+        $this->dropTableIfExists('untyped_column');
+        $this->connection->executeStatement('CREATE TABLE untyped_column (untyped)');
+    }
+
+    public function testIntrospectTablesWithInternalTable(): void
+    {
+        $tableName = $this->createInternalTable();
+
+        self::assertNull($this->findObjectByShortestName($this->schemaManager->introspectTables(), $tableName));
+    }
+
+    public function testIntrospectSchemaWithInternalTable(): void
+    {
+        $tableName = $this->createInternalTable();
+
+        self::assertFalse($this->schemaManager->introspectSchema()->hasTable($tableName));
+    }
+
+    public function testTablesExistWithInternalTable(): void
+    {
+        $tableName = $this->createInternalTable();
+
+        self::assertFalse($this->schemaManager->tablesExist([$tableName]));
+    }
+
+    public function testIntrospectInternalTableColumns(): void
+    {
+        $tableName = $this->createInternalTable();
+
+        self::assertSame([], $this->schemaManager->introspectTableColumnsByUnquotedName($tableName));
+    }
+
+    public function testIntrospectInternalTable(): void
+    {
+        $tableName = $this->createInternalTable();
+
+        $this->expectException(TableDoesNotExist::class);
+        $this->schemaManager->introspectTable($tableName);
+    }
+
+    /**
+     * Runs ANALYZE, which makes SQLite create its internal tables for statistics, and returns the name of one of them.
+     * The tables are dropped after the test.
+     *
+     * @link https://www.sqlite.org/fileformat2.html#stat1tab
+     *
+     * @return non-empty-string
+     */
+    private function createInternalTable(): string
+    {
+        $table = Table::editor()
+            ->setUnquotedName('analyzed_table')
+            ->setColumns(
+                Column::editor()
+                    ->setUnquotedName('id')
+                    ->setTypeName(Types::INTEGER)
+                    ->create(),
+            )
+            ->create();
+
+        $this->dropAndCreateTable($table);
+
+        $existingTableNames = $this->fetchInternalTableNames();
+        $this->connection->executeStatement('ANALYZE');
+
+        $this->analyzeTableNames = array_values(
+            array_diff($this->fetchInternalTableNames(), $existingTableNames),
+        );
+
+        self::assertNotEmpty($this->analyzeTableNames);
+
+        $tableName = $this->analyzeTableNames[0];
+        self::assertNotSame('', $tableName);
+
+        return $tableName;
+    }
+
+    /** @return list<string> */
+    private function fetchInternalTableNames(): array
+    {
+        /** @var list<string> $tableNames */
+        $tableNames = $this->connection->fetchFirstColumn(<<<'SQL'
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name LIKE 'sqlite\_%' ESCAPE '\'
+            SQL);
+
+        return $tableNames;
     }
 
     public function testPrimaryKeyAutoIncrement(): void

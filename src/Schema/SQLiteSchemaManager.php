@@ -72,7 +72,13 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
-        $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $tableColumn['type'], $matches);
+        $declaredType = $tableColumn['type'];
+
+        if ($declaredType === '') {
+            $declaredType = 'BLOB';
+        }
+
+        $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $declaredType, $matches);
         assert($matchResult === 1);
 
         $dbType = strtolower($matches[1]);
@@ -377,7 +383,8 @@ SQL
 SELECT name AS table_name
 FROM sqlite_master
 WHERE type = 'table'
-  AND name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')
+  AND name NOT IN ('geometry_columns', 'spatial_ref_sys')
+  AND name NOT LIKE 'sqlite\_%' ESCAPE '\'
 UNION ALL
 SELECT name
 FROM sqlite_temp_master
@@ -618,7 +625,8 @@ SQL,
     {
         $conditions = [
             "t.type = 'table'",
-            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
+            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys')",
+            "t.name NOT LIKE 'sqlite\\_%' ESCAPE '\\'",
         ];
 
         if ($tableName !== null) {

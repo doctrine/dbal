@@ -160,6 +160,10 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
     {
         [$tableName, $columnName, $type, $notNull, $defaultExpression] = $row;
 
+        if ($type === '') {
+            $type = 'BLOB';
+        }
+
         $matchResult = preg_match('/^([A-Z\s]+?)(?:\s*\((\d+)(?:,\s*(\d+))?\))?$/i', $type, $matches);
         assert($matchResult === 1);
 
@@ -811,6 +815,10 @@ SQL,
 
     private function buildTableNamePredicate(string $columnName): string
     {
-        return sprintf("%s NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')", $columnName);
+        return sprintf(
+            "%s NOT IN ('geometry_columns', 'spatial_ref_sys') AND %s NOT LIKE 'sqlite\\_%%' ESCAPE '\\'",
+            $columnName,
+            $columnName,
+        );
     }
 }
